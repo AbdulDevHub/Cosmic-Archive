@@ -1,10 +1,8 @@
-# Cosmic Archive — Content Catalogue & Term Dump
+# Cosmic Archive: Content Catalogue
 
-**Purpose:** Preserve the owner's original topic list first, then every additional topic family introduced during brainstorming. This is a future idea bank, not a promise to include every term in the first release.
+**Purpose:** An idea bank. The owner's original topic list comes first, then topics added during brainstorming. Nothing here is a commitment. The v1 scope is the table in `PROJECT_BLUEPRINT.md` section 4; the inclusion rule and evidence statuses are in sections 5 and 6 of the same file. Apply both before any term becomes a page.
 
-## Term dump — project owner's list first, then additional ideas
-
-This is a parking-lot inventory for future exploration. It is deliberately broader than the current site's approved scope. Inclusion here does **not** mean a topic must be implemented, belongs in the first release, or is scientifically established. Use the scientific-status and inclusion rules above before turning any term into published content.
+## Term dump: the owner's list first, then additional ideas
 
 ### 1. Terms explicitly mentioned by the project owner
 
