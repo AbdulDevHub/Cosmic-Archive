@@ -14,8 +14,8 @@ Tick an item only when it is implemented and verified. Sessions are defined in `
 
 ## F1 Look prototype
 
-- [ ] `prototype/look.html` shows the hero, the chart and the zoom out.
-- [ ] Headless WebGL screenshots work (1440x900, 390x844).
+- [x] `prototype/look.html` shows the hero, the chart and the zoom out (`?stage=0|1|2`, `?t=` fixes time; scroll drives the zoom without the switches).
+- [x] Headless WebGL screenshots work (1440x900, 390x844); six stills in `prototype/shots/`. No console errors.
 - [ ] Owner approved the look.
 - [ ] Tokens in `DESIGN_SPEC.md` corrected to match.
 

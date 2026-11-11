@@ -29,7 +29,7 @@ The look is defined by `prototype/look.html` and `prototype/shots/`.
 
 ## Working rules
 
-- A visual change is not done until `npm run shots` screenshots (1440x900, 390x844, reduced motion) pass the checklist in `docs/DESIGN_SPEC.md` section 10.
+- A visual change is not done until `npm run shots` screenshots (1440x900, 390x844, reduced motion) pass the checklist in `docs/DESIGN_SPEC.md` section 11.
 - Check current Next.js and React Three Fiber docs (context7) before relying on an API from memory.
 - No new dependency without a line in `docs/DECISIONS.md` saying why.
 - Update `docs/PHASE_CHECKLIST.md` as items are verified; append to `docs/DECISIONS.md` when a decision changes.

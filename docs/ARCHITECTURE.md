@@ -163,5 +163,5 @@ Other data: `content/destinations.ts` (atlas beacons), `content/journeys/*.ts` (
 
 - `Verify: npm run check` (type check, lint, content check; under 60 s, no build).
 - `Verify-full: npm run build && npm run shots`.
-- Scene changes are checked by looking at `screenshots/` against `prototype/shots/` using the checklist in `DESIGN_SPEC.md` section 10.
+- Scene changes are checked by looking at `screenshots/` against `prototype/shots/` using the checklist in `DESIGN_SPEC.md` section 11.
 - Fallbacks are tested, not assumed: reduced-motion emulation (no loop), WebGL disabled (poster, page complete), CPU throttling (governor steps down), and a cold load of a no-scene route (no three request).

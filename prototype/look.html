@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cosmic Archive: look prototype</title>
+<!--
+  Throwaway look-and-feel check for the Living Atlas identity (docs/DESIGN_SPEC.md).
+  Not production code: plain three from a CDN, fonts from Google Fonts, 1px GL lines.
+  URL switches:  ?stage=0|1|2  fix the view (hero, chart, zoom out)   ?t=12  fix the time
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..500&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js"}}</script>
+<style>
+  :root {
+    --space: #090a1c;
+    --ink: #f4eee2;
+    --ink-2: #cdc6b8;
+    --beacon: #f5c56b;
+    --display: "Fraunces", Georgia, serif;
+    --text: "Hanken Grotesk", system-ui, sans-serif;
+    --gutter: clamp(20px, 6vw, 96px);
+  }
+  @supports (color: oklch(0 0 0)) {
+    :root {
+      --space: oklch(0.13 0.04 275);
+      --ink: oklch(0.95 0.02 85);
+      --ink-2: oklch(0.82 0.03 85);
+      --beacon: oklch(0.85 0.13 82);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--space); color: var(--ink); }
+  body { font: 400 17px/1.55 var(--text); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--beacon); outline-offset: 4px; }
+
+  #scene { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
+
+  .top {
+    position: fixed; z-index: 3; inset: 0 0 auto 0;
+    display: flex; align-items: center; gap: 32px;
+    padding: 22px var(--gutter);
+  }
+  .wordmark { font: 400 22px/1 var(--display); letter-spacing: 0.01em; text-decoration: none; margin-right: auto; }
+  .top nav { display: flex; gap: 28px; }
+  .top nav a { font-size: 15px; text-decoration: none; padding: 6px 0; border-bottom: 1px solid transparent; }
+  .top nav a:hover { border-bottom-color: var(--ink); }
+  .pause {
+    font: inherit; font-size: 15px; color: var(--ink); background: none; cursor: pointer;
+    border: 0; padding: 6px 0; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .pause i { width: 9px; height: 11px; border-left: 2px solid var(--ink); border-right: 2px solid var(--ink); }
+  .pause[aria-pressed="true"] i { width: 0; height: 0; border: 6px solid transparent; border-left: 10px solid var(--ink); border-right: 0; }
+
+  .track { height: 420vh; position: relative; z-index: 1; }
+  .stage { position: sticky; top: 0; height: 100vh; overflow: hidden; pointer-events: none; }
+  .stage a, .stage button { pointer-events: auto; }
+
+  .copy { position: absolute; left: var(--gutter); right: var(--gutter); opacity: 0; will-change: opacity; }
+  .copy::before {
+    content: ""; position: absolute; z-index: -1; inset: -90px -140px -160px -200px;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--space) 82%, transparent), transparent);
+  }
+  h1, h2 { font-family: var(--display); font-weight: 380; font-variation-settings: "opsz" 144; margin: 0; text-wrap: balance; }
+  h1 { font-size: clamp(2.9rem, 7vw, 6.5rem); line-height: 0.98; letter-spacing: -0.02em; }
+  h2 { font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1.05; letter-spacing: -0.015em; }
+  .copy p { margin: 22px 0 0; max-width: 31rem; color: var(--ink-2); font-size: clamp(1rem, 1.25vw, 1.2rem); }
+
+  .s0 { bottom: clamp(56px, 12vh, 128px); max-width: 44rem; }
+  .actions { display: flex; align-items: center; gap: 28px; margin-top: 34px; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; background: var(--ink); color: var(--space); text-decoration: none;
+    font-weight: 600; font-size: 16px; padding: 14px 22px; border-radius: 3px;
+  }
+  .btn:hover { background: var(--beacon); }
+  .link { font-size: 16px; text-decoration: none; border-bottom: 1px solid var(--ink); padding-bottom: 3px; }
+  .link:hover { color: var(--beacon); border-bottom-color: var(--beacon); }
+
+  .s1 { top: 50%; transform: translateY(-50%); max-width: 24rem; }
+  .s2 { bottom: 0; left: 0; right: 0; }
+  .s2::before { display: none; }
+  .s2 .words { padding: 0 var(--gutter) 34px; max-width: 46rem; }
+
+  /* The map margin: where ideas without a place on the map live, and the evidence legend. */
+  .margin {
+    border-top: 1px dashed color-mix(in srgb, var(--ink) 55%, transparent);
+    background: color-mix(in srgb, var(--space) 88%, transparent);
+    padding: 20px var(--gutter) 26px;
+    display: flex; gap: 40px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap;
+  }
+  .uncharted { display: flex; gap: 14px; align-items: flex-start; text-decoration: none; max-width: 34rem; }
+  .uncharted .ring { margin-top: 3px; border-style: dashed; flex: none; position: relative; left: 0; top: 0; }
+  .maplabel {
+    font: 500 11.5px/1.3 var(--text); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); white-space: nowrap;
+    /* the map-maker's halo: labels stay readable where they cross bright scenery */
+    text-shadow: 0 0 3px var(--space), 0 0 7px var(--space), 0 0 14px var(--space), 0 0 22px var(--space);
+  }
+  .note { display: block; font: italic 400 15px/1.35 var(--display); color: var(--ink-2); letter-spacing: 0; text-transform: none; white-space: normal; margin-top: 3px; }
+  .legend { display: flex; gap: 22px; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; }
+  .legend li { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-2); }
+  .legend svg { width: 40px; height: 6px; overflow: visible; }
+  .legend line { stroke: var(--ink); stroke-width: 1.25; }
+
+  /* Beacons: real links, positioned from the scene every frame. */
+  .beacon {
+    position: absolute; left: 0; top: 0; width: 0; height: 0; text-decoration: none;
+    opacity: 0; will-change: transform, opacity;
+  }
+  .beacon:focus-visible { outline: none; }
+  .beacon:focus-visible .maplabel { outline: 2px solid var(--beacon); outline-offset: 4px; }
+  .ring {
+    width: 17px; height: 17px; border-radius: 50%; border: 1px solid var(--beacon);
+    position: absolute; left: -8.5px; top: -8.5px;
+  }
+  .ring::after { content: ""; position: absolute; inset: 6px; border-radius: 50%; background: var(--beacon); }
+  /* leader line from the beacon out to its label, at whatever angle clears the scenery */
+  .lead {
+    position: absolute; left: 0; top: 0; height: 1px; width: var(--len); transform-origin: 0 50%; transform: rotate(var(--ang));
+    background: linear-gradient(90deg, transparent 11px, color-mix(in srgb, var(--ink) 60%, transparent) 11px);
+  }
+  .beacon .maplabel { position: absolute; left: var(--dx); top: var(--dy); padding-left: 9px; transform: translateY(-8px); }
+  .beacon .note { white-space: nowrap; }
+  .beacon .ring { background: color-mix(in srgb, var(--space) 62%, transparent); }
+  .beacon[data-side="left"] .maplabel { padding: 0 9px 0 0; text-align: right; transform: translate(-100%, -8px); }
+  .beacon:hover .maplabel, .beacon:focus-visible .maplabel { color: var(--beacon); }
+
+  .caption {
+    position: absolute; right: var(--gutter); bottom: 22px; margin: 0;
+    font: italic 400 13px/1 var(--display); color: var(--ink-2);
+  }
+  .hint {
+    position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%);
+    font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .hint::after { content: ""; width: 1px; height: 26px; background: var(--ink-2); }
+
+  @media (max-width: 720px) {
+    .top { gap: 18px; padding: 16px var(--gutter); }
+    .top nav { display: none; }
+    .s0 { bottom: 64px; }
+    .s1 { top: auto; bottom: 56px; transform: none; }
+    .copy::before { inset: -60px -40px -120px -40px; }
+    .hint { display: none; }
+    .caption { bottom: 14px; }
+    .margin { gap: 18px; padding-bottom: 20px; }
+    .legend { gap: 10px 18px; }
+    .s2 .words { padding-bottom: 22px; }
+    .beacon .note { white-space: normal; width: max-content; max-width: 150px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="scene" aria-hidden="true"></canvas>
+
+<header class="top">
+  <a class="wordmark" href="#">Cosmic Archive</a>
+  <nav aria-label="Main">
+    <a href="#">Explore</a><a href="#">Journeys</a><a href="#">Archive</a><a href="#">About</a>
+  </nav>
+  <button class="pause" id="pause" type="button" aria-pressed="false"><i aria-hidden="true"></i><span>Pause motion</span></button>
+</header>
+
+<main>
+  <div class="track">
+    <div class="stage">
+      <section class="copy s0" id="s0">
+        <h1>Explore the extraordinary.</h1>
+        <p>A living atlas of the universe, from the worlds around us to its deepest mysteries.</p>
+        <div class="actions">
+          <a class="btn" href="#">Begin exploring</a>
+          <a class="link" href="#">Browse the archive</a>
+        </div>
+      </section>
+
+      <section class="copy s1" id="s1">
+        <h2>Where would you like to go?</h2>
+        <p>This is a spiral galaxy, a city of stars like our own. Choose a beacon, or keep pulling back.</p>
+      </section>
+
+      <section class="copy s2" id="s2">
+        <div class="words">
+          <h2>Every point of light here is a galaxy.</h2>
+          <p>Pull back far enough and galaxies gather into a vast web of threads and empty voids.</p>
+        </div>
+        <div class="margin">
+          <a class="uncharted" href="#">
+            <span class="ring" aria-hidden="true"></span>
+            <span class="maplabel">Uncharted
+              <span class="note">Ideas with no place on the map yet: wormholes, extra dimensions, other universes.</span>
+            </span>
+          </a>
+          <ul class="legend" aria-label="How certainty is drawn">
+            <li><svg aria-hidden="true"><line x1="0" y1="3" x2="40" y2="3"/></svg>Observed</li>
+            <li><svg aria-hidden="true"><line x1="0" y1="3" x2="40" y2="3" stroke-dasharray="11 5"/></svg>Theoretical</li>
+            <li><svg aria-hidden="true"><line x1="0" y1="3" x2="40" y2="3" stroke-dasharray="4 4"/></svg>Hypothetical</li>
+            <li><svg aria-hidden="true"><line x1="0" y1="3" x2="40" y2="3" stroke-dasharray="0.1 5" stroke-linecap="round" style="stroke-width:2"/></svg>Speculative</li>
+          </ul>
+        </div>
+      </section>
+
+      <div id="beacons"></div>
+      <p class="caption" id="caption">Illustration, not to scale</p>
+      <div class="hint" id="hint">Scroll to pull back</div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import * as THREE from 'three';
+
+// ---------- switches ----------
+const q = new URLSearchParams(location.search);
+const fixedStage = q.has('stage') ? parseFloat(q.get('stage')) : null;
+const fixedT = q.has('t') ? parseFloat(q.get('t')) : null;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let paused = reduce;
+
+// ---------- deterministic random ----------
+let seed = 20261111;
+const rand = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const gauss = () => { const u = Math.max(rand(), 1e-9), v = rand(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(6.2831853 * v); };
+const TAU = Math.PI * 2, mix = (a, b, t) => a + (b - a) * t, clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const sstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+
+// ---------- palette (scenery only) ----------
+const C = {
+  white: [1.00, 0.96, 0.86], gold: [1.00, 0.78, 0.42], ember: [1.00, 0.46, 0.28], rose: [0.98, 0.34, 0.62],
+  violet: [0.52, 0.40, 1.00], azure: [0.28, 0.62, 1.00], teal: [0.30, 0.86, 0.82], ink: [0.957, 0.933, 0.886],
+};
+const mixC = (a, b, t) => [mix(a[0], b[0], t), mix(a[1], b[1], t), mix(a[2], b[2], t)];
+
+// ---------- renderer ----------
+const canvas = document.getElementById('scene');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+renderer.setClearColor(0x090a1c, 1);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(38, 1, 0.05, 30000);
+
+// ---------- one point shader for everything luminous ----------
+const POINT_VS = `
+attribute vec3 aColor; attribute float aSize; attribute float aSeed;
+uniform float uTime, uPx, uSpin, uTwinkle, uMaxPx, uAtten;
+varying vec3 vColor; varying float vA;
+void main(){
+  vec3 p = position;
+  float a = uTime * uSpin, c = cos(a), s = sin(a);
+  p.xz = vec2(c * p.x + s * p.z, -s * p.x + c * p.z);
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  gl_Position = projectionMatrix * mv;
+  float px = mix(aSize * uPx, aSize * uPx / max(-mv.z, 0.001), uAtten);
+  float tw = 1.0 - uTwinkle * (0.5 + 0.5 * sin(uTime * (1.0 + aSeed * 2.0) + aSeed * 60.0));
+  vA = tw * min(1.0, px * px);
+  gl_PointSize = clamp(px, 1.0, uMaxPx);
+  vColor = aColor;
+}`;
+const POINT_FS = `
+precision highp float;
+uniform float uAlpha, uSoft;
+varying vec3 vColor; varying float vA;
+void main(){
+  float d = length(gl_PointCoord - 0.5) * 2.0;
+  float a = pow(max(0.0, 1.0 - d), uSoft);
+  gl_FragColor = vec4(vColor * a * vA * uAlpha, 1.0);
+}`;
+function pointCloud(data, u) {
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(data.pos, 3));
+  g.setAttribute('aColor', new THREE.BufferAttribute(data.col, 3));
+  g.setAttribute('aSize', new THREE.BufferAttribute(data.size, 1));
+  g.setAttribute('aSeed', new THREE.BufferAttribute(data.seed, 1));
+  const m = new THREE.ShaderMaterial({
+    vertexShader: POINT_VS, fragmentShader: POINT_FS,
+    uniforms: {
+      uTime: { value: 0 }, uPx: { value: 1 }, uSpin: { value: u.spin ?? 0 }, uTwinkle: { value: u.twinkle ?? 0 },
+      uMaxPx: { value: u.maxPx ?? 64 }, uAtten: { value: u.atten ?? 1 }, uAlpha: { value: u.alpha ?? 1 }, uSoft: { value: u.soft ?? 1.6 },
+    },
+    transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending,
+  });
+  const p = new THREE.Points(g, m); p.frustumCulled = false; p.userData.baseAlpha = u.alpha ?? 1; p.userData.maxPx = u.maxPx ?? 64;
+  return p;
+}
+function alloc(n) { return { pos: new Float32Array(n * 3), col: new Float32Array(n * 3), size: new Float32Array(n), seed: new Float32Array(n), n: 0 }; }
+function put(d, x, y, z, c, s) { const i = d.n++; d.pos.set([x, y, z], i * 3); d.col.set(c, i * 3); d.size[i] = s; d.seed[i] = rand(); }
+
+// ---------- level 1: the galaxy ----------
+const SPIN = 0.018;                      // rigid pattern rotation, radians per second
+const WIND = 3.1, R0 = 0.11;             // log-spiral winding
+const ARMS = [0, Math.PI, Math.PI * 0.5, Math.PI * 1.5], ARM_W = [0.33, 0.66, 0.83, 1.0];
+const armAngle = (arm, r) => ARMS[arm] + WIND * Math.log(r / R0);
+const GAL_R = 1.16;
+
+function discColor(t, knot) {
+  // t = radius 0..1: gold heart, ember and rose mid-disc, violet, azure, a teal rim
+  let c = t < 0.16 ? mixC(C.gold, C.ember, t / 0.16)
+        : t < 0.36 ? mixC(C.ember, C.rose, (t - 0.16) / 0.20)
+        : t < 0.58 ? mixC(C.rose, C.violet, (t - 0.36) / 0.22)
+        : t < 0.84 ? mixC(C.violet, C.azure, (t - 0.58) / 0.26)
+        : mixC(C.azure, C.teal, clamp((t - 0.84) / 0.16, 0, 1));
+  if (knot === 1) c = mixC(c, C.rose, 0.75);
+  if (knot === 2) c = mixC(c, [0.75, 0.88, 1.0], 0.8);
+  if (knot === 3) c = mixC(c, C.teal, 0.8);
+  return c;
+}
+function buildGalaxy(n) {
+  const knots = 260, d = alloc(n + knots);
+  for (let i = 0; i < n; i++) {
+    if (rand() < 0.11) {                                   // bulge
+      const r = Math.abs(gauss()) * 0.105, th = rand() * TAU, c = mixC(C.white, C.gold, clamp(r / 0.16, 0, 1));
+      put(d, r * Math.cos(th), gauss() * 0.045 * Math.exp(-r * 5), r * Math.sin(th), [c[0] * 0.55, c[1] * 0.55, c[2] * 0.55], 0.7 + rand() * 1.2);
+      continue;
+    }
+    const r = 0.1 - Math.log(1 - rand() * 0.93) * 0.40;    // exponential disc
+    let x, z, dim = 1;
+    if (rand() < 0.84) {                                   // on an arm
+      const a = rand(), arm = a < ARM_W[0] ? 0 : a < ARM_W[1] ? 1 : a < ARM_W[2] ? 2 : 3;
+      const th = armAngle(arm, r), sig = (arm > 1 ? 0.016 : 0.022) + 0.055 * r;
+      x = r * Math.cos(th) + gauss() * sig; z = r * Math.sin(th) + gauss() * sig;
+      if (arm > 1) dim = 0.72;
+    } else {                                               // thin old disc between the arms
+      const th = rand() * TAU; x = r * Math.cos(th); z = r * Math.sin(th); dim = 0.36;
+    }
+    const k = rand(), knot = k < 0.04 ? 1 : k < 0.10 ? 2 : k < 0.125 ? 3 : 0;
+    const rr = Math.hypot(x, z) / GAL_R;
+    let c = discColor(rr + gauss() * 0.045, knot);
+    if (dim < 0.5) c = mixC(c, C.gold, 0.3);
+    const b = dim * (knot ? 1.5 : 0.75 + rand() * 0.5) * mix(0.38, 1.0, sstep(0.04, 0.5, rr)) * mix(1.0, 0.45, sstep(0.82, 1.05, rr));
+    put(d, x, gauss() * 0.011, z, [c[0] * b, c[1] * b, c[2] * b], (knot ? 1.5 : 0.55) + Math.pow(rand(), 3) * 2.3);
+  }
+  for (let i = 0; i < knots; i++) {                        // bold star-forming knots strung along the two main arms
+    const r = 0.22 + Math.pow(rand(), 0.7) * 0.78, th = armAngle(rand() < 0.5 ? 0 : 1, r) + gauss() * 0.03;
+    const c = discColor(r / GAL_R, rand() < 0.5 ? 1 : rand() < 0.6 ? 2 : 3);
+    put(d, r * Math.cos(th) + gauss() * 0.02, gauss() * 0.008, r * Math.sin(th) + gauss() * 0.02, c, 3.6 + rand() * 4.2);
+  }
+  return d;
+}
+function buildHaze(n) {                                    // big soft sprites: the painted glow, no bloom pass
+  const d = alloc(n);
+  for (let i = 0; i < n; i++) {
+    const r = 0.1 + Math.pow(rand(), 0.8) * 0.92, arm = rand() < 0.5 ? 0 : 1;
+    const th = armAngle(arm, r) + gauss() * 0.05, sig = 0.03 + 0.05 * r;
+    const c = discColor(clamp(r / GAL_R + gauss() * 0.06, 0, 1), rand() < 0.2 ? 1 : 0);
+    put(d, r * Math.cos(th) + gauss() * sig, gauss() * 0.01, r * Math.sin(th) + gauss() * sig, c, 26 + rand() * 46);
+  }
+  return d;
+}
+function buildCore() {
+  const d = alloc(2);
+  put(d, 0, 0, 0, C.gold, 125); put(d, 0, 0, 0, C.white, 34);
+  return d;
+}
+const STAR_R = 9000;
+function buildStars(n) {
+  const d = alloc(n);
+  for (let i = 0; i < n; i++) {
+    const u = rand() * 2 - 1, th = rand() * TAU, s = Math.sqrt(1 - u * u);
+    const k = rand(), c = k < 0.6 ? C.ink : k < 0.8 ? [0.72, 0.84, 1.0] : k < 0.93 ? C.gold : C.rose;
+    const b = 0.35 + Math.pow(rand(), 3) * 0.65;
+    put(d, STAR_R * s * Math.cos(th), STAR_R * u, STAR_R * s * Math.sin(th), [c[0] * b, c[1] * b, c[2] * b], 1.1 + Math.pow(rand(), 5) * 2.6);
+  }
+  return d;
+}
+function buildWash() {                                     // a few enormous, very faint colour fields far behind everything
+  const spots = [[0.75, 0.05, -1, C.violet, 900], [0.2, -0.55, -1, C.azure, 760], [-0.5, 0.25, -1, C.violet, 620], [1.1, -0.7, -0.6, C.rose, 700],
+                 [-0.1, -1.3, -0.5, C.azure, 820], [0.9, -1.5, -0.2, C.violet, 760], [-0.9, -1.2, -0.3, C.teal, 520]];
+  const d = alloc(spots.length);
+  for (const [x, y, z, c, s] of spots) { const v = new THREE.Vector3(x, y, z).normalize().multiplyScalar(STAR_R); put(d, v.x, v.y, v.z, c, s); }
+  return d;
+}
+
+// ---------- level 2: the cosmic web ----------
+let quasarPos = new THREE.Vector3();
+const WEB = { nodes: [[0, 0, 0]], edges: [] };
+{ // knots of the web, then threads between near neighbours
+  // a narrow screen sees a narrow slice, so build the web only as wide as the view needs
+  const narrow = innerWidth / innerHeight < 0.8, count = narrow ? 85 : 170, halfX = narrow ? 1700 : 3600;
+  for (let i = 1; i < count; i++) WEB.nodes.push([(rand() * 2 - 1) * halfX, (rand() * 2 - 1) * 420, (rand() * 2 - 1) * 3000]);
+  WEB.nodes.forEach((a, i) => {
+    WEB.nodes.map((b, j) => [j, Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])]).filter(e => e[0] !== i).sort((p, q2) => p[1] - q2[1]).slice(0, 3)
+      .forEach(([j]) => { if (!WEB.edges.some(e => (e[0] === j && e[1] === i))) WEB.edges.push([i, j]); });
+  });
+}
+const alongEdge = (jit) => {
+  const e = WEB.edges[(rand() * WEB.edges.length) | 0], a = WEB.nodes[e[0]], b = WEB.nodes[e[1]], t = rand();
+  const sag = Math.sin(t * Math.PI) * 60;                  // threads bow a little so the web is not a wireframe
+  return [mix(a[0], b[0], t) + gauss() * jit + sag * Math.sin(e[0]), mix(a[1], b[1], t) + gauss() * jit, mix(a[2], b[2], t) + gauss() * jit + sag * Math.cos(e[1])];
+};
+function buildWeb(n) {
+  const d = alloc(n);
+  while (d.n < n) {
+    let p, c, s;
+    if (rand() < 0.36) {                                   // clusters at the knots
+      const k = WEB.nodes[(rand() * WEB.nodes.length) | 0];
+      p = [k[0] + gauss() * 95, k[1] + gauss() * 70, k[2] + gauss() * 95];
+      c = mixC(C.gold, C.white, rand()); s = 1000 + Math.pow(rand(), 2) * 1700;
+    } else {                                               // galaxies strung along the threads
+      p = alongEdge(20);
+      c = mixC(C.violet, C.azure, rand()); const k = rand(); if (k < 0.14) c = C.rose; else if (k < 0.22) c = C.teal;
+      c = c.map(v => Math.min(1, v * 1.3)); s = 720 + Math.pow(rand(), 3) * 1300;
+    }
+    if (Math.hypot(p[0], p[1], p[2]) < 220) continue;
+    put(d, p[0], p[1], p[2], c, s);
+  }
+  return d;
+}
+function buildWebGlow(n) {                                 // soft light along threads and around knots
+  const d = alloc(n + WEB.nodes.length);
+  while (d.n < n) {
+    const p = alongEdge(10); if (Math.hypot(p[0], p[1], p[2]) < 380) continue;
+    put(d, p[0], p[1], p[2], mixC(C.violet, C.azure, rand()), 9000 + rand() * 9000);
+  }
+  WEB.nodes.forEach((k, i) => { if (i) put(d, k[0], k[1], k[2], mixC(C.gold, C.rose, rand() * 0.6).map(v => v * 1.5), 34000 + rand() * 24000); });
+  return d;
+}
+
+// ---------- assemble ----------
+const phone = () => innerWidth / innerHeight < 0.8;
+const lite = Math.min(innerWidth, innerHeight) < 600;
+const galaxy = new THREE.Group(); galaxy.rotation.z = -0.2; scene.add(galaxy);
+
+const wash = pointCloud(buildWash(), { atten: 0, alpha: 0.07, maxPx: 1024, soft: 2.2 });
+const stars = pointCloud(buildStars(lite ? 4500 : 9000), { atten: 0, twinkle: 0.35, maxPx: 8, alpha: 1.0, soft: 1.3 });
+const haze = pointCloud(buildHaze(lite ? 900 : 2200), { spin: SPIN, alpha: 0.05, soft: 2.0, maxPx: 1024 });
+const disc = pointCloud(buildGalaxy(lite ? 50000 : 150000), { spin: SPIN, twinkle: 0.15, alpha: 0.52, maxPx: 40 });
+const core = pointCloud(buildCore(), { alpha: 0.3, soft: 3.2, maxPx: 1024 });
+const webGlow = pointCloud(buildWebGlow(lite ? 3600 : 6000), { alpha: 0, maxPx: 1024, soft: 2.0 });
+const web = pointCloud(buildWeb(lite ? 26000 : 60000), { alpha: 0, twinkle: 0.1, maxPx: 12, soft: 1.4 });
+const homeDot = pointCloud((() => { const d = alloc(1); put(d, 0, 0, 0, C.gold, 9); return d; })(), { atten: 0, alpha: 0, maxPx: 12, soft: 2.2 });
+scene.add(wash, stars); galaxy.add(haze, disc, core); scene.add(webGlow, web, homeDot);
+const clouds = [wash, stars, haze, disc, core, webGlow, web, homeDot];
+
+// ---------- the ink ----------
+const INK = new THREE.Color(0xf4eee2), GOLD = new THREE.Color(0xf5c56b);
+const lineMat = (o) => { const m = new THREE.LineBasicMaterial({ color: INK, transparent: true, opacity: o, depthTest: false }); m.userData.base = o; return m; };
+const RING = 1.34;
+function ring(r, o) {
+  const pts = []; for (let i = 0; i < 360; i++) { const a = i / 360 * TAU; pts.push(new THREE.Vector3(r * Math.cos(a), 0, r * Math.sin(a))); }
+  return new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts), lineMat(o));
+}
+function ticks(r, o) {
+  const pts = [];
+  for (let i = 0; i < 72; i++) { const a = i / 72 * TAU, len = i % 6 === 0 ? 0.075 : 0.03; pts.push(new THREE.Vector3(r * Math.cos(a), 0, r * Math.sin(a)), new THREE.Vector3((r + len) * Math.cos(a), 0, (r + len) * Math.sin(a))); }
+  return new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), lineMat(o));
+}
+const axis = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints([
+  new THREE.Vector3(-1.8, 0, 0), new THREE.Vector3(-0.3, 0, 0), new THREE.Vector3(0.3, 0, 0), new THREE.Vector3(1.8, 0, 0),
+  new THREE.Vector3(-1.8, 0, -0.04), new THREE.Vector3(-1.8, 0, 0.04), new THREE.Vector3(1.8, 0, -0.04), new THREE.Vector3(1.8, 0, 0.04),
+]), lineMat(0.22));
+const ink = [ring(RING, 0.6), ticks(RING, 0.5), ring(0.5, 0.22), ring(1.8, 0.18), axis];
+ink.forEach(l => { l.frustumCulled = false; galaxy.add(l); });
+
+// The trail: peels off the outer ring and ends at the vessel. Same ink, brighter toward the ship.
+const trailMat = new THREE.ShaderMaterial({
+  vertexShader: `attribute float aU; varying float vU; void main(){ vU = aU; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `precision highp float; uniform vec3 uInk, uGold; uniform float uAlpha; varying float vU;
+    void main(){ gl_FragColor = vec4(mix(uInk, uGold, pow(vU, 3.0)), mix(0.5, 1.0, pow(vU, 1.5)) * uAlpha);
+      #include <colorspace_fragment>
+    }`,
+  uniforms: { uInk: { value: INK }, uGold: { value: GOLD }, uAlpha: { value: 1 } }, transparent: true, depthTest: false,
+});
+const trail = new THREE.Line(new THREE.BufferGeometry(), trailMat); trail.frustumCulled = false; galaxy.add(trail);
+const vessel = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ color: INK, transparent: true, depthTest: false, side: THREE.DoubleSide }));
+{ const L = 0.023, W = 0.0066, H = 0.0048;
+  vessel.geometry.setFromPoints([new THREE.Vector3(L, 0, 0), new THREE.Vector3(-L * 0.55, 0, W), new THREE.Vector3(-L * 0.3, H, 0), new THREE.Vector3(-L * 0.55, 0, -W)]);
+  vessel.geometry.setIndex([0, 1, 2, 0, 2, 3, 0, 3, 1, 1, 3, 2]); }
+vessel.frustumCulled = false; galaxy.add(vessel);
+const engine = pointCloud((() => { const d = alloc(1); put(d, 0, 0, 0, C.gold, 10); return d; })(), { atten: 0, alpha: 0.9, maxPx: 16, soft: 2.4 });
+galaxy.add(engine);
+
+// ---------- camera rig: one zoom scalar, 0 hero, 1 chart, 2 cosmic web ----------
+const KEYS_DESK = [{ d: 2.75, el: 21, az: 0.0, sx: 0.27, sy: 0.17 }, { d: 4.1, el: 50, az: 0.22, sx: 0.25, sy: 0.0 }, { d: 2600, el: 55, az: 0.55, sx: 0.0, sy: 0.10 }];
+const KEYS_PHONE = [{ d: 4.1, el: 24, az: 0.0, sx: 0.0, sy: 0.34 }, { d: 9.0, el: 54, az: 0.22, sx: 0.0, sy: 0.17 }, { d: 3000, el: 60, az: 0.55, sx: 0.0, sy: 0.2 }];
+function placeCamera(z) {
+  const K = phone() ? KEYS_PHONE : KEYS_DESK, i = Math.min(1, Math.floor(z)), f = sstep(0, 1, z - i), a = K[i], b = K[i + 1];
+  const d = Math.exp(mix(Math.log(a.d), Math.log(b.d), f)), el = mix(a.el, b.el, f) * Math.PI / 180, az = mix(a.az, b.az, f);
+  camera.position.set(Math.sin(az) * Math.cos(el) * d, Math.sin(el) * d, Math.cos(az) * Math.cos(el) * d);
+  camera.lookAt(0, 0, 0);
+  camera.updateProjectionMatrix();
+  camera.projectionMatrix.elements[8] = -mix(a.sx, b.sx, f);   // lens shift: moves the subject without changing perspective
+  camera.projectionMatrix.elements[9] = -mix(a.sy, b.sy, f);
+  camera.updateMatrixWorld(true);
+}
+
+// Put the vessel where the composition wants it at the hero view, then draw the trail back to the ring.
+function layoutVessel() {
+  placeCamera(0); galaxy.updateMatrixWorld(true);
+  const ndc = phone() ? new THREE.Vector3(0.3, -0.04, 0) : new THREE.Vector3(0.14, -0.5, 0);
+  const depth = phone() ? 2.8 : 1.85;
+  // unproject by hand because of the lens shift
+  const e = camera.projectionMatrix.elements, zc = -depth;
+  const vx = (ndc.x + e[8]) * depth / e[0], vy = (ndc.y + e[9]) * depth / e[5];
+  const world = new THREE.Vector3(vx, vy, zc).applyMatrix4(camera.matrixWorld);
+  const end = galaxy.worldToLocal(world.clone());
+  // A spiral in the ring's own coordinates: leaves the ring tangentially, then eases to the vessel's radius and height.
+  const endAng = Math.atan2(end.z, end.x), endR = Math.hypot(end.x, end.z), sweep = 1.75;
+  const at = (s) => { const e = s * s * (3 - 2 * s), a = endAng - sweep * (1 - s), r = mix(RING, endR, e); return new THREE.Vector3(r * Math.cos(a), end.y * e * e, r * Math.sin(a)); };
+  const N = 240, pts = [], u = new Float32Array(N + 1);
+  for (let i = 0; i <= N; i++) { u[i] = i / N; pts.push(at(i / N)); }
+  trail.geometry.setFromPoints(pts); trail.geometry.setAttribute('aU', new THREE.BufferAttribute(u, 1));
+  const tan = at(1).sub(at(0.985)).normalize();
+  vessel.position.copy(end); vessel.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), tan);
+  engine.position.copy(end).addScaledVector(tan, -0.02);
+}
+
+// The quasar sits in the plane of the web, at the spot the zoomed-out composition wants it (a ray from the camera to that plane).
+{ camera.aspect = innerWidth / innerHeight; placeCamera(2);
+  const want = phone() ? [0.42, 0.55] : [0.4, -0.38], e = camera.projectionMatrix.elements;
+  const dir = new THREE.Vector3((want[0] + e[8]) / e[0], (want[1] + e[9]) / e[5], -1).transformDirection(camera.matrixWorld);
+  quasarPos.copy(camera.position).addScaledVector(dir, -camera.position.y / dir.y);
+}
+const quasarDot = pointCloud((() => { const d = alloc(1); put(d, quasarPos.x, quasarPos.y, quasarPos.z, [0.85, 0.94, 1.0], 11); return d; })(), { atten: 0, alpha: 0, maxPx: 14, soft: 2.0 });
+scene.add(quasarDot); clouds.push(quasarDot);
+
+// ---------- beacons: DOM links positioned from the scene ----------
+const nebR = 0.74, nebTh = armAngle(1, nebR);
+// off = where the label sits relative to its beacon (px, desktop / phone). Labels are led out of the bright disc.
+const BEACONS = [
+  { level: 1, label: 'Black holes', note: 'one waits at the core', local: [0, 0, 0], spin: true, off: [236, 178], offPhone: [14, 178] },
+  { level: 1, label: 'Nebulae', note: 'star nurseries in the arms', local: [nebR * Math.cos(nebTh), 0, nebR * Math.sin(nebTh)], spin: true, off: [-96, 168], offPhone: [8, 92] },
+  { level: 1, label: 'Galaxies', note: 'the whole island of stars', local: [RING * Math.cos(-1.0), 0, RING * Math.sin(-1.0)], off: [-52, 0], offPhone: [-24, 0] },
+  { level: 2, label: 'Quasars', note: 'blazing hearts of far-off galaxies', world: quasarPos, off: [52, 0], offPhone: [24, 0], flip: true },
+  { level: 2, label: 'Where you started', note: 'one galaxy among countless others', world: new THREE.Vector3(0, 0, 0), off: [-52, 0], offPhone: [-24, 0] },
+];
+const holder = document.getElementById('beacons');
+BEACONS.forEach(b => {
+  const a = document.createElement('a'); a.className = 'beacon'; a.href = '#';
+  a.innerHTML = `<span class="ring" aria-hidden="true"></span><span class="lead" aria-hidden="true"></span><span class="maplabel">${b.label}<span class="note">${b.note}</span></span>`;
+  holder.appendChild(a); b.el = a;
+});
+function setOffset(b, flip) {
+  const o = phone() ? b.offPhone : b.off, k = phone() ? 1 : clamp(innerWidth / 1200, 0.6, 1);
+  const dx = o[0] * k * (flip ? -1 : 1), dy = o[1] * k, key = dx + ',' + dy;
+  if (b.key === key) return; b.key = key;
+  const s = b.el.style;
+  s.setProperty('--dx', dx + 'px'); s.setProperty('--dy', dy + 'px');
+  s.setProperty('--len', Math.hypot(dx, dy) + 'px'); s.setProperty('--ang', Math.atan2(dy, dx) + 'rad');
+  b.el.dataset.side = dx < 0 ? 'left' : 'right';
+}
+const v3 = new THREE.Vector3();
+function placeBeacons(t, o1, o2) {
+  const ang = t * SPIN, c = Math.cos(ang), s = Math.sin(ang);
+  for (const b of BEACONS) {
+    if (b.world) v3.copy(b.world);
+    else { const [x, y, z] = b.local; b.spin ? v3.set(c * x + s * z, y, -s * x + c * z) : v3.set(x, y, z); galaxy.localToWorld(v3); }
+    v3.project(camera);
+    const o = b.level === 1 ? o1 : o2, on = o > 0.02 && v3.z < 1;
+    b.el.style.opacity = on ? o : 0; b.el.style.visibility = on ? 'visible' : 'hidden';
+    const sx = (v3.x * 0.5 + 0.5) * innerWidth;
+    setOffset(b, b.flip && sx > innerWidth * (phone() ? 0.45 : 0.62));   // labels flip inward near the right edge
+    b.el.style.transform = `translate(${sx.toFixed(1)}px, ${((-v3.y * 0.5 + 0.5) * innerHeight).toFixed(1)}px)`;
+  }
+}
+
+// ---------- scroll drives zoom (never the other way round) ----------
+const track = document.querySelector('.track');
+function scrollZoom() {
+  const p = clamp(scrollY / (track.offsetHeight - innerHeight), 0, 1);
+  return p < 0.08 ? 0 : p < 0.38 ? (p - 0.08) / 0.30 : p < 0.52 ? 1 : p < 0.9 ? 1 + (p - 0.52) / 0.38 : 2;
+}
+let zoom = fixedStage ?? scrollZoom(), time = fixedT ?? 12, last = performance.now();
+
+const pauseBtn = document.getElementById('pause');
+const syncPause = () => { pauseBtn.setAttribute('aria-pressed', String(paused)); pauseBtn.querySelector('span').textContent = paused ? 'Play motion' : 'Pause motion'; };
+pauseBtn.addEventListener('click', () => { paused = !paused; syncPause(); }); syncPause();
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  renderer.setPixelRatio(dpr); renderer.setSize(innerWidth, innerHeight, false);
+  camera.aspect = innerWidth / innerHeight;
+  const px = 6 * dpr * innerHeight / 1000;
+  clouds.concat(engine).forEach(p => { p.material.uniforms.uPx.value = p.material.uniforms.uAtten.value ? px : dpr; p.material.uniforms.uMaxPx.value = p.userData.maxPx * dpr; });
+  layoutVessel();
+}
+addEventListener('resize', resize); resize();
+
+const el = id => document.getElementById(id);
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (fixedT === null && !paused) time += dt;
+  const target = fixedStage ?? scrollZoom();
+  zoom = fixedStage !== null || reduce ? target : zoom + (target - zoom) * Math.min(1, dt * 5);
+
+  placeCamera(zoom);
+  const o0 = 1 - sstep(0.12, 0.45, zoom), o1 = sstep(0.62, 0.9, zoom) * (1 - sstep(1.12, 1.38, zoom)), o2 = sstep(1.72, 1.95, zoom);
+  const l1 = 1 - sstep(1.25, 1.6, zoom);                       // level 1 ink and vessel
+  clouds.forEach(p => { p.material.uniforms.uTime.value = time; });
+  engine.material.uniforms.uTime.value = time;
+  const far = sstep(1.2, 1.7, zoom);
+  stars.material.uniforms.uAlpha.value = mix(1, 0.12, far);
+  wash.material.uniforms.uAlpha.value = 0.05 * (1 - far);
+  web.material.uniforms.uAlpha.value = 1.0 * sstep(1.35, 1.9, zoom);
+  webGlow.material.uniforms.uAlpha.value = 0.11 * sstep(1.6, 1.95, zoom);
+  homeDot.material.uniforms.uAlpha.value = 1.0 * sstep(1.6, 1.95, zoom);
+  quasarDot.material.uniforms.uAlpha.value = 1.0 * sstep(1.6, 1.95, zoom);
+  haze.material.uniforms.uAlpha.value = 0.05 * (1 - sstep(1.3, 1.7, zoom));
+  core.material.uniforms.uAlpha.value = 0.3 * (1 - sstep(1.3, 1.7, zoom));
+  const inkLevel = mix(0.72, 1, sstep(0.2, 0.9, zoom)) * l1;
+  ink.forEach(l => { l.material.opacity = l.material.userData.base * inkLevel; });
+  trailMat.uniforms.uAlpha.value = l1; vessel.material.opacity = l1; engine.material.uniforms.uAlpha.value = 0.9 * l1;
+
+  el('s0').style.opacity = o0; el('s1').style.opacity = o1; el('s2').style.opacity = o2;
+  el('s0').style.visibility = o0 > 0.02 ? 'visible' : 'hidden'; el('s1').style.visibility = o1 > 0.02 ? 'visible' : 'hidden'; el('s2').style.visibility = o2 > 0.02 ? 'visible' : 'hidden';
+  el('hint').style.opacity = o0; el('caption').style.opacity = 1 - o2;
+  placeBeacons(time, o1, o2);
+
+  renderer.render(scene, camera);
+  document.documentElement.dataset.ready = '1';
+  requestAnimationFrame(frame);
+}
+(document.fonts?.ready ?? Promise.resolve()).then(() => requestAnimationFrame(frame));
+</script>
+</body>
+</html>

@@ -127,7 +127,27 @@ Teaser copy (draft; verify each against a source before launch):
 - Visible focus rings in `--beacon`. Touch targets at least 44 px.
 - The page is complete and readable with the scene replaced by its still.
 
-## 10. Self-review checklist for screenshots
+## 10. What the prototype settled, and what it leaves open
+
+Settled by `prototype/look.html` (carry these into the app as they are):
+
+- The galaxy's colour sweep: gold heart, ember, rose, violet, azure, a teal rim. Soft additive points plus large faint sprites for glow; no bloom pass was needed.
+- Hero framing: the galaxy is cropped by the right edge so it reads as immense; the headline sits bottom left in the dark.
+- Chart framing: the whole outer ring fits to the right of the text column.
+- Labels inside the bright disc are led out on angled leader lines to dark space. Labels carry a dark halo (`text-shadow` in `--space`). Beacon rings have a dark fill so they read over bright scenery.
+- The map margin at the zoomed-out view: a dashed rule, the Uncharted entry with a dashed beacon ring, and the evidence legend drawn as line samples.
+- Phone: galaxy in the top half, copy in the bottom half, shorter leaders, notes allowed to wrap.
+
+Left open (prototype shortcuts that production must replace):
+
+- GL lines are one device pixel and cannot be styled. Production draws constant-width screen-space lines so dashes and weights are controllable.
+- Large glow sprites are `gl.POINTS`, which vanish when their centre leaves the screen and are size-capped on some phones. Production uses instanced quads.
+- Label offsets are hard-coded pixels. Production derives them from the projected disc radius and clamps labels to the viewport.
+- "Where you started" sits in a void. In production the home galaxy sits on a thread of the web.
+- The cosmic web is thin on a phone at the `low` particle budget. It needs a denser, smaller web volume for narrow screens.
+- The far tip of one arm is brighter than the rest in the hero. Taper it.
+
+## 11. Self-review checklist for screenshots
 
 Run this on every screenshot before calling a visual task done.
 

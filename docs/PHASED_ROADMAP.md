@@ -36,5 +36,5 @@ Theoretical Frontiers pages; more atlas levels (Solar System, Local Group, obser
 
 - One session, one item, one commit. Stop at the stop point.
 - Do not add a dependency for a later item.
-- A visual task is not done until its screenshots pass the checklist in `DESIGN_SPEC.md` section 10.
+- A visual task is not done until its screenshots pass the checklist in `DESIGN_SPEC.md` section 11.
 - Record changed decisions in `DECISIONS.md`; do not reopen settled ones.
