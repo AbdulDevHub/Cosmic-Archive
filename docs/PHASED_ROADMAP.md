@@ -1,21 +1,21 @@
 # Cosmic Archive: Roadmap
 
-**Status:** v2, 2026-11-11. Re-ordered: the scenes come first. Each numbered item is sized for one working session and ends with a commit. Progress is tracked in `PHASE_CHECKLIST.md`.
+**Status:** v3, 2026-11-11. Re-ordered: the scenes come first. Opus builds from F2 on. Each numbered item is sized for one working session and ends with a commit. Progress is tracked in `PHASE_CHECKLIST.md`.
 
-## Fable week (ends Sun Nov 16 2026)
+## Foundation
+
+F0 and F1 were done by Fable and are finished. The owner then moved Fable to another project (D-028), so Opus builds the rest, starting at F2. `OPUS_NEXT_WEEK_PROMPT.md` always describes the next session in detail; update it at every commit.
 
 | # | Session | Outcome | Acceptance |
 |---|---|---|---|
-| F0 | Re-plan | These docs, the decisions log, a short `CLAUDE.md`, first draft of the Opus prompt | Owner approved the plan |
-| F1 | Look prototype | `prototype/look.html`: hero and atlas look, type, palette | Owner approves the screenshots |
-| F2 | Scaffold | Next 16 app, tokens, fonts, header and footer shell, `check` / `shots` / `posters` scripts | `npm run check` and `npm run build` pass |
-| F3 | Scene system + atlas | `SceneHost`, `SceneSlot`, tiers, governor, fallbacks, pause; atlas Level 1 and 2, zoom, linework, vessel, beacon links; `/` hero and `/explore` | Fallback tests in `ARCHITECTURE.md` section 8 pass; screenshots match the prototype |
+| F0 | Re-plan (done) | These docs, the decisions log, a short `CLAUDE.md`, the Opus prompt | Owner approved the plan |
+| F1 | Look prototype (done) | `prototype/look.html`: hero and atlas look, type, palette | Owner approved the look, with Syne as the headline face |
+| F2 | Scaffold | Next 16 app, tokens, fonts, header and footer shell, hero copy and actions, `check` / `shots` / `posters` scripts | `npm run check` and `npm run build` pass; hero copy matches the prototype |
+| F3a | Scene system + the hero galaxy | `SceneHost`, `SceneSlot`, registry, store, tiers, governor, fallbacks, pause; atlas Level 1 at the hero view with linework, vessel and trail; `/` hero live | Fallback tests in `ARCHITECTURE.md` section 8 pass; hero screenshots match `prototype/shots/` |
+| F3b | Atlas chart, zoom out, Explore | Atlas Level 2, the scroll-driven zoom through all three stages, beacon links, list view, the map margin; `/explore` with free control | Chart and zoom-out screenshots match the prototype; every beacon is a working link |
 | F4 | Content model + Black Holes | MDX pipeline, content check, the Black Holes page with its live scene and sourced copy | `npm run check` fails when a source is removed; owner reads the copy |
-| F5 | If budget remains | Lower homepage sections | As O1 below |
 
-If Fable time runs out, the unfinished item becomes Opus's first session. `OPUS_NEXT_WEEK_PROMPT.md` is updated at every commit so this is always safe.
-
-## Opus sessions (one per session, in order)
+## Later sessions (one per session, in order)
 
 | # | Session | Outcome | Acceptance |
 |---|---|---|---|

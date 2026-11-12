@@ -17,8 +17,10 @@ Tick an item only when it is implemented and verified. Sessions are defined in `
 - [x] `prototype/look.html` shows the hero, the chart and the zoom out (`?stage=0|1|2`, `?t=` fixes time; scroll drives the zoom without the switches).
 - [x] Headless WebGL screenshots work (1440x900, 390x844); six stills in `prototype/shots/`. No console errors.
 - [x] Second round from the owner's notes: sans headline face (Jost, with Syne as the alternative), redrawn hero actions, bigger and fuller galaxy. Stills re-shot; `font-options.png` and `desktop-stage0-syne.png` added.
-- [ ] Owner approved the look and picked the headline face.
-- [ ] Tokens in `DESIGN_SPEC.md` corrected to match.
+- [x] Owner approved the look and picked the headline face: Syne (2026-11-11). Stills re-shot in Syne.
+- [x] Tokens and type in `DESIGN_SPEC.md` corrected to match and locked.
+
+Fable's part ends here (D-028). Everything below is built by Opus.
 
 ## F2 Scaffold
 
@@ -28,17 +30,21 @@ Tick an item only when it is implemented and verified. Sessions are defined in `
 - [ ] `check`, `shots`, `posters` scripts.
 - [ ] `npm run check` and `npm run build` pass.
 
-## F3 Scene system + atlas
+## F3a Scene system + the hero galaxy
 
 - [ ] `SceneHost`, `SceneSlot`, registry, store.
 - [ ] Tiers and frame-time governor.
 - [ ] Poster-first loading; `still` and `static` fallbacks; Pause motion control.
-- [ ] Atlas Level 1 (galaxy), linework, vessel and trail.
+- [ ] Atlas Level 1 (galaxy) at the hero view, linework, vessel and trail.
+- [ ] Fallback tests pass (reduced motion, no WebGL, throttled CPU, no three on a no-scene route).
+- [ ] Hero screenshots pass the design checklist against `prototype/shots/`.
+
+## F3b Atlas chart, zoom out and Explore
+
 - [ ] Atlas Level 2 (cosmic web) and the zoom between levels.
 - [ ] Beacons are real links; list view.
-- [ ] `/` hero wired to scroll; `/explore` with free control.
-- [ ] Fallback tests pass (reduced motion, no WebGL, throttled CPU, no three on a no-scene route).
-- [ ] Screenshots pass the design checklist.
+- [ ] `/` wired to scroll through all three stages; `/explore` with free control.
+- [ ] Chart and zoom-out screenshots pass the design checklist.
 
 ## F4 Content model + Black Holes
 

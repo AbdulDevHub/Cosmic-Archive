@@ -35,12 +35,12 @@ src/
 
 | Route | Scene | Status |
 |---|---|---|
-| `/` | `atlas`, scroll-driven | this week |
-| `/explore` | `atlas`, free control | this week |
-| `/subjects/[slug]` | per subject (`black-hole` first) | this week: `black-holes` |
-| `/archive` | none | Opus |
-| `/journeys/[slug]` | none in v1 | Opus |
-| `/about` | none | Opus |
+| `/` | `atlas`, scroll-driven | F2 (copy), F3a (hero scene), F3b (all stages) |
+| `/explore` | `atlas`, free control | F3b |
+| `/subjects/[slug]` | per subject (`black-hole` first) | F4: `black-holes` |
+| `/archive` | none | O1 |
+| `/journeys/[slug]` | none in v1 | O5 |
+| `/about` | none | O1 (a one-paragraph stub in F2) |
 
 All routes are static (`generateStaticParams` for dynamic segments). No server runtime, no API routes.
 
@@ -75,9 +75,11 @@ Scene time is a value passed in, never read from a clock inside a scene. That gi
 |---|---|---|---|---|
 | `static` | no WebGL2, `Save-Data`, or the governor gave up | poster only | 0 | n/a |
 | `still` | `prefers-reduced-motion` or motion paused | one frame, no loop | as the tier below | as below |
-| `low` | touch and small screen, or 4 cores or fewer, or 4 GB or less | 1.2 MP | 40k / 15k | additive sprites only |
-| `medium` | default | 2.3 MP | 90k / 35k | half-resolution bloom |
-| `high` | only after measured headroom on `medium` | 4 MP | 160k / 60k | half-resolution bloom |
+| `low` | touch and small screen, or 4 cores or fewer, or 4 GB or less | 1.2 MP | 40k / 15k | about 2,500 soft sprites |
+| `medium` | default | 2.3 MP | 90k / 35k | about 4,000 soft sprites |
+| `high` | only after measured headroom on `medium` | 4 MP | 160k / 60k | about 6,000 soft sprites |
+
+Glow is additive soft sprites (body, haze, dust, core, web glow); the prototype showed that no bloom pass is needed, so there is none. Large sprites cost fill rate, not vertices: if the governor needs a third step, halve the sprite count. The prototype was only ever run at the `high` counts on desktop and about a third of that on a phone; `medium` and `low` are untested and may need brighter points to look as full (the prototype raises point brightness when the count drops).
 
 The pixel budget sets the canvas resolution (`dpr = sqrt(budget / cssPixels)`, capped at the device ratio), so a large monitor and a phone are held to the same cost.
 
@@ -107,7 +109,9 @@ Targets: 60 fps on `medium` on an integrated-GPU laptop; 30 fps floor on `low` o
 
 ## 4. Atlas scene *(planned)*
 
-- **Levels.** `levels[]`, each with its own particle system and scale. Level 1: a spiral galaxy (points with a custom shader: warm core, coloured arms, dust lanes, differential rotation in the vertex shader). Level 2: the cosmic web (points along noise filaments; Level 1 collapses into one of them).
+- **Port, do not reinvent.** `prototype/look.html` is the approved look and its script is the reference implementation. Carry over as they are: the seeded random generator, the palette, `discColor`, `taper`, every `build*` function, the constants (`SPIN`, `WIND`, `R0`, `ARMS`, `GAL_R`, `RING`, `OUTER`, `SATELLITE`), the base strengths in `A`, the camera keys (`KEYS_DESK`, `KEYS_PHONE`) with their log-distance interpolation and lens shift, the fade ranges in `frame()`, and the trail spiral in `layoutVessel`. Change only what `DESIGN_SPEC.md` section 10 lists under "left open", and scale counts to the tier.
+- **Layers of the galaxy, in draw order:** background wash and stars; body glow, arm haze, halo, companion; the disc points; dust (sprites that darken what is behind them: blend source zero, destination one-minus-source-colour); core glow; ink lines; trail; vessel. Everything is additive except dust, so only dust depends on order.
+- **Levels.** `levels[]`, each with its own particle system and scale. Level 1: the spiral galaxy above, turning as a rigid pattern in the vertex shader. Level 2: the cosmic web (points and glow sprites along threads between near-neighbour nodes; the home galaxy must sit on a thread).
 - **One zoom scalar.** `zoom` in [0, 2]: 0 hero angle, 1 chart angle on Level 1, 2 Level 2. It drives the camera rig and the cross-fade between levels. On `/` it comes from scroll position through the store; on `/explore` from wheel, pinch, drag and keys. Adding a level means adding an entry and extending the range.
 - **Linework.** Rings, ticks and dashed lines drawn as screen-space quads so they stay one device pixel wide. Dash pattern is a uniform taken from the evidence status.
 - **Vessel and trail.** A tiny mesh built in code and a ribbon whose alpha fades along its length. On the hero the trail's far end joins the outer ring.

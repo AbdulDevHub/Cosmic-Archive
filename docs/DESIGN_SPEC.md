@@ -1,6 +1,6 @@
 # Cosmic Archive: Design Spec
 
-**Status:** v2, 2026-11-11. Site-wide visual language first, homepage second. Replaces the ChatGPT homepage spec v1.1.
+**Status:** v2, 2026-11-11. The look is approved by the owner. Site-wide visual language first, homepage second. Replaces the ChatGPT homepage spec v1.1.
 **Reference for the look:** `prototype/look.html` and the screenshots in `prototype/shots/`. When this document and the approved prototype disagree, the prototype wins and this document gets corrected.
 
 ## 1. The idea: a Living Atlas
@@ -31,7 +31,7 @@ These make the site generic or break the idea. Do not introduce them.
 
 ## 3. Colour
 
-Tokens live in `src/styles/tokens.css` in OKLCH. Values below are the starting set; the prototype locks them.
+Tokens live in `src/styles/tokens.css` in OKLCH. The owner approved the prototype on 2026-11-11, so these values are locked; copy them from the `:root` block of `prototype/look.html`.
 
 | Token | Value | Use |
 |---|---|---|
@@ -52,11 +52,11 @@ Rules:
 
 | Role | Face | Notes |
 |---|---|---|
-| Display | Jost, weight 300 (owner may pick Syne 600 instead; see D-026) | Headlines, subject titles, the wordmark (weight 400). No serif anywhere on the site |
+| Display | Syne, weight 600, letter-spacing -0.03em (owner's pick, D-026) | Headlines, subject titles, the wordmark. No serif anywhere on the site |
 | Text and UI | Hanken Grotesk | Body, navigation, buttons. Its italic is used for map notes and object names |
 | Map labels | Hanken Grotesk, uppercase, 11 to 12 px, letter-spacing 0.14em | Only on the chart, attached to a line or beacon. Never as a headline eyebrow |
 
-Scale: 1.25 ratio from a 17 px base; hero headline `clamp(3rem, 7vw, 6.75rem)` in Jost (Syne is wider, so `clamp(2.3rem, 6vw, 5.75rem)`). Body lines 45 to 75 characters. Paragraphs are short. The hero has one sentence under the headline.
+Scale: 1.25 ratio from a 17 px base; hero headline `clamp(2.3rem, 6vw, 5.75rem)`, section headline `clamp(1.75rem, 3.5vw, 3.1rem)`. Syne is wide, so check every headline at 390 px. Body lines 45 to 75 characters. Paragraphs are short. The hero has one sentence under the headline.
 
 ## 5. Linework
 
