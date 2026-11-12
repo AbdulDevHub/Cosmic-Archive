@@ -1,6 +1,6 @@
 # Cosmic Archive: prompt for the next Opus session
 
-**Last updated:** 2026-11-11, after session F1 (look prototype built; waiting for the owner to approve the look). Fable keeps this current after every commit. If you are reading this, Fable's access has ended or the owner chose to hand over; start from "Your session" below.
+**Last updated:** 2026-11-11, after the second look round in session F1 (sans headline, redrawn hero actions, bigger and fuller galaxy; waiting for the owner to approve the look and pick the headline face). Fable keeps this current after every commit. If you are reading this, Fable's access has ended or the owner chose to hand over; start from "Your session" below.
 
 You are Claude Opus 5.5, continuing Cosmic Archive alone. You have no memory of earlier sessions. Everything you need is in this file and the docs it names.
 
@@ -14,7 +14,8 @@ A living atlas of the universe: a Next.js site with real-time WebGL scenes behin
 |---|---|
 | `15e3478` | Snapshot of the original ChatGPT planning docs (history only; superseded) |
 | `825ef56` | F0 re-plan: rewritten docs in `docs/`, `CLAUDE.md`, `README.md`, this file |
-| latest (`git log -1`) | F1: `prototype/look.html` and six stills in `prototype/shots/` |
+| `8dae442` | F1: `prototype/look.html` and six stills in `prototype/shots/` |
+| latest (`git log -1`) | F1 second round: owner's notes applied to the prototype; `prototype/fonts.html` compares headline faces |
 
 `prototype/look.html` is a single file (plain three from a CDN) showing the three stages of the homepage scene: hero (`?stage=0`), chart (`?stage=1`), zoomed-out cosmic web (`?stage=2`). `?t=12` fixes the time. Without switches, scrolling drives the zoom. Open it by double-clicking; it needs internet for three and the fonts.
 
@@ -34,7 +35,7 @@ Not built yet: the app scaffold, the scene system, the atlas in the app, any pag
 
 ## Rules you must not change
 
-1. **The visual language.** Cosmos plus ink, the tiny vessel and its trail, line style as evidence, Fraunces and Hanken Grotesk, one UI accent. The bans in `DESIGN_SPEC.md` section 2 are absolute. Match the prototype's palette, type and line weights.
+1. **The visual language.** Cosmos plus ink, the tiny vessel and its trail, line style as evidence, a sans display face (Jost unless `DECISIONS.md` D-026 records that the owner picked Syne) with Hanken Grotesk, no serif, one UI accent. The bans in `DESIGN_SPEC.md` section 2 are absolute. Match the prototype's palette, type and line weights.
 2. **The architecture boundaries.** Only `src/scene/` imports three. Pages use `<SceneSlot>`. One persistent canvas. Content holds facts; components hold layout.
 3. **The budgets** in `ARCHITECTURE.md` section 3: tiers, pixel budgets, particle counts, bundle sizes, the governor thresholds.
 4. **The science process.** No fact from memory. Fetch the source, wrap the claim, record the checked date. Own illustrations only; link to real observations, never embed them.
@@ -49,7 +50,8 @@ If one of these seems wrong, do not work around it. Say so in your report and le
 - Create the Next.js 16 app in this folder (App Router, TypeScript strict, `src/` directory, `@/*` alias, npm, ESLint flat config, no Tailwind). Check the current Next.js docs through context7 first; do not rely on remembered flags. Keep the existing files (`docs/`, `prototype/`, `CLAUDE.md`, `README.md`, this file).
 - Folder layout exactly as `ARCHITECTURE.md` section 1. Create `src/scene/` with only a README stub saying what goes there; do not install three yet.
 - `src/styles/tokens.css` with the tokens from `DESIGN_SPEC.md` sections 3 and 4, values copied from the `:root` block of `prototype/look.html`.
-- Fonts through `next/font/google`: Fraunces (variable, with the `opsz` axis, normal and italic) and Hanken Grotesk.
+- Fonts through `next/font/google`: the display face from D-026 (Jost 300 and 400, or Syne 600 if the owner picked it) and Hanken Grotesk (400, 500, 600, and 400 italic).
+- The two hero actions exactly as in the prototype (`.go` and `.index` in `prototype/look.html`; described in `DESIGN_SPEC.md` section 7.2).
 - Root layout with the header (wordmark, nav showing only routes that exist, a Pause motion button that toggles a `data-motion` attribute on `<html>` and persists it) and a minimal footer. Copy the header's look from the prototype.
 - `/` renders the hero copy over a plain `--space` background (headline, supporting line, the two actions). No scene yet. "Begin exploring" and "Browse the archive" must not be dead links: render them only when their routes exist, or point both at an `/about` stub that says the atlas is being built.
 - Scripts: `check` (`tsc --noEmit && eslint .`), `shots` (a Playwright script that starts the built app, captures `/` at 1440x900, 390x844 and 1440x900 with reduced motion into `screenshots/`), `posters` (stub that exits 0 with a message for now).

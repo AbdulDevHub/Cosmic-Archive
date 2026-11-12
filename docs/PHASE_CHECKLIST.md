@@ -16,7 +16,8 @@ Tick an item only when it is implemented and verified. Sessions are defined in `
 
 - [x] `prototype/look.html` shows the hero, the chart and the zoom out (`?stage=0|1|2`, `?t=` fixes time; scroll drives the zoom without the switches).
 - [x] Headless WebGL screenshots work (1440x900, 390x844); six stills in `prototype/shots/`. No console errors.
-- [ ] Owner approved the look.
+- [x] Second round from the owner's notes: sans headline face (Jost, with Syne as the alternative), redrawn hero actions, bigger and fuller galaxy. Stills re-shot; `font-options.png` and `desktop-stage0-syne.png` added.
+- [ ] Owner approved the look and picked the headline face.
 - [ ] Tokens in `DESIGN_SPEC.md` corrected to match.
 
 ## F2 Scaffold

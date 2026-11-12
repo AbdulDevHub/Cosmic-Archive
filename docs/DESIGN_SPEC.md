@@ -52,11 +52,11 @@ Rules:
 
 | Role | Face | Notes |
 |---|---|---|
-| Display | Fraunces (variable) | Headlines and subject titles. Regular weight, large optical size. Italic for object names |
-| Text and UI | Hanken Grotesk | Body, navigation, buttons |
+| Display | Jost, weight 300 (owner may pick Syne 600 instead; see D-026) | Headlines, subject titles, the wordmark (weight 400). No serif anywhere on the site |
+| Text and UI | Hanken Grotesk | Body, navigation, buttons. Its italic is used for map notes and object names |
 | Map labels | Hanken Grotesk, uppercase, 11 to 12 px, letter-spacing 0.14em | Only on the chart, attached to a line or beacon. Never as a headline eyebrow |
 
-Scale: 1.25 ratio from a 17 px base; hero headline `clamp(2.75rem, 7vw, 6.5rem)`. Body lines 45 to 75 characters. Paragraphs are short. The hero has one sentence under the headline.
+Scale: 1.25 ratio from a 17 px base; hero headline `clamp(3rem, 7vw, 6.75rem)` in Jost (Syne is wider, so `clamp(2.3rem, 6vw, 5.75rem)`). Body lines 45 to 75 characters. Paragraphs are short. The hero has one sentence under the headline.
 
 ## 5. Linework
 
@@ -82,9 +82,12 @@ Wordmark "Cosmic Archive" in the display face, left. Text links right: Explore, 
 
 ### 7.2 Stage 1, the hero
 
-- The galaxy fills the upper right two thirds of the viewport, tilted, its core off-centre. A few faint rings and ticks around it.
-- The vessel is low in the frame, small, its trail curving up to join the outermost ring.
-- Bottom left, in the calmest part of the frame: headline **Explore the extraordinary.**, one line of support, a primary action **Begin exploring** (to `/explore`) and a text link **Browse the archive**.
+- The galaxy is close and overflows the frame: cropped by the right edge, its core right of centre, an outer arm reaching behind the headline. It must feel immense, so the pull-back in stage 3 has somewhere to go. The ticked ring arcs across the top.
+- The galaxy is full, not a sprinkle of dots: a soft glow under the whole disc, stars between the arms, dark dust lanes on the inner edge of the main arms, a halo of old stars, one small companion galaxy.
+- The vessel is low in the frame, small, its trail curving up to join the ticked ring.
+- Bottom left: headline **Explore the extraordinary.**, one line of support, and two actions. A dark scrim sits behind the copy where the arm passes.
+- **Begin exploring** (to `/explore`) is a small copy of the chart's ticked ring in `--beacon`, with an arrow inside and a tiny vessel circling it, then the words. On hover the ring fills gold, the arrow turns dark and the ticks turn a notch. The circling stops with Pause motion and reduced motion.
+- **Browse the archive** is an index mark (three ruled lines) and a ruled word.
 - Supporting line (draft): "A living atlas of the universe, from the worlds around us to its deepest mysteries."
 - Phone: the galaxy sits in the top half, the text in the bottom half, the vessel between them.
 
@@ -132,8 +135,10 @@ Teaser copy (draft; verify each against a source before launch):
 Settled by `prototype/look.html` (carry these into the app as they are):
 
 - The galaxy's colour sweep: gold heart, ember, rose, violet, azure, a teal rim. Soft additive points plus large faint sprites for glow; no bloom pass was needed.
-- Hero framing: the galaxy is cropped by the right edge so it reads as immense; the headline sits bottom left in the dark.
-- Chart framing: the whole outer ring fits to the right of the text column.
+- Hero framing (second round, after the owner asked for a bigger, fuller galaxy): camera close and high, the galaxy overflowing the top and right edges; the headline bottom left over a scrim.
+- Fullness comes from layers, not from more points (the point budget did not change): a body glow under the disc, haze on the arms, dust lanes drawn as sprites that darken what is behind them (blend: zero, one-minus-source-colour), a halo, a companion that does not turn with the disc. Arms fade toward the rim.
+- Chart framing: the ticked ring (radius 1.2 against a disc of about 1.0) sits to the right of the text column and may be cropped at the bottom.
+- The hero actions (ticked-ring button and index link), as described in section 7.2.
 - Labels inside the bright disc are led out on angled leader lines to dark space. Labels carry a dark halo (`text-shadow` in `--space`). Beacon rings have a dark fill so they read over bright scenery.
 - The map margin at the zoomed-out view: a dashed rule, the Uncharted entry with a dashed beacon ring, and the evidence legend drawn as line samples.
 - Phone: galaxy in the top half, copy in the bottom half, shorter leaders, notes allowed to wrap.
@@ -145,7 +150,8 @@ Left open (prototype shortcuts that production must replace):
 - Label offsets are hard-coded pixels. Production derives them from the projected disc radius and clamps labels to the viewport.
 - "Where you started" sits in a void. In production the home galaxy sits on a thread of the web.
 - The cosmic web is thin on a phone at the `low` particle budget. It needs a denser, smaller web volume for narrow screens.
-- The far tip of one arm is brighter than the rest in the hero. Taper it.
+- On a phone at the low point budget the galaxy's heart is a little dull. Give the bulge its own small bright layer.
+- Label positions clear the scenery only at the tested time and sizes. The disc turns, so production needs real collision avoidance.
 
 ## 11. Self-review checklist for screenshots
 
