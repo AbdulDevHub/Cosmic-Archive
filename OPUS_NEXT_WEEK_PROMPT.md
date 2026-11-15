@@ -21,7 +21,7 @@ A living atlas of the universe: a Next.js site with real-time WebGL scenes behin
 
 `prototype/look.html` is the approved look. It is one file (plain three from a CDN) showing the three stages of the homepage scene: hero (`?stage=0`), chart (`?stage=1`), zoomed-out cosmic web (`?stage=2`). `?t=12` fixes the time. Without switches, scrolling drives the zoom. It needs internet for three and the fonts. The six stills in `prototype/shots/` (`desktop-stage0..2.png`, `phone-stage0..2.png`) are the visual bar. `prototype/fonts.html` and `font-options.png` are a record of the font choice; ignore them.
 
-Built (F2): the Next.js app in `src/` (routes `/` and `/about`), `src/styles/tokens.css`, the header and footer, `src/lib/motion.ts` (Pause motion), `scripts/shots.mjs`. Not built: the scene system, the atlas in the app, any content page. Nothing has been pushed or deployed. Open with the owner: the first-load JS budget (D-030).
+Built (F2): the Next.js app in `src/` (routes `/` and `/about`), `src/styles/tokens.css`, the header and footer, `src/lib/motion.ts` (Pause motion), `scripts/shots.mjs`. Not built: the scene system, the atlas in the app, any content page. Nothing has been pushed or deployed.
 
 ## Read first, in this order
 
@@ -67,7 +67,7 @@ The hardest session. Do only this.
 - The hero is `src/app/page.tsx`: a `min-height: 100svh` section with the copy at the bottom left and the scrim (`.copy::before`) already behind it. F3b turns it into the sticky stage inside a tall scroll track; F3a does not need to.
 - The header is fixed and transparent until scroll. `<html data-motion>` is set before paint; the hero dot already obeys it.
 - `npm run shots` captures `/` at three views and fails on console errors, failed requests or horizontal overflow. Add `?shot=1&t=12` routes to its list for deterministic scene stills.
-- First-load JS is measured by gzipping every module script the built HTML in `.next/server/app/*.html` loads (skip the `noModule` polyfill). F2 measured 135 KB for `/` against a 130 KB budget; the owner has not decided yet (D-030). Report the same number for `/` and for a no-scene route after your work, plus the host+three+R3F chunk (220 KB budget) and the atlas chunk (40 KB).
+- First-load JS is measured by gzipping every module script the built HTML in `.next/server/app/*.html` loads (skip the `noModule` polyfill). F2 measured 135 KB for `/`; the budget is now 140 KB (D-033). Report the same number for `/` and for a no-scene route after your work, plus the host+three+R3F chunk (220 KB budget) and the atlas chunk (40 KB).
 
 **Acceptance**
 

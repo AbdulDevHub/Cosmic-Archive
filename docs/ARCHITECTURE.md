@@ -101,7 +101,7 @@ The pixel budget sets the canvas resolution (`dpr = sqrt(budget / cssPixels)`, c
 
 | What | Budget (gzip) |
 |---|---|
-| First-load JS on a route with no scene | 130 KB (measured 135 KB on the F2 scaffold; open with the owner, D-030) |
+| First-load JS on a route with no scene | 140 KB (raised from 130 KB by the owner, D-033; F2 measured 135 KB) |
 | Host + three + R3F chunk | 220 KB |
 | One scene's own chunk | 40 KB |
 
