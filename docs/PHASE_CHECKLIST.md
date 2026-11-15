@@ -24,11 +24,13 @@ Fable's part ends here (D-028). Everything below is built by Opus.
 
 ## F2 Scaffold
 
-- [ ] Next 16 app, TypeScript strict, ESLint flat config.
-- [ ] Folder boundaries from `ARCHITECTURE.md` in place.
-- [ ] `tokens.css`, fonts, header and footer shell.
-- [ ] `check`, `shots`, `posters` scripts.
-- [ ] `npm run check` and `npm run build` pass.
+- [x] Next 16 app (16.4.6, React 19.3), TypeScript strict, ESLint flat config.
+- [x] Folder boundaries from `ARCHITECTURE.md` in place (`src/scene/` holds only a README).
+- [x] `tokens.css`, fonts, header and footer shell; hero copy and both actions; `/about` stub.
+- [x] `check`, `shots`, `posters` scripts.
+- [x] `npm run check` and `npm run build` pass; `npm run shots` writes three screenshots with no console errors (2026-11-14).
+- [x] Hero copy, header and actions line up with `prototype/shots/*-stage0.png`; reduced motion stills the dot; hover fills the ring; focus rings show; Pause persists across reloads (Playwright, 2026-11-14).
+- [ ] **Open, for the owner:** first-load JS for `/` is 135 KB gzip against the 130 KB budget. Our own code is under 1 KB; Next 16.4 + React 19.3 alone is about 128 KB and `next/link` adds about 6 KB. See D-030.
 
 ## F3a Scene system + the hero galaxy
 

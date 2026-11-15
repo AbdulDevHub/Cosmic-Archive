@@ -14,3 +14,7 @@ screenshots/
 !.env.example
 .vercel/
 .claude/settings.local.json
+
+# next.js and typescript
+next-env.d.ts
+*.tsbuildinfo

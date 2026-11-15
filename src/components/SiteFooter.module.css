@@ -1,0 +1,42 @@
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--gap-3) var(--gap-7);
+  padding: var(--gap-6) var(--gutter) var(--gap-7);
+  border-top: var(--hairline) solid color-mix(in srgb, var(--ink) 20%, transparent);
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+.footer p {
+  margin: 0;
+}
+
+.mark {
+  font: var(--display-weight) 17px / 1 var(--font-display);
+  letter-spacing: 0.01em;
+  color: var(--ink);
+}
+
+.line {
+  margin-right: auto;
+}
+
+.nav {
+  display: flex;
+  gap: 28px;
+}
+
+.nav a {
+  display: inline-block;
+  padding: 10px 0;
+  color: var(--ink);
+  text-decoration-color: color-mix(in srgb, var(--ink) 50%, transparent);
+  text-underline-offset: 4px;
+}
+
+.nav a:hover {
+  color: var(--beacon);
+  text-decoration-color: var(--beacon);
+}

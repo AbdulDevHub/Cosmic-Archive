@@ -1,0 +1,92 @@
+/* Copied from .top in prototype/look.html. No background until the page scrolls (DESIGN_SPEC.md 7.1). */
+.top {
+  position: fixed;
+  z-index: 3;
+  inset: 0 0 auto 0;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 22px var(--gutter);
+  background: transparent;
+  transition: background-color var(--dur-fast) ease-out;
+}
+
+.top[data-scrolled] {
+  background: var(--space);
+}
+
+.wordmark {
+  font: var(--display-weight) 23px / 1 var(--font-display);
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  margin-right: auto;
+}
+
+.nav {
+  display: flex;
+  gap: 28px;
+}
+
+.nav a {
+  font-size: 15px;
+  text-decoration: none;
+  padding: 6px 0;
+  border-bottom: 1px solid transparent;
+}
+
+.nav a:hover,
+.nav a[aria-current="page"] {
+  border-bottom-color: var(--ink);
+}
+
+.pause {
+  font: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  background: none;
+  cursor: pointer;
+  border: 0;
+  padding: 6px 0;
+  min-height: var(--touch);
+  margin-block: -4px; /* 44 px touch target without moving the header off the prototype's line */
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Two bars while motion plays; a play triangle once paused. */
+.pause i {
+  width: 9px;
+  height: 11px;
+  border-left: 2px solid var(--ink);
+  border-right: 2px solid var(--ink);
+}
+
+:global(html[data-motion="paused"]) .pause i {
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  border-left: 10px solid var(--ink);
+  border-right: 0;
+}
+
+.whenPaused,
+:global(html[data-motion="paused"]) .whenOn {
+  display: none;
+}
+
+:global(html[data-motion="paused"]) .whenPaused {
+  display: inline;
+}
+
+@media (max-width: 720px) {
+  .top {
+    gap: 18px;
+    padding: 16px var(--gutter);
+  }
+
+  /* The prototype hides the nav on phones; the footer carries the same links. A menu button arrives with more routes. */
+  .nav {
+    display: none;
+  }
+}

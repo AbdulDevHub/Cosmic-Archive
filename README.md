@@ -2,7 +2,7 @@
 
 An immersive, educational atlas of the cosmos. Real-time scenes of galaxies, black holes and the cosmic web, drawn over with a map-maker's fine ink, and science pages where every claim is tied to a checked source.
 
-**Status:** in early development. The plan is in `docs/`; the look is being prototyped in `prototype/look.html`.
+**Status:** in early development. The plan is in `docs/`; the approved look is `prototype/look.html`. The app scaffold, header and hero copy are in place; the scenes are next.
 
 ## Ideas that shape it
 
@@ -28,11 +28,20 @@ Next.js 16 (App Router), React 19, TypeScript, CSS Modules, three with React Thr
 
 ## Running it
 
-The app scaffold is not in place yet. Once it is:
+Needs Node 20.9 or newer. `npm run dev` serves the site at http://localhost:3000.
 
 ```
 npm install
 npm run dev
 ```
+
+| Script | What it does |
+|---|---|
+| `npm run check` | Type check and lint (fast, no build) |
+| `npm run build` | Production build (every route is static) |
+| `npm run shots` | Starts the built app and screenshots each route at 1440x900, 390x844 and 1440x900 with reduced motion into `screenshots/` |
+| `npm run posters` | Renders scene stills into `public/posters/` (a stub until the scene system exists) |
+
+`npm run shots` uses Playwright's Chromium; run `npx playwright install chromium` once if it is missing.
 
 All imagery is original illustration. Nothing here is a telescope photograph.

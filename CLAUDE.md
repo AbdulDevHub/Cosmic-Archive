@@ -2,9 +2,9 @@
 
 A living atlas of the universe: real-time cosmic scenes with a map-maker's ink layer, and sourced science pages. Next.js 16, React 19, TypeScript, CSS Modules, three + React Three Fiber.
 
-Verify: none
+Verify: npm run check
 
-There is no app scaffold yet. When session F2 lands it, replace the line above with `npm run check` and add a second line, `Verify-full: npm run build && npm run shots`.
+Verify-full: npm run build && npm run shots
 
 ## Read first
 
