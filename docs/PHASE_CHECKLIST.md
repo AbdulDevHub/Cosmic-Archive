@@ -34,12 +34,14 @@ Fable's part ends here (D-028). Everything below is built by Opus.
 
 ## F3a Scene system + the hero galaxy
 
-- [ ] `SceneHost`, `SceneSlot`, registry, store.
-- [ ] Tiers and frame-time governor.
-- [ ] Poster-first loading; `still` and `static` fallbacks; Pause motion control.
-- [ ] Atlas Level 1 (galaxy) at the hero view, linework, vessel and trail.
-- [ ] Fallback tests pass (reduced motion, no WebGL, throttled CPU, no three on a no-scene route).
-- [ ] Hero screenshots pass the design checklist against `prototype/shots/`.
+- [x] `SceneHost`, `SceneSlot`, registry, store.
+- [x] Tiers and frame-time governor.
+- [x] Poster-first loading; `still` and `static` fallbacks; Pause motion control.
+- [x] Atlas Level 1 (galaxy) at the hero view, linework, vessel and trail.
+- [x] Fallback tests pass (reduced motion, no WebGL, throttled CPU, no three on a no-scene route): `npm run fallbacks`, 14 of 14 including going to another page and back (2026-11-16).
+- [x] Hero screenshots pass the design checklist against `prototype/shots/` (`screenshots/home-still-desktop.png` and `home-still-phone.png`, 2026-11-16).
+- [x] Budgets measured (gzip): first load 138.3 KB for `/` and 137.8 KB for `/about` (limit 140); host + three + R3F 185 KB (220); atlas chunk 11 KB (40); 19 draw calls a frame (30).
+- [ ] Not yet measured on real hardware: frame rate on an integrated-GPU laptop and on a mid-range phone. The automated runs use software WebGL, which only proves the governor reacts.
 
 ## F3b Atlas chart, zoom out and Explore
 

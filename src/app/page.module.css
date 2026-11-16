@@ -172,9 +172,22 @@
   border-bottom-color: var(--beacon);
 }
 
+.caption {
+  position: absolute;
+  right: var(--gutter);
+  bottom: 22px;
+  margin: 0;
+  font: italic 400 13px / 1 var(--font-text);
+  color: var(--ink-2);
+}
+
 @media (max-width: 720px) {
   .hero {
     padding-bottom: 56px;
+  }
+
+  .caption {
+    bottom: 14px;
   }
 
   .copy::before {

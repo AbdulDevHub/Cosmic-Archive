@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { motionInitScript } from "@/lib/motion";
+import { SceneHostLoader } from "@/scene/host/SceneHostLoader";
 import "./globals.css";
 
 /* Display: Syne 600 (D-026). Text and UI: Hanken Grotesk; its italic is for map notes. */
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         <a className="skip-link" href="#content">
           Skip to content
         </a>
+        <SceneHostLoader />
         <SiteHeader />
         <main id="content">{children}</main>
         <SiteFooter />

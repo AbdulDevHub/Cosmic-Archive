@@ -40,7 +40,8 @@ npm run dev
 | `npm run check` | Type check and lint (fast, no build) |
 | `npm run build` | Production build (every route is static) |
 | `npm run shots` | Starts the built app and screenshots each route at 1440x900, 390x844 and 1440x900 with reduced motion into `screenshots/` |
-| `npm run posters` | Renders scene stills into `public/posters/` (a stub until the scene system exists) |
+| `npm run posters` | Renders scene stills into `public/posters/` from the built app's own scenes; build again afterwards |
+| `npm run fallbacks` | Runs the scene fallback tests on the built app: reduced motion, no WebGL, slow device, no 3D code on a page without a scene |
 
 `npm run shots` uses Playwright's Chromium; run `npx playwright install chromium` once if it is missing.
 

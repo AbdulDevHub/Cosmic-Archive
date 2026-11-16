@@ -1,0 +1,25 @@
+import type { SceneMode } from "./store";
+
+/** A mutable box the host writes and scenes read every frame, without re-rendering React. */
+export interface Box<T> {
+  current: T;
+}
+
+/** What every scene component receives from the host. */
+export interface SceneProps {
+  mode: SceneMode;
+  /** Index into RUNGS. */
+  rung: number;
+  /** Scene time in seconds. Scenes never read a clock (ARCHITECTURE.md 3.3). */
+  time: Box<number>;
+  /** 0 hero, 1 chart, 2 cosmic web (ARCHITECTURE.md 4). */
+  zoom: Box<number>;
+  /** Called once the first frame has been drawn. */
+  onReady: () => void;
+}
+
+/** What every scene module exports, next to its default component. */
+export interface SceneBudget {
+  drawCalls: number;
+  particles: Record<"low" | "medium" | "high", number>;
+}

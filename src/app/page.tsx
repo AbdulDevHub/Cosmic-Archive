@@ -1,14 +1,22 @@
 import Link from "next/link";
+import { SceneSlot } from "@/scene/host/SceneSlot";
 import styles from "./page.module.css";
 
 /*
-  Stage 1 of the homepage (DESIGN_SPEC.md 7.2), copy only. The atlas scene arrives in F3a
-  through <SceneSlot>; until then the hero sits on plain --space.
+  Stage 1 of the homepage (DESIGN_SPEC.md 7.2): the hero over the atlas scene. The poster is
+  in the server HTML; the live scene fades in over it. The chart and zoom out arrive in F3b.
   Both actions point at /about until /explore (F3b) and /archive (O1) exist.
 */
+const POSTERS = {
+  wide: "/posters/atlas-hero-wide.webp",
+  narrow: "/posters/atlas-hero-narrow.webp",
+};
+
 export default function Home() {
   return (
     <section className={styles.hero} aria-labelledby="hero-title">
+      <SceneSlot id="atlas" mode="hero" posters={POSTERS} />
+      <p className={styles.caption}>Illustration, not to scale</p>
       <div className={styles.copy}>
         <h1 id="hero-title">Explore the extraordinary.</h1>
         <p>A living atlas of the universe, from the worlds around us to its deepest mysteries.</p>

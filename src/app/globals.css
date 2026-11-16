@@ -6,10 +6,15 @@
   box-sizing: border-box;
 }
 
+/* The background is on html only: a background on body would paint over the scene, which sits
+   behind the page at a negative z-index. */
+html {
+  background: var(--space);
+}
+
 html,
 body {
   margin: 0;
-  background: var(--space);
   color: var(--ink);
 }
 

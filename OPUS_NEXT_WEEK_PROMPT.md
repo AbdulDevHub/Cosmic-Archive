@@ -1,6 +1,6 @@
 # Cosmic Archive: prompt for the next Opus session
 
-**Last updated:** 2026-11-14, after F2 (the scaffold). Keep this file current: after every commit, update "What exists" and rewrite "Your session" for the next roadmap item.
+**Last updated:** 2026-11-16, after F3a (the scene system and the hero galaxy). Keep this file current: after every commit, update "What exists" and rewrite "Your session" for the next roadmap item.
 
 You are Claude Opus 5.5, continuing Cosmic Archive alone. You have no memory of earlier sessions. Everything you need is in this file and the docs it names.
 
@@ -17,11 +17,12 @@ A living atlas of the universe: a Next.js site with real-time WebGL scenes behin
 | `8dae442` | F1: first look prototype |
 | `0c6ac42` | F1 second round from the owner's notes: sans headline, redrawn hero actions, bigger and fuller galaxy |
 | `528af1b` | Owner approved the look and picked Syne; stills re-shot; docs and this file brought up to date |
-| latest (`git log -1`) | F2 scaffold: Next 16 app, tokens, fonts, header with Pause motion, footer, hero copy and actions, `/about` stub, `check` / `shots` / `posters` scripts |
+| `41dc000` | F2 scaffold: Next 16 app, tokens, fonts, header with Pause motion, footer, hero copy and actions, `/about` stub, `check` / `shots` / `posters` scripts |
+| latest (`git log -1`) | F3a: the scene system (`src/scene/host`, `src/scene/quality`), the atlas galaxy at the hero view (`src/scene/scenes/atlas`), posters, `npm run fallbacks` |
 
 `prototype/look.html` is the approved look. It is one file (plain three from a CDN) showing the three stages of the homepage scene: hero (`?stage=0`), chart (`?stage=1`), zoomed-out cosmic web (`?stage=2`). `?t=12` fixes the time. Without switches, scrolling drives the zoom. It needs internet for three and the fonts. The six stills in `prototype/shots/` (`desktop-stage0..2.png`, `phone-stage0..2.png`) are the visual bar. `prototype/fonts.html` and `font-options.png` are a record of the font choice; ignore them.
 
-Built (F2): the Next.js app in `src/` (routes `/` and `/about`), `src/styles/tokens.css`, the header and footer, `src/lib/motion.ts` (Pause motion), `scripts/shots.mjs`. Not built: the scene system, the atlas in the app, any content page. Nothing has been pushed or deployed.
+Built (F2, F3a): the Next.js app in `src/` (routes `/` and `/about`), `src/styles/tokens.css`, the header and footer, `src/lib/motion.ts` (Pause motion), and the scene system with the live hero galaxy on `/`. Read `src/scene/README.md` first: it says how a page gets a scene, how to add one, the URL switches and the scripts. Not built: the chart, the cosmic web, the zoom, beacons, `/explore`, any content page. Nothing has been pushed or deployed.
 
 ## Read first, in this order
 
@@ -44,42 +45,51 @@ Built (F2): the Next.js app in `src/` (routes `/` and `/about`), `src/styles/tok
 
 If one of these seems wrong, do not work around it. Say so in your report and leave it for the owner.
 
-## Your session: F3a, the scene system and the hero galaxy
+## Your session: F3b, the atlas chart, the zoom out and Explore
 
-The hardest session. Do only this.
+Do only this.
 
 **Before you write code**
 
-- Open `prototype/shots/desktop-stage0.png` and `phone-stage0.png`, then run `prototype/look.html?stage=0&t=12` and read its script top to bottom. It is the reference implementation.
-- Check the current three and React Three Fiber docs through context7 (canvas creation, `frameloop="demand"`, `invalidate`, `dpr`, disposal, context loss). Do not rely on remembered APIs.
-- Install `three`, `@react-three/fiber` and `@types/three`, and add a `DECISIONS.md` row saying why. Anything else (drei, postprocessing) needs its own reason; the prototype needed neither.
+- Open all six stills in `prototype/shots/`, then run `prototype/look.html` and scroll it. Read the parts of its script F3a did not port: `buildWeb`, `buildWebGlow`, the web threads between near-neighbour nodes, `homeDot` and `quasarDot`, the beacons and labels (`setOffset`, the flip near the right edge), the margin, and the scroll handler that turns scroll position into `zoom`.
+- Read `src/scene/README.md`, then `src/scene/scenes/atlas/` (`model.ts`, `world.ts`, `camera.ts`) and `src/scene/host/`.
+- Check the current Next.js and React Three Fiber docs through context7 before relying on an API.
+
+**What F3a left ready for you**
+
+- The camera rig already interpolates all three keys (`placeCamera` in `camera.ts`), and `world.frame()` already applies the prototype's fade ranges to Level 1. `zoom` reaches the scene as a box that the host never changes yet (`zoomRef` in `SceneHost.tsx`): give it a source.
+- `buildAtlas` already draws the web's nodes from the seeded generator first (`webNodes`), so adding the web must not change the approved galaxy. Keep the build order.
+- `SceneMode` is only `"hero"`. Add the modes you need (scroll-driven on `/`, free control on `/explore`).
+- The store holds slot, quality, ready and lost state. Add the scene inputs (zoom, pointer) and the outputs the DOM needs (projected beacon positions), as `ARCHITECTURE.md` 3.1 and 4 describe.
 
 **Scope**
 
-- `src/scene/host/`: `SceneHost` (client, mounted from the root layout through `next/dynamic` with `ssr: false`, loaded only after a slot registers), `SceneSlot` (renders the poster `<img>` as server HTML, registers on mount, withdraws on unmount; imports no three), the registry (`id` to a dynamic import), and the store (`useSyncExternalStore`). The store reads Pause motion from `src/lib/motion.ts` (`getMotion`, `subscribeMotion`); do not keep a second copy (D-032).
-- `src/scene/quality/`: tier detection and the frame-time governor exactly as `ARCHITECTURE.md` 3.4 and 3.5, with `dpr = sqrt(budget / cssPixels)` capped at the device ratio.
-- Time is passed in (3.3). `?shot=1&t=12` renders one deterministic frame. Reduced motion and Pause hold time and render on demand.
-- `src/scene/scenes/atlas/`: port Level 1 at the hero view (`zoom = 0`) from the prototype as it is: seeded random, palette, `discColor`, `taper`, every `build*` function, the constants, the base strengths in `A`, `KEYS_DESK` and `KEYS_PHONE` with their log-distance interpolation and lens shift, the trail spiral in `layoutVessel`. Counts scale to the tier. Replace only the hero-related shortcuts in `DESIGN_SPEC.md` section 10: constant-width screen-space lines for the ink; instanced quads for the large glow sprites; a small bright bulge layer for phones.
-- `/`: add `<SceneSlot id="atlas" mode="hero" poster="/posters/atlas-hero.avif" />` behind the existing hero copy, plus the caption "Illustration, not to scale". `npm run posters` becomes real and renders the poster through `?shot=1`. Leave the scroll hint and the zoom for F3b.
-
-**Already in place (F2)**
-
-- The hero is `src/app/page.tsx`: a `min-height: 100svh` section with the copy at the bottom left and the scrim (`.copy::before`) already behind it. F3b turns it into the sticky stage inside a tall scroll track; F3a does not need to.
-- The header is fixed and transparent until scroll. `<html data-motion>` is set before paint; the hero dot already obeys it.
-- `npm run shots` captures `/` at three views and fails on console errors, failed requests or horizontal overflow. Add `?shot=1&t=12` routes to its list for deterministic scene stills.
-- First-load JS is measured by gzipping every module script the built HTML in `.next/server/app/*.html` loads (skip the `noModule` polyfill). F2 measured 135 KB for `/`; the budget is now 140 KB (D-033). Report the same number for `/` and for a no-scene route after your work, plus the host+three+R3F chunk (220 KB budget) and the atlas chunk (40 KB).
+- Level 2, the cosmic web: points and glow sprites along threads between near-neighbour nodes, with the home galaxy on a thread (not in a void), and a denser, smaller web volume on narrow screens. Counts per tier from `ARCHITECTURE.md` 3.4 (15k / 35k / 60k).
+- The cross-fade between levels from the one zoom scalar.
+- `/` becomes a sticky stage inside a tall scroll track with all three stages and their copy (`DESIGN_SPEC.md` 7.2 to 7.4), a "Skip to destinations" link, and the scroll hint. The page never takes control of scrolling.
+- `content/destinations.ts` and the beacons as real `<a>` elements positioned from projected coordinates, with their evidence line style, labels on leader lines derived from the projected disc radius, clamped to the viewport, with collision avoidance as the disc turns. Off-level beacons are hidden and out of the tab order. Until the subject pages exist, beacons point at `/about`, like the hero actions do.
+- The map margin at the zoomed-out view: dashed rule, the Uncharted entry, the evidence legend as line samples.
+- The list view of the same destinations as plain links.
+- `/explore`: the atlas with free control (wheel, drag, keys; touch polish is O6). Point "Begin exploring" at it.
+- Posters for the new views if a route opens on them; add them to `scripts/posters.mjs`.
 
 **Acceptance**
 
-- The fallback tests in `ARCHITECTURE.md` section 8 pass and you ran each one: reduced motion (no loop), WebGL disabled (poster, page complete), CPU throttling (the governor steps down), cold load of `/about` (no three request).
-- Hero screenshots at 1440x900 and 390x844 match `prototype/shots/desktop-stage0.png` and `phone-stage0.png`: as large, as full, as colourful, the ink as visible, the galaxy overflowing the top and right.
-- Nothing outside `src/scene/` imports three (grep it). `npm run check` and `npm run build` pass.
+- Chart and zoom-out screenshots at 1440x900 and 390x844 match `prototype/shots/*-stage1.png` and `*-stage2.png`; the hero still matches `*-stage0.png` as it does now. Add the stages to `scripts/shots.mjs`.
+- Every beacon is a working link, reachable by keyboard, and present in the HTML without the scene.
+- `npm run check`, `npm run build` and `npm run fallbacks` pass. Extend `fallbacks` if you add a fallback path.
+- Budgets hold: first load under 140 KB gzip on `/about`, host + three + R3F under 220 KB, the atlas chunk under 40 KB, fewer than 30 draw calls a frame (F3a: 138 KB, 185 KB, 11 KB, 19). The checklist records how they were measured.
 
-**Stop point:** commit (gitmoji style, no push), tick F3a in the checklist, rewrite this section for F3b, report.
+**Known, left open by F3a**
+
+- Frame rate has only been seen under software WebGL. If you can, look at the live hero on a real GPU and note what the governor settles on.
+- The wide poster is 234 KB. If LCP on 4G is over budget in O7, lower its quality or size in `scripts/posters.mjs`.
+- On `medium` the arms are a little less bright than on `high` (`discAlpha` in `model.ts` is the dial).
+
+**Stop point:** commit (gitmoji style, no push), tick F3b in the checklist, rewrite this section for F4, report.
 
 ## Later sessions (one each; acceptance in `docs/PHASED_ROADMAP.md`)
 
-- **F3b Atlas chart, zoom out, Explore.** The cosmic web, the scroll-driven zoom through all three stages, beacons as real links with collision-safe labels, the map margin with the evidence legend, the list view, `/explore`.
 - **F4 Content model and Black Holes page.** MDX pipeline, content check, the page framework, the black-hole scene, sourced copy.
 - **O1** homepage lower half, About, Archive. **O2** Galaxies. **O3** Nebulae. **O4** Quasars. **O5** Journey: A star's life. **O6** Explore polish. **O7** release prep. **O8** owner review, then deploy only when the owner says so.
 

@@ -1,6 +1,6 @@
 # Cosmic Archive: Architecture
 
-**Status:** v1, 2026-11-11. Sections marked *(planned)* describe the design before it is built; remove the mark when the code exists and matches.
+**Status:** v1, 2026-11-11; section 3 and the hero part of section 4 were built in F3a (2026-11-16). Sections marked *(planned)* describe the design before it is built; remove the mark when the code exists and matches.
 
 ## 1. Shape of the app
 
@@ -10,7 +10,7 @@ A statically generated Next.js site. Every page is complete server-rendered HTML
 content/                 MDX subjects, typed data (destinations, journeys)
 prototype/               look.html and its screenshots: the approved look
 public/posters/          stills rendered from our own scenes
-scripts/                 check-content, shots, posters
+scripts/                 shots, posters, fallbacks (check-content from F4)
 src/
   app/                   routes and layouts (server components by default)
   components/            DOM UI, CSS Modules
@@ -44,19 +44,19 @@ src/
 
 All routes are static (`generateStaticParams` for dynamic segments). No server runtime, no API routes.
 
-## 3. Scene system *(planned)*
+## 3. Scene system
 
 ### 3.1 Parts
 
 - **`SceneHost`** (client, in the root layout). Owns one fixed, full-viewport canvas behind the page. Created once per visit, so there is one WebGL context and no context churn between routes. Loaded with `next/dynamic` and `ssr: false`, and only after a slot registers.
-- **`SceneSlot`** (client, tiny, no three import). A page renders `<SceneSlot id="atlas" mode="hero" poster="/posters/atlas-hero.avif" />`. It renders the poster `<img>` (server HTML, the LCP element), registers the request with the store on mount and withdraws it on unmount.
+- **`SceneSlot`** (client, tiny, no three import). A page renders `<SceneSlot id="atlas" mode="hero" posters={{ wide, narrow }} />` (two WebP stills, chosen by aspect ratio, D-036). It renders the poster `<img>` (server HTML, the LCP element), registers the request with the store on mount and withdraws it on unmount.
 - **Registry.** `id` to `() => import('./scenes/atlas')`. Each scene module exports its component and its budget. Adding a scene is one registry line and one folder.
-- **Store.** A small `useSyncExternalStore` module: active slot, tier, paused flag, scene inputs (zoom, pointer), and outputs the DOM needs (projected beacon positions).
+- **Store.** A small `useSyncExternalStore` module: active slot, quality, ready and context-lost state. The paused flag is read from `src/lib/motion.ts` (D-032). Scene inputs (zoom, pointer) and the outputs the DOM needs (projected beacon positions) join it in F3b.
 
 ### 3.2 Lifecycle
 
 1. Server HTML arrives with the poster visible. No 3D code has been requested.
-2. After first paint, if the tier is not `static`, the host chunk and the scene chunk load.
+2. Once the page has hydrated and a slot has registered, if the tier is not `static`, the host chunk and the scene chunk load.
 3. The scene renders its first frame; the canvas fades in over the poster (300 ms).
 4. On navigation, the outgoing slot withdraws. The canvas fades to `--space`, the scene unmounts, and its geometries, materials and render targets are disposed. If the next route has a slot, its scene loads and fades in; otherwise the render loop stops and the canvas is hidden.
 5. On WebGL context loss the host shows the poster and tries one restore.
@@ -81,6 +81,8 @@ Scene time is a value passed in, never read from a clock inside a scene. That gi
 
 Glow is additive soft sprites (body, haze, dust, core, web glow); the prototype showed that no bloom pass is needed, so there is none. Large sprites cost fill rate, not vertices: if the governor needs a third step, halve the sprite count. The prototype was only ever run at the `high` counts on desktop and about a third of that on a phone; `medium` and `low` are untested and may need brighter points to look as full (the prototype raises point brightness when the count drops).
 
+The governor walks a ladder of five rungs built from these tiers (D-038): `high`; `medium`; `medium` particles at the `low` pixel budget; `low`; `low` with half the glow sprites; then `static`. On wide screens the lower tiers are brightened so the galaxy stays as full as at `high` (D-041).
+
 The pixel budget sets the canvas resolution (`dpr = sqrt(budget / cssPixels)`, capped at the device ratio), so a large monitor and a phone are held to the same cost.
 
 ### 3.5 Frame-time governor
@@ -88,7 +90,8 @@ The pixel budget sets the canvas resolution (`dpr = sqrt(budget / cssPixels)`, c
 - Keeps a rolling average of frame time.
 - Over 20 ms for 2 s: step down one notch. Order: pixels, then particle count, then glow.
 - Under 12 ms for 5 s on `medium`: step up to `high`, once per visit.
-- Over 33 ms on `low` for 2 s: switch to `static` and stop the loop.
+- Over 33 ms on the last rung for 2 s: switch to `static` and stop the loop.
+- One gap over 250 ms is ignored (a tab switch or a rebuild); a run of them counts as slow (D-038).
 - The chosen tier is remembered for the session.
 
 ### 3.6 Render-loop rules
@@ -107,7 +110,7 @@ The pixel budget sets the canvas resolution (`dpr = sqrt(budget / cssPixels)`, c
 
 Targets: 60 fps on `medium` on an integrated-GPU laptop; 30 fps floor on `low` on a mid-range phone; LCP under 2.5 s on 4G (the poster); CLS 0 (the canvas is fixed).
 
-## 4. Atlas scene *(planned)*
+## 4. Atlas scene *(Level 1 at the hero view is built; the rest is planned for F3b)*
 
 - **Port, do not reinvent.** `prototype/look.html` is the approved look and its script is the reference implementation. Carry over as they are: the seeded random generator, the palette, `discColor`, `taper`, every `build*` function, the constants (`SPIN`, `WIND`, `R0`, `ARMS`, `GAL_R`, `RING`, `OUTER`, `SATELLITE`), the base strengths in `A`, the camera keys (`KEYS_DESK`, `KEYS_PHONE`) with their log-distance interpolation and lens shift, the fade ranges in `frame()`, and the trail spiral in `layoutVessel`. Change only what `DESIGN_SPEC.md` section 10 lists under "left open", and scale counts to the tier.
 - **Layers of the galaxy, in draw order:** background wash and stars; body glow, arm haze, halo, companion; the disc points; dust (sprites that darken what is behind them: blend source zero, destination one-minus-source-colour); core glow; ink lines; trail; vessel. Everything is additive except dust, so only dust depends on order.
@@ -168,4 +171,4 @@ Other data: `content/destinations.ts` (atlas beacons), `content/journeys/*.ts` (
 - `Verify: npm run check` (type check, lint, content check; under 60 s, no build).
 - `Verify-full: npm run build && npm run shots`.
 - Scene changes are checked by looking at `screenshots/` against `prototype/shots/` using the checklist in `DESIGN_SPEC.md` section 11.
-- Fallbacks are tested, not assumed: reduced-motion emulation (no loop), WebGL disabled (poster, page complete), CPU throttling (governor steps down), and a cold load of a no-scene route (no three request).
+- Fallbacks are tested, not assumed (`npm run fallbacks`, after a build): reduced-motion emulation (no loop), WebGL disabled (poster, page complete), CPU throttling (governor steps down), and a cold load of a no-scene route (no three request).
