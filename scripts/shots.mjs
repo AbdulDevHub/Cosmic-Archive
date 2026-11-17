@@ -18,6 +18,8 @@ const ROUTES = [
   { path: (view) => `/?shot=1&t=12&zoom=2&tier=${view.tier}`, name: "web-still", scene: true, mustDraw: true, beacons: 2 },
   { path: () => "/explore", name: "explore", scene: true },
   { path: (view) => `/explore?shot=1&t=12&tier=${view.tier}`, name: "explore-still", scene: true, mustDraw: true, beacons: 3 },
+  { path: () => "/subjects/black-holes", name: "black-holes", scene: true },
+  { path: (view) => `/subjects/black-holes?shot=1&t=12&tier=${view.tier}`, name: "black-holes-still", scene: true, mustDraw: true, beacons: 4 },
   { path: () => "/about", name: "about", scene: false },
 ];
 
@@ -62,7 +64,7 @@ try {
               const r = el.getBoundingClientRect();
               return getComputedStyle(el).visibility === "visible" && r.width > 0 && r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight;
             };
-            return [...document.querySelectorAll("a[data-anchor] [data-label]")].filter(inView).length;
+            return [...document.querySelectorAll("[data-anchor] [data-label]")].filter(inView).length;
           });
           if (placed !== route.beacons) problems.push(`${placed} beacon labels on screen, expected ${route.beacons}`);
         }

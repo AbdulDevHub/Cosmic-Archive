@@ -10,12 +10,12 @@
 import { useSyncExternalStore } from "react";
 import { rememberQuality, type Quality } from "../quality/tiers";
 
-export type SceneId = "atlas";
-/** How the page drives the scene: by scroll position (`/`) or by free control (`/explore`). */
-export type SceneMode = "scroll" | "explore";
+export type SceneId = "atlas" | "black-hole";
+/** How the page drives the scene: by scroll position (`/`), by free control (`/explore`), or not at all (a subject page). */
+export type SceneMode = "scroll" | "explore" | "subject";
 
 /** The zoom a page opens on: the hero on `/`, the chart on `/explore`. */
-const OPENING_ZOOM: Record<SceneMode, number> = { scroll: 0, explore: 1 };
+const OPENING_ZOOM: Record<SceneMode, number> = { scroll: 0, explore: 1, subject: 0 };
 
 export interface SlotRequest {
   token: number;

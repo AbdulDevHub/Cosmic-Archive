@@ -57,12 +57,14 @@ Fable's part ends here (D-028). Everything below is built by Opus.
 
 ## F4 Content model + Black Holes
 
-- [ ] MDX pipeline with validated frontmatter.
-- [ ] `check-content` fails on a missing source.
-- [ ] Subject page framework components.
-- [ ] Black-hole scene within budget on `low`.
-- [ ] Black Holes copy written from fetched sources.
+- [x] MDX pipeline with validated frontmatter (`@next/mdx`, zod; D-049, D-050). `npm run check` and `npm run build` pass (2026-11-17).
+- [x] `check-content` fails on a missing source: removing `ligo-gw150914` gave `FAIL ... names a source that is not in the frontmatter`, exit 1 (2026-11-17).
+- [x] Subject page framework components: hero with scene and callouts, claims, evidence blocks, diagram, unknowns, sources, related.
+- [x] Black-hole scene within budget on `low`: 1 draw call a frame (30), scene chunk 4.4 KB (40), host + three + R3F 183 KB (220). No WebGL: poster, full page, no 3D code. First-load JS 142.1 KB (scene route, D-047, D-054).
+- [x] Screenshots pass the design checklist: `npm run shots` 27 of 27; phone callout overlap fixed (D-053); atlas stills unchanged against `prototype/shots/`. `npm run fallbacks` 14 of 14.
+- [x] Black Holes copy written from fetched sources (9, all checked 2026-11-17). Spot check re-fetched on 2026-11-17: 10 claims from the two main NASA pages match.
 - [ ] Owner has read the copy.
+- [ ] Not yet measured on real hardware: the ray-marched scene's frame rate on a mid-range phone.
 
 ## Opus sessions
 

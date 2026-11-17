@@ -21,6 +21,14 @@ export interface Offset {
   dy: number;
 }
 
+/** A leader line already drawn, from its beacon to its label. */
+export interface Segment {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}
+
 /** A candidate, as a turn (in steps of `STEP`) and a scale of the preferred offset. */
 export interface Choice {
   turn: number;
@@ -47,6 +55,12 @@ export interface LabelContext {
   obstacles: readonly Rect[];
   /** Brightness of the scenery under a viewport point, 0 to 1. */
   shade: (x: number, y: number) => number;
+  /**
+   * The leaders of labels placed before this one. When given, a label keeps its box off them and
+   * its own leader off the obstacles. The atlas leaves this out: its approved stills were placed
+   * without it.
+   */
+  leaders?: readonly Segment[];
 }
 
 export const STEP = Math.PI / 8;
@@ -66,6 +80,19 @@ const STAY = 6;
 export const FIRST_LINE = 8;
 const MIN_LEADER = 26;
 const SLACK = 4;
+/** What a leader drawn through a label costs, either way round: less than covering it, more than a turn. */
+const CROSSING = 60;
+
+/** Whether a leader passes through a box (sampled; leaders are short and boxes are text-sized). */
+function crosses(segment: Segment, box: Rect): boolean {
+  for (let i = 1; i < 16; i++) {
+    const t = i / 16;
+    const x = segment.x1 + (segment.x2 - segment.x1) * t;
+    const y = segment.y1 + (segment.y2 - segment.y1) * t;
+    if (x > box.x && x < box.x + box.w && y > box.y && y < box.y + box.h) return true;
+  }
+  return false;
+}
 
 export function offsetOf(prefer: Offset, turn: number, scale: number): Offset {
   const a = turn * STEP;
@@ -103,11 +130,17 @@ function outside(box: Rect, bounds: Rect): number {
 
 function cost(request: LabelRequest, context: LabelContext, turn: number, scale: number): number {
   const offset = offsetOf(request.prefer, turn, scale);
-  const box = labelRect(request.x, request.y, offset, request.w, request.h);
+  let box = labelRect(request.x, request.y, offset, request.w, request.h);
   // a short leader has only four places, and the far side is no worse a place than above or below
   const turned = request.square ? Math.min(Math.abs(turn), 4) : Math.abs(turn);
   let total = turned * PER_TURN + (scale === 1 ? 0 : PER_SCALE);
   total += outside(box, context.bounds) * 4;
+  // a place off screen is drawn slid back in (resolve), so the scenery and the other labels are
+  // weighed where the label will really stand; otherwise two labels pushed in from the same edge
+  // can land on each other
+  const drawn = resolve(request, { turn, scale }, context.bounds);
+  box = labelRect(request.x, request.y, drawn, request.w, request.h);
+  const leader = { x1: request.x, y1: request.y, x2: request.x + drawn.dx, y2: request.y + drawn.dy };
 
   let bright = 0;
   for (let i = 0; i < 3; i++) {
@@ -121,7 +154,9 @@ function cost(request: LabelRequest, context: LabelContext, turn: number, scale:
   for (const obstacle of context.obstacles) {
     const covered = overlap(inner, obstacle);
     if (covered > 0) total += 80 + (300 * covered) / area;
+    if (context.leaders && crosses(leader, obstacle)) total += CROSSING;
   }
+  for (const other of context.leaders ?? []) if (crosses(other, inner)) total += CROSSING;
 
   if (request.current && request.current.turn === turn && request.current.scale === scale) total -= STAY;
   return total;

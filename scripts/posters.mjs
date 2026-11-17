@@ -21,6 +21,9 @@ const POSTERS = [
   { file: "atlas-chart-narrow.webp", path: "/?shot=1&t=12&zoom=1&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.8 },
   { file: "atlas-web-wide.webp", path: "/?shot=1&t=12&zoom=2&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.75 },
   { file: "atlas-web-narrow.webp", path: "/?shot=1&t=12&zoom=2&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.75 },
+  // Subject scenes: `<scene id>-wide` and `<scene id>-narrow`, the names the subject page asks for.
+  { file: "black-hole-wide.webp", path: "/subjects/black-holes?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.8 },
+  { file: "black-hole-narrow.webp", path: "/subjects/black-holes?shot=1&t=12&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.8 },
 ];
 
 mkdirSync(OUT, { recursive: true });

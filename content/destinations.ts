@@ -6,8 +6,8 @@
  * (`ANCHORS` in src/scene/scenes/atlas/world.ts). The atlas is an illustration, not to scale,
  * so no coordinates are invented here (PROJECT_BLUEPRINT.md 6.4).
  *
- * Until the subject pages exist (F4, O2 to O4) every destination opens /about; `opens` records
- * where it will lead.
+ * Until its subject page exists (O2 to O4) a destination opens /about; `opens` records where it
+ * will lead. Black Holes has its page (F4).
  */
 
 /** PROJECT_BLUEPRINT.md 6.1. Drawn as a line style and always written as a word too. */
@@ -142,7 +142,7 @@ export const DESTINATIONS: readonly Destination[] = [
     label: "Black holes",
     note: "one waits at the core",
     evidence: "observed",
-    href: "/about",
+    href: "/subjects/black-holes",
     opens: "/subjects/black-holes",
     sources: ["nasa-black-hole-types", "eso-sgr-a-image"],
   },
