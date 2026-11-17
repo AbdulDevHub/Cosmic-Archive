@@ -103,8 +103,7 @@ export function HomeAtlas() {
               </svg>
               <span className={styles.word}>Begin exploring</span>
             </Link>
-            {/* points at /about until /archive exists (O1) */}
-            <Link className={styles.index} href="/about">
+            <Link className={styles.index} href="/archive">
               <i aria-hidden="true" />
               <span>Browse the archive</span>
             </Link>

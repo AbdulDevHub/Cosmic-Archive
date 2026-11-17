@@ -1,14 +1,108 @@
+/* A plain reading page on --space: one column, 45 to 75 characters a line. */
+
 .page {
+  position: relative;
+  z-index: 1;
   padding: 160px var(--gutter) var(--gap-9);
-  max-width: calc(36rem + 2 * var(--gutter));
+  max-width: calc(40rem + 2 * var(--gutter));
 }
 
 .title {
-  font-size: var(--h2);
+  font-size: var(--h1);
 }
 
 .page p {
   margin: var(--gap-5) 0 0;
   color: var(--ink-2);
+}
+
+.page a {
+  color: var(--ink);
+  text-decoration-color: color-mix(in srgb, var(--ink) 50%, transparent);
+  text-underline-offset: 4px;
+}
+
+.page a:hover {
+  color: var(--beacon);
+  text-decoration-color: var(--beacon);
+}
+
+.page .lede {
+  margin-top: var(--gap-6);
+  color: var(--ink);
   font-size: var(--lede);
+}
+
+.part {
+  margin-top: var(--gap-9);
+  scroll-margin-top: 88px;
+}
+
+.part h2 {
+  font-size: var(--step-4);
+}
+
+/* ---- the legend: a line sample and its word, then what it means ---- */
+
+.legend {
+  margin: var(--gap-6) 0 0;
+  border-top: var(--hairline) solid color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+.legendRow {
+  display: grid;
+  grid-template-columns: 11rem 1fr;
+  gap: var(--gap-2) var(--gap-6);
+  padding: var(--gap-4) 0;
+  border-bottom: var(--hairline) solid color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+.legendRow dt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+}
+
+.legendRow dd {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+.drawn {
+  font-style: italic;
+}
+
+@media (max-width: 560px) {
+  .legendRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- method and credits ---- */
+
+.method {
+  margin: var(--gap-6) 0 0;
+  padding: 0 0 0 1.4em;
+  color: var(--ink-2);
+}
+
+.method li + li {
+  margin-top: var(--gap-3);
+}
+
+.method li::marker {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.credits {
+  list-style: none;
+  margin: var(--gap-5) 0 0;
+  padding: 0;
+  color: var(--ink-2);
+}
+
+.credits li {
+  padding: 6px 0;
 }

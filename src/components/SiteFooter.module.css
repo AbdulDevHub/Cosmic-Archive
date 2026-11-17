@@ -22,13 +22,21 @@
   color: var(--ink);
 }
 
-.line {
+.about {
+  display: grid;
+  gap: 6px;
   margin-right: auto;
+  max-width: 34rem;
+}
+
+.about .mark {
+  margin-bottom: 6px;
 }
 
 .nav {
   display: flex;
-  gap: 28px;
+  flex-wrap: wrap;
+  gap: 0 28px;
 }
 
 .nav a {

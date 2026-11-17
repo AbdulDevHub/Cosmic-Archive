@@ -24,7 +24,17 @@ const POSTERS = [
   // Subject scenes: `<scene id>-wide` and `<scene id>-narrow`, the names the subject page asks for.
   { file: "black-hole-wide.webp", path: "/subjects/black-holes?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.8 },
   { file: "black-hole-narrow.webp", path: "/subjects/black-holes?shot=1&t=12&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.8 },
+  // Windows for the homepage's Destinations section: a part of a scene, cropped. `crop` is in CSS
+  // pixels of the viewport; `out` is the saved width. A destination whose own scene is not built yet
+  // looks at the place on the atlas where it is found (nebulae in an arm, quasars on the web).
+  { file: "window-black-holes.webp", path: "/subjects/black-holes?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, crop: { x: 630, y: 90, w: 640, h: 640 }, out: 720, quality: 0.8 },
+  { file: "window-galaxies.webp", path: "/?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, crop: { x: 540, y: 110, w: 900, h: 600 }, out: 960, quality: 0.78 },
+  { file: "window-nebulae.webp", path: "/?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, crop: { x: 300, y: 80, w: 340, h: 430 }, out: 480, quality: 0.8 },
+  { file: "window-quasars.webp", path: "/?shot=1&t=12&zoom=2&tier=high", viewport: { width: 1440, height: 900 }, crop: { x: 800, y: 560, w: 480, h: 160 }, out: 960, quality: 0.8 },
 ];
+
+// `npm run posters -- window-` makes only the posters whose file name contains the word.
+const only = process.argv[2];
 
 mkdirSync(OUT, { recursive: true });
 
@@ -34,6 +44,7 @@ const { base, stop } = await serveBuild("posters");
 try {
   browser = await launchBrowser();
   for (const poster of POSTERS) {
+    if (only && !poster.file.includes(only)) continue;
     const context = await browser.newContext({ viewport: poster.viewport, deviceScaleFactor: poster.deviceScaleFactor });
     const page = await context.newPage();
     const problems = [];
@@ -44,14 +55,22 @@ try {
 
     await page.goto(base + poster.path, { waitUntil: "load" });
     await sceneSettled(page);
-    const result = await page.evaluate((quality) => {
+    const result = await page.evaluate(({ quality, crop, out }) => {
       if (document.documentElement.dataset.scene !== "ready") return { error: "the scene did not draw (static fallback)" };
-      const canvas = document.querySelector("canvas");
+      let canvas = document.querySelector("canvas");
       if (!canvas) return { error: "no canvas" };
+      if (crop) {
+        const k = canvas.width / innerWidth; // device pixels per CSS pixel of the drawing buffer
+        const part = document.createElement("canvas");
+        part.width = out;
+        part.height = Math.round((out * crop.h) / crop.w);
+        part.getContext("2d").drawImage(canvas, crop.x * k, crop.y * k, crop.w * k, crop.h * k, 0, 0, part.width, part.height);
+        canvas = part;
+      }
       const url = canvas.toDataURL("image/webp", quality);
       if (!url.startsWith("data:image/webp")) return { error: "this browser cannot encode WebP" };
       return { url, width: canvas.width, height: canvas.height };
-    }, poster.quality);
+    }, { quality: poster.quality, crop: poster.crop ?? null, out: poster.out ?? 0 });
 
     if (result.error) problems.push(result.error);
     if (problems.length) {

@@ -21,6 +21,12 @@ const ROUTES = [
   { path: () => "/subjects/black-holes", name: "black-holes", scene: true },
   { path: (view) => `/subjects/black-holes?shot=1&t=12&tier=${view.tier}`, name: "black-holes-still", scene: true, mustDraw: true, beacons: 4 },
   { path: () => "/about", name: "about", scene: false },
+  // the whole page below the top of the window: the homepage's sections under the scene, and the reading pages
+  { path: () => "/", name: "home-below", scene: true, from: "#destinations" },
+  { path: () => "/about", name: "about-full", scene: false, from: "body" },
+  { path: () => "/archive", name: "archive-full", scene: false, from: "body" },
+  // the phone menu, open
+  { path: () => "/archive", name: "menu", scene: false, only: "phone", open: "[aria-controls='site-menu']" },
 ];
 
 const VIEWS = [
@@ -42,6 +48,7 @@ try {
     const { name, tier, ...options } = view;
     const context = await browser.newContext(options);
     for (const route of ROUTES) {
+      if (route.only && route.only !== name) continue;
       const page = await context.newPage();
       const problems = [];
       page.on("console", (msg) => msg.type() === "error" && problems.push(`console: ${msg.text()}`));
@@ -73,8 +80,36 @@ try {
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       if (overflow > 0) problems.push(`horizontal overflow of ${overflow}px`);
 
+      if (route.open) {
+        await page.click(route.open);
+        await page.waitForTimeout(100);
+      }
+
       const file = join(OUT, `${route.name}-${name}.png`);
-      await page.screenshot({ path: file });
+      if (route.from) {
+        // from the top of that element to the end of the page; images below the fold load first
+        await page.evaluate(async () => {
+          for (const img of document.querySelectorAll("img[loading='lazy']")) img.loading = "eager";
+          await Promise.all([...document.images].map((img) => (img.complete ? null : new Promise((r) => img.addEventListener("load", r, { once: true })))));
+        });
+        const top = await page.evaluate((selector) => Math.round(document.querySelector(selector).getBoundingClientRect().top + scrollY), route.from);
+        if (view.isMobile) {
+          // A full-page shot grows a phone's window to the page's height, which changes every svh
+          // unit and so the layout. On a phone, scroll a window at a time and save each one.
+          const { height, total } = await page.evaluate(() => ({ height: innerHeight, total: document.documentElement.scrollHeight }));
+          let part = 1;
+          for (let y = top; y < total; y += height, part += 1) {
+            await page.evaluate((to) => window.scrollTo(0, to), y);
+            await page.waitForTimeout(150);
+            await page.screenshot({ path: file.replace(/\.png$/, `-${part}.png`) });
+          }
+        } else {
+          const clip = await page.evaluate((from) => ({ x: 0, y: from, width: innerWidth, height: document.documentElement.scrollHeight - from }), top);
+          await page.screenshot({ path: file, fullPage: true, clip });
+        }
+      } else {
+        await page.screenshot({ path: file });
+      }
       console.log(`${problems.length ? "FAIL" : "ok  "} ${file}${note ? `  (${note})` : ""}`);
       for (const p of problems) console.log(`     ${p}`);
       if (problems.length) failed = true;

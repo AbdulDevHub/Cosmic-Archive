@@ -68,7 +68,14 @@ Fable's part ends here (D-028). Everything below is built by Opus.
 
 ## Opus sessions
 
-- [ ] O1 Homepage lower half, About, Archive index.
+- [x] O1 Homepage lower half, About, Archive index (2026-11-17):
+  - [x] Destinations (four windows of own art, D-055), the journey preview as one branching line, the Uncharted teaser in dashed and dotted ink with the legend, the full footer.
+  - [x] `/about` (purpose, evidence legend, method, imagery, credits) and `/archive` (published, then being written). Nav: Explore, Archive, About; phone menu (D-059).
+  - [x] No dead links: every internal link on `/`, `/about`, `/archive`, `/explore` and `/subjects/black-holes` resolves; unwritten pages are not links (D-056).
+  - [x] Phone layout composed: header on one line, menu tested by keyboard (opens with focus inside, Escape closes and returns focus, closes on navigation), no horizontal overflow.
+  - [x] Checks: `npm run check` (now also `content/destinations.ts` and `content/home.ts`; a wrong source id fails), `npm run build`, `npm run shots` 37 of 37, `npm run fallbacks` 14 of 14.
+  - [x] Budgets (gzip): `/about` and `/archive` first load 138.4 KB (limit 140); `/` 145.4, `/explore` 145.8, `/subjects/black-holes` 142.4 (scene routes, D-047). No 3D code without WebGL on any of them.
+  - [ ] Owner has read the new copy (destination lines, the journey preview, About).
 - [ ] O2 Galaxies.
 - [ ] O3 Nebulae.
 - [ ] O4 Quasars.

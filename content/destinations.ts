@@ -67,7 +67,7 @@ export const SOURCES: readonly Source[] = [
     title: "Black Hole Types",
     publisher: "NASA Science",
     url: "https://science.nasa.gov/universe/black-holes/types/",
-    checked: "2026-11-16",
+    checked: "2026-11-17",
   },
   {
     id: "eso-sgr-a-image",
@@ -81,7 +81,7 @@ export const SOURCES: readonly Source[] = [
     title: "Galaxies",
     publisher: "NASA Science",
     url: "https://science.nasa.gov/universe/galaxies/",
-    checked: "2026-11-16",
+    checked: "2026-11-17",
   },
   {
     id: "nasa-galaxy-types",
@@ -102,7 +102,7 @@ export const SOURCES: readonly Source[] = [
     title: "Hubble Quasars",
     publisher: "NASA Science",
     url: "https://science.nasa.gov/mission/hubble/science/science-behind-the-discoveries/hubble-quasars",
-    checked: "2026-11-16",
+    checked: "2026-11-17",
   },
   {
     id: "nasa-cosmic-web",

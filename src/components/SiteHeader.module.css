@@ -90,3 +90,112 @@
     display: none;
   }
 }
+
+/* ---- phone menu (D-031): a button, then a full-screen list on solid --space ---- */
+
+.menuButton {
+  display: none;
+  font: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  padding: 0;
+  min-height: var(--touch);
+  margin-block: -4px;
+  cursor: pointer;
+  align-items: center;
+  gap: 8px;
+}
+
+/* the hero's index mark: three ruled lines */
+.menuButton i {
+  width: 16px;
+  height: 11px;
+  border-block: 1.5px solid var(--ink);
+  background: linear-gradient(var(--ink), var(--ink)) center / 100% 1.5px no-repeat;
+}
+
+.menuButton[aria-expanded="true"] i {
+  height: 0;
+  border-bottom: 0;
+  background: none;
+}
+
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: -1; /* under the bar's own words, which stay on top */
+  padding: 104px var(--gutter) var(--gap-8);
+  background: var(--space);
+  overflow-y: auto;
+}
+
+.menu[hidden] {
+  display: none;
+}
+
+@media (min-width: 721px) {
+  .menu {
+    display: none;
+  }
+}
+
+.menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: var(--hairline) solid color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+.menu li {
+  border-bottom: var(--hairline) solid color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+.menu a {
+  display: block;
+  padding: var(--gap-4) 0;
+  font: var(--display-weight) var(--step-3) / 1.1 var(--font-display);
+  letter-spacing: var(--display-track);
+  text-decoration: none;
+}
+
+.menu a[aria-current="page"],
+.menu a:hover {
+  color: var(--beacon);
+}
+
+:global(html[data-menu="open"]) body {
+  overflow: hidden;
+}
+
+.wordmark,
+.pause,
+.menuButton {
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .wordmark {
+    font-size: 20px;
+  }
+
+  /* no room for the words beside the wordmark and Menu: the control keeps its icon and a 44 px
+     target, and its words stay for screen readers */
+  .pause {
+    min-width: var(--touch);
+    justify-content: center;
+  }
+
+  .pause span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .menuButton {
+    display: inline-flex;
+  }
+}

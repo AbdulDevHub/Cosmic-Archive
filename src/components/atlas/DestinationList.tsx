@@ -7,7 +7,7 @@ import { EvidenceLine } from "./Evidence";
   The list view of the atlas (DESIGN_SPEC.md 9): the same destinations as the beacons, as plain
   links, with each one's evidence drawn and written. It is the target of "Skip to destinations"
   and of the atlas's "List view" link, and needs no scene and no script.
-  O1 builds the illustrated Destinations section; this list stays as the atlas's index.
+  The homepage has the illustrated Destinations section (O1); this list is the index on /explore.
 */
 
 interface Row {
