@@ -1,8 +1,13 @@
 /**
- * The atlas's three.js objects, built from `model.ts` (ARCHITECTURE.md 4). Level 1 only in F3a.
+ * The atlas's three.js objects, built from `model.ts` (ARCHITECTURE.md 4): Level 1, the galaxy,
+ * and Level 2, the cosmic web, cross-faded by the one zoom scalar.
  *
- * Layers in draw order: wash and stars; body, haze, halo, companion; the disc (and the bulge on
- * `low`); dust; core; ink; trail; vessel. All additive except dust, so only dust depends on order.
+ * Layers in draw order: wash and stars; body, haze, halo, companion, and the web; the disc (and
+ * the bulge on `low`); dust; core; ink; trail; vessel. All additive except dust, so only dust
+ * depends on order. A layer whose strength is zero is not drawn at all.
+ *
+ * Each frame also tells the DOM where its named places are on screen (`ANCHORS`), so beacons can
+ * be real links laid over the canvas.
  *
  * Production replacements for the prototype's shortcuts (DESIGN_SPEC.md section 10):
  * - large glow sprites are instanced quads, not gl.POINTS;
@@ -38,14 +43,44 @@ import { LineGeometry } from "three/addons/lines/LineGeometry.js";
 import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 import { LineSegments2 } from "three/addons/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/addons/lines/LineSegmentsGeometry.js";
+import type { SceneFrame, SceneInput } from "../../host/store";
 import type { ParticleTier } from "../../quality/tiers";
 import { POINT_FRAGMENT, POINT_VERTEX, SPRITE_FRAGMENT, SPRITE_VERTEX } from "../../shaders/points.glsl";
 import { isPhone, placeCamera } from "./camera";
-import { buildAtlas, C, COUNTS, mix, OUTER, RING, SPIN, sstep, TAU, type Cloud } from "./model";
+import { armAngle, buildAtlas, C, COUNTS, discBrightness, mix, OUTER, RING, SATELLITE, SPIN, sstep, TAU, type Cloud, type Vec3 } from "./model";
 
 // base strengths, faded out together at the far zoom
 const A = { haze: 0.05, body: 0.02, dust: 0.1, core: 0.22, halo: 0.8 };
 const ORDER_INK = 6;
+
+/**
+ * The places a beacon can stand. `content/destinations.ts` names one per destination; the scene
+ * owns where each one is, because that depends on the galaxy as generated and on the composition.
+ */
+const NEBULA_R = 0.74;
+const NEBULA_TH = armAngle(1, NEBULA_R);
+type Anchor = { local: Vec3; spin: boolean } | { web: "quasar" | "home" };
+const ANCHORS: Record<string, Anchor> = {
+  /** The heart of the galaxy. */
+  core: { local: [0, 0, 0], spin: false },
+  /** A place in one of the main arms; it turns with the disc. */
+  arm: { local: [NEBULA_R * Math.cos(NEBULA_TH), 0, NEBULA_R * Math.sin(NEBULA_TH)], spin: true },
+  /** On the ticked ring: stands for the galaxy as a whole. */
+  ring: { local: [RING * Math.cos(-1.0), 0, RING * Math.sin(-1.0)], spin: false },
+  /** A far galaxy of the web, placed where the zoomed-out composition wants it. */
+  quasar: { web: "quasar" },
+  /** The galaxy the visitor came from. */
+  home: { web: "home" },
+};
+
+/** Where the quasar's beacon should fall in the zoomed-out view, in NDC (the prototype's). */
+const QUASAR_WANT = { wide: [0.4, -0.38], narrow: [0.42, 0.55] } as const;
+
+export function makeFrame(): SceneFrame {
+  const points: SceneFrame["points"] = {};
+  for (const name of Object.keys(ANCHORS)) points[name] = { x: 0, y: 0, on: false };
+  return { zoom: 0, width: 1, height: 1, narrow: false, points, radius: 1, shade: () => 0 };
+}
 
 interface LayerOptions {
   spin?: number;
@@ -125,8 +160,10 @@ class Layer {
     this.object.renderOrder = o.order ?? 1;
   }
 
+  /** Strength of the whole layer. At zero it is not drawn: no draw call, no vertex work. */
   set alpha(value: number) {
     this.material.uniforms.uAlpha.value = value;
+    this.object.visible = value > 0.0005;
   }
 
   set time(value: number) {
@@ -203,6 +240,19 @@ export class AtlasWorld {
   private readonly dust: Layer;
   private readonly core: Layer;
   private readonly engine: Layer;
+  private readonly discLayers: Layer[];
+  private readonly web: Layer;
+  private readonly webGlow: Layer;
+  private readonly homeDot: Layer;
+  private readonly quasarDot: Layer;
+  private readonly webNodes: Vec3[];
+  private readonly quasar = new Vector3();
+  private readonly scratch = [new Vector3(), new Vector3(), new Vector3()];
+  private camera: PerspectiveCamera | null = null;
+  private time = 0;
+  private zoom = 0;
+  private width = 1;
+  private height = 1;
   private readonly ink: Array<Line2 | LineSegments2>;
   private readonly trail: Line2;
   private readonly trailMaterial: LineMaterial;
@@ -236,13 +286,24 @@ export class AtlasWorld {
     this.core = new Layer(data.core, true, { alpha: A.core, soft: 3.2, maxPx: 1024, order: 4 });
     this.engine = new Layer(single(C.gold, 10), false, { atten: 0, alpha: 0.9, maxPx: 16, soft: 2.4, order: ORDER_INK + 2 });
 
+    // Level 2. Nothing of it is drawn until the zoom reaches it.
+    this.webNodes = data.webNodes;
+    this.webGlow = new Layer(data.webGlow, true, { alpha: 0, maxPx: 1024, soft: 2.0, order: 1 });
+    this.web = new Layer(data.web, false, { alpha: 0, twinkle: 0.1, maxPx: 12, soft: 1.4, order: 1 });
+    this.homeDot = new Layer(single(C.gold, 9), false, { atten: 0, alpha: 0, maxPx: 12, soft: 2.2, order: 1 });
+    this.quasarDot = new Layer(single([0.85, 0.94, 1.0], 11), false, { atten: 0, alpha: 0, maxPx: 14, soft: 2.0, order: 1 });
+
     this.layers = [this.wash, this.stars, this.body, this.haze, this.halo, this.companionStars, this.companionGlow, disc, this.dust, this.core, this.engine];
+    this.layers.push(this.webGlow, this.web, this.homeDot, this.quasarDot);
     this.glowLayers = [this.body, this.haze, this.dust];
+    this.discLayers = [disc];
     if (data.bulge.n > 0) {
       const bulge = new Layer(data.bulge, false, { spin: SPIN, twinkle: 0.1, alpha: 1, maxPx: 40, order: 2 });
       this.layers.push(bulge);
+      this.discLayers.push(bulge);
       this.galaxy.add(bulge.object);
     }
+    this.root.add(this.webGlow.object, this.web.object, this.homeDot.object, this.quasarDot.object);
 
     this.galaxy.rotation.z = -0.2;
     this.root.add(this.wash.object, this.stars.object, this.galaxy);
@@ -295,6 +356,36 @@ export class AtlasWorld {
     for (const layer of this.layers) layer.resize(px, dpr, bw, bh);
     for (const line of [...this.ink, this.trail]) line.material.resolution.set(bw, bh);
     this.layoutVessel(camera, width, height);
+    this.layoutQuasar(camera, width, height);
+  }
+
+  /**
+   * The quasar is a galaxy of the web: the knot nearest to where the zoomed-out composition
+   * wants its beacon. If no knot is near, it sits in the plane of the web at that spot.
+   */
+  private layoutQuasar(camera: PerspectiveCamera, width: number, height: number): void {
+    placeCamera(camera, 2, width, height);
+    const [wantX, wantY] = isPhone(width, height) ? QUASAR_WANT.narrow : QUASAR_WANT.wide;
+    const v = this.scratch[0];
+    let best = 0.3; // NDC: farther than this is not "near"
+    let found = false;
+    for (let i = 1; i < this.webNodes.length; i++) {
+      const [x, y, z] = this.webNodes[i];
+      v.set(x, y, z).project(camera);
+      if (v.z >= 1) continue;
+      const d = Math.hypot(v.x - wantX, (v.y - wantY) * (height / width));
+      if (d < best) {
+        best = d;
+        found = true;
+        this.quasar.set(x, y, z);
+      }
+    }
+    if (!found) {
+      const e = camera.projectionMatrix.elements;
+      const dir = v.set((wantX + e[8]) / e[0], (wantY + e[9]) / e[5], -1).transformDirection(camera.matrixWorld);
+      this.quasar.copy(camera.position).addScaledVector(dir, -camera.position.y / dir.y);
+    }
+    this.quasarDot.object.position.copy(this.quasar);
   }
 
   /** Puts the vessel where the hero composition wants it, then draws the trail back to the ring. */
@@ -342,9 +433,16 @@ export class AtlasWorld {
     this.engine.object.position.copy(end).addScaledVector(tangent, -0.02);
   }
 
-  /** One frame at scene time `t` and zoom `zoom`; the fade ranges are the prototype's `frame()`. */
-  frame(camera: PerspectiveCamera, t: number, zoom: number, width: number, height: number): void {
-    placeCamera(camera, zoom, width, height);
+  /** One frame at scene time `t` and the camera at `view`; the fade ranges are the prototype's `frame()`. */
+  frame(camera: PerspectiveCamera, t: number, view: SceneInput, width: number, height: number, out: SceneFrame): void {
+    const zoom = view.zoom;
+    placeCamera(camera, zoom, width, height, view.yaw, view.pitch);
+    this.camera = camera;
+    this.time = t;
+    this.zoom = zoom;
+    this.width = width;
+    this.height = height;
+
     const l1 = 1 - sstep(1.25, 1.6, zoom); // level 1 ink and vessel
     const far = sstep(1.2, 1.7, zoom);
     const near = 1 - sstep(1.3, 1.7, zoom);
@@ -359,12 +457,94 @@ export class AtlasWorld {
     this.halo.alpha = A.halo * near;
     this.companionStars.alpha = A.halo * near;
     this.companionGlow.alpha = A.halo * near;
+    // From the web the whole disc is under a pixel and the home dot stands for it.
+    for (const layer of this.discLayers) layer.object.visible = zoom < 1.97;
+
     const inkLevel = mix(0.72, 1, sstep(0.2, 0.9, zoom)) * l1;
-    for (const line of this.ink) line.material.opacity = (line.material.userData.base as number) * inkLevel;
+    for (const line of this.ink) {
+      line.material.opacity = (line.material.userData.base as number) * inkLevel;
+      line.visible = l1 > 0;
+    }
     this.trailMaterial.opacity = l1;
+    this.trail.visible = l1 > 0;
     this.vessel.material.opacity = l1;
+    this.vessel.visible = l1 > 0;
     this.engine.alpha = 0.9 * l1;
+
+    const landmarks = sstep(1.6, 1.95, zoom);
+    this.web.alpha = sstep(1.35, 1.9, zoom);
+    this.webGlow.alpha = 0.11 * landmarks;
+    this.homeDot.alpha = landmarks;
+    this.quasarDot.alpha = landmarks;
+
+    this.report(camera, t, zoom, width, height, out);
   }
+
+  /** Projects the anchors and the chart ring for the DOM (beacons, labels). */
+  private report(camera: PerspectiveCamera, t: number, zoom: number, width: number, height: number, out: SceneFrame): void {
+    out.zoom = zoom;
+    out.width = width;
+    out.height = height;
+    out.narrow = isPhone(width, height);
+    out.shade = this.shade;
+    const v = this.scratch[0];
+    const ang = t * SPIN;
+    const c = Math.cos(ang);
+    const s = Math.sin(ang);
+    for (const [name, anchor] of Object.entries(ANCHORS)) {
+      if ("local" in anchor) {
+        const [x, y, z] = anchor.local;
+        if (anchor.spin) v.set(c * x + s * z, y, -s * x + c * z);
+        else v.set(x, y, z);
+        this.galaxy.localToWorld(v);
+      } else if (anchor.web === "quasar") v.copy(this.quasar);
+      else v.set(0, 0, 0);
+      v.project(camera);
+      const point = out.points[name];
+      point.on = v.z < 1;
+      point.x = (v.x * 0.5 + 0.5) * width;
+      point.y = (-v.y * 0.5 + 0.5) * height;
+    }
+    // half the width of the ticked ring on screen: what label offsets are measured in
+    let min = Infinity;
+    let max = -Infinity;
+    for (let i = 0; i < 16; i++) {
+      const a = (i / 16) * TAU;
+      this.galaxy.localToWorld(v.set(RING * Math.cos(a), 0, RING * Math.sin(a))).project(camera);
+      min = Math.min(min, v.x);
+      max = Math.max(max, v.x);
+    }
+    out.radius = ((max - min) / 4) * width;
+  }
+
+  /**
+   * How bright the scenery is under a screen point, for the last frame drawn. The point is cast
+   * onto the galaxy's plane and looked up in the model of the disc, the companion and the ticked
+   * ring; the web is not modelled.
+   */
+  private readonly shade = (x: number, y: number): number => {
+    const camera = this.camera;
+    const fade = 1 - sstep(1.3, 1.7, this.zoom);
+    if (!camera || fade <= 0) return 0;
+    const [eye, far, dir] = this.scratch;
+    this.galaxy.worldToLocal(eye.copy(camera.position));
+    this.galaxy.worldToLocal(far.set((x / this.width) * 2 - 1, 1 - (y / this.height) * 2, 0.5).unproject(camera));
+    dir.copy(far).sub(eye);
+    if (Math.abs(dir.y) < 1e-6) return 0;
+    const k = -eye.y / dir.y;
+    if (k <= 0) return 0;
+    const hx = eye.x + dir.x * k;
+    const hz = eye.z + dir.z * k;
+    // undo the turn of the pattern: the model is in the coordinates the disc was built in
+    const ang = this.time * SPIN;
+    const c = Math.cos(ang);
+    const s = Math.sin(ang);
+    const disc = discBrightness(c * hx - s * hz, s * hx + c * hz);
+    const companion = 0.5 * Math.exp(-((hx - SATELLITE[0]) ** 2 + (hz - SATELLITE[2]) ** 2) / (2 * 0.07 * 0.07));
+    // the ticked ring and its ticks: a label should not sit across them
+    const ring = 0.3 * Math.exp(-(((Math.hypot(hx, hz) - RING - 0.0375) / 0.045) ** 2));
+    return Math.max(disc, companion, ring) * fade;
+  };
 
   dispose(): void {
     this.root.traverse((object: Object3D) => {

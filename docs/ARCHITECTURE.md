@@ -110,7 +110,7 @@ The pixel budget sets the canvas resolution (`dpr = sqrt(budget / cssPixels)`, c
 
 Targets: 60 fps on `medium` on an integrated-GPU laptop; 30 fps floor on `low` on a mid-range phone; LCP under 2.5 s on 4G (the poster); CLS 0 (the canvas is fixed).
 
-## 4. Atlas scene *(Level 1 at the hero view is built; the rest is planned for F3b)*
+## 4. Atlas scene *(built in F3a and F3b)*
 
 - **Port, do not reinvent.** `prototype/look.html` is the approved look and its script is the reference implementation. Carry over as they are: the seeded random generator, the palette, `discColor`, `taper`, every `build*` function, the constants (`SPIN`, `WIND`, `R0`, `ARMS`, `GAL_R`, `RING`, `OUTER`, `SATELLITE`), the base strengths in `A`, the camera keys (`KEYS_DESK`, `KEYS_PHONE`) with their log-distance interpolation and lens shift, the fade ranges in `frame()`, and the trail spiral in `layoutVessel`. Change only what `DESIGN_SPEC.md` section 10 lists under "left open", and scale counts to the tier.
 - **Layers of the galaxy, in draw order:** background wash and stars; body glow, arm haze, halo, companion; the disc points; dust (sprites that darken what is behind them: blend source zero, destination one-minus-source-colour); core glow; ink lines; trail; vessel. Everything is additive except dust, so only dust depends on order.

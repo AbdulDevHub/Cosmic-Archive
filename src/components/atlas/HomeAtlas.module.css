@@ -1,0 +1,387 @@
+/*
+  The homepage's scene: hero, chart and zoom out. Ported from .track, .stage, .copy, .s0 to .s2,
+  .go, .index, .caption and .hint in prototype/look.html.
+
+  Two layouts from one set of sections:
+  - plain (the default): three sections one under the other. This is the page with no scene.
+  - live (`.track[data-live]`, once the scene is drawn): the sections are laid over one another on
+    a sticky stage in a 420vh track, and the script cross-fades them by zoom.
+*/
+
+.track {
+  position: relative;
+}
+
+.panel {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: 120px var(--gutter) clamp(56px, 11vh, 120px);
+  overflow: clip; /* the scrim reaches past the edges */
+}
+
+.hero {
+  justify-content: flex-end;
+}
+
+/* With no scene the chart and the web are plain pages on --space; they cover the hero's poster. */
+.chart {
+  justify-content: center;
+  background: var(--space);
+}
+
+.web {
+  justify-content: flex-end;
+  padding: 120px 0 0;
+  background: var(--space);
+}
+
+/* If the device will not draw the scene at all, each section shows a still of its own view. */
+:global(html[data-scene="static"]) .chart {
+  background: var(--space) url("/posters/atlas-chart-wide.webp") center / cover no-repeat;
+}
+
+:global(html[data-scene="static"]) .web {
+  background: var(--space) url("/posters/atlas-web-wide.webp") center / cover no-repeat;
+}
+
+@media (max-aspect-ratio: 4/5) {
+  :global(html[data-scene="static"]) .chart {
+    background-image: url("/posters/atlas-chart-narrow.webp");
+  }
+
+  :global(html[data-scene="static"]) .web {
+    background-image: url("/posters/atlas-web-narrow.webp");
+  }
+}
+
+.copy {
+  position: relative;
+  isolation: isolate;
+  max-width: 44rem;
+}
+
+.chart .copy {
+  max-width: 24rem;
+}
+
+/* A dark scrim behind the copy, where the galaxy's arm passes. */
+.copy::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -90px -140px -160px -200px;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--space) 88%, transparent) 35%, transparent);
+}
+
+.copy p,
+.words p {
+  margin: 22px 0 0;
+  max-width: var(--measure);
+  color: var(--ink-2);
+  font-size: var(--lede);
+}
+
+.words {
+  padding: 0 var(--gutter) 34px;
+  max-width: 46rem;
+}
+
+/* Where a link to a stage lands. */
+.mark {
+  position: absolute;
+  left: 0;
+  width: 0;
+  height: 0;
+}
+
+.markChart {
+  top: 100svh;
+}
+
+.markWeb {
+  top: 200svh;
+}
+
+/* The caption and the scroll hint sit over the first screen. */
+.furniture {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 100svh;
+  pointer-events: none;
+}
+
+.hint {
+  display: none;
+}
+
+/* ---- live: one sticky stage, the sections laid over one another ---- */
+
+.track[data-live] {
+  height: 420vh;
+}
+
+.track[data-live] .panel,
+.track[data-live] .furniture {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  min-height: 0;
+  background: none;
+  pointer-events: none;
+}
+
+.track[data-live] .panel a,
+.track[data-live] .panel button {
+  pointer-events: auto;
+}
+
+.track[data-live] .chart,
+.track[data-live] .web,
+.track[data-live] .furniture {
+  margin-top: -100svh;
+}
+
+/* hidden until the script has a frame to go by */
+.track[data-live] .chart,
+.track[data-live] .web {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.track[data-live] .chart {
+  padding-block: 0;
+}
+
+.track[data-live] .markChart {
+  top: 144vh; /* 45% of the scroll: the middle of the chart's rest */
+}
+
+.track[data-live] .markWeb {
+  top: 300vh;
+}
+
+.track[data-live] .hint {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  margin: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  letter-spacing: var(--label-track);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.track[data-live] .hint::after {
+  content: "";
+  width: 1px;
+  height: 26px;
+  background: var(--ink-2);
+}
+
+/* With motion paused the camera steps between the views, so the words fade instead of jumping. */
+:global(html[data-motion="paused"]) .track[data-live] .panel,
+:global(html[data-motion="paused"]) .track[data-live] .furniture p {
+  transition:
+    opacity var(--dur-base) ease-out,
+    visibility var(--dur-base);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 18px 44px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+/* Primary action: a small copy of the chart's ticked ring, with a vessel circling it. */
+.go {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 19px;
+}
+
+.go svg {
+  width: 68px;
+  height: 68px;
+  flex: none;
+  overflow: visible;
+}
+
+.dial {
+  fill: color-mix(in srgb, var(--space) 60%, transparent);
+  stroke: var(--beacon);
+  stroke-width: 1.25;
+  transition: fill var(--dur-base) ease-out;
+}
+
+.ticks {
+  fill: none;
+  stroke: var(--beacon);
+  stroke-width: 4;
+  stroke-dasharray: 1 6.33;
+  opacity: 0.75;
+  transform-origin: 32px 32px;
+  transition: transform var(--dur-turn) ease-out;
+}
+
+.arrow {
+  fill: none;
+  stroke: var(--beacon);
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition:
+    stroke var(--dur-base) ease-out,
+    transform var(--dur-base) ease-out;
+}
+
+.sat {
+  fill: var(--ink);
+  transform-origin: 32px 32px;
+  animation: orbit var(--dur-orbit) linear infinite;
+}
+
+.word {
+  padding-bottom: 4px;
+  background: linear-gradient(var(--beacon), var(--beacon)) 0 100% / 0 1px no-repeat;
+  transition: background-size var(--dur-slow) ease-out;
+}
+
+.go:hover .dial,
+.go:focus-visible .dial {
+  fill: var(--beacon);
+}
+
+.go:hover .arrow,
+.go:focus-visible .arrow {
+  stroke: var(--space);
+  transform: translateX(3px);
+}
+
+.go:hover .ticks {
+  transform: rotate(15deg);
+}
+
+.go:hover .word {
+  background-size: 100% 1px;
+}
+
+@keyframes orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+:global(html[data-motion="paused"]) .sat {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sat {
+    animation: none;
+  }
+
+  .ticks,
+  .arrow {
+    transition: none;
+  }
+}
+
+/* Secondary action: an index mark (three ruled lines) and a ruled word. */
+.index {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  font-size: 17px;
+  padding: 12px 0;
+}
+
+.index i {
+  width: 22px;
+  height: 15px;
+  flex: none;
+  background:
+    linear-gradient(currentColor, currentColor) 0 0 / 22px 1px no-repeat,
+    linear-gradient(currentColor, currentColor) 0 7px / 14px 1px no-repeat,
+    linear-gradient(currentColor, currentColor) 0 14px / 18px 1px no-repeat;
+}
+
+.index span {
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 50%, transparent);
+  padding-bottom: 3px;
+}
+
+.index:hover,
+.index:focus-visible {
+  color: var(--beacon);
+}
+
+.index:hover span,
+.index:focus-visible span {
+  border-bottom-color: var(--beacon);
+}
+
+.caption {
+  position: absolute;
+  right: var(--gutter);
+  bottom: 22px;
+  margin: 0;
+  font: italic 400 13px / 1 var(--font-text);
+  color: var(--ink-2);
+}
+
+@media (max-width: 720px) {
+  .hero,
+  .chart {
+    padding-bottom: 56px;
+  }
+
+  /* phone: the galaxy has the top half, the words the bottom */
+  .track[data-live] .chart {
+    justify-content: flex-end;
+    padding-bottom: 56px;
+  }
+
+  .track[data-live] .hint {
+    display: none;
+  }
+
+  .words {
+    padding-bottom: 22px;
+  }
+
+  .caption {
+    bottom: 14px;
+  }
+
+  .copy::before {
+    inset: -60px -40px -120px -40px;
+  }
+
+  .actions {
+    margin-top: 22px;
+    gap: 6px 30px;
+  }
+
+  .go {
+    font-size: 18px;
+    gap: 14px;
+  }
+
+  .go svg {
+    width: 58px;
+    height: 58px;
+  }
+}

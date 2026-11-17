@@ -3,10 +3,12 @@
  * Keys, log-distance interpolation and lens shift ported from prototype/look.html.
  * The hero sits close and fairly high: the galaxy overflows the frame, so the pull-back
  * to the web has somewhere to go.
+ *
+ * Free control (`/explore`) adds a turn and a tilt on top of the key for the current zoom.
  */
 
 import type { PerspectiveCamera } from "three";
-import { mix, sstep } from "./model";
+import { clamp, mix, sstep } from "./model";
 
 interface Key {
   d: number;
@@ -31,15 +33,18 @@ export const KEYS_PHONE: readonly Key[] = [
 /** Phone compositions apply when the view is taller than 5:4 (the prototype's `phone()`). */
 export const isPhone = (width: number, height: number) => width / height < 0.8;
 
-export function placeCamera(camera: PerspectiveCamera, zoom: number, width: number, height: number): void {
+const DEG = Math.PI / 180;
+
+export function placeCamera(camera: PerspectiveCamera, zoom: number, width: number, height: number, yaw = 0, pitch = 0): void {
   const K = isPhone(width, height) ? KEYS_PHONE : KEYS_DESK;
   const i = Math.min(1, Math.floor(zoom));
   const f = sstep(0, 1, zoom - i);
   const a = K[i];
   const b = K[i + 1];
   const d = Math.exp(mix(Math.log(a.d), Math.log(b.d), f));
-  const el = (mix(a.el, b.el, f) * Math.PI) / 180;
-  const az = mix(a.az, b.az, f);
+  // the tilt never takes the view under the disc or straight down onto it
+  const el = clamp(mix(a.el, b.el, f) * DEG + pitch, 14 * DEG, 84 * DEG);
+  const az = mix(a.az, b.az, f) + yaw;
   camera.aspect = width / height;
   camera.position.set(Math.sin(az) * Math.cos(el) * d, Math.sin(el) * d, Math.cos(az) * Math.cos(el) * d);
   camera.lookAt(0, 0, 0);

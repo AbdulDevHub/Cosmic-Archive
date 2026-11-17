@@ -10,18 +10,29 @@ import styles from "./SiteHeader.module.css";
  * Only routes that exist. Planned order (DESIGN_SPEC.md 7.1): Explore, Journeys, Archive, About.
  * Add each one here in the session that builds its route.
  */
-const NAV = [{ href: "/about", label: "About" }] as const;
+const NAV = [
+  { href: "/explore", label: "Explore" },
+  { href: "/about", label: "About" },
+] as const;
+
+const BAR_HEIGHT = 64;
 
 export function SiteHeader() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const update = () => setScrolled(window.scrollY > 8);
+    // The bar turns solid once the page scrolls (DESIGN_SPEC.md 7.1), but not over a scene that
+    // fills the screen (an element marked data-clear-header): there the scenery is the background.
+    const update = () => {
+      const clear = document.querySelector("[data-clear-header]");
+      const overScene = !!clear && clear.getBoundingClientRect().bottom > BAR_HEIGHT;
+      setScrolled(window.scrollY > 8 && !overScene);
+    };
     update();
     window.addEventListener("scroll", update, { passive: true });
     return () => window.removeEventListener("scroll", update);
-  }, []);
+  }, [pathname]);
 
   return (
     <header className={styles.top} data-scrolled={scrolled ? "" : undefined}>

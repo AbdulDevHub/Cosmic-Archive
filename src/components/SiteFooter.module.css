@@ -1,4 +1,7 @@
 .footer {
+  position: relative;
+  z-index: 1;
+  background: var(--space); /* the scene sits behind the page; the footer is not a window onto it */
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;

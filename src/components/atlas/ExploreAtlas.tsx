@@ -1,0 +1,218 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { levelCopy } from "@/lib/content/atlas";
+import { SceneSlot } from "@/scene/host/SceneSlot";
+import {
+  getSceneFrame,
+  getSceneInput,
+  sceneIsLive,
+  setSceneInput,
+  subscribeSceneFrame,
+  useSceneState,
+  ZOOM_MAX,
+  ZOOM_MIN,
+  type SceneFrame,
+} from "@/scene/host/store";
+import { BeaconList } from "./BeaconList";
+import styles from "./ExploreAtlas.module.css";
+import { MapMargin } from "./MapMargin";
+import { fade, stageOpacity, unfade } from "./stages";
+
+/*
+  The atlas under free control (ARCHITECTURE.md 2 and 4): the wheel and the + and - keys pull
+  back or move closer, a drag or the arrow keys turn the chart, and two buttons step between the
+  views for anyone using neither. Touch gestures beyond a sideways drag are O6.
+
+  Like the homepage, it is a plain page first: the words, both levels' destinations as lists and
+  the map margin are all in the server HTML. The controls appear once the scene is drawn.
+*/
+
+const POSTERS = {
+  wide: "/posters/atlas-chart-wide.webp",
+  narrow: "/posters/atlas-chart-narrow.webp",
+};
+
+const CHART = levelCopy(1);
+const WEB = levelCopy(2);
+
+const WHEEL_ZOOM = 0.0012; // one notch of a wheel is about an eighth of a level
+const DRAG_YAW = 0.005; // radians per pixel
+const DRAG_PITCH = 0.003;
+const KEY_ZOOM = 0.25;
+const KEY_YAW = 0.15;
+
+export function ExploreAtlas() {
+  const stage = useRef<HTMLDivElement>(null);
+  const intro = useRef<HTMLDivElement>(null);
+  const near = useRef<HTMLDivElement>(null);
+  const far = useRef<HTMLDivElement>(null);
+  const margin = useRef<HTMLDivElement>(null);
+  const caption = useRef<HTMLParagraphElement>(null);
+  const live = useSceneState(sceneIsLive);
+  // which of the two step buttons has nowhere left to go
+  const [limit, setLimit] = useState<"near" | "far" | null>(null);
+
+  const zoomTo = (zoom: number) => {
+    setSceneInput({ zoom });
+    const now = getSceneInput().zoom;
+    setLimit(now <= ZOOM_MIN ? "near" : now >= ZOOM_MAX ? "far" : null);
+  };
+  /** The next whole view in a direction: from between two views, the nearer one first. */
+  const step = (direction: 1 | -1) => {
+    const { zoom } = getSceneInput();
+    zoomTo(direction > 0 ? Math.floor(zoom + 1) : Math.ceil(zoom - 1));
+  };
+
+  // The zoom the scene drew decides which level's words, beacons and margin show.
+  useEffect(() => {
+    if (!live) return;
+    const faded = [near, far, margin, caption];
+    let lifted = 0;
+    const apply = (frame: SceneFrame) => {
+      const [o0, o1, o2] = stageOpacity(frame.zoom);
+      fade(near.current, Math.max(o0, o1));
+      fade(far.current, o2);
+      fade(margin.current, o2);
+      fade(caption.current, 1 - o2);
+      // Phone: the words stand at the bottom, so they rise to make room for the margin. A margin,
+      // not a transform: a transform would re-anchor the beacons inside, which are fixed to the canvas.
+      const lift = frame.narrow && margin.current ? Math.round(margin.current.offsetHeight * o2) : 0;
+      if (intro.current && lift !== lifted) {
+        lifted = lift;
+        intro.current.style.marginBottom = lift ? `${lift}px` : "";
+      }
+    };
+    const frame = getSceneFrame();
+    if (frame) apply(frame);
+    const unsubscribe = subscribeSceneFrame(apply);
+    const introElement = intro.current;
+    return () => {
+      unsubscribe();
+      for (const ref of faded) unfade(ref.current);
+      if (introElement) introElement.style.marginBottom = "";
+    };
+  }, [live]);
+
+  // Wheel, drag and keys.
+  useEffect(() => {
+    const element = stage.current;
+    if (!live || !element) return;
+
+    const sync = () => {
+      const { zoom } = getSceneInput();
+      setLimit(zoom <= ZOOM_MIN ? "near" : zoom >= ZOOM_MAX ? "far" : null);
+    };
+
+    // The wheel zooms while there is somewhere to zoom to. At either end, and whenever the page
+    // is already scrolled, it scrolls the page as usual: the footer is never out of reach.
+    const onWheel = (event: WheelEvent) => {
+      if (event.ctrlKey || event.metaKey) return; // the browser's own zoom, and a trackpad pinch
+      const { zoom } = getSceneInput();
+      const out = event.deltaY > 0;
+      if (window.scrollY > 0 || (out ? zoom >= ZOOM_MAX : zoom <= ZOOM_MIN)) return;
+      event.preventDefault();
+      const pixels = event.deltaMode === 1 ? event.deltaY * 32 : event.deltaY;
+      setSceneInput({ zoom: zoom + pixels * WHEEL_ZOOM });
+      sync();
+    };
+
+    let drag: { id: number; x: number; y: number } | null = null;
+    const onDown = (event: PointerEvent) => {
+      if (event.button !== 0 || (event.target as Element).closest("a, button")) return;
+      drag = { id: event.pointerId, x: event.clientX, y: event.clientY };
+      element.setPointerCapture(event.pointerId);
+      element.dataset.dragging = "";
+    };
+    const onMove = (event: PointerEvent) => {
+      if (!drag || event.pointerId !== drag.id) return;
+      const { yaw, pitch } = getSceneInput();
+      setSceneInput({ yaw: yaw - (event.clientX - drag.x) * DRAG_YAW, pitch: pitch + (event.clientY - drag.y) * DRAG_PITCH });
+      drag.x = event.clientX;
+      drag.y = event.clientY;
+    };
+    const onUp = (event: PointerEvent) => {
+      if (!drag || event.pointerId !== drag.id) return;
+      drag = null;
+      delete element.dataset.dragging;
+    };
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      const target = event.target as HTMLElement;
+      if (target.closest("input, textarea, select, [contenteditable]")) return;
+      if (target !== document.body && !element.contains(target)) return;
+      const { zoom, yaw } = getSceneInput();
+      if (event.key === "+" || event.key === "=") setSceneInput({ zoom: zoom - KEY_ZOOM });
+      else if (event.key === "-" || event.key === "_") setSceneInput({ zoom: zoom + KEY_ZOOM });
+      else if (event.key === "ArrowLeft") setSceneInput({ yaw: yaw - KEY_YAW });
+      else if (event.key === "ArrowRight") setSceneInput({ yaw: yaw + KEY_YAW });
+      else return;
+      event.preventDefault();
+      sync();
+    };
+
+    element.addEventListener("wheel", onWheel, { passive: false });
+    element.addEventListener("pointerdown", onDown);
+    element.addEventListener("pointermove", onMove);
+    element.addEventListener("pointerup", onUp);
+    element.addEventListener("pointercancel", onUp);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      element.removeEventListener("wheel", onWheel);
+      element.removeEventListener("pointerdown", onDown);
+      element.removeEventListener("pointermove", onMove);
+      element.removeEventListener("pointerup", onUp);
+      element.removeEventListener("pointercancel", onUp);
+      document.removeEventListener("keydown", onKey);
+      delete element.dataset.dragging;
+    };
+  }, [live]);
+
+  return (
+    <div ref={stage} className={styles.stage} data-live={live ? "" : undefined} data-clear-header>
+      <SceneSlot id="atlas" mode="explore" posters={POSTERS} />
+      <a className="skip-link" href="#destinations">
+        Skip to destinations
+      </a>
+
+      <div ref={intro} className={styles.intro} data-calm>
+        <h1 id="explore-title">Explore the atlas</h1>
+        <div className={styles.levels}>
+          <div ref={near} className={styles.level}>
+            <p>{CHART.text}</p>
+            <BeaconList level={1} live={live} />
+          </div>
+          <div ref={far} className={`${styles.level} ${styles.far}`}>
+            <p>
+              {WEB.heading} {WEB.text}
+            </p>
+            <BeaconList level={2} live={live} />
+          </div>
+        </div>
+        <div className={styles.controls}>
+          <button type="button" className={styles.control} onClick={() => limit !== "near" && step(-1)} aria-disabled={limit === "near"}>
+            <i className={styles.closer} aria-hidden="true" />
+            <span>Move closer</span>
+          </button>
+          <button type="button" className={styles.control} onClick={() => limit !== "far" && step(1)} aria-disabled={limit === "far"}>
+            <i className={styles.back} aria-hidden="true" />
+            <span>Pull back</span>
+          </button>
+          <a className={styles.control} href="#destinations">
+            <i className={styles.list} aria-hidden="true" />
+            <span>List view</span>
+          </a>
+        </div>
+        <p className={styles.how}>Scroll or press + and − to zoom. Drag or use the arrow keys to turn.</p>
+      </div>
+
+      <div ref={margin} className={styles.margin} data-calm="band">
+        <MapMargin />
+      </div>
+      <p ref={caption} className={styles.caption} data-calm>
+        Illustration, not to scale
+      </p>
+    </div>
+  );
+}

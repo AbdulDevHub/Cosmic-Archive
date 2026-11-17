@@ -3,8 +3,9 @@
 // Starts `next start` on a free port, captures each route at desktop, phone and desktop with
 // reduced motion, writes PNGs to screenshots/, and fails on any console error or failed request.
 //
-// `home` is the page as a visitor gets it (the device picks the quality). `home-still` is the
-// deterministic frame to hold beside prototype/shots/: `?shot=1&t=12` at the prototype's counts.
+// `home` and `explore` are the pages as a visitor gets them (the device picks the quality). The
+// `-still` shots are the deterministic frames to hold beside prototype/shots/: `?shot=1&t=12` at
+// the prototype's counts, with `&zoom=` holding the stage (0 hero, 1 chart, 2 cosmic web).
 
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
@@ -13,6 +14,10 @@ import { launchBrowser, sceneSettled, serveBuild } from "./lib/serve.mjs";
 const ROUTES = [
   { path: () => "/", name: "home", scene: true },
   { path: (view) => `/?shot=1&t=12&tier=${view.tier}`, name: "home-still", scene: true, mustDraw: true },
+  { path: (view) => `/?shot=1&t=12&zoom=1&tier=${view.tier}`, name: "chart-still", scene: true, mustDraw: true, beacons: 3 },
+  { path: (view) => `/?shot=1&t=12&zoom=2&tier=${view.tier}`, name: "web-still", scene: true, mustDraw: true, beacons: 2 },
+  { path: () => "/explore", name: "explore", scene: true },
+  { path: (view) => `/explore?shot=1&t=12&tier=${view.tier}`, name: "explore-still", scene: true, mustDraw: true, beacons: 3 },
   { path: () => "/about", name: "about", scene: false },
 ];
 
@@ -50,6 +55,17 @@ try {
         // with a forced tier, "static" means WebGL failed and the shot would only show the poster
         if (route.mustDraw && !note.startsWith("scene ready")) problems.push("the scene did not draw: this is the poster, not the scene");
         await page.waitForTimeout(450); // the canvas fades in over the poster (300 ms)
+        if (route.beacons) {
+          // every beacon of the stage on show must be a visible link, inside the window
+          const placed = await page.evaluate(() => {
+            const inView = (el) => {
+              const r = el.getBoundingClientRect();
+              return getComputedStyle(el).visibility === "visible" && r.width > 0 && r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight;
+            };
+            return [...document.querySelectorAll("a[data-anchor] [data-label]")].filter(inView).length;
+          });
+          if (placed !== route.beacons) problems.push(`${placed} beacon labels on screen, expected ${route.beacons}`);
+        }
       }
 
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

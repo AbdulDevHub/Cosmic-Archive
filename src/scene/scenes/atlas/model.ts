@@ -6,7 +6,9 @@
  * Changes from the prototype, all from DESIGN_SPEC.md section 10 or the tier budgets:
  * - counts come from the tier (`COUNTS`) instead of a phone/desktop switch;
  * - the companion's four glow sprites are their own layer (they are drawn as quads);
- * - `buildBulge` is new: a small bright heart for the `low` tier, where the core looked dull.
+ * - `buildBulge` is new: a small bright heart for the `low` tier, where the core looked dull;
+ * - the web: the home galaxy sits on a thread instead of in a void, and the phone volume is
+ *   smaller and denser (see `buildWebNodes` and `buildThreads`).
  */
 
 import type { ParticleTier } from "../../quality/tiers";
@@ -308,16 +310,164 @@ function buildBulge(n: number): Cloud {
   return d;
 }
 
-// ---------- level 2 knots (built now only to keep the random sequence; drawn in F3b) ----------
+/**
+ * How bright the galaxy is at a point of its own plane, 0 to 1, in the coordinates the disc was
+ * built in (before the pattern turns). A rough model of the layers above, used only to keep map
+ * labels off the bright parts as the disc turns (DESIGN_SPEC.md section 10).
+ */
+export function discBrightness(x: number, z: number): number {
+  const r = Math.hypot(x, z);
+  if (r > 1.15) return 0;
+  const th = Math.atan2(z, x);
+  let arms = 0;
+  for (let arm = 0; arm < 4; arm++) {
+    let d = (th - armAngle(arm, Math.max(r, 0.05))) % TAU;
+    if (d > Math.PI) d -= TAU;
+    if (d < -Math.PI) d += TAU;
+    // an arm's width as an angle; the feathers trail behind it, so that side is wider
+    const sig = (((arm > 1 ? 0.02 : 0.027) + 0.065 * r) / Math.max(r, 0.12)) * (d < 0 ? 2.4 : 1.5);
+    arms = Math.max(arms, (arm > 1 ? 0.45 : 1) * Math.exp(-(d * d) / (2 * sig * sig)));
+  }
+  const edge = 1 - sstep(0.8, 1.1, r);
+  return clamp(Math.exp(-r / 0.17) * 1.3 + edge * (0.14 + 0.86 * arms), 0, 1);
+}
+
+// ---------- level 2: the cosmic web ----------
 export type Vec3 = [number, number, number];
 
+/** A thread of the web between two knots. Only the home thread has a control point. */
+export interface Thread {
+  a: Vec3;
+  b: Vec3;
+  ia: number;
+  ib: number;
+  via?: Vec3;
+}
+
+export interface Web {
+  nodes: Vec3[];
+  threads: Thread[];
+}
+
+/** Web points keep this far from the home galaxy, so its beacon and the galaxy itself stay clear. */
+const WEB_CLEAR = 60;
+
 function buildWebNodes(rng: Rng, narrow: boolean): Vec3[] {
-  // a narrow screen sees a narrow slice, so build the web only as wide as the view needs
+  // A narrow screen sees a narrow slice, so the web is built only as large as the view needs.
+  // The phone volume is smaller than the prototype's (which looked thin there), so the same
+  // knots and points sit closer together. The count is unchanged: it fixes how much of the
+  // random sequence is used before the galaxy is built.
   const count = narrow ? 85 : 170;
-  const halfX = narrow ? 1700 : 3600;
+  const [halfX, halfY, halfZ] = narrow ? [1300, 320, 2300] : [3600, 420, 3000];
   const nodes: Vec3[] = [[0, 0, 0]];
-  for (let i = 1; i < count; i++) nodes.push([(rng.rand() * 2 - 1) * halfX, (rng.rand() * 2 - 1) * 420, (rng.rand() * 2 - 1) * 3000]);
+  for (let i = 1; i < count; i++) nodes.push([(rng.rand() * 2 - 1) * halfX, (rng.rand() * 2 - 1) * halfY, (rng.rand() * 2 - 1) * halfZ]);
   return nodes;
+}
+
+/**
+ * Threads between near neighbours, as in the prototype, with one change: the home galaxy is not
+ * a knot in a void but a point on a thread (DESIGN_SPEC.md section 10). The two nearest knots on
+ * opposite sides of it are joined by a curve that passes through the origin.
+ */
+function buildThreads(nodes: Vec3[]): Thread[] {
+  const pairs: [number, number][] = [];
+  for (let i = 1; i < nodes.length; i++) {
+    const a = nodes[i];
+    const near: [number, number][] = [];
+    for (let j = 1; j < nodes.length; j++) {
+      if (j !== i) near.push([j, Math.hypot(a[0] - nodes[j][0], a[1] - nodes[j][1], a[2] - nodes[j][2])]);
+    }
+    near.sort((p, q) => p[1] - q[1]);
+    for (const [j] of near.slice(0, 3)) {
+      if (!pairs.some((e) => e[0] === j && e[1] === i)) pairs.push([i, j]);
+    }
+  }
+  const threads: Thread[] = pairs.map(([ia, ib]) => ({ a: nodes[ia], b: nodes[ib], ia, ib }));
+
+  const flat = (v: Vec3) => Math.hypot(v[0], v[2]);
+  let ia = 1;
+  for (let i = 2; i < nodes.length; i++) if (flat(nodes[i]) < flat(nodes[ia])) ia = i;
+  const a = nodes[ia];
+  let ib = -1;
+  let straightest = -1;
+  let lowest = 1;
+  for (let i = 1; i < nodes.length; i++) {
+    if (i === ia) continue;
+    const b = nodes[i];
+    const cos = (a[0] * b[0] + a[2] * b[2]) / (flat(a) * flat(b));
+    if (cos < lowest) {
+      lowest = cos;
+      straightest = i;
+    }
+    if (cos < -0.4 && (ib < 0 || flat(b) < flat(nodes[ib]))) ib = i; // the nearest knot on the far side
+  }
+  if (ib < 0) ib = straightest;
+  const b = nodes[ib];
+  // a quadratic curve through the origin at its middle: 0.25 a + 0.5 via + 0.25 b = 0
+  threads.push({ a, b, ia, ib, via: [-(a[0] + b[0]) / 2, -(a[1] + b[1]) / 2, -(a[2] + b[2]) / 2] });
+  return threads;
+}
+
+function alongThread(rng: Rng, threads: Thread[], jit: number): Vec3 {
+  const { rand, gauss } = rng;
+  const e = threads[(rand() * threads.length) | 0];
+  const t = rand();
+  if (e.via) {
+    const u = 1 - t;
+    const k = (i: 0 | 1 | 2) => u * u * e.a[i] + 2 * u * t * e.via![i] + t * t * e.b[i] + gauss() * jit;
+    return [k(0), k(1), k(2)];
+  }
+  const sag = Math.sin(t * Math.PI) * 60; // threads bow a little so the web is not a wireframe
+  return [
+    mix(e.a[0], e.b[0], t) + gauss() * jit + sag * Math.sin(e.ia),
+    mix(e.a[1], e.b[1], t) + gauss() * jit,
+    mix(e.a[2], e.b[2], t) + gauss() * jit + sag * Math.cos(e.ib),
+  ];
+}
+
+/** Every point is a galaxy: clusters at the knots, the rest strung along the threads. `sizeK` makes fewer points larger. */
+function buildWeb(rng: Rng, n: number, web: Web, sizeK: number): Cloud {
+  const { rand, gauss } = rng;
+  const d = alloc(n);
+  while (d.n < n) {
+    let p: Vec3;
+    let c: RGB;
+    let s: number;
+    if (rand() < 0.36) {
+      const i = (rand() * web.nodes.length) | 0;
+      if (i === 0) continue; // the home galaxy is not a cluster
+      const k = web.nodes[i];
+      p = [k[0] + gauss() * 95, k[1] + gauss() * 70, k[2] + gauss() * 95];
+      c = mixC(C.gold, C.white, rand());
+      s = 1000 + Math.pow(rand(), 2) * 1700;
+    } else {
+      p = alongThread(rng, web.threads, 20);
+      c = mixC(C.violet, C.azure, rand());
+      const k = rand();
+      if (k < 0.14) c = C.rose;
+      else if (k < 0.22) c = C.teal;
+      c = [Math.min(1, c[0] * 1.3), Math.min(1, c[1] * 1.3), Math.min(1, c[2] * 1.3)];
+      s = 720 + Math.pow(rand(), 3) * 1300;
+    }
+    if (Math.hypot(p[0], p[1], p[2]) < WEB_CLEAR) continue;
+    put(rng, d, p[0], p[1], p[2], c, s * sizeK);
+  }
+  return d;
+}
+
+/** Soft light along the threads and around the knots. `carry` lets fewer thread sprites hold the same light. */
+function buildWebGlow(rng: Rng, n: number, web: Web, carry: number): Cloud {
+  const { rand } = rng;
+  const d = alloc(n + web.nodes.length);
+  while (d.n < n) {
+    const p = alongThread(rng, web.threads, 10);
+    if (Math.hypot(p[0], p[1], p[2]) < WEB_CLEAR) continue;
+    put(rng, d, p[0], p[1], p[2], scaleC(mixC(C.violet, C.azure, rand()), carry), 9000 + rand() * 9000);
+  }
+  web.nodes.forEach((k, i) => {
+    if (i) put(rng, d, k[0], k[1], k[2], scaleC(mixC(C.gold, C.rose, rand() * 0.6), 1.5), 34000 + rand() * 24000);
+  });
+  return d;
 }
 
 // ---------- counts per tier (ARCHITECTURE.md 3.4) ----------
@@ -334,17 +484,24 @@ export interface Counts {
   discAlpha: number;
   /** The same for wide screens, where the disc fills the frame and thin tiers show most. */
   discAlphaWide: number;
+  /** Level 2 (ARCHITECTURE.md 3.4): the galaxies of the web, and the soft sprites along its threads. */
+  web: number;
+  webGlow: number;
+  /** Fewer web points are each drawn larger, so the threads stay readable. */
+  webSize: number;
 }
 
 /** `high` is the prototype's desktop build; `low` is its phone build cut to the 40k budget. */
 export const COUNTS: Record<ParticleTier, Counts> = {
-  high: { disc: 160000, stars: 13000, halo: 6500, companion: 2600, body: 700, haze: 2200, dust: 2800, bulge: 0, discAlpha: 0.52, discAlphaWide: 0.52 },
-  medium: { disc: 90000, stars: 10000, halo: 4500, companion: 1800, body: 500, haze: 1550, dust: 1950, bulge: 0, discAlpha: 0.68, discAlphaWide: 0.8 },
-  low: { disc: 40000, stars: 6000, halo: 2500, companion: 1000, body: 320, haze: 900, dust: 1100, bulge: 1400, discAlpha: 0.9, discAlphaWide: 1.4 },
+  high: { disc: 160000, stars: 13000, halo: 6500, companion: 2600, body: 700, haze: 2200, dust: 2800, bulge: 0, discAlpha: 0.52, discAlphaWide: 0.52, web: 60000, webGlow: 6000, webSize: 1 },
+  medium: { disc: 90000, stars: 10000, halo: 4500, companion: 1800, body: 500, haze: 1550, dust: 1950, bulge: 0, discAlpha: 0.68, discAlphaWide: 0.8, web: 35000, webGlow: 4000, webSize: 1.15 },
+  low: { disc: 40000, stars: 6000, halo: 2500, companion: 1000, body: 320, haze: 900, dust: 1100, bulge: 1400, discAlpha: 0.9, discAlphaWide: 1.4, web: 15000, webGlow: 2500, webSize: 1.35 },
 };
 
 export interface AtlasData {
   webNodes: Vec3[];
+  web: Cloud;
+  webGlow: Cloud;
   wash: Cloud;
   stars: Cloud;
   body: Cloud;
@@ -358,11 +515,16 @@ export interface AtlasData {
   core: Cloud;
 }
 
-/** Builds in the prototype's order: web knots, wash, stars, body, haze, halo, companion, disc, dust, core. */
+/**
+ * Builds in the prototype's order: web knots, wash, stars, body, haze, halo, companion, disc,
+ * dust, core, then the web's glow and points. The web comes last, so nothing about it can
+ * change the approved galaxy.
+ */
 export function buildAtlas(tier: ParticleTier, narrow: boolean): AtlasData {
   const rng = makeRng();
   const n = COUNTS[tier];
   const webNodes = buildWebNodes(rng, narrow);
+  const web: Web = { nodes: webNodes, threads: buildThreads(webNodes) };
   const wash = buildWash(rng);
   const stars = buildStars(rng, n.stars);
   const body = buildBody(rng, n.body);
@@ -372,8 +534,12 @@ export function buildAtlas(tier: ParticleTier, narrow: boolean): AtlasData {
   const disc = buildGalaxy(rng, n.disc);
   const dust = buildDust(rng, n.dust);
   const core = buildCore(rng);
+  const webGlow = buildWebGlow(rng, n.webGlow, web, Math.sqrt(COUNTS.high.webGlow / n.webGlow));
+  const webPoints = buildWeb(rng, n.web, web, n.webSize);
   return {
     webNodes,
+    web: webPoints,
+    webGlow,
     wash,
     stars,
     body,

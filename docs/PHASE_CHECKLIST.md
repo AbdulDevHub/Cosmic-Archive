@@ -45,10 +45,15 @@ Fable's part ends here (D-028). Everything below is built by Opus.
 
 ## F3b Atlas chart, zoom out and Explore
 
-- [ ] Atlas Level 2 (cosmic web) and the zoom between levels.
-- [ ] Beacons are real links; list view.
-- [ ] `/` wired to scroll through all three stages; `/explore` with free control.
-- [ ] Chart and zoom-out screenshots pass the design checklist.
+- [x] Atlas Level 2 (cosmic web) and the zoom between levels.
+- [x] Beacons are real links; list view. Every beacon points at `/about` until its subject page exists (D-044).
+- [x] `/` wired to scroll through all three stages; `/explore` with free control (wheel, drag, + and - keys, arrow keys, two step buttons).
+- [x] Chart and zoom-out screenshots pass the design checklist against `prototype/shots/` (`screenshots/chart-still-*`, `web-still-*`, `explore-still-*`; `npm run shots` 21 of 21, 2026-11-17).
+- [x] Labels checked in motion at 1440x900, 1024x700 and 390x844: steady while the disc turns (one small move in 30 s), on screen and off the copy after turning, zooming and scrolling. Still rough: between the chart and the web (zoom about 1.3) the fading labels crowd the small galaxy.
+- [x] `npm run fallbacks` 14 of 14; 20 draw calls a frame (limit 30).
+- [x] Budgets measured (gzip, 2026-11-17): `/about` first load 138.1 KB (limit 140); host + three + R3F 183 KB (220); atlas chunk 13.4 KB (40).
+- [ ] For the owner: first-load JS on the two scene routes is now 144.7 KB (`/`) and 145.1 KB (`/explore`), up from 138.3 KB, because the beacons and their label placement are page code. The 140 KB limit is written for routes with no scene (D-047).
+- [ ] Not yet tried on real hardware: touch on `/explore` (a sideways drag only; the rest is O6), frame rate (as F3a).
 
 ## F4 Content model + Black Holes
 

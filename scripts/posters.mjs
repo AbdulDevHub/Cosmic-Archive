@@ -15,6 +15,12 @@ const OUT = join("public", "posters");
 const POSTERS = [
   { file: "atlas-hero-wide.webp", path: "/?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.8 },
   { file: "atlas-hero-narrow.webp", path: "/?shot=1&t=12&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.8 },
+  // The chart is what /explore opens on. The chart and the web also stand in for their sections of
+  // the homepage on a device that will not draw the scene at all.
+  { file: "atlas-chart-wide.webp", path: "/?shot=1&t=12&zoom=1&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.8 },
+  { file: "atlas-chart-narrow.webp", path: "/?shot=1&t=12&zoom=1&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.8 },
+  { file: "atlas-web-wide.webp", path: "/?shot=1&t=12&zoom=2&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.75 },
+  { file: "atlas-web-narrow.webp", path: "/?shot=1&t=12&zoom=2&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.75 },
 ];
 
 mkdirSync(OUT, { recursive: true });

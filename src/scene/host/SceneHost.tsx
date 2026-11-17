@@ -20,11 +20,15 @@ import styles from "./SceneHost.module.css";
 import { sceneParams, START_TIME } from "./params";
 import { SCENES } from "./registry";
 import {
+  getSceneInput,
   markReady,
+  onSceneInput,
+  publishSceneFrame,
   setQuality,
   setStatus,
   useSceneState,
   type SceneId,
+  type SceneInput,
   type SlotRequest,
 } from "./store";
 import type { Box, SceneProps } from "./types";
@@ -64,7 +68,7 @@ export default function SceneHost() {
 
   const [params] = useState(sceneParams);
   const timeRef = useRef(params.time ?? START_TIME);
-  const zoomRef = useRef(0);
+  const viewRef = useRef<SceneInput>({ zoom: 0, yaw: 0, pitch: 0 });
   const runningRef = useRef(false);
 
   const rung = typeof quality === "number" ? quality : RUNG_MEDIUM;
@@ -77,6 +81,9 @@ export default function SceneHost() {
     runningRef.current = isRunning;
     if (isRunning) governor.restart(rung, performance.now());
   }, [isRunning, governor, rung]);
+
+  // While the loop is stopped (reduced motion, Pause), a scroll or a drag still has to draw its frame.
+  useEffect(() => onSceneInput(() => invalidateRef.current?.()), []);
 
   // Create the renderer root once per visit.
   useEffect(() => {
@@ -133,11 +140,20 @@ export default function SceneHost() {
     // Keyed by token: a page that asks again gets a fresh scene, which reports its own first frame.
     const store = root.render(
       mounted ? (
-        <SceneTree key={mounted.token} slot={mounted} rung={rung} timeRef={timeRef} zoomRef={zoomRef} runningRef={runningRef} governor={params.tier === null ? governor : null} />
+        <SceneTree
+          key={mounted.token}
+          slot={mounted}
+          rung={rung}
+          timeRef={timeRef}
+          viewRef={viewRef}
+          runningRef={runningRef}
+          fixedZoom={params.zoom}
+          governor={params.tier === null ? governor : null}
+        />
       ) : null,
     );
     invalidateRef.current = () => store.getState().invalidate();
-  }, [root, size, dpr, isRunning, mounted, rung, governor, params.shot, params.tier]);
+  }, [root, size, dpr, isRunning, mounted, rung, governor, params.shot, params.tier, params.zoom]);
 
   const on = ready && !lost;
   return (
@@ -156,29 +172,56 @@ interface SceneTreeProps {
   slot: SlotRequest;
   rung: number;
   timeRef: Box<number>;
-  zoomRef: Box<number>;
+  viewRef: Box<SceneInput>;
   runningRef: Box<boolean>;
+  /** From `?zoom=`: holds the zoom there for stills. */
+  fixedZoom: number | null;
   /** Null when `?tier=` pins the quality. */
   governor: Governor | null;
 }
 
-function SceneTree({ slot, rung, timeRef, zoomRef, runningRef, governor }: SceneTreeProps) {
+function SceneTree({ slot, rung, timeRef, viewRef, runningRef, fixedZoom, governor }: SceneTreeProps) {
   const Scene = LAZY[slot.id];
   return (
     <>
-      <Clock timeRef={timeRef} runningRef={runningRef} governor={governor} />
+      <Clock timeRef={timeRef} viewRef={viewRef} runningRef={runningRef} fixedZoom={fixedZoom} governor={governor} />
       <Suspense fallback={null}>
-        <Scene mode={slot.mode} rung={rung} time={timeRef} zoom={zoomRef} onReady={() => markReady(slot.token)} />
+        <Scene mode={slot.mode} rung={rung} time={timeRef} view={viewRef} publish={publishSceneFrame} onReady={() => markReady(slot.token)} />
       </Suspense>
     </>
   );
 }
 
-/** Advances scene time while the loop runs and feeds the governor. Mounted before the scene, so it ticks first. */
-function Clock({ timeRef, runningRef, governor }: { timeRef: Box<number>; runningRef: Box<boolean>; governor: Governor | null }) {
+const EASE_PER_SECOND = 5; // the prototype's: the camera closes a fifth of the gap every 40 ms
+
+/**
+ * Advances scene time while the loop runs, moves the camera toward what the visitor asked for,
+ * and feeds the governor. Mounted before the scene, so it ticks first.
+ *
+ * While the loop runs the camera eases. While it is stopped (reduced motion, Pause, a still for a
+ * screenshot) there is no gliding: the zoom steps between the three views and each is one frame.
+ */
+function Clock({ timeRef, viewRef, runningRef, fixedZoom, governor }: Omit<SceneTreeProps, "slot" | "rung">) {
+  const started = useRef(false);
   useFrame((_, delta) => {
-    if (!runningRef.current) return;
-    timeRef.current += Math.min(delta, 0.05);
+    const target = getSceneInput();
+    const view = viewRef.current;
+    const running = runningRef.current;
+    const dt = Math.min(delta, 0.05);
+    if (!running || !started.current) {
+      view.zoom = running ? target.zoom : Math.round(target.zoom);
+      view.yaw = target.yaw;
+      view.pitch = target.pitch;
+    } else {
+      const k = Math.min(1, dt * EASE_PER_SECOND);
+      view.zoom += (target.zoom - view.zoom) * k;
+      view.yaw += (target.yaw - view.yaw) * k;
+      view.pitch += (target.pitch - view.pitch) * k;
+    }
+    if (fixedZoom !== null) view.zoom = fixedZoom;
+    started.current = true;
+    if (!running) return;
+    timeRef.current += dt;
     governor?.sample(delta * 1000, performance.now());
   });
   return null;
