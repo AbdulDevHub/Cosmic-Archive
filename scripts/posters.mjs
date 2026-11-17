@@ -24,6 +24,9 @@ const POSTERS = [
   // Subject scenes: `<scene id>-wide` and `<scene id>-narrow`, the names the subject page asks for.
   { file: "black-hole-wide.webp", path: "/subjects/black-holes?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.8 },
   { file: "black-hole-narrow.webp", path: "/subjects/black-holes?shot=1&t=12&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.8 },
+  // the atlas galaxy in its subject framing (the Galaxies page asks for `atlas-subject-*`)
+  { file: "atlas-subject-wide.webp", path: "/subjects/galaxies?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.8 },
+  { file: "atlas-subject-narrow.webp", path: "/subjects/galaxies?shot=1&t=12&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.8 },
   // Windows for the homepage's Destinations section: a part of a scene, cropped. `crop` is in CSS
   // pixels of the viewport; `out` is the saved width. A destination whose own scene is not built yet
   // looks at the place on the atlas where it is found (nebulae in an arm, quasars on the web).

@@ -4,7 +4,8 @@
  * The hero sits close and fairly high: the galaxy overflows the frame, so the pull-back
  * to the web has somewhere to go.
  *
- * Free control (`/explore`) adds a turn and a tilt on top of the key for the current zoom.
+ * Free control (`/explore`) adds a turn and a tilt on top of the key for the current zoom. The
+ * Galaxies subject page has a key of its own.
  */
 
 import type { PerspectiveCamera } from "three";
@@ -30,17 +31,26 @@ export const KEYS_PHONE: readonly Key[] = [
   { d: 3000, el: 60, az: 0.55, sx: 0.0, sy: 0.2 },
 ];
 
+/**
+ * The Galaxies subject page (O2): the whole disc and its ticked ring, set to the right of the
+ * title on a wide screen and above it on a phone, like the other subject scenes. One key: a
+ * subject page does not zoom.
+ */
+export const SUBJECT_DESK: Key = { d: 3.75, el: 40, az: 0.22, sx: 0.3, sy: 0.04 };
+export const SUBJECT_PHONE: Key = { d: 8.6, el: 50, az: 0.22, sx: 0.0, sy: 0.4 };
+
 /** Phone compositions apply when the view is taller than 5:4 (the prototype's `phone()`). */
 export const isPhone = (width: number, height: number) => width / height < 0.8;
 
 const DEG = Math.PI / 180;
 
-export function placeCamera(camera: PerspectiveCamera, zoom: number, width: number, height: number, yaw = 0, pitch = 0): void {
-  const K = isPhone(width, height) ? KEYS_PHONE : KEYS_DESK;
+export function placeCamera(camera: PerspectiveCamera, zoom: number, width: number, height: number, yaw = 0, pitch = 0, subject = false): void {
+  const phone = isPhone(width, height);
+  const K = phone ? KEYS_PHONE : KEYS_DESK;
   const i = Math.min(1, Math.floor(zoom));
-  const f = sstep(0, 1, zoom - i);
-  const a = K[i];
-  const b = K[i + 1];
+  const f = subject ? 0 : sstep(0, 1, zoom - i);
+  const a = subject ? (phone ? SUBJECT_PHONE : SUBJECT_DESK) : K[i];
+  const b = subject ? a : K[i + 1];
   const d = Math.exp(mix(Math.log(a.d), Math.log(b.d), f));
   // the tilt never takes the view under the disc or straight down onto it
   const el = clamp(mix(a.el, b.el, f) * DEG + pitch, 14 * DEG, 84 * DEG);

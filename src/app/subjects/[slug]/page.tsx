@@ -41,7 +41,9 @@ export default async function SubjectPage({ params }: Props) {
 
   const { default: Body } = (await import(`@content/subjects/${slug}.mdx`)) as { default: ComponentType<{ components?: MDXComponents }> };
   const scene = (subject.scene ?? null) as SceneId | null;
-  const posters = scene ? { wide: `/posters/${scene}-wide.webp`, narrow: `/posters/${scene}-narrow.webp` } : null;
+  // the atlas has a poster per homepage stage; a subject page shows it in its subject framing
+  const poster = scene === "atlas" ? "atlas-subject" : scene;
+  const posters = poster ? { wide: `/posters/${poster}-wide.webp`, narrow: `/posters/${poster}-narrow.webp` } : null;
   const related = relatedTo(subject);
 
   return (

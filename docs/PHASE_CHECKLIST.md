@@ -76,7 +76,14 @@ Fable's part ends here (D-028). Everything below is built by Opus.
   - [x] Checks: `npm run check` (now also `content/destinations.ts` and `content/home.ts`; a wrong source id fails), `npm run build`, `npm run shots` 37 of 37, `npm run fallbacks` 14 of 14.
   - [x] Budgets (gzip): `/about` and `/archive` first load 138.4 KB (limit 140); `/` 145.4, `/explore` 145.8, `/subjects/black-holes` 142.4 (scene routes, D-047). No 3D code without WebGL on any of them.
   - [ ] Owner has read the new copy (destination lines, the journey preview, About).
-- [ ] O2 Galaxies.
+- [x] O2 Galaxies (2026-11-17):
+  - [x] `content/subjects/galaxies.mdx`: what a galaxy is, reading the picture, shapes (with the `galaxy-types` diagram), how they form and grow, scale and our place (Local Group, Laniakea), what telescopes show (linked, not embedded), what nobody knows yet. Seven sources fetched and checked 2026-11-17 (D-066); formation marked theoretical, the origin of shapes hypothetical.
+  - [x] Opening scene: the atlas galaxy in `subject` mode (own camera key, no vessel), four callouts on real anchors (D-062, D-063). Posters `atlas-subject-wide/narrow` (D-064).
+  - [x] The Galaxies and "Where you started" beacons, the Destinations window, the archive row and Black Holes' "Where to go next" link to `/subjects/galaxies` (checked in the built HTML).
+  - [x] Checks: `npm run check` passes and exits 1 when `esa-andromeda-fate` is removed from the sources; `npm run build`; `npm run shots` 46 of 46 (new `galaxies`, `galaxies-still`, `galaxies-body`); `npm run fallbacks` 14 of 14. On `/subjects/galaxies` itself: no WebGL shows the poster, the full text and no 3D code; reduced motion draws one still frame and no loop.
+  - [x] Callouts placed without overlap at 1440x900 and 390x844 (`galaxies-still-*`).
+  - [x] Budgets (gzip): `/about` 138.5 KB (limit 140); `/subjects/galaxies` 142.6 (scene route, D-047); atlas chunk 13.5 KB (40); host + three + R3F 183 KB (220); 16 draw calls a frame on `low` (30).
+  - [ ] Owner has read the Galaxies copy.
 - [ ] O3 Nebulae.
 - [ ] O4 Quasars.
 - [ ] O5 Journey: A star's life.

@@ -20,11 +20,14 @@ const ROUTES = [
   { path: (view) => `/explore?shot=1&t=12&tier=${view.tier}`, name: "explore-still", scene: true, mustDraw: true, beacons: 3 },
   { path: () => "/subjects/black-holes", name: "black-holes", scene: true },
   { path: (view) => `/subjects/black-holes?shot=1&t=12&tier=${view.tier}`, name: "black-holes-still", scene: true, mustDraw: true, beacons: 4 },
+  { path: () => "/subjects/galaxies", name: "galaxies", scene: true },
+  { path: (view) => `/subjects/galaxies?shot=1&t=12&tier=${view.tier}`, name: "galaxies-still", scene: true, mustDraw: true, beacons: 4 },
   { path: () => "/about", name: "about", scene: false },
   // the whole page below the top of the window: the homepage's sections under the scene, and the reading pages
   { path: () => "/", name: "home-below", scene: true, from: "#destinations" },
   { path: () => "/about", name: "about-full", scene: false, from: "body" },
   { path: () => "/archive", name: "archive-full", scene: false, from: "body" },
+  { path: () => "/subjects/galaxies", name: "galaxies-body", scene: true, from: "#an-island-of-stars" },
   // the phone menu, open
   { path: () => "/archive", name: "menu", scene: false, only: "phone", open: "[aria-controls='site-menu']" },
 ];

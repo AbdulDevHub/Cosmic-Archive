@@ -45,6 +45,34 @@
   stroke-dasharray: 5 3; /* long dash: theoretical */
 }
 
+/* galaxy-types */
+.galaxyDisc {
+  fill: color-mix(in srgb, var(--violet) 22%, var(--space));
+}
+
+.galaxyArm {
+  fill: none;
+  stroke: var(--azure);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.galaxyBar {
+  fill: var(--ember);
+}
+
+.galaxyBulge {
+  fill: var(--gold);
+}
+
+.galaxyOld {
+  fill: var(--ember);
+}
+
+.galaxyKnot {
+  fill: var(--rose);
+}
+
 .leader {
   stroke: color-mix(in srgb, var(--ink) 60%, transparent);
   stroke-width: 1;

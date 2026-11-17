@@ -7,7 +7,7 @@
  * so no coordinates are invented here (PROJECT_BLUEPRINT.md 6.4).
  *
  * Until its subject page exists (O2 to O4) a destination opens /about; `opens` records where it
- * will lead. Black Holes has its page (F4).
+ * will lead. Black Holes has its page (F4), Galaxies its own (O2), which "Where you started" opens too.
  */
 
 /** PROJECT_BLUEPRINT.md 6.1. Drawn as a line style and always written as a word too. */
@@ -164,7 +164,7 @@ export const DESTINATIONS: readonly Destination[] = [
     label: "Galaxies",
     note: "the whole island of stars",
     evidence: "observed",
-    href: "/about",
+    href: "/subjects/galaxies",
     opens: "/subjects/galaxies",
     sources: ["nasa-galaxies"],
   },
@@ -186,7 +186,7 @@ export const DESTINATIONS: readonly Destination[] = [
     label: "Where you started",
     note: "one galaxy among countless others",
     evidence: "observed",
-    href: "/about",
+    href: "/subjects/galaxies",
     opens: "/subjects/galaxies",
     sources: ["nasa-galaxies", "nasa-cosmic-web"],
   },

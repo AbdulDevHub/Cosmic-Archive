@@ -23,7 +23,7 @@ export const budget: SceneBudget = {
   },
 };
 
-export default function AtlasScene({ rung, time, view, publish, onReady }: SceneProps) {
+export default function AtlasScene({ mode, rung, time, view, publish, onReady }: SceneProps) {
   const camera = useThree((s) => s.camera) as PerspectiveCamera;
   const width = useThree((s) => s.size.width);
   const height = useThree((s) => s.size.height);
@@ -31,9 +31,10 @@ export default function AtlasScene({ rung, time, view, publish, onReady }: Scene
   const invalidate = useThree((s) => s.invalidate);
   const { particles, glow } = RUNGS[rung];
   const narrow = isPhone(width, height);
+  const subject = mode === "subject"; // the Galaxies page: the galaxy alone, framed whole
 
   // Particle attributes are built once per tier (and per phone/desktop composition), never per frame.
-  const world = useMemo(() => new AtlasWorld(particles, narrow), [particles, narrow]);
+  const world = useMemo(() => new AtlasWorld(particles, narrow, subject), [particles, narrow, subject]);
   useEffect(() => () => world.dispose(), [world]);
   const frame = useMemo(() => makeFrame(), []);
 

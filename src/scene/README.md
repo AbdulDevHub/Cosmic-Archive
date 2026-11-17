@@ -6,7 +6,7 @@ Everything WebGL lives here, and only here. Nothing outside this folder imports 
 |---|---|
 | `host/` | `SceneHostLoader` (in the root layout, no three), `SceneHost` (the one persistent canvas), `SceneSlot` (what pages render), the registry, the store, the URL switches |
 | `quality/` | device tier detection and the frame-time governor (no three) |
-| `scenes/atlas/` | the galaxy, ported from `prototype/look.html`: `model.ts` (particle data, no three), `world.ts` (three objects), `camera.ts` (the zoom rig). The cosmic web arrives in F3b |
+| `scenes/atlas/` | the galaxy and the cosmic web, ported from `prototype/look.html`: `model.ts` (particle data, no three), `world.ts` (three objects), `camera.ts` (the zoom rig). In `subject` mode (the Galaxies page) it uses its own camera key and draws no vessel |
 | `scenes/black-hole/` | the Black Holes subject scene (F4) |
 | `shaders/` | shared GLSL chunks as `.glsl.ts` template strings |
 

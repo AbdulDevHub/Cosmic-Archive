@@ -59,6 +59,10 @@ const ORDER_INK = 6;
  */
 const NEBULA_R = 0.74;
 const NEBULA_TH = armAngle(1, NEBULA_R);
+// a dark lane on the inner edge of the other main arm, as model.ts `buildDust` lays them
+const DUST_R = 0.5;
+const DUST_TH = armAngle(0, DUST_R);
+const DUST_RR = DUST_R - (0.03 + 0.05 * DUST_R);
 type Anchor = { local: Vec3; spin: boolean } | { web: "quasar" | "home" };
 const ANCHORS: Record<string, Anchor> = {
   /** The heart of the galaxy. */
@@ -71,6 +75,10 @@ const ANCHORS: Record<string, Anchor> = {
   quasar: { web: "quasar" },
   /** The galaxy the visitor came from. */
   home: { web: "home" },
+  /** A dust lane along the inside of a main arm; it turns with the disc (the Galaxies page). */
+  dust: { local: [DUST_RR * Math.cos(DUST_TH), 0, DUST_RR * Math.sin(DUST_TH)], spin: true },
+  /** The dwarf companion (the Galaxies page). */
+  companion: { local: [SATELLITE[0], SATELLITE[1], SATELLITE[2]], spin: false },
 };
 
 /** Where the quasar's beacon should fall in the zoomed-out view, in NDC (the prototype's). */
@@ -261,7 +269,15 @@ export class AtlasWorld {
   private readonly glow: { body: number; haze: number; dust: number };
   private glowGain = 1;
 
-  constructor(tier: ParticleTier, narrow: boolean) {
+  /**
+   * `subject`: the Galaxies page. The galaxy is framed whole by its own camera key, the zoom is
+   * held at the galaxy, and the vessel and its trail stay on the homepage, where the journey is.
+   */
+  constructor(
+    tier: ParticleTier,
+    narrow: boolean,
+    private readonly subject = false,
+  ) {
     const data = buildAtlas(tier, narrow);
     const counts = COUNTS[tier];
     // On a wide screen the galaxy fills the frame, so a lower tier must not look thinner: fewer
@@ -435,8 +451,8 @@ export class AtlasWorld {
 
   /** One frame at scene time `t` and the camera at `view`; the fade ranges are the prototype's `frame()`. */
   frame(camera: PerspectiveCamera, t: number, view: SceneInput, width: number, height: number, out: SceneFrame): void {
-    const zoom = view.zoom;
-    placeCamera(camera, zoom, width, height, view.yaw, view.pitch);
+    const zoom = this.subject ? 0 : view.zoom;
+    placeCamera(camera, zoom, width, height, view.yaw, view.pitch, this.subject);
     this.camera = camera;
     this.time = t;
     this.zoom = zoom;
@@ -465,11 +481,12 @@ export class AtlasWorld {
       line.material.opacity = (line.material.userData.base as number) * inkLevel;
       line.visible = l1 > 0;
     }
-    this.trailMaterial.opacity = l1;
-    this.trail.visible = l1 > 0;
-    this.vessel.material.opacity = l1;
-    this.vessel.visible = l1 > 0;
-    this.engine.alpha = 0.9 * l1;
+    const ship = this.subject ? 0 : l1;
+    this.trailMaterial.opacity = ship;
+    this.trail.visible = ship > 0;
+    this.vessel.material.opacity = ship;
+    this.vessel.visible = ship > 0;
+    this.engine.alpha = 0.9 * ship;
 
     const landmarks = sstep(1.6, 1.95, zoom);
     this.web.alpha = sstep(1.35, 1.9, zoom);

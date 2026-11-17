@@ -33,6 +33,11 @@ const PREFER: Readonly<Record<string, LabelRule>> = {
   lensed: { unit: "radius", wide: [0.26, -0.3], narrow: [-0.3, -0.45] },
   disc: { unit: "radius", wide: [0.06, 0.42], narrow: [0.08, 1.2] },
   bright: { unit: "radius", wide: [0.2, -0.36], narrow: [-0.67, -0.25] },
+  // atlas, in the Galaxies framing: the labels hang outside the bright disc where they can
+  core: { unit: "radius", wide: [-0.25, 0.95], narrow: [0.1, 1.0] },
+  arm: { unit: "radius", wide: [-0.85, 0.05], narrow: [-0.06, 1.4] },
+  dust: { unit: "radius", wide: [0.27, -0.44], narrow: [0.55, -0.15] },
+  companion: { unit: "radius", wide: [-0.5, -0.1], narrow: [0.6, -0.25] },
 };
 
 const ALWAYS = (frame: SceneFrame) => frame.width > 0;
