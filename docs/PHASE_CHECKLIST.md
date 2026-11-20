@@ -84,7 +84,15 @@ Fable's part ends here (D-028). Everything below is built by Opus.
   - [x] Callouts placed without overlap at 1440x900 and 390x844 (`galaxies-still-*`).
   - [x] Budgets (gzip): `/about` 138.5 KB (limit 140); `/subjects/galaxies` 142.6 (scene route, D-047); atlas chunk 13.5 KB (40); host + three + R3F 183 KB (220); 16 draw calls a frame on `low` (30).
   - [ ] Owner has read the Galaxies copy.
-- [ ] O3 Nebulae.
+- [x] O3 Nebulae (2026-11-17):
+  - [x] `content/subjects/nebulae.mdx`: what a nebula is, reading the picture, kinds (with the `nebula-kinds` diagram), where stars are born, where stars leave their mark (planetary nebulae, supernova remnants, recycling), distances, what nobody knows yet; real observations linked from the frontmatter, never embedded. Eleven sources fetched and checked 2026-11-17 (D-072).
+  - [x] `nebula` scene: one shader, our own blister-shaped star-forming cloud with contour ink, ticked ring and vessel (D-067 to D-069). Four callouts on its own anchors (D-070). Posters `nebula-wide/narrow`; the homepage Nebulae window is now a crop of it (D-071).
+  - [x] The Nebulae beacon, the Destinations window and the archive row link to `/subjects/nebulae` (built page list).
+  - [x] Checks: `npm run check` passes and exits 1 when `nasa-hubble-m1` is removed from the sources; `npm run build`; `npm run shots` 55 of 55 (new `nebulae`, `nebulae-still`, `nebulae-body`); `npm run fallbacks` 14 of 14. On `/subjects/nebulae` itself: no WebGL shows the poster, the full text (4 callouts, 11 sources) and downloads no 3D code; reduced motion draws one frame and no loop; on `low` the loop runs at 1 draw call a frame.
+  - [x] Callouts placed without overlap at 1440x900 and 390x844 (`nebulae-still-*`).
+  - [x] Budgets (gzip): `/about` 138.6 KB (limit 140); `/subjects/nebulae` 142.7 (scene route, D-047); nebula chunk 4.5 KB (40); host + three + R3F 182.5 KB (220); 1 draw call a frame, no particles.
+  - [ ] Owner has read the Nebulae copy.
+  - [ ] Not yet measured on real hardware: the shader's frame rate on a mid-range phone (its cost is noise per pixel).
 - [ ] O4 Quasars.
 - [ ] O5 Journey: A star's life.
 - [ ] O6 Explore polish.

@@ -88,3 +88,45 @@
   fill: var(--ink);
   font: 600 14px var(--font-text);
 }
+
+/* ---- nebula-kinds ---- */
+.nebulaGas {
+  fill: color-mix(in srgb, var(--rose) 45%, var(--space));
+}
+
+.nebulaGasInner {
+  fill: var(--rose);
+}
+
+.nebulaReflect {
+  fill: color-mix(in srgb, var(--azure) 55%, var(--space));
+}
+
+.nebulaDark {
+  fill: var(--space);
+}
+
+.nebulaStar {
+  fill: var(--gold);
+}
+
+.nebulaShell {
+  fill: none;
+  stroke: var(--teal);
+  stroke-width: 10;
+}
+
+.nebulaShellInner {
+  fill: color-mix(in srgb, var(--rose) 35%, var(--space));
+}
+
+.nebulaCore {
+  fill: var(--ink);
+}
+
+.nebulaFilament {
+  fill: none;
+  stroke: var(--ember);
+  stroke-width: 4;
+  stroke-linecap: round;
+}

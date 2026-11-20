@@ -1,6 +1,6 @@
 # Cosmic Archive: prompt for the next Opus session
 
-**Last updated:** 2026-11-17, after O2 (Galaxies). Keep this file current: after every commit, update "What exists" and rewrite "Your session" for the next roadmap item.
+**Last updated:** 2026-11-17, after O3 (Nebulae). Keep this file current: after every commit, update "What exists" and rewrite "Your session" for the next roadmap item.
 
 You are Claude Opus 5.5, continuing Cosmic Archive alone. You have no memory of earlier sessions. Everything you need is in this file and the docs it names.
 
@@ -22,11 +22,12 @@ A living atlas of the universe: a Next.js site with real-time WebGL scenes behin
 | `8ffd3e0` | F3b: the atlas chart, the zoom out to the cosmic web, beacons and labels, `/explore` |
 | `bd7e6de` | F4: MDX content model and content check, the Black Holes page and its ray-marched scene |
 | `e40f1f6` | O1: homepage Destinations, journey preview, Uncharted, footer; `/about`; `/archive`; phone menu |
-| latest (`git log -1`) | O2: the Galaxies page, the atlas galaxy in a subject framing, the `galaxy-types` diagram |
+| `8196726` | O2: the Galaxies page, the atlas galaxy in a subject framing, the `galaxy-types` diagram |
+| latest (`git log -1`) | O3: the Nebulae page, the `nebula` scene (one shader, contour ink), the `nebula-kinds` diagram, the new Nebulae window |
 
 `prototype/look.html` is the approved look. It is one file (plain three from a CDN) showing the three stages of the homepage scene: hero (`?stage=0`), chart (`?stage=1`), zoomed-out cosmic web (`?stage=2`). `?t=12` fixes the time. Without switches, scrolling drives the zoom. It needs internet for three and the fonts. The six stills in `prototype/shots/` (`desktop-stage0..2.png`, `phone-stage0..2.png`) are the visual bar. `prototype/fonts.html` and `font-options.png` are a record of the font choice; ignore them.
 
-Built: routes `/`, `/explore`, `/about`, `/archive`, `/subjects/black-holes`, `/subjects/galaxies`; the scene system with two scenes (`atlas`, also in a `subject` framing for Galaxies; `black-hole`); the content model (`content/subjects/*.mdx` checked by `src/lib/content/subject-check.ts`; data in `content/destinations.ts` and `content/home.ts` checked by `src/lib/content/cited.ts`); two diagrams; scripts `check`, `shots` (46 shots), `posters` (with crops), `fallbacks`. Read `src/scene/README.md` before touching a scene. Nothing has been pushed or deployed.
+Built: routes `/`, `/explore`, `/about`, `/archive`, `/subjects/black-holes`, `/subjects/galaxies`, `/subjects/nebulae`; the scene system with three scenes (`atlas`, also in a `subject` framing for Galaxies; `black-hole`; `nebula`); the content model (`content/subjects/*.mdx` checked by `src/lib/content/subject-check.ts`; data in `content/destinations.ts` and `content/home.ts` checked by `src/lib/content/cited.ts`); three diagrams; scripts `check`, `shots` (55 shots), `posters` (with crops), `fallbacks`. Read `src/scene/README.md` before touching a scene. Nothing has been pushed or deployed.
 
 ## Read first, in this order
 
@@ -49,37 +50,39 @@ Built: routes `/`, `/explore`, `/about`, `/archive`, `/subjects/black-holes`, `/
 
 If one of these seems wrong, do not work around it. Say so in your report and leave it for the owner.
 
-## Your session: O3, Nebulae
+## Your session: O4, Quasars
 
 Do only this.
 
 **Before you write code**
 
-- Read `content/subjects/black-holes.mdx` and `galaxies.mdx`, `src/app/subjects/[slug]/page.tsx`, `src/components/subject/` and `src/lib/content/subject-check.ts`: a new subject is one MDX file plus, if it needs one, a diagram and a scene.
-- Read `src/scene/README.md` ("Adding a scene"), `src/scene/scenes/black-hole/` (a one-draw-call subject scene) and `src/scene/scenes/atlas/model.ts` (the palette and the soft-sprite layers). O3 is the first new scene since F4.
+- Read `content/subjects/black-holes.mdx`, `galaxies.mdx` and `nebulae.mdx`, `src/app/subjects/[slug]/page.tsx`, `src/components/subject/` and `src/lib/content/subject-check.ts`: a new subject is one MDX file plus, if it needs one, a diagram and a scene.
+- Read `src/scene/README.md`, then `src/scene/scenes/black-hole/` closely: the roadmap asks for **the black-hole scene with jets and a distant framing**, so O4 extends that scene (a mode or a uniform) rather than writing a new one. `src/scene/scenes/nebula/` is the most recent one-shader scene and shows the anchor and composition pattern.
 - Check current Next.js and React Three Fiber docs through context7 before relying on an API.
 
 **Scope**
 
-- Research first: fetch the sources (NASA and ESA nebula pages, Hubble/Webb science pages on star-forming regions, planetary nebulae and supernova remnants) and keep the exact supporting sentences. No fact, number or name from memory.
-- `content/subjects/nebulae.mdx` following the subject framework (`PROJECT_BLUEPRINT.md` 7): what a nebula is, the kinds, how stars form in them and how some nebulae come from dying stars, scale, real observations (linked, never embedded), what is unknown, sources with checked dates.
-- A `nebula` scene: our own stylised star-forming cloud in the cosmos-plus-ink look, with callouts on its own `ANCHORS`. Registry line, `SceneId`, posters `nebula-wide/narrow`. It must meet the budgets on `low` (`ARCHITECTURE.md` 3).
-- Point the Nebulae beacon (`href` in `content/destinations.ts`) at `/subjects/nebulae`; the Destinations window and archive row switch on their own once the subject exists. Consider replacing `window-nebulae` with a crop of the new scene.
+- Research first: fetch the sources (NASA and ESA pages on quasars and active galaxies, Hubble and Webb quasar results, the existing `nasa-hubble-quasars` source in `content/destinations.ts`) and keep the exact supporting sentences. No fact, number or name from memory. A research subagent's quotes come through a summariser: re-fetch every page you cite and confirm each sentence yourself (in O3 one quoted size turned out to describe a different structure).
+- `content/subjects/quasars.mdx` following the subject framework (`PROJECT_BLUEPRINT.md` 7). Acceptance: **it explains the link to Black Holes and Galaxies.**
+- The scene: the black hole with jets, seen from far off; palette azure, white, ember (`DESIGN_SPEC.md` 3). Its own anchors for callouts; posters named as the page asks for them (`<scene>-wide/narrow`, or a rule like the atlas's in `page.tsx` if it is a mode of `black-hole`). It must meet the budgets on `low`.
+- Point the Quasars beacon (`href` in `content/destinations.ts`) at `/subjects/quasars`; consider replacing `window-quasars` with a crop of the new scene.
 
 **Acceptance**
 
-- Roadmap: the scene meets the budgets on `low`: its chunk under 40 KB gzip, under 30 draw calls a frame, particles within the tier counts; `/about` first load under 140 KB.
-- `npm run check` passes and fails when a cited source is removed; `npm run build`, `npm run shots` (add the page, its still and its body), `npm run fallbacks` pass. Test the new page with WebGL off and with reduced motion (`npm run fallbacks` only covers the homepage).
-- Screenshots at 1440x900 and 390x844 pass `DESIGN_SPEC.md` 11; callouts do not overlap. Label offsets in `SubjectHero` `PREFER` are fractions of `frame.radius`, which each scene defines (the atlas: half the ticked ring's width on screen). The placer lays callouts out in frontmatter order, so list the hardest one first.
+- Roadmap: explains the link to Black Holes and Galaxies; the scene meets the budgets on `low` (chunk under 40 KB gzip, under 30 draw calls a frame); `/about` first load under 140 KB.
+- `npm run check` passes and fails when a cited source is removed; `npm run build`, `npm run shots` (add the page, its still and its body), `npm run fallbacks` pass. Test the new page with WebGL off and with reduced motion (`npm run fallbacks` only covers the homepage; O3 used a small script modelled on it).
+- Screenshots at 1440x900 and 390x844 pass `DESIGN_SPEC.md` 11; callouts do not overlap. Label offsets in `SubjectHero` `PREFER` are fractions of `frame.radius`. The placer lays callouts out in frontmatter order, so list first the one whose spot is hardest to get, on a phone too.
+- If you change the black-hole scene, the Black Holes page must look as before (`black-holes-still-*`).
 
 **Open items the owner may raise**
 
-- The owner has not read the Black Holes, O1 or Galaxies copy yet (checklist F4, O1, O2).
-- Real-hardware frame rate is unmeasured for every scene.
+- The owner has not read the Black Holes, O1, Galaxies or Nebulae copy yet (checklist F4, O1, O2, O3).
+- Real-hardware frame rate is unmeasured for every scene; the one-shader scenes cost per pixel.
 - Scene routes load about 142 to 146 KB of JS up front; the 140 KB limit is for routes with no scene (D-047).
 - First-load sizes are measured by gzipping the scripts each built page lists, leaving out the `noModule` polyfill.
+- `npm run posters` re-renders every poster, and software WebGL can change unrelated ones slightly: keep only the ones you meant to change.
 
-**Stop point:** commit (gitmoji style, no push), tick O3 in the checklist, rewrite this section for O4, report.
+**Stop point:** commit (gitmoji style, no push), tick O4 in the checklist, rewrite this section for O5, report.
 
 ## Later sessions (one each; acceptance in `docs/PHASED_ROADMAP.md`)
 

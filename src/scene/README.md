@@ -8,6 +8,7 @@ Everything WebGL lives here, and only here. Nothing outside this folder imports 
 | `quality/` | device tier detection and the frame-time governor (no three) |
 | `scenes/atlas/` | the galaxy and the cosmic web, ported from `prototype/look.html`: `model.ts` (particle data, no three), `world.ts` (three objects), `camera.ts` (the zoom rig). In `subject` mode (the Galaxies page) it uses its own camera key and draws no vessel |
 | `scenes/black-hole/` | the Black Holes subject scene (F4) |
+| `scenes/nebula/` | the Nebulae subject scene (O3): one shader, a star-forming cloud with contour ink |
 | `shaders/` | shared GLSL chunks as `.glsl.ts` template strings |
 
 ## How a page gets a scene

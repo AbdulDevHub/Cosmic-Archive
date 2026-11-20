@@ -10,7 +10,7 @@
 import { useSyncExternalStore } from "react";
 import { rememberQuality, type Quality } from "../quality/tiers";
 
-export type SceneId = "atlas" | "black-hole";
+export type SceneId = "atlas" | "black-hole" | "nebula";
 /** How the page drives the scene: by scroll position (`/`), by free control (`/explore`), or not at all (a subject page). */
 export type SceneMode = "scroll" | "explore" | "subject";
 

@@ -37,7 +37,7 @@ src/
 |---|---|---|
 | `/` | `atlas`, scroll-driven | F2 (copy), F3a (hero scene), F3b (all stages) |
 | `/explore` | `atlas`, free control | F3b |
-| `/subjects/[slug]` | per subject: `black-hole`; `atlas` in subject mode for Galaxies | F4: `black-holes`; O2: `galaxies` |
+| `/subjects/[slug]` | per subject: `black-hole`; `atlas` in subject mode for Galaxies; `nebula` | F4: `black-holes`; O2: `galaxies`; O3: `nebulae` |
 | `/archive` | none | O1 |
 | `/journeys/[slug]` | none in v1 | O5 |
 | `/about` | none | O1 (a one-paragraph stub in F2) |

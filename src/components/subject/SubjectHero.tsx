@@ -38,6 +38,11 @@ const PREFER: Readonly<Record<string, LabelRule>> = {
   arm: { unit: "radius", wide: [-0.85, 0.05], narrow: [-0.06, 1.4] },
   dust: { unit: "radius", wide: [0.27, -0.44], narrow: [0.55, -0.15] },
   companion: { unit: "radius", wide: [-0.5, -0.1], narrow: [0.6, -0.25] },
+  // nebula: the labels hang in the dark sky above and beside the cloud
+  pillar: { unit: "radius", wide: [-0.8, 0.45], narrow: [-0.45, 0.85] },
+  cluster: { unit: "radius", wide: [0.55, -0.95], narrow: [0.22, -0.35] },
+  front: { unit: "radius", wide: [-0.45, -0.55], narrow: [0.1, -0.95] },
+  glow: { unit: "radius", wide: [0.1, 0.7], narrow: [0.35, 0.75] },
 };
 
 const ALWAYS = (frame: SceneFrame) => frame.width > 0;

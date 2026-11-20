@@ -27,12 +27,14 @@ const POSTERS = [
   // the atlas galaxy in its subject framing (the Galaxies page asks for `atlas-subject-*`)
   { file: "atlas-subject-wide.webp", path: "/subjects/galaxies?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.8 },
   { file: "atlas-subject-narrow.webp", path: "/subjects/galaxies?shot=1&t=12&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.8 },
+  { file: "nebula-wide.webp", path: "/subjects/nebulae?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.8 },
+  { file: "nebula-narrow.webp", path: "/subjects/nebulae?shot=1&t=12&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.8 },
   // Windows for the homepage's Destinations section: a part of a scene, cropped. `crop` is in CSS
   // pixels of the viewport; `out` is the saved width. A destination whose own scene is not built yet
-  // looks at the place on the atlas where it is found (nebulae in an arm, quasars on the web).
+  // looks at the place on the atlas where it is found (quasars on the web).
   { file: "window-black-holes.webp", path: "/subjects/black-holes?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, crop: { x: 630, y: 90, w: 640, h: 640 }, out: 720, quality: 0.8 },
   { file: "window-galaxies.webp", path: "/?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, crop: { x: 540, y: 110, w: 900, h: 600 }, out: 960, quality: 0.78 },
-  { file: "window-nebulae.webp", path: "/?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, crop: { x: 300, y: 80, w: 340, h: 430 }, out: 480, quality: 0.8 },
+  { file: "window-nebulae.webp", path: "/subjects/nebulae?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, crop: { x: 773, y: 150, w: 340, h: 430 }, out: 480, quality: 0.8 },
   { file: "window-quasars.webp", path: "/?shot=1&t=12&zoom=2&tier=high", viewport: { width: 1440, height: 900 }, crop: { x: 800, y: 560, w: 480, h: 160 }, out: 960, quality: 0.8 },
 ];
 

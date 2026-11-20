@@ -153,7 +153,7 @@ export const DESTINATIONS: readonly Destination[] = [
     label: "Nebulae",
     note: "star nurseries in the arms",
     evidence: "observed",
-    href: "/about",
+    href: "/subjects/nebulae",
     opens: "/subjects/nebulae",
     sources: ["jpl-star-forming-nebulae", "nasa-galaxy-types"],
   },

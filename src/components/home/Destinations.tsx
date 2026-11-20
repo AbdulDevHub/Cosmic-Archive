@@ -12,8 +12,8 @@ import styles from "./home.module.css";
   cosmic web for the quasars. A destination whose page is written is a link; one still being
   written says so and is not a link (no dead links).
 
-  The stills come from `npm run posters` (`window-*`). Nebulae and quasars have no scene of their
-  own yet, so their windows look at the place on the atlas where they are found.
+  The stills come from `npm run posters` (`window-*`). Quasars have no scene of their own yet, so
+  their window looks at the place on the atlas where they are found.
 */
 
 interface Window {
@@ -29,7 +29,7 @@ interface Window {
 const WINDOWS: readonly Window[] = [
   { id: "black-holes", shape: "round", image: "/posters/window-black-holes.webp", width: 720, height: 720, shows: "the black-hole scene" },
   { id: "galaxies", shape: "oval", image: "/posters/window-galaxies.webp", width: 960, height: 640, shows: "the atlas galaxy" },
-  { id: "nebulae", shape: "arch", image: "/posters/window-nebulae.webp", width: 480, height: 607, shows: "an arm of the atlas galaxy" },
+  { id: "nebulae", shape: "arch", image: "/posters/window-nebulae.webp", width: 480, height: 607, shows: "the nebula scene" },
   { id: "quasars", shape: "slit", image: "/posters/window-quasars.webp", width: 960, height: 320, shows: "a thread of the cosmic web" },
 ];
 
