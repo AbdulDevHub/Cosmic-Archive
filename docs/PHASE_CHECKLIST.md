@@ -93,7 +93,15 @@ Fable's part ends here (D-028). Everything below is built by Opus.
   - [x] Budgets (gzip): `/about` 138.6 KB (limit 140); `/subjects/nebulae` 142.7 (scene route, D-047); nebula chunk 4.5 KB (40); host + three + R3F 182.5 KB (220); 1 draw call a frame, no particles.
   - [ ] Owner has read the Nebulae copy.
   - [ ] Not yet measured on real hardware: the shader's frame rate on a mid-range phone (its cost is noise per pixel).
-- [ ] O4 Quasars.
+- [x] O4 Quasars (2026-11-20):
+  - [x] `content/subjects/quasars.mdx`: a light brighter than a galaxy, reading the picture, how a quasar shines (with the `quasar-views` diagram; the donut model marked theoretical), black holes and galaxies (feeding, outflows, growing together; links to both pages), the first quasar (3C 273), how far and how many, what nobody knows yet. Twelve sources fetched and read 2026-11-20, every claim checked against the fetched text (D-076).
+  - [x] `quasar` scene: the black-hole shader with `QUASAR` defined, seen from far off, with jets (the far one dimmer), the core's glare, a host galaxy, and a measured baseline along the jets (D-073, D-074). Four callouts on its own anchors. Posters `quasar-wide/narrow`. The Black Holes stills are byte-identical to before.
+  - [x] The Quasars beacon, the Destinations window and the archive row link to `/subjects/quasars` (built page list).
+  - [x] Checks: `npm run check` passes and exits 1 when `esawebb-qso1` is removed from the sources; `npm run build`; `npm run shots` 64 of 64 (new `quasars`, `quasars-still`, `quasars-body`); `npm run fallbacks` 26 of 26, now with test 7 for every subject page (loop on `low`, reduced motion, no WebGL; D-077). One earlier run timed out clicking Pause motion on the homepage under software WebGL; the re-run passed.
+  - [x] Callouts placed without overlap at 1440x900 and 390x844 (`quasars-still-*`).
+  - [x] Budgets (gzip): `/about` 138.5 KB (limit 140); `/subjects/quasars` 142.7 (scene route, D-047); quasar chunk 6.5 KB (40); host + three + R3F 183 KB (220); 1 draw call a frame, no particles.
+  - [ ] Owner has read the Quasars copy.
+  - [ ] Not yet measured on real hardware: the scene's frame rate on a mid-range phone.
 - [ ] O5 Journey: A star's life.
 - [ ] O6 Explore polish.
 - [ ] O7 Release prep.

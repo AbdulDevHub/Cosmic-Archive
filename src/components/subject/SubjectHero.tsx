@@ -43,6 +43,11 @@ const PREFER: Readonly<Record<string, LabelRule>> = {
   cluster: { unit: "radius", wide: [0.55, -0.95], narrow: [0.22, -0.35] },
   front: { unit: "radius", wide: [-0.45, -0.55], narrow: [0.1, -0.95] },
   glow: { unit: "radius", wide: [0.1, 0.7], narrow: [0.35, 0.75] },
+  // quasar: the labels hang off the jets and the core, in the dark beside them
+  jet: { unit: "radius", wide: [0.9, 0.0], narrow: [-0.25, -1.85] },
+  counterjet: { unit: "radius", wide: [0.9, 0.15], narrow: [0.45, 1.2] },
+  nucleus: { unit: "radius", wide: [-1.3, 0.6], narrow: [0.45, 1.0] },
+  host: { unit: "radius", wide: [-0.6, -0.8], narrow: [0.0, -1.05] },
 };
 
 const ALWAYS = (frame: SceneFrame) => frame.width > 0;

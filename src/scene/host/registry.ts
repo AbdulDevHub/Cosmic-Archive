@@ -16,4 +16,5 @@ export const SCENES: Record<SceneId, () => Promise<SceneModule>> = {
   atlas: () => import("../scenes/atlas"),
   "black-hole": () => import("../scenes/black-hole"),
   nebula: () => import("../scenes/nebula"),
+  quasar: () => import("../scenes/quasar"),
 };

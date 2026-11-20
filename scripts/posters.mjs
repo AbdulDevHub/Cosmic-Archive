@@ -29,6 +29,8 @@ const POSTERS = [
   { file: "atlas-subject-narrow.webp", path: "/subjects/galaxies?shot=1&t=12&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.8 },
   { file: "nebula-wide.webp", path: "/subjects/nebulae?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.8 },
   { file: "nebula-narrow.webp", path: "/subjects/nebulae?shot=1&t=12&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.8 },
+  { file: "quasar-wide.webp", path: "/subjects/quasars?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.8 },
+  { file: "quasar-narrow.webp", path: "/subjects/quasars?shot=1&t=12&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.8 },
   // Windows for the homepage's Destinations section: a part of a scene, cropped. `crop` is in CSS
   // pixels of the viewport; `out` is the saved width. A destination whose own scene is not built yet
   // looks at the place on the atlas where it is found (quasars on the web).

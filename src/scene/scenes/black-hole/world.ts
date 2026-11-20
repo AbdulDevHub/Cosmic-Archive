@@ -13,7 +13,7 @@ import type { ParticleTier } from "../../quality/tiers";
 import { BLACK_HOLE_FRAGMENT, MAX_STEPS, QUAD_VERTEX } from "./shader.glsl";
 
 /** How finely a ray is marched: steps, and the step as a fraction of the distance to the hole. */
-const MARCH: Record<ParticleTier, { steps: number; stride: number }> = {
+export const MARCH: Record<ParticleTier, { steps: number; stride: number }> = {
   low: { steps: 60, stride: 0.15 },
   medium: { steps: 88, stride: 0.105 },
   high: { steps: MAX_STEPS, stride: 0.075 },
@@ -53,6 +53,17 @@ const ANCHORS: Record<string, Anchor> = {
   bright: { plane: [5.4, -AZIMUTH] },
 };
 
+/** The camera, looking at the hole from a distance, a height above the disc and a turn, then rolled. */
+export function cameraBasis(distance: number, elevation: number, azimuth: number, roll: number) {
+  const cam = new Vector3(Math.cos(elevation) * Math.sin(azimuth), Math.sin(elevation), Math.cos(elevation) * Math.cos(azimuth)).multiplyScalar(distance);
+  const fwd = cam.clone().normalize().negate();
+  const right0 = new Vector3().crossVectors(fwd, new Vector3(0, 1, 0)).normalize();
+  const up0 = new Vector3().crossVectors(right0, fwd);
+  const right = right0.clone().multiplyScalar(Math.cos(roll)).addScaledVector(up0, Math.sin(roll));
+  const up = up0.clone().multiplyScalar(Math.cos(roll)).addScaledVector(right0, -Math.sin(roll));
+  return { cam, fwd, right, up };
+}
+
 export function makeFrame(): SceneFrame {
   const points: SceneFrame["points"] = {};
   for (const name of Object.keys(ANCHORS)) points[name] = { x: 0, y: 0, on: true };
@@ -68,12 +79,7 @@ export class BlackHoleWorld {
   private readonly up: Vector3;
 
   constructor() {
-    this.cam = new Vector3(Math.cos(ELEVATION) * Math.sin(AZIMUTH), Math.sin(ELEVATION), Math.cos(ELEVATION) * Math.cos(AZIMUTH)).multiplyScalar(CAMERA_DISTANCE);
-    this.fwd = this.cam.clone().normalize().negate();
-    const right0 = new Vector3().crossVectors(this.fwd, new Vector3(0, 1, 0)).normalize();
-    const up0 = new Vector3().crossVectors(right0, this.fwd);
-    this.right = right0.clone().multiplyScalar(Math.cos(ROLL)).addScaledVector(up0, Math.sin(ROLL));
-    this.up = up0.clone().multiplyScalar(Math.cos(ROLL)).addScaledVector(right0, -Math.sin(ROLL));
+    ({ cam: this.cam, fwd: this.fwd, right: this.right, up: this.up } = cameraBasis(CAMERA_DISTANCE, ELEVATION, AZIMUTH, ROLL));
 
     const geometry = new BufferGeometry();
     geometry.setAttribute("position", new BufferAttribute(new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]), 3));

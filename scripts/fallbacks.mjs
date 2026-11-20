@@ -7,6 +7,7 @@
 //   4. slow device   under CPU throttling the governor steps the quality down
 //   5. no scene      a cold load of /about downloads no 3D code
 //   6. navigation    leaving for /about stops the loop; coming back (slowly, and at once) shows the scene again
+//   7. subjects      each subject page: its loop on `low` under the draw-call limit, reduced motion, no WebGL
 
 import { launchBrowser, sceneSettled, serveBuild } from "./lib/serve.mjs";
 
@@ -77,6 +78,8 @@ const DESKTOP = { viewport: { width: 1440, height: 900 } };
 // (`?tier=` turns the governor off), so they do not depend on how fast this machine draws.
 const SMALL = { viewport: { width: 900, height: 560 } };
 const PINNED = "/?tier=low";
+/** The subject pages with a scene of their own (test 7). */
+const SUBJECTS = ["/subjects/black-holes", "/subjects/galaxies", "/subjects/nebulae", "/subjects/quasars"];
 
 let browser;
 const { base, stop } = await serveBuild("fallbacks");
@@ -206,6 +209,49 @@ try {
     const canvases = await page.evaluate(() => document.querySelectorAll("canvas").length);
     check("navigation", "a quick there-and-back shows the scene", quick && canvases === 1 && problems.length === 0, problems.join("; "));
     await context.close();
+  }
+
+  // 7. subject pages: each one's own scene, on the low tier, with reduced motion and without WebGL
+  for (const path of SUBJECTS) {
+    const name = path.split("/").pop();
+    {
+      const context = await browser.newContext(SMALL);
+      await context.addInitScript(countDraws);
+      const page = await context.newPage();
+      await page.goto(base + path + "?tier=low", { waitUntil: "load" });
+      await sceneSettled(page);
+      const before = await draws(page);
+      await page.waitForTimeout(1500);
+      const after = await draws(page);
+      const perFrame = await page.evaluate(() => window.__draws.maxPerFrame);
+      check(name, `the loop runs, fewer than ${DRAW_CALL_LIMIT} draw calls a frame`, after > before && perFrame > 0 && perFrame < DRAW_CALL_LIMIT, `${perFrame} a frame`);
+      await context.close();
+    }
+    {
+      const context = await browser.newContext({ ...DESKTOP, reducedMotion: "reduce" });
+      await context.addInitScript(countDraws);
+      const page = await context.newPage();
+      await page.goto(base + path, { waitUntil: "load" });
+      await sceneSettled(page);
+      await page.waitForTimeout(600);
+      const before = await draws(page);
+      await page.waitForTimeout(1500);
+      const after = await draws(page);
+      check(name, "reduced motion: one still frame, no loop", before > 0 && after === before && (await html(page, "scene")) === "ready", `${after - before} draw calls in 1.5 s`);
+      await context.close();
+    }
+    {
+      const context = await browser.newContext(DESKTOP);
+      await context.addInitScript(removeWebGL);
+      const page = await context.newPage();
+      const loadedThree = watchScripts(page);
+      await page.goto(base + path, { waitUntil: "networkidle" });
+      await sceneSettled(page);
+      const state = await pageComplete(page);
+      const sources = await page.evaluate(() => document.querySelectorAll("#sources ~ ol li").length);
+      check(name, "no WebGL: poster, the whole text, no 3D code", (await html(page, "scene")) === "static" && state.posterLoaded && state.canvases === 0 && state.headline.length > 0 && sources > 0 && !(await loadedThree()), `"${state.headline}", ${sources} sources`);
+      await context.close();
+    }
   }
 
   // The watcher itself must be able to see three, or tests 3 and 5 prove nothing.

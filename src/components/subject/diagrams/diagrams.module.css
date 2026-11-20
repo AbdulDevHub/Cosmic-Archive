@@ -130,3 +130,37 @@
   stroke-width: 4;
   stroke-linecap: round;
 }
+
+/* ---- quasar-views ---- */
+.quasarJet {
+  fill: color-mix(in srgb, var(--azure) 70%, var(--space));
+}
+
+.quasarTorus {
+  fill: color-mix(in srgb, var(--ember) 22%, var(--space));
+  stroke: var(--ink);
+  stroke-width: 1.25;
+  stroke-dasharray: 5 3; /* long dash: theoretical */
+}
+
+.quasarDisc {
+  fill: var(--ember);
+}
+
+.quasarDiscInner {
+  fill: oklch(0.96 0.02 250);
+}
+
+.quasarHole {
+  fill: oklch(0.04 0.01 275);
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+
+.sight {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

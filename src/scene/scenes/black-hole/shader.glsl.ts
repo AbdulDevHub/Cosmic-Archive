@@ -14,6 +14,12 @@
  *
  * Over the picture, in screen space and unbent, is the atlas's ink: a ticked ring, a faint
  * outer ring, and the vessel with its trail riding the ticked ring.
+ *
+ * With `QUASAR` defined (the Quasars page, `scenes/quasar`) the same hole is seen from far off:
+ * the disc is ember and white, only the pixels near the hole are marched, and three things are
+ * added in screen space: the glare of the core, the host galaxy around it, and two jets along the
+ * disc's axis, the near one brighter. The ink adds a measured line along the jets' axis. Without
+ * the define the shader is exactly the Black Holes scene.
  */
 
 export const QUAD_VERTEX = /* glsl */ `
@@ -34,6 +40,14 @@ uniform float uTime;
 uniform int uSteps;
 uniform float uStride;     // step length as a fraction of the distance to the hole
 uniform vec3 uCam, uRight, uUp, uFwd;
+#ifdef QUASAR
+uniform vec2 uJetDir;      // the near jet's direction on screen, y up
+uniform float uJetLength;  // horizon radii
+uniform float uHostAngle;  // the host galaxy's long axis on screen, radians
+uniform float uMarch;      // CSS pixels from the hole inside which rays are bent
+const vec3 AZURE = vec3(0.42, 0.66, 1.0);
+const vec3 WHITE = vec3(0.94, 0.96, 1.0);
+#endif
 
 const float TAU = 6.28318530718;
 const float R_IN = 3.0;    // inner edge of the disc: the last stable orbit of a hole that does not spin
@@ -116,10 +130,16 @@ vec4 disc(vec3 hit, vec3 travel){
   float lift = sqrt(1.0 - 1.0 / r); // light climbing out of the hole's gravity loses energy
 
   float heat = pow(R_IN / r, 1.25) * doppler * lift * 1.25;
+#ifdef QUASAR
+  vec3 colour = mix(EMBER * 0.7, EMBER, smoothstep(0.1, 0.35, heat));
+  colour = mix(colour, vec3(1.0, 0.86, 0.74), smoothstep(0.4, 0.8, heat));
+  colour = mix(colour, WHITE, smoothstep(0.8, 1.4, heat));
+#else
   vec3 colour = mix(VIOLET, ROSE, smoothstep(0.1, 0.3, heat));
   colour = mix(colour, EMBER, smoothstep(0.26, 0.5, heat));
   colour = mix(colour, GOLD, smoothstep(0.45, 0.8, heat));
   colour = mix(colour, vec3(1.0, 0.96, 0.88), smoothstep(0.8, 1.5, heat));
+#endif
 
   float glow = pow(R_IN / r, 1.05) * pow(doppler, 1.9) * lift;
   float cover = edge * clamp(pattern, 0.0, 1.0);
@@ -127,6 +147,46 @@ vec4 disc(vec3 hit, vec3 travel){
 }
 
 float line(float distancePx){ return clamp(1.0 - distancePx * uDpr + 0.5, 0.0, 1.0); }
+
+#ifdef QUASAR
+/* the galaxy the quasar lives in: a faint, mottled oval of starlight; u is in horizon radii */
+vec3 hostGalaxy(vec2 u){
+  float c = cos(uHostAngle), s = sin(uHostAngle);
+  vec2 h = vec2(c * u.x + s * u.y, -s * u.x + c * u.y) / vec2(40.0, 16.0);
+  float r = length(h);
+  float body = exp(-r * r * 2.4) * 0.3 + exp(-r * 5.0) * 0.2;
+  float mottle = ringNoise(h * 5.0 + 3.0, 400.0) * 0.6 + ringNoise(h * 13.0 + 9.0, 400.0) * 0.4;
+  body *= 0.55 + 0.8 * mottle;
+  // its own stars, thinning outward
+  vec2 g = u * 1.6;
+  vec2 id = floor(g);
+  float star = hash21(id + 31.0);
+  float speck = step(0.9, star) * smoothstep(0.32, 0.0, length(fract(g) - 0.5 - (vec2(hash21(id + 2.0), hash21(id + 5.0)) - 0.5) * 0.5));
+  body += speck * exp(-r * r * 1.8) * 0.5 * (star - 0.9) * 10.0;
+  return mix(EMBER * 0.85, vec3(1.0, 0.88, 0.76), exp(-r * 3.0)) * body;
+}
+
+/* one jet; along and across are in horizon radii, bright is 1 for the near jet */
+vec3 jet(float along, float across, float bright){
+  float L = uJetLength;
+  if (along < 0.0) return vec3(0.0);
+  float width = 0.32 + along * 0.032;
+  float beam = exp(-(across * across) / (width * width));
+  float cocoon = exp(-(across * across) / (width * width * 9.0)) * 0.16;
+  float span = smoothstep(0.4, 2.5, along) * (1.0 - smoothstep(L * 0.8, L, along));
+  // knots that travel outward, slowly
+  float knots = 0.5 + 0.5 * pow(0.5 + 0.5 * sin(along * 0.42 - uTime * 0.3 + 1.3 * ringNoise(vec2(along * 0.2, 7.0), 400.0)), 3.0);
+  float fade = mix(1.0, 0.5, along / L);
+  vec3 colour = mix(WHITE, AZURE, smoothstep(0.0, L * 0.55, along));
+  vec3 light = colour * (beam * knots + cocoon) * span * fade * 1.15;
+  // where the jet ploughs into intergalactic gas it spreads into a lobe, with a hot spot
+  vec2 lobe = vec2(along - L * 0.92, across) / vec2(5.2, 3.6);
+  float spread = exp(-dot(lobe, lobe));
+  float hot = exp(-dot(lobe * 4.0, lobe * 4.0));
+  light += AZURE * spread * 0.32 + WHITE * hot * 0.5;
+  return light * bright;
+}
+#endif
 
 void main(){
   vec2 css = vec2(gl_FragCoord.x, uResolution.y - gl_FragCoord.y) / uDpr;
@@ -146,10 +206,14 @@ void main(){
   vec3 p = uCam;
   vec3 v = dir;
   float h2 = dot(across, across);
+  int steps = uSteps;
+#ifdef QUASAR
+  if (length(q) > uMarch) steps = 0; // far from the hole the light runs straight
+#endif
   {
     // (a block of its own, so the loop's names stay out of the ink below)
     for (int i = 0; i < ${MAX_STEPS}; i++) {
-      if (i >= uSteps) { captured = dot(p, p) < 6.0; break; }
+      if (i >= steps) { captured = dot(p, p) < 6.0; break; }
       float r2 = dot(p, p);
       float r = sqrt(r2);
       if (r < 1.0) { captured = true; break; }
@@ -168,6 +232,19 @@ void main(){
   }
   vec3 outDir = normalize(v);
   light += (1.0 - hidden) * (captured ? SHADOW : stars(outDir));
+
+#ifdef QUASAR
+  vec2 u = q / uScale; // horizon radii from the hole, y up
+  light += (1.0 - hidden * 0.7) * hostGalaxy(u);
+  float along = dot(u, uJetDir);
+  float acrossJet = u.x * uJetDir.y - u.y * uJetDir.x;
+  light += jet(along, acrossJet, 1.0);                       // toward us: beamed brighter
+  light += (1.0 - hidden) * jet(-along, acrossJet, 0.2);     // away from us, partly behind the disc
+  // the core outshines everything around it
+  float rc = length(u);
+  light += WHITE * (2.2 / (1.0 + rc * rc * 0.35) + 0.08 / (1.0 + rc * 0.1));
+  light = 1.0 - exp(-light * 1.15); // keep the glare from clipping flat
+#endif
 
   // ---- ink, in screen space ----
   float radius = length(q);
@@ -188,6 +265,20 @@ void main(){
   ink = max(ink, clamp(1.6 - abs(radius - uRing) * uDpr, 0.0, 1.0) * trail);
   vec2 vessel = vec2(cos(vesselAngle), sin(vesselAngle)) * uRing;
   ink = max(ink, clamp(2.4 - length(q - vessel), 0.0, 1.0));
+
+#ifdef QUASAR
+  // the jets' axis, measured: a construction hairline from the ring to past each lobe, with a
+  // bar across at each end, as a surveyor marks a baseline
+  float alongPx = dot(q, uJetDir);
+  float acrossPx = q.x * uJetDir.y - q.y * uJetDir.x;
+  float reach = uJetLength * uScale * 1.08;
+  float onAxis = step(uRing + 4.0, abs(alongPx)) * step(abs(alongPx), reach);
+  ink = max(ink, line(abs(acrossPx)) * onAxis * 0.2);
+  float bar = line(abs(abs(alongPx) - reach)) * step(abs(acrossPx), 9.0);
+  ink = max(ink, bar * 0.45);
+  float mid = line(abs(abs(alongPx) - reach * 0.5)) * step(abs(acrossPx), 4.0);
+  ink = max(ink, mid * 0.3);
+#endif
 
   gl_FragColor = vec4(mix(light, INK, ink), 1.0);
 }

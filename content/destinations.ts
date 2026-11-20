@@ -175,7 +175,7 @@ export const DESTINATIONS: readonly Destination[] = [
     label: "Quasars",
     note: "blazing hearts of far-off galaxies",
     evidence: "observed",
-    href: "/about",
+    href: "/subjects/quasars",
     opens: "/subjects/quasars",
     sources: ["nasa-hubble-quasars"],
   },

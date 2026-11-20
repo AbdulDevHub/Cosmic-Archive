@@ -24,6 +24,8 @@ const ROUTES = [
   { path: (view) => `/subjects/galaxies?shot=1&t=12&tier=${view.tier}`, name: "galaxies-still", scene: true, mustDraw: true, beacons: 4 },
   { path: () => "/subjects/nebulae", name: "nebulae", scene: true },
   { path: (view) => `/subjects/nebulae?shot=1&t=12&tier=${view.tier}`, name: "nebulae-still", scene: true, mustDraw: true, beacons: 4 },
+  { path: () => "/subjects/quasars", name: "quasars", scene: true },
+  { path: (view) => `/subjects/quasars?shot=1&t=12&tier=${view.tier}`, name: "quasars-still", scene: true, mustDraw: true, beacons: 4 },
   { path: () => "/about", name: "about", scene: false },
   // the whole page below the top of the window: the homepage's sections under the scene, and the reading pages
   { path: () => "/", name: "home-below", scene: true, from: "#destinations" },
@@ -31,6 +33,7 @@ const ROUTES = [
   { path: () => "/archive", name: "archive-full", scene: false, from: "body" },
   { path: () => "/subjects/galaxies", name: "galaxies-body", scene: true, from: "#an-island-of-stars" },
   { path: () => "/subjects/nebulae", name: "nebulae-body", scene: true, from: "#a-cloud-between-the-stars" },
+  { path: () => "/subjects/quasars", name: "quasars-body", scene: true, from: "#a-light-brighter-than-a-galaxy" },
   // the phone menu, open
   { path: () => "/archive", name: "menu", scene: false, only: "phone", open: "[aria-controls='site-menu']" },
 ];
