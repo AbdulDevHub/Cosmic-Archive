@@ -151,25 +151,49 @@ vec3 hostGalaxy(vec2 u){
   return mix(EMBER * 0.85, vec3(1.0, 0.88, 0.76), exp(-r * 3.0)) * body;
 }
 
-/* one jet; along and across are in horizon radii, bright is 1 for the near jet */
+/* how hard the engine is running: the jets and the core's glare breathe together (D-104) */
+float beat(){
+  return 0.82 + 0.13 * sin(uTime * 2.1) + 0.08 * sin(uTime * 5.3 + 1.0);
+}
+
+/*
+ * One jet; along and across are in horizon radii, bright is 1 for the near jet (D-104). A white-hot
+ * spine inside a wider beam inside a faint violet sheath, the whole column twisting as it goes;
+ * bursts of light race outward along it, grains of light stream out with them, and at its end it
+ * ploughs into the gas around the galaxy in a glowing lobe with a hot spot.
+ */
 vec3 jet(float along, float across, float bright){
   float L = uJetLength;
   if (along < 0.0) return vec3(0.0);
-  float width = 0.32 + along * 0.032;
-  float beam = exp(-(across * across) / (width * width));
-  float cocoon = exp(-(across * across) / (width * width * 9.0)) * 0.16;
-  float span = smoothstep(0.4, 2.5, along) * (1.0 - smoothstep(L * 0.8, L, along));
-  // knots that travel outward, slowly
-  float knots = 0.5 + 0.5 * pow(0.5 + 0.5 * sin(along * 0.42 - uTime * 0.3 + 1.3 * ringNoise(vec2(along * 0.2, 7.0), 400.0)), 3.0);
+  float t = uTime;
+  float width = 0.5 + along * 0.055;
+  // the column sways a little as it goes
+  float wobble = (ringNoise(vec2(along * 0.18 - t * 0.9, 3.0), 400.0) - 0.5) * width * 0.4;
+  float x = across - wobble;
+  float spine = exp(-(x * x) / (width * width * 0.08));
+  float beam = exp(-(x * x) / (width * width));
+  float sheath = exp(-(x * x) / (width * width * 9.0));
+  float span = smoothstep(0.3, 1.8, along) * (1.0 - smoothstep(L * 0.82, L, along));
+  // bursts racing outward
+  float burst = pow(0.5 + 0.5 * sin(along * 0.5 - t * 4.2 + 2.2 * ringNoise(vec2(along * 0.12, 9.0), 400.0)), 5.0);
+  // grains of light streaming out with them
+  // (streaks along the jet, each in its own narrow lane: never bars across it)
+  float lanes = x / width * 2.2;
+  float lane = floor(lanes + 0.5);
+  float g = along * 0.6 - t * 4.5;
+  float grain = step(0.8, hash21(vec2(floor(g), lane + 11.0))) * smoothstep(0.5, 0.1, abs(fract(g) - 0.5)) * exp(-pow(lanes - lane, 2.0) * 14.0) * beam;
   float fade = mix(1.0, 0.5, along / L);
-  vec3 colour = mix(WHITE, AZURE, smoothstep(0.0, L * 0.55, along));
-  vec3 light = colour * (beam * knots + cocoon) * span * fade * 1.15;
-  // where the jet ploughs into intergalactic gas it spreads into a lobe, with a hot spot
-  vec2 lobe = vec2(along - L * 0.92, across) / vec2(5.2, 3.6);
+  vec3 colour = mix(WHITE, AZURE, smoothstep(0.0, L * 0.6, along));
+  vec3 light = WHITE * spine * 1.5 + colour * beam * (0.55 + 1.5 * burst) + mix(AZURE, VIOLET, 0.4) * sheath * (0.35 + 0.25 * burst);
+  light = light * span * fade * beat() + WHITE * grain * span * fade;
+  // the base flares where the jet leaves the glare
+  light += WHITE * exp(-along * 0.9) * exp(-(x * x) / (width * width * 2.0)) * 0.6 * beat();
+  // where the jet ploughs into the gas around the galaxy it spreads into a lobe, with a hot spot
+  vec2 lobe = vec2(along - L * 0.92, across) / vec2(5.6, 4.0);
   float spread = exp(-dot(lobe, lobe));
   float hot = exp(-dot(lobe * 4.0, lobe * 4.0));
-  light += AZURE * spread * 0.32 + WHITE * hot * 0.5;
-  return light * bright;
+  light += (AZURE * spread * 0.4 + WHITE * hot * 0.8) * beat();
+  return light * bright * 1.2;
 }
 #endif
 
@@ -230,7 +254,7 @@ void main(){
   light += (1.0 - hidden) * jet(-along, acrossJet, 0.2);     // away from us, partly behind the disc
   // the core outshines everything around it
   float rc = length(u);
-  light += WHITE * (2.2 / (1.0 + rc * rc * 0.35) + 0.08 / (1.0 + rc * 0.1));
+  light += WHITE * (2.2 / (1.0 + rc * rc * 0.35) + 0.08 / (1.0 + rc * 0.1)) * (0.75 + 0.3 * beat());
   light = 1.0 - exp(-light * 1.15); // keep the glare from clipping flat
 #endif
 

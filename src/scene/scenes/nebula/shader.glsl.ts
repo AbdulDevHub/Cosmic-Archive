@@ -124,67 +124,66 @@ void main(){
   vec2 q = css - uCentre;
   q.y = -q.y;
   vec2 p = q / uScale;
-  float t = uTime * 0.01;
+  float t = uTime * 0.012;
+  float rad = length(p);
 
-  // ---- the gas ----
-  vec2 warp = vec2(broad(p * 0.17 + vec2(3.1, t)), broad(p * 0.17 + vec2(-t, 7.7))) - 0.5;
-  float n = fbm(p * 0.24 + warp * 2.6 + vec2(t * 0.6, 0.0));
-  float m = broad(p * 0.11 + warp * 0.9 + 21.0); // the cloud's broad lie, for its outline
+  // ---- the gas: two levels of warp, so it billows and swirls ----
+  vec2 w1 = vec2(broad(p * 0.07 + vec2(1.3, t)), broad(p * 0.07 + vec2(-t, 4.1))) - 0.5;
+  vec2 w2 = vec2(broad(p * 0.15 + w1 * 2.2 + 7.0), broad(p * 0.15 + w1 * 2.2 + 13.0)) - 0.5;
+  vec2 r = p * 0.1 + w2 * 1.1 + w1 * 1.0;
+  float dens = fbm(r);
+  float detail = fbm(r * 2.6 + 5.0);
+  // the cloud's form: it fills the frame, thinning far from its glowing heart
+  float body = smoothstep(30.0, 5.0, rad + (dens - 0.5) * 16.0);
+  float gas = smoothstep(0.36, 0.86, dens * 0.78 + detail * 0.36) * body;
 
-  // the cloud's outline: most of it below and to the right of the cluster, thin above, so the
-  // cavity is a blister open toward the top
-  float body = length((p - BODY) / BODY_R) + (m - 0.5) * 0.6;
-  float cloud = 1.0 - smoothstep(0.45, 1.05, body + (n - 0.5) * 0.3);
+  // ---- light from the heart: the cloud's edges that face it glow (density falls toward it) ----
+  vec2 toHeart = -p / max(rad, 0.001);
+  float ahead = fbm(r + toHeart * 0.07);
+  float rim = clamp((dens - ahead) * 7.0, 0.0, 1.0) * gas;
+  float near = exp(-rad * 0.16);
 
-  // the cavity: thin glow inside, the cloud's lit wall at its edge, broken where the gas is thin
-  float wall = length(p) - (CAVITY + (n - 0.5) * 3.2 + warp.x * 2.0);
-  float inside = 1.0 - smoothstep(-0.4, 0.3, wall);
-  float rim = exp(-max(wall, 0.0) * 0.9) * smoothstep(-1.2, 0.0, wall) * cloud * smoothstep(0.32, 0.62, n);
+  // ---- colour: deep blue and violet far off, magenta between, orange and gold near the heart ----
+  float hue = broad(p * 0.045 + w1 * 0.9 + 30.0);
+  vec3 cool = mix(vec3(0.1, 0.2, 0.85), vec3(0.5, 0.18, 0.92), smoothstep(0.3, 0.7, hue));
+  vec3 warm = mix(vec3(0.98, 0.22, 0.55), vec3(1.0, 0.52, 0.16), smoothstep(0.35, 0.75, hue));
+  float heat = clamp(near * 1.9 + rim * 0.6 + (hue - 0.5) * 0.9, 0.0, 1.0);
+  vec3 tint = mix(cool, warm, smoothstep(0.12, 0.7, heat));
+  vec3 light = tint * gas * (0.32 + 1.1 * near) * (0.55 + 0.9 * detail);
+  light += mix(warm, vec3(1.0, 0.86, 0.62), 0.45) * rim * (0.35 + 1.8 * near);
+  // fine bright filaments threading the gas
+  float thread = pow(1.0 - abs(2.0 * fbm(r * 3.4 + w2 * 2.0 + 17.0) - 1.0), 9.0) * gas;
+  light += mix(tint, vec3(1.0), 0.35) * thread * (0.25 + 0.7 * near);
+  // the heart itself: hot white-gold, wrapped in a pink and blue haze
+  light += vec3(1.0, 0.84, 0.64) * exp(-rad * 0.5) * 0.65;
+  light += mix(vec3(0.45, 0.6, 1.0), vec3(1.0, 0.6, 0.85), 0.5) * exp(-rad * 0.2) * 0.2;
 
-  // a dark bank of dust along the bottom, and columns rising out of it into the cavity, each
-  // with a lumpy head; the warp bends them so no two are alike
-  vec2 r = p + warp * vec2(2.4, 1.2);
-  float sd = column(r, vec2(2.8, -12.5), vec2(0.4, -3.9), 1.8, 0.5);
-  sd = min(sd, column(r, vec2(0.9, -6.2), vec2(-0.5, -4.6), 0.55, 0.25)); // a knot leaning off its head
-  sd = min(sd, column(r, vec2(-5.6, -12.0), vec2(-3.2, -6.6), 1.4, 0.35));
-  sd = min(sd, column(r, vec2(7.0, -12.0), vec2(5.0, -7.6), 1.1, 0.3));
-  sd = min(sd, (r.y + 10.4) + (m - 0.5) * 3.0);
-  // eaten away at the edges: fine noise, stronger toward the heads
-  float bite = fbm(p * 0.95 + warp * 3.0 + 40.0) - 0.5;
-  sd += (n - 0.5) * 0.8 + bite * mix(0.6, 1.3, smoothstep(-9.0, -4.0, p.y));
-  float dust = 1.0 - smoothstep(-0.25, 0.35, sd);
-  // the columns' edges are lit where they face the cluster: brightest at the heads
-  float lit = exp(-abs(sd) * 4.5) * smoothstep(-10.5, -4.0, p.y) * (0.6 + n);
+  vec3 col = sky(css) * (1.0 - gas * 0.75) + light;
 
-  // dark lanes of dust threaded through the outer cloud
-  float ridge = 1.0 - abs(2.0 * broad(p * 0.3 + warp * 2.2 + 5.0) - 1.0);
-  float lane = pow(ridge, 7.0) * cloud * smoothstep(0.5, 3.0, wall);
+  // ---- dust: soft dark drifts in front, never near the heart, never thin lines ----
+  float dust = smoothstep(0.56, 0.82, broad(p * 0.12 + w2 * 2.6 + 50.0)) * smoothstep(3.0, 10.0, rad);
+  col *= 1.0 - dust * 0.72;
 
-  float gas = cloud * (0.14 + 0.9 * n * n) * mix(1.0, 0.6, smoothstep(0.0, 10.0, wall));
-  vec3 warm = mix(DEEP, ROSE, smoothstep(0.2, 0.75, n));
-  vec3 cool = mix(vec3(0.24, 0.16, 0.6), vec3(0.28, 0.52, 1.0), smoothstep(0.35, 0.85, n));
-  vec3 light = mix(cool, warm, smoothstep(-12.0, 4.0, p.x + (m - 0.5) * 16.0)) * gas * 1.25;
-  light += TEAL * inside * (0.04 + 0.24 * smoothstep(-CAVITY, 0.0, wall)) * (0.3 + 1.0 * n) * (0.3 + cloud);
-  light += mix(TEAL, ROSE, smoothstep(0.0, 1.5, wall)) * rim * 0.22;
-  light += mix(ROSE, GOLD, 0.35 + 0.5 * n) * rim * (0.2 + 0.5 * n);
-  light *= 1.0 - lane * 0.7;
-
-  vec3 col = sky(css) * (1.0 - cloud * 0.6) + light;
-  col = mix(col, SPACE * 0.55 + DEEP * 0.06, dust * 0.95);
-  col += mix(GOLD, ROSE, 0.25) * lit * 0.8;
-
-  // ---- the young cluster ----
+  // ---- the stars the cloud is making: the bright cluster at the heart, and others scattered in it ----
   for (int i = 0; i < STARS; i++) {
     vec4 s = CLUSTER[i];
-    float d = length(q - s.xy * uScale);
+    vec2 o = q - s.xy * uScale * 1.6;
+    float d = length(o);
     float size = s.z * 1.35;
     float core = smoothstep(size * 1.4, 0.0, d);
     float halo = size * size * 2.0 / (d * d + size * size * 2.5);
-    vec2 o = q - s.xy * uScale;
-    float spikes = s.z > 1.9 ? (exp(-abs(o.y) * 1.2) * exp(-abs(o.x) / (size * 9.0)) + exp(-abs(o.x) * 1.2) * exp(-abs(o.y) / (size * 9.0))) * 0.5 : 0.0;
+    float spikes = s.z > 1.9 ? (exp(-abs(o.y) * 1.2) * exp(-abs(o.x) / (size * 11.0)) + exp(-abs(o.x) * 1.2) * exp(-abs(o.y) / (size * 11.0))) * 0.55 : 0.0;
     col += mix(HOT, GOLD, s.w) * (core * 1.8 + halo * 0.6 + spikes);
   }
-  col += mix(TEAL, HOT, 0.4) * 0.08 * exp(-length(p) * 0.5);
+  vec2 cell = floor(p * 0.55);
+  vec2 f = fract(p * 0.55) - 0.5;
+  float h = hash21(cell + 71.0);
+  if (h > 0.9 && gas > 0.15) {
+    vec2 at = (vec2(hash21(cell + 3.0), hash21(cell + 9.0)) - 0.5) * 0.6;
+    float d = length(f - at) * uScale / 0.55;
+    float size = mix(0.8, 2.0, hash21(cell + 5.0));
+    col += mix(HOT, vec3(1.0, 0.7, 0.85), hash21(cell + 2.0)) * (smoothstep(size * 1.5, 0.0, d) * 1.3 + size * size / (d * d + size * size * 3.0) * 0.5);
+  }
 
   // a soft roll-off instead of a hard clip at white
   col = col / (1.0 + max(col - 0.8, 0.0) * 0.9);
