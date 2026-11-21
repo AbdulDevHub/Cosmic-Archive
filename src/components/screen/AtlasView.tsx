@@ -52,6 +52,14 @@ export interface Spot {
   veil: string;
 }
 
+/** A featured topic on the start page (D-108): a place's id, or "galaxy" for the atlas itself. */
+export interface Topic {
+  to: string;
+  name: string;
+  line: string;
+  href: string;
+}
+
 const POSTERS = { wide: "/posters/atlas-start-wide.webp", narrow: "/posters/atlas-start-narrow.webp" };
 
 const STEP_MS = 1900;
@@ -68,7 +76,7 @@ const PINCH_ZOOM = 1.1; // stops per halving of the distance between two fingers
 const stopOf = (zoom: number) => Math.min(2, Math.max(0, Math.round(zoom))) as 0 | 1 | 2;
 const spotShows = (spot: Spot, zoom: number) => (spot.stop === 2 ? zoom > 1.6 : zoom < 1.45);
 
-export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots: readonly Spot[] }) {
+export function AtlasView({ stops, spots, topics }: { stops: readonly StopWords[]; spots: readonly Spot[]; topics: readonly Topic[] }) {
   const stage = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLUListElement>(null);
   const live = useSceneState(sceneIsLive);
@@ -140,6 +148,20 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
     animateSceneInput({ intro: 0 }, BEGIN_MS);
     leaving.current = setTimeout(() => setStartPhase("atlas"), BEGIN_MS * 0.8);
   };
+  // A featured topic (D-108): the same flight in, then, for a place, a dive into it on arrival.
+  const diving = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const openTopic = (to: string) => {
+    if (phaseRef.current !== "start") return;
+    const spot = spots.find((entry) => entry.id === to);
+    const smooth = live && !calm();
+    begin();
+    if (!spot?.href) return;
+    const { href, anchor, veil } = spot;
+    clearTimeout(diving.current);
+    diving.current = setTimeout(() => diveInto((next) => routerRef.current.push(next), href, anchor, veil), smooth ? BEGIN_MS + 120 : 300);
+  };
+  useEffect(() => () => clearTimeout(diving.current), []);
+
   const beginRef = useRef(begin);
   useEffect(() => {
     beginRef.current = begin;
@@ -282,7 +304,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
   return (
     <div ref={stage} className={styles.screen} data-live={live ? "" : undefined} data-moving={moving ? "" : undefined} data-start={phase !== "atlas" ? "" : undefined}>
       <SceneSlot id="atlas" mode="atlas" posters={POSTERS} opening={opening} />
-      <StartScreen phase={phase} onBegin={begin} />
+      <StartScreen phase={phase} onBegin={begin} topics={topics} onTopic={openTopic} />
 
       <div className={styles.caption}>
         <div key={words.zoom} className={live ? styles.words : undefined}>

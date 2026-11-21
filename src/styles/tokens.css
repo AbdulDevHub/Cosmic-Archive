@@ -21,7 +21,7 @@
   --teal: rgb(77 219 209);
 
   /* ---- Type ---- */
-  --font-display: var(--font-outfit), system-ui, sans-serif;
+  --font-display: var(--font-display-face), system-ui, sans-serif;
   --font-text: var(--font-hanken), system-ui, sans-serif;
   --display-weight: 500;
   --display-track: -0.02em;

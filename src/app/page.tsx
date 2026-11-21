@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { AtlasView, type Spot, type StopWords } from "@/components/screen/AtlasView";
-import { PLACES, STOPS } from "@/lib/content/places";
+import { AtlasView, type Spot, type StopWords, type Topic } from "@/components/screen/AtlasView";
+import { FEATURED, PLACES, STOPS } from "@/lib/content/places";
 import { jsonLd, pageMetadata, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({ description: SITE_DESCRIPTION, path: "/" });
@@ -23,12 +23,14 @@ const SPOTS: Spot[] = [
   { id: "galaxy", name: "The galaxy", href: null, anchor: "home", stop: 2, veil: "" },
 ];
 
+const TOPICS: Topic[] = FEATURED.map(({ to, name, line }) => ({ to, name, line, href: to === "galaxy" ? "/#atlas" : `/${to}` }));
+
 /* The universe (DESIGN_SPEC.md 7): one scene, three stops, the places you can click. */
 export default function Home() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(WEBSITE) }} />
-      <AtlasView stops={STOP_WORDS} spots={SPOTS} />
+      <AtlasView stops={STOP_WORDS} spots={SPOTS} topics={TOPICS} />
     </>
   );
 }

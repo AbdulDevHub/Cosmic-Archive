@@ -41,7 +41,7 @@ export function SiteHeader() {
   return (
     <header className={styles.top}>
       <Link className={styles.wordmark} href="/" onClick={home}>
-        <Emblem />
+        <Emblem size={56} />
         <span className={styles.letters}>
           <span>Cosmic</span> <span>Archive</span>
         </span>
