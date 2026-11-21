@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { STARS_LIFE, type JourneyStop } from "@/lib/content/home";
+import { getJourney, previewOf, type PreviewStop } from "@/lib/content/journeys";
 import { getSubject } from "@/lib/content/subjects";
 import styles from "./home.module.css";
 
@@ -8,10 +8,11 @@ import styles from "./home.module.css";
   A cloud, a star, then the fork to a white dwarf, a neutron star or a black hole, with the reason
   for the fork written at the fork. The line is solid ink: every stop is established science.
 
-  The journey's own page is O5, so the preview links only to the subject pages that exist.
+  Made from the journey itself (content/journeys); the whole journey, with why each step leads to
+  the next, is its own page.
 */
 
-function Stop({ stop }: { stop: JourneyStop }) {
+function Stop({ stop }: { stop: PreviewStop }) {
   const subject = stop.subject ? getSubject(stop.subject) : undefined;
   return (
     <>
@@ -29,7 +30,9 @@ function Stop({ stop }: { stop: JourneyStop }) {
 }
 
 export function JourneyPreview() {
-  const journey = STARS_LIFE;
+  const full = getJourney("a-stars-life");
+  if (!full) return null;
+  const journey = previewOf(full);
   return (
     <section className={styles.section} aria-labelledby="journey-title">
       <h2 id="journey-title">{journey.title}</h2>
@@ -51,6 +54,9 @@ export function JourneyPreview() {
           </ul>
         </li>
       </ol>
+      <p className={styles.journeyMore}>
+        <Link href={`/journeys/${journey.id}`}>Follow the whole journey</Link>, and why each step leads to the next.
+      </p>
     </section>
   );
 }

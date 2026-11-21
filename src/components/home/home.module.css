@@ -436,3 +436,15 @@ a.windowLink:focus-visible .name {
     gap: var(--gap-9);
   }
 }
+
+/* the way on to the whole journey */
+.journeyMore {
+  margin: var(--gap-6) 0 0;
+  color: var(--ink-2);
+}
+
+.journeyMore a {
+  color: var(--beacon);
+  text-decoration-color: color-mix(in srgb, var(--beacon) 55%, transparent);
+  text-underline-offset: 5px;
+}

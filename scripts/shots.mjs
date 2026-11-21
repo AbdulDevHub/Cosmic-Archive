@@ -31,6 +31,7 @@ const ROUTES = [
   { path: () => "/", name: "home-below", scene: true, from: "#destinations" },
   { path: () => "/about", name: "about-full", scene: false, from: "body" },
   { path: () => "/archive", name: "archive-full", scene: false, from: "body" },
+  { path: () => "/journeys/a-stars-life", name: "journey-full", scene: false, from: "body" },
   { path: () => "/subjects/galaxies", name: "galaxies-body", scene: true, from: "#an-island-of-stars" },
   { path: () => "/subjects/nebulae", name: "nebulae-body", scene: true, from: "#a-cloud-between-the-stars" },
   { path: () => "/subjects/quasars", name: "quasars-body", scene: true, from: "#a-light-brighter-than-a-galaxy" },

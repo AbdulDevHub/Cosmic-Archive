@@ -102,7 +102,12 @@ Fable's part ends here (D-028). Everything below is built by Opus.
   - [x] Budgets (gzip): `/about` 138.5 KB (limit 140); `/subjects/quasars` 142.7 (scene route, D-047); quasar chunk 6.5 KB (40); host + three + R3F 183 KB (220); 1 draw call a frame, no particles.
   - [ ] Owner has read the Quasars copy.
   - [ ] Not yet measured on real hardware: the scene's frame rate on a mid-range phone.
-- [ ] O5 Journey: A star's life.
+- [x] O5 Journey: A star's life (2026-11-20):
+  - [x] `content/journeys/a-stars-life.ts`: cloud, protostar, star, then the fork on mass (low-mass: giant, planetary nebula, white dwarf; high-mass: heavier fuels, supernova, then the fork on the core: neutron star or black hole). Every stop that leads on says why; the check enforces it (D-078). Six sources fetched and read 2026-11-20 (D-081).
+  - [x] `/journeys/a-stars-life`: the trail as one branching hairline, no scene, plain server HTML (D-080). Stops link to Nebulae and Black Holes.
+  - [x] The homepage preview is made from the journey and links to it; Journeys is in the nav; the archive lists the journey; Nebulae and Black Holes list it under "Where to go next".
+  - [x] Checks: `npm run check` passes and exits 1 when a stop loses its `why` or names a source that is not listed; `npm run build`; `npm run shots` 67 of 67 (new `journey-full`; the phone menu shows Journeys). `/journeys/a-stars-life` first load 138.6 KB (limit 140), no scene. `npm run fallbacks` was run with O6.
+  - [ ] Owner has read the journey copy.
 - [ ] O6 Explore polish.
 - [ ] O7 Release prep.
 - [ ] O8 Owner review, then deploy.

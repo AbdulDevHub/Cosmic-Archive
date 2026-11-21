@@ -8,8 +8,9 @@
 // by Node itself (type stripping, Node 22.18 or later).
 
 import { DESTINATIONS, LEVELS, SOURCES, UNCHARTED } from "../content/destinations.ts";
-import { HOME_SOURCES, STARS_LIFE, TEASERS } from "../content/home.ts";
-import { citeProblems, homeEntries } from "../src/lib/content/cited.ts";
+import { HOME_SOURCES, TEASERS } from "../content/home.ts";
+import { A_STARS_LIFE } from "../content/journeys/a-stars-life.ts";
+import { citeProblems, journeyProblems, teaserEntries } from "../src/lib/content/cited.ts";
 import { checkSubject } from "../src/lib/content/subject-check.ts";
 import { readContext, readSubject, subjectSlugs, SUBJECTS_DIR } from "../src/lib/content/subject-context.ts";
 
@@ -31,10 +32,11 @@ for (const slug of slugs) {
 
 if (slugs.length === 0) console.log(`no subject files in ${SUBJECTS_DIR}`);
 
-// the content kept as TypeScript data: the atlas's words and the homepage's
+// the content kept as TypeScript data: the atlas's words, the homepage's and the journeys'
 const data = [
   { file: "content/destinations.ts", problems: citeProblems(SOURCES, [...DESTINATIONS, UNCHARTED, ...LEVELS]), count: SOURCES.length },
-  { file: "content/home.ts", problems: citeProblems([...SOURCES, ...HOME_SOURCES], homeEntries(TEASERS, STARS_LIFE)), count: HOME_SOURCES.length },
+  { file: "content/home.ts", problems: citeProblems([...SOURCES, ...HOME_SOURCES], teaserEntries(TEASERS)), count: HOME_SOURCES.length },
+  { file: "content/journeys/a-stars-life.ts", problems: journeyProblems(A_STARS_LIFE.sources, A_STARS_LIFE), count: A_STARS_LIFE.sources.length },
 ];
 for (const { file, problems, count } of data) {
   if (problems.length === 0) {

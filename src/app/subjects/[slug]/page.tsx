@@ -8,6 +8,7 @@ import { subjectComponents } from "@/components/subject/body";
 import { SubjectHero } from "@/components/subject/SubjectHero";
 import styles from "@/components/subject/subject.module.css";
 import { EVIDENCE_WORD } from "@/lib/content/atlas";
+import { getJourney } from "@/lib/content/journeys";
 import { allSubjects, getSubject, relatedTo } from "@/lib/content/subjects";
 import type { SceneId } from "@/scene/host/store";
 
@@ -45,6 +46,10 @@ export default async function SubjectPage({ params }: Props) {
   const poster = scene === "atlas" ? "atlas-subject" : scene;
   const posters = poster ? { wide: `/posters/${poster}-wide.webp`, narrow: `/posters/${poster}-narrow.webp` } : null;
   const related = relatedTo(subject);
+  const journeys = subject.journeys.flatMap((id) => {
+    const journey = getJourney(id);
+    return journey ? [journey] : [];
+  });
 
   return (
     <article className={styles.page}>
@@ -92,6 +97,12 @@ export default async function SubjectPage({ params }: Props) {
                   <li key={entry.id}>
                     {entry.href ? <Link href={entry.href}>{entry.title}</Link> : <span className={styles.unwritten}>{entry.title}</span>}
                     <span>{entry.hook ?? "This page is not written yet."}</span>
+                  </li>
+                ))}
+                {journeys.map((journey) => (
+                  <li key={journey.id}>
+                    <Link href={`/journeys/${journey.id}`}>Journey: {journey.title}</Link>
+                    <span>{journey.hook}</span>
                   </li>
                 ))}
                 <li>
