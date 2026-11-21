@@ -8,6 +8,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import type { SceneBudget, SceneProps } from "../../host/types";
 import { RUNGS } from "../../quality/tiers";
+import { bakeSky } from "../../sky";
 import { NebulaWorld, makeFrame } from "./world";
 
 export const budget: SceneBudget = {
@@ -22,7 +23,11 @@ export default function NebulaScene({ rung, time, view, publish, onReady }: Scen
   const invalidate = useThree((s) => s.invalidate);
   const tier = RUNGS[rung].particles;
 
-  const world = useMemo(() => new NebulaWorld(), []);
+  const gl = useThree((s) => s.gl);
+  // the deep sky's clouds behind the cloud, drawn once (D-101)
+  const sky = useMemo(() => bakeSky(gl), [gl]);
+  useEffect(() => () => sky.dispose(), [sky]);
+  const world = useMemo(() => new NebulaWorld(sky.texture), [sky]);
   useEffect(() => () => world.dispose(), [world]);
   const frame = useMemo(() => makeFrame(), []);
 
@@ -34,7 +39,7 @@ export default function NebulaScene({ rung, time, view, publish, onReady }: Scen
   const drawn = useRef(false);
   useFrame(() => {
     world.setTime(time.current);
-    world.setArrive(view.current.arrive);
+    world.setView(view.current);
     publish(frame);
     if (!drawn.current) {
       drawn.current = true;

@@ -18,7 +18,7 @@
   opacity: 1;
 }
 
-/* With reduced motion or Pause the move is a short cross-fade (flow.ts CALM_MS). */
+/* With reduced motion the move is a short cross-fade (flow.ts CALM_MS). */
 :global(html[data-motion="paused"]) .veil {
   transition-duration: 220ms;
 }

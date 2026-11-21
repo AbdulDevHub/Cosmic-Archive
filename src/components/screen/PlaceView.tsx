@@ -1,16 +1,23 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
-import { flowBusy, pullOut } from "@/scene/host/flow";
+import { useEffect, useRef, useState } from "react";
+import { whoosh } from "@/lib/sound";
+import { calm, flowBusy, pullOut } from "@/scene/host/flow";
 import { SceneSlot } from "@/scene/host/SceneSlot";
-import { sceneIsLive, useSceneState, type SceneId } from "@/scene/host/store";
+import { animateSceneInput, getSceneFrame, getSceneInput, sceneIsLive, setSceneInput, subscribeSceneFrame, useSceneState, type SceneId } from "@/scene/host/store";
+import { DragHint } from "./DragHint";
 import styles from "./screen.module.css";
+import { useGestures } from "./useGestures";
 
 /*
   One place (DESIGN_SPEC.md 7, D-092): its scene fills the window, with its name and one line.
-  "Further" (or Escape, or the wheel pulled back) shrinks it away and returns to the atlas, dived
-  into the place's light, which then pulls back to the stop it was found at (the flow, D-096).
+
+  Closer moves in on it (all the way into the quasar's core, D-102); a drag turns around it (the
+  black hole and the quasar) or pans across it (the nebula); the wheel and a pinch zoom. Further,
+  at the place's own framing, shrinks it away and returns to the atlas, dived into the place's
+  light, which then pulls back to the stop it was found at (the flow, D-096). Escape does the same,
+  and so does pulling the wheel on past the framing.
 
   Without the scene it is the poster, the same words, and "Further" as a plain link home.
 */
@@ -21,12 +28,21 @@ export interface PlaceWords {
   scene: SceneId;
   anchor: string;
   stop: number;
-  /** Where "Further" goes: the galaxy, or the web. */
+  /** Where "Further" goes at the framing: the atlas. */
   outTo: string;
 }
 
-const WHEEL_OUT = 260; // pixels of wheel pulled back before the place is left
 const ATLAS_VEIL = "#090a1c"; // --space: the atlas's own darkness
+const STEP_MS = 1600;
+const WHEEL_ZOOM = 0.0012; // as on the atlas: one notch is about an eighth of the way
+const WHEEL_OUT = 260; // pixels of wheel pulled on past the framing before the place is left
+const WHEEL_GAP = 350; // ms of no wheel after zooming out to the framing before a pull can leave
+const PINCH_ZOOM = 1.1;
+const DRAG = 0.005; // radians per pixel
+const KEY_ZOOM = 0.25;
+const KEY_TURN = 0.15;
+/** Zoom on a place: 0 all the way closer, 1 its own framing. */
+const FRAMED = 1;
 
 export function PlaceView({ place }: { place: PlaceWords }) {
   const stage = useRef<HTMLDivElement>(null);
@@ -37,46 +53,93 @@ export function PlaceView({ place }: { place: PlaceWords }) {
     routerRef.current = router;
   }, [router]);
   const posters = { wide: `/posters/${place.scene}-wide.webp`, narrow: `/posters/${place.scene}-narrow.webp` };
+  // Closer has nowhere left to go once all the way in
+  const [closest, setClosest] = useState(false);
 
   const leave = () => {
     if (flowBusy()) return;
-    pullOut((href) => routerRef.current.push(href), "/", place.anchor, place.stop, ATLAS_VEIL);
+    pullOut((href) => routerRef.current.push(href), place.outTo, place.anchor, place.stop, ATLAS_VEIL);
   };
-  const leaveRef = useRef(leave);
+  const zoomTo = (zoom: number, glide: boolean) => {
+    if (flowBusy()) return;
+    const to = Math.min(FRAMED, Math.max(0, zoom));
+    if (glide && !calm()) {
+      if (Math.abs(to - getSceneInput().zoom) > 0.05) whoosh("glide", STEP_MS / 1000);
+      animateSceneInput({ zoom: to }, STEP_MS);
+    } else setSceneInput({ zoom: to });
+  };
+  const closer = () => zoomTo(getSceneInput().zoom - 0.5, true);
+  /** Further: back out to the framing first, then out of the place. */
+  const further = () => (getSceneInput().zoom < FRAMED - 0.01 ? zoomTo(getSceneInput().zoom + 0.5 > FRAMED - 0.2 ? FRAMED : getSceneInput().zoom + 0.5, true) : leave());
+  const actions = useRef({ further, closer, zoomTo });
   useEffect(() => {
-    leaveRef.current = leave;
+    actions.current = { further, closer, zoomTo };
   });
 
+  // the buttons follow the zoom, wherever it was set from
   useEffect(() => {
-    const element = stage.current;
-    if (!live || !element) return;
-    let pulled = 0;
-    let rest: ReturnType<typeof setTimeout> | undefined;
-    const onWheel = (event: WheelEvent) => {
-      if (event.ctrlKey || event.metaKey) return;
-      event.preventDefault();
-      const pixels = event.deltaMode === 1 ? event.deltaY * 32 : event.deltaY;
-      pulled = Math.max(0, pulled + pixels);
-      clearTimeout(rest);
-      rest = setTimeout(() => (pulled = 0), 400); // a pause in the wheel starts the count again
-      if (pulled > WHEEL_OUT) {
-        pulled = 0;
-        leaveRef.current();
+    if (!live) return;
+    const apply = () => setClosest(getSceneInput().zoom <= 0.01);
+    if (getSceneFrame()) apply();
+    return subscribeSceneFrame(apply);
+  }, [live]);
+
+  // Drag turns or pans, the wheel and a pinch zoom; pulled on past the framing, the wheel leaves.
+  // `zoomed` is when the wheel last moved the zoom: a pull past the framing counts only as a fresh
+  // gesture after a pause, so a trackpad's momentum from zooming out never leaves the place by itself
+  const pulled = useRef({ pixels: 0, rest: 0 as ReturnType<typeof setTimeout> | 0, zoomed: 0 });
+  useGestures(stage, live, {
+    turn: (dx, dy) => {
+      const { yaw, pitch } = getSceneInput();
+      setSceneInput({ yaw: yaw - dx * DRAG, pitch: pitch + dy * DRAG });
+    },
+    pinch: (steps) => actions.current.zoomTo(getSceneInput().zoom + steps * PINCH_ZOOM * 0.5, false),
+    wheel: (pixels) => {
+      const { zoom } = getSceneInput();
+      const now = performance.now();
+      if (zoom < FRAMED - 0.001 || pixels < 0) {
+        pulled.current.pixels = 0;
+        pulled.current.zoomed = now;
+        actions.current.zoomTo(zoom + pixels * WHEEL_ZOOM, false);
+        return;
       }
-    };
+      if (now - pulled.current.zoomed < WHEEL_GAP) {
+        pulled.current.zoomed = now; // still the same gesture: keep waiting for a pause
+        return;
+      }
+      const p = pulled.current;
+      p.pixels += pixels;
+      if (p.rest) clearTimeout(p.rest);
+      p.rest = setTimeout(() => (p.pixels = 0), 400); // a pause in the wheel starts the count again
+      if (p.pixels > WHEEL_OUT) {
+        p.pixels = 0;
+        leave();
+      }
+    },
+  });
+
+  // Keys: + and − zoom (− at the framing leaves), the arrows turn, Escape leaves.
+  useEffect(() => {
+    if (!live) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.ctrlKey || event.metaKey || event.altKey) return;
-      if (event.key !== "Escape" && event.key !== "-" && event.key !== "_") return;
+      if (event.ctrlKey || event.metaKey || event.altKey || flowBusy()) return;
+      const { zoom, yaw, pitch } = getSceneInput();
+      if (event.key === "Escape") leave();
+      else if (event.key === "+" || event.key === "=") actions.current.zoomTo(zoom - KEY_ZOOM, false);
+      else if (event.key === "-" || event.key === "_") {
+        if (zoom >= FRAMED - 0.01) leave();
+        else actions.current.zoomTo(zoom + KEY_ZOOM, false);
+      } else if (event.key === "ArrowLeft") setSceneInput({ yaw: yaw - KEY_TURN });
+      else if (event.key === "ArrowRight") setSceneInput({ yaw: yaw + KEY_TURN });
+      else if (event.key === "ArrowUp") setSceneInput({ pitch: pitch - KEY_TURN * 0.5 });
+      else if (event.key === "ArrowDown") setSceneInput({ pitch: pitch + KEY_TURN * 0.5 });
+      else return;
       event.preventDefault();
-      leaveRef.current();
     };
-    element.addEventListener("wheel", onWheel, { passive: false });
     document.addEventListener("keydown", onKey);
-    return () => {
-      clearTimeout(rest);
-      element.removeEventListener("wheel", onWheel);
-      document.removeEventListener("keydown", onKey);
-    };
+    return () => document.removeEventListener("keydown", onKey);
+    // `leave` reads only refs and the store
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [live]);
 
   return (
@@ -86,14 +149,21 @@ export function PlaceView({ place }: { place: PlaceWords }) {
         <h1>{place.name}</h1>
         <p>{place.line}</p>
       </div>
+      <DragHint live={live} />
       <div className={styles.controls}>
+        {live ? (
+          <button type="button" className={styles.control} onClick={() => !closest && closer()} aria-disabled={closest}>
+            <i className={`${styles.icon} ${styles.closer}`} aria-hidden="true" />
+            <span>Closer</span>
+          </button>
+        ) : null}
         <a
           className={styles.control}
           href={place.outTo}
           onClick={(event) => {
             if (!live || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
             event.preventDefault();
-            leave();
+            further();
           }}
         >
           <i className={`${styles.icon} ${styles.further}`} aria-hidden="true" />

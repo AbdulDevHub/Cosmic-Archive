@@ -7,8 +7,8 @@
  * far off to that size.
  */
 
-import { BufferAttribute, BufferGeometry, Mesh, ShaderMaterial, Vector2, Vector3 } from "three";
-import type { SceneFrame } from "../../host/store";
+import { BufferAttribute, BufferGeometry, Mesh, ShaderMaterial, Vector2, Vector3, type Texture } from "three";
+import type { SceneFrame, SceneInput } from "../../host/store";
 import type { ParticleTier } from "../../quality/tiers";
 import { BLACK_HOLE_FRAGMENT, MAX_STEPS, QUAD_VERTEX } from "./shader.glsl";
 
@@ -28,6 +28,19 @@ const ROLL = (-11 * Math.PI) / 180;
 const DISC_RADIUS = 10;
 /** How large the hole is when an arrival starts, as a share of its full size. */
 const ARRIVE_FROM = 0.28;
+/** The direction of the galaxy's crowded heart, behind the hole as first seen, for the baked sky. */
+export const SKY_HEART = new Vector3(-0.5, -0.04, -0.865);
+/** How much larger it is when the visitor has moved all the way closer. */
+const CLOSE = 2.6;
+
+/**
+ * A place's size on screen: its arrival (small and far off to whole) times the visitor's zoom
+ * (D-102). `zoom` is 1 at the place's own framing and 0 all the way closer, on a log scale.
+ */
+export function placeScale(arrive: number, zoom: number, from: number, close: number): number {
+  const closer = Math.exp(Math.log(close) * (1 - Math.min(1, Math.max(0, zoom))));
+  return (from + (1 - from) * arrive) * closer;
+}
 
 export const isPhone = (width: number, height: number) => width / height < 0.8;
 
@@ -60,8 +73,10 @@ export class BlackHoleWorld {
   private readonly right: Vector3;
   private readonly up: Vector3;
   private scale = 1;
+  private yaw = 0;
+  private pitch = 0;
 
-  constructor() {
+  constructor(sky: Texture) {
     ({ cam: this.cam, fwd: this.fwd, right: this.right, up: this.up } = cameraBasis(CAMERA_DISTANCE, ELEVATION, AZIMUTH, ROLL));
 
     const geometry = new BufferGeometry();
@@ -83,6 +98,7 @@ export class BlackHoleWorld {
         uRight: { value: this.right },
         uUp: { value: this.up },
         uFwd: { value: this.fwd },
+        uSky: { value: sky },
       },
     });
     this.root = new Mesh(geometry, this.material);
@@ -106,9 +122,20 @@ export class BlackHoleWorld {
     frame.radius = DISC_RADIUS * scale;
   }
 
-  /** How far the hole has arrived: 0 small and far off, 1 full size. */
-  setArrive(arrive: number): void {
-    this.material.uniforms.uScale.value = this.scale * (ARRIVE_FROM + (1 - ARRIVE_FROM) * arrive);
+  /**
+   * The visitor's view: how far the hole has arrived and how close they have moved (its size),
+   * and a drag, which turns the camera around the hole and lifts it above or below the disc.
+   */
+  setView(view: SceneInput): void {
+    this.material.uniforms.uScale.value = this.scale * placeScale(view.arrive, view.zoom, ARRIVE_FROM, CLOSE);
+    if (view.yaw === this.yaw && view.pitch === this.pitch) return;
+    this.yaw = view.yaw;
+    this.pitch = view.pitch;
+    const basis = cameraBasis(CAMERA_DISTANCE, ELEVATION - view.pitch, AZIMUTH + view.yaw, ROLL);
+    this.cam.copy(basis.cam);
+    this.fwd.copy(basis.fwd);
+    this.right.copy(basis.right);
+    this.up.copy(basis.up);
   }
 
   setTime(seconds: number): void {

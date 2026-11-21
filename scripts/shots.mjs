@@ -20,8 +20,6 @@ const ROUTES = [
     { path: () => `/${id}`, name: id, scene: true },
     { path: (view) => `/${id}?shot=1&t=12&tier=${view.tier}`, name: `${id}-still`, scene: true, mustDraw: true },
   ]),
-  { path: () => "/about", name: "about", scene: false },
-  { path: () => "/about", name: "about-full", scene: false, from: "body" },
 ];
 
 const VIEWS = [

@@ -21,6 +21,8 @@
  * the define the shader is exactly the Black Holes scene.
  */
 
+import { SKY_CHUNK } from "../../shaders/sky.glsl";
+
 export const QUAD_VERTEX = /* glsl */ `
 void main(){ gl_Position = vec4(position.xy, 0.0, 1.0); }
 `;
@@ -56,7 +58,6 @@ const vec3 GOLD = vec3(1.0, 0.78, 0.42);
 const vec3 EMBER = vec3(1.0, 0.46, 0.28);
 const vec3 ROSE = vec3(0.98, 0.34, 0.62);
 const vec3 VIOLET = vec3(0.52, 0.4, 1.0);
-const vec3 SPACE = vec3(0.035, 0.039, 0.11);   // --space, so the sky meets the page
 const vec3 SHADOW = vec3(0.012, 0.013, 0.036); // darker than the sky, never pure black
 
 float hash21(vec2 p){
@@ -80,28 +81,16 @@ float streaks(float r, float angle){
   return ringNoise(vec2(x * 14.0, r * 2.3), 14.0) * 0.6 + ringNoise(vec2(x * 44.0, r * 5.2 + 11.0), 44.0) * 0.4;
 }
 
-vec3 stars(vec3 d){
-  vec2 uv = vec2(atan(d.z, d.x), asin(clamp(d.y, -1.0, 1.0)));
-  vec3 col = SPACE;
-  for (int layer = 0; layer < 2; layer++) {
-    float cells = layer == 0 ? 34.0 : 78.0;
-    vec2 g = uv * cells;
-    vec2 id = floor(g) + float(layer) * 19.0;
-    vec2 f = fract(g) - 0.5;
-    float h = hash21(id);
-    if (h > 0.8) {
-      vec2 at = (vec2(hash21(id + 3.1), hash21(id + 7.7)) - 0.5) * 0.7;
-      float size = mix(0.03, 0.085, hash21(id + 1.3));
-      float tone = hash21(id + 5.5);
-      vec3 tint = mix(vec3(0.72, 0.8, 1.0), vec3(1.0, 0.9, 0.76), tone);
-      col += tint * smoothstep(size, 0.0, length(f - at)) * mix(0.35, 1.0, (h - 0.8) * 5.0);
-    }
-  }
-  // a faint wash, so the sky is deep indigo and not flat
-  float wash = ringNoise(vec2(uv.x / TAU * 6.0, uv.y * 1.6 + 4.0), 6.0);
-  col += vec3(0.05, 0.04, 0.12) * wash * wash;
-  return col;
-}
+${SKY_CHUNK}
+
+/* the deep sky behind the hole: at a galaxy's heart, full and warm, with the crowded core of stars
+   right behind the hole so its light is bent into a ring; behind a quasar, the sparser sky between
+   galaxies (D-101) */
+#ifdef QUASAR
+const float SKY_RICH = 0.55;
+#else
+const float SKY_RICH = 1.15;
+#endif
 
 /* the disc's light where a ray crosses its plane; rgb is light, a is how much it hides */
 vec4 disc(vec3 hit, vec3 travel){
@@ -226,7 +215,11 @@ void main(){
     }
   }
   vec3 outDir = normalize(v);
-  light += (1.0 - hidden) * (captured ? SHADOW : stars(outDir));
+#ifdef QUASAR
+  // past the marched zone the light runs straight: blend into it, so the sky shows no seam
+  outDir = normalize(mix(outDir, dir, smoothstep(uMarch * 0.55, uMarch, length(q))));
+#endif
+  light += (1.0 - hidden) * (captured ? SHADOW : skyDeep(outDir, SKY_RICH));
 
 #ifdef QUASAR
   vec2 u = q / uScale; // horizon radii from the hole, y up

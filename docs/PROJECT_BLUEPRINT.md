@@ -32,7 +32,7 @@ Anyone who likes looking at space. Half are on phones. They come to be amazed, n
 |---|---|
 | The universe, `/` | One scene, three stops: the cosmic web, the whole galaxy, close in over the disc |
 | Places | Three, each its own scene: black hole, nebula, quasar |
-| About | What this is, the illustration note, links to real observations, sources, credits |
+| Sound | The owner's own music under the scenes, a whoosh for each flight; on by default after the first gesture (D-100) |
 
 ### Next (each its own session, in `PHASED_ROADMAP.md`)
 
@@ -46,7 +46,7 @@ Make the four scenes richer before adding anything: S2 galaxy and cosmic web, S3
 
 ### Never
 
-Accounts, payments, analytics, a CMS or database, autoplaying audio, embedded third-party imagery (see 6.2), long-form text on a scene screen.
+Accounts, payments, analytics, a CMS or database, sound before the visitor's first gesture, embedded third-party imagery (see 6.2), long-form text on a scene screen.
 
 ## 5. Inclusion rule
 
@@ -64,8 +64,8 @@ A place belongs if it is real, is found where the atlas puts it (inside the gala
 ### 6.2 Imagery
 
 - All imagery is our own: real-time scenes and stills rendered from them.
-- No telescope photographs, agency artwork or third-party images are embedded or hosted. Real observations are linked to at their source, on About (owner decision, 2026-11-11).
-- An illustration is never described as a photograph or as data; About says plainly that every picture is an illustration and nothing is to scale.
+- No telescope photographs, agency artwork or third-party images are embedded or hosted (owner decision, 2026-11-11). With About gone (D-099), the site links to none either.
+- An illustration is never described as a photograph or as data.
 
 ### 6.3 The atlas tells the truth about place
 
@@ -74,7 +74,7 @@ A place belongs if it is real, is found where the atlas puts it (inside the gala
 
 ## 7. Information architecture
 
-Routes: `/` (the universe), `/black-hole`, `/nebula`, `/quasar`, `/about`. The header has the wordmark (home), About and Pause motion. The universe itself is the navigation.
+Routes: `/` (the universe), `/black-hole`, `/nebula`, `/quasar`. The header has the wordmark (home) and Sound. The universe itself is the navigation.
 
 ## 8. Risks and safeguards
 
@@ -90,4 +90,4 @@ Routes: `/` (the universe), `/black-hole`, `/nebula`, `/quasar`, `/about`. The h
 
 ## 9. Standing owner decisions
 
-Name: Cosmic Archive. Identity: the universe to look at, cosmos alone (D-092, D-094). Places: black hole, nebula, quasar; the galaxy is a stop of the universe, not a place of its own (D-093). Sound: not in v1. Deployment: Vercel, later, only when the owner says so. The full log is `DECISIONS.md`.
+Name: Cosmic Archive. Identity: the universe to look at, cosmos alone (D-092, D-094). Places: black hole, nebula, quasar; the galaxy is a stop of the universe, not a place of its own (D-093). Sound: on, the owner's own music (D-100). Deployment: Vercel, later, only when the owner says so. The full log is `DECISIONS.md`.

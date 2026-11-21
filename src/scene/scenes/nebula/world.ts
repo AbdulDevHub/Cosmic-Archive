@@ -7,9 +7,10 @@
  * the cloud fills the frame (D-092). On arrival (`view.arrive`, D-096) it grows to that size.
  */
 
-import { BufferAttribute, BufferGeometry, Mesh, ShaderMaterial, Vector2 } from "three";
-import type { SceneFrame } from "../../host/store";
+import { BufferAttribute, BufferGeometry, Mesh, ShaderMaterial, Vector2, type Texture } from "three";
+import type { SceneFrame, SceneInput } from "../../host/store";
 import type { ParticleTier } from "../../quality/tiers";
+import { placeScale } from "../black-hole/world";
 import { NEBULA_FRAGMENT, QUAD_VERTEX } from "./shader.glsl";
 
 /** Octaves of the gas's noise per tier: the cost is per pixel, and the pixel budget already scales. */
@@ -18,6 +19,10 @@ const OCTAVES: Record<ParticleTier, number> = { low: 4, medium: 5, high: 6 };
 const RADIUS = 6.3; // units: a little past the cavity's wall (CAVITY in the shader is 4.6)
 /** How large the cloud is when an arrival starts, as a share of its full size. */
 const ARRIVE_FROM = 0.4;
+/** How much larger the cloud is when the visitor has moved all the way closer. */
+const CLOSE = 2.2;
+/** How far a drag moves the cloud, in CSS pixels per radian of input; the sky moves less (parallax). */
+const PAN = 420;
 
 export const isPhone = (width: number, height: number) => width / height < 0.8;
 
@@ -35,8 +40,10 @@ export class NebulaWorld {
   readonly root: Mesh;
   private readonly material: ShaderMaterial;
   private scale = 1;
+  private x = 0;
+  private y = 0;
 
-  constructor() {
+  constructor(sky: Texture) {
     const geometry = new BufferGeometry();
     geometry.setAttribute("position", new BufferAttribute(new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]), 3));
     this.material = new ShaderMaterial({
@@ -51,6 +58,8 @@ export class NebulaWorld {
         uScale: { value: 1 },
         uTime: { value: 0 },
         uOctaves: { value: OCTAVES.medium },
+        uSkyShift: { value: new Vector2(0, 0) },
+        uSky: { value: sky },
         uNorm: { value: 1 },
       },
     });
@@ -67,6 +76,8 @@ export class NebulaWorld {
     u.uDpr.value = dpr;
     u.uCentre.value.set(x, y);
     this.scale = scale;
+    this.x = x;
+    this.y = y;
     u.uOctaves.value = octaves;
     u.uNorm.value = 1 / (1 - 0.5 ** octaves); // the weights 1/2 + 1/4 + ... sum to this
 
@@ -76,9 +87,17 @@ export class NebulaWorld {
     frame.radius = RADIUS * scale;
   }
 
-  /** How far the cloud has arrived: 0 small and far off, 1 full size. */
-  setArrive(arrive: number): void {
-    this.material.uniforms.uScale.value = this.scale * (ARRIVE_FROM + (1 - ARRIVE_FROM) * arrive);
+  /**
+   * The visitor's view: how far the cloud has arrived and how close they have moved (its size),
+   * and a drag, which pans across it; the stars and the far gas behind move less, for depth.
+   */
+  setView(view: SceneInput): void {
+    const u = this.material.uniforms;
+    u.uScale.value = this.scale * placeScale(view.arrive, view.zoom, ARRIVE_FROM, CLOSE);
+    const panX = Math.max(-1.2, Math.min(1.2, view.yaw)) * -PAN;
+    const panY = view.pitch * -PAN;
+    u.uCentre.value.set(this.x + panX, this.y + panY);
+    u.uSkyShift.value.set(panX * 0.3, panY * 0.3);
   }
 
   setTime(seconds: number): void {

@@ -1,17 +1,20 @@
 // Fallback and flow tests for the scene system (docs/ARCHITECTURE.md section 8): tested, not assumed.
 // Usage: npm run build && npm run fallbacks
 //
-//   1. live          the loop runs, stays under the draw-call limit, and Pause motion stops it
+//   1. live          the loop runs and stays under the draw-call limit
 //   2. reduced       reduced motion draws a still frame and never loops
 //   3. no WebGL      the poster shows, the screen is complete, no 3D code is downloaded
 //   4. slow device   under CPU throttling the governor steps the quality down
-//   5. no scene      a cold load of /about downloads no 3D code
-//   6. navigation    leaving for /about stops the loop; coming back (slowly, and at once) shows the scene again
+//   5. no scene      a page with no scene (the 404) downloads no 3D code
+//   6. navigation    home and back, slowly and at once, shows the scene again
 //   7. places        each place: its loop on `low` under the draw-call limit, reduced motion, no WebGL
 //   8. flow          a click on a place dives in, the veil falls and lifts on the place's page; Further comes back
 //   9. calm flow     with reduced motion the same moves are a short cross-fade, and the veil never stays down
 //  10. keyboard      by keyboard only: focus reaches the controls, keys zoom, a place opens, Escape comes back
 //  11. touch         by touch only: a pinch zooms, a tap on a place opens it
+//  12. place zoom    Closer goes all the way into the quasar; Further comes back to its framing, then leaves
+//  13. drag hint     the hint shows until the first drag, then goes for good
+//  14. sound         the Sound button turns sound off and on, and remembers it
 
 import { launchBrowser, sceneSettled, serveBuild } from "./lib/serve.mjs";
 
@@ -127,15 +130,6 @@ try {
     const perFrame = await page.evaluate(() => window.__draws.maxPerFrame);
     check("live", `fewer than ${DRAW_CALL_LIMIT} draw calls a frame`, perFrame > 0 && perFrame < DRAW_CALL_LIMIT, `${perFrame}`);
 
-    // pressed from the keyboard: under software WebGL a pointer click sometimes waited out its
-    // timeout while the main thread drew, and the test proves the control, not the pointer
-    await page.getByRole("button", { name: /pause motion/i }).focus();
-    await page.keyboard.press("Enter");
-    await page.waitForTimeout(400);
-    const paused = await draws(page);
-    await page.waitForTimeout(1500);
-    const pausedLater = await draws(page);
-    check("live", "Pause motion stops the loop", pausedLater === paused && (await html(page, "motion")) === "paused", `${pausedLater - paused} draw calls in 1.5 s`);
     await context.close();
   }
 
@@ -197,10 +191,10 @@ try {
     const context = await browser.newContext(DESKTOP);
     const page = await context.newPage();
     const loadedThree = watchScripts(page);
-    await page.goto(base + "/about", { waitUntil: "networkidle" });
+    await page.goto(base + "/no-such-place", { waitUntil: "networkidle" });
     await page.waitForTimeout(500);
     const canvases = await page.evaluate(() => document.querySelectorAll("canvas").length);
-    check("no scene", "/about downloads no 3D code", !(await loadedThree()) && canvases === 0);
+    check("no scene", "the 404 page downloads no 3D code", !(await loadedThree()) && canvases === 0);
     await context.close();
   }
 
@@ -217,26 +211,21 @@ try {
         .waitForFunction(() => document.documentElement.dataset.scene === "ready" && !!document.querySelector("canvas")?.parentElement?.hasAttribute("data-on"), undefined, { timeout: 30000 })
         .then(() => true)
         .catch(() => false);
-    const about = page.getByRole("link", { name: "About" }).first();
     const home = page.getByRole("link", { name: "Cosmic Archive" }).first();
 
-    await page.goto(base + PINNED, { waitUntil: "load" });
+    await page.goto(base + "/nebula?tier=low", { waitUntil: "load" });
     await sceneSettled(page);
-    await about.click();
-    await page.waitForURL("**/about");
-    await page.waitForTimeout(1200);
-    const before = await draws(page);
-    await page.waitForTimeout(1200);
-    check("navigation", "the loop stops on /about", (await draws(page)) === before && (await html(page, "scene")) === undefined);
-
     await home.click();
-    await page.waitForURL(base + "/");
-    check("navigation", "the scene is shown again on return", await shown());
+    await page.waitForURL((url) => url.pathname === "/");
+    check("navigation", "home by the wordmark shows the atlas", await shown());
+    await page.goBack();
+    await page.waitForURL((url) => url.pathname === "/nebula");
+    check("navigation", "Back shows the place again", await shown());
 
-    // there and back inside the 300 ms fade: the scene must still come back
-    await about.click();
-    await home.click();
-    await page.waitForURL(base + "/");
+    // forward and back at once, inside the 300 ms fade: the scene must still come back
+    await page.goForward();
+    await page.goBack();
+    await page.waitForURL((url) => url.pathname === "/nebula");
     await page.waitForTimeout(600);
     const quick = await shown();
     const canvases = await page.evaluate(() => document.querySelectorAll("canvas").length);
@@ -310,16 +299,17 @@ try {
     check("flow", "Further shrinks the place away and comes back to the galaxy", back && canvases === 1 && problems.length === 0, problems.join("; "));
 
     // Back in the middle of a dive calls the move off: the visitor is not pushed forward again
-    await page.goto(base + "/about?tier=low", { waitUntil: "load" });
+    await page.goto(base + "/nebula?tier=low", { waitUntil: "load" });
+    await sceneSettled(page);
     await page.getByRole("link", { name: "Cosmic Archive" }).first().click();
     await page.waitForURL((url) => url.pathname === "/");
     await sceneSettled(page);
     await (await spotFor(page, "/black-hole")).click();
     await page.waitForTimeout(300);
     await page.goBack();
-    await page.waitForURL((url) => url.pathname === "/about", { timeout: 10000 });
+    await page.waitForURL((url) => url.pathname === "/nebula", { timeout: 10000 });
     await page.waitForTimeout(2500);
-    const stayed = new URL(page.url()).pathname === "/about";
+    const stayed = new URL(page.url()).pathname === "/nebula";
     const lifted = (await page.locator("[data-active]").count()) === 0;
     check("flow", "Back mid-dive calls the move off, and the veil lifts", stayed && lifted, new URL(page.url()).pathname);
     await context.close();
@@ -407,6 +397,71 @@ try {
     if (spot) await spot.tap();
     const opened = !!spot && (await page.waitForURL((url) => url.pathname === "/quasar", { timeout: 15000 }).then(() => true, () => false));
     check("touch", "a tap on a place opens it", opened && (await settledFlow(page)), page.url().replace(base, ""));
+    await context.close();
+  }
+
+  // 12. zooming into a place: Closer goes all the way in, Further comes back out to the framing, then leaves
+  {
+    const context = await browser.newContext(SMALL);
+    const page = await context.newPage();
+    await page.goto(base + "/quasar?tier=low", { waitUntil: "load" });
+    await sceneSettled(page);
+    const closer = page.getByRole("button", { name: "Closer" });
+    // clicked from inside the page: all the way into the quasar every pixel is ray-marched, and under
+    // software WebGL a pointer click waits out its timeout for a frame
+    const press = (locator) => locator.evaluate((el) => el.click());
+    const further = page.getByRole("link", { name: "Further" });
+    await press(closer);
+    await press(closer);
+    await page.waitForTimeout(400);
+    check("place zoom", "Closer twice goes all the way into the quasar", (await closer.getAttribute("aria-disabled")) === "true");
+    await press(further);
+    await page.waitForTimeout(400);
+    const stillThere = new URL(page.url()).pathname === "/quasar" && (await closer.getAttribute("aria-disabled")) === "false";
+    await press(further);
+    await page.waitForTimeout(2500);
+    await press(further);
+    const left = await page.waitForURL((url) => url.pathname === "/", { timeout: 15000 }).then(() => true, () => false);
+    check("place zoom", "Further comes back to the framing first, then leaves the place", stillThere && left);
+    await context.close();
+  }
+
+  // 13. the drag hint: there until the first drag, then gone for good
+  {
+    const context = await browser.newContext(SMALL);
+    const page = await context.newPage();
+    await page.goto(base + "/nebula?tier=low", { waitUntil: "load" });
+    await sceneSettled(page);
+    const hint = page.locator("p", { hasText: "Drag to look around" });
+    const before = (await hint.isVisible()) && (await hint.getAttribute("data-gone")) === null;
+    const cursor = await page.evaluate(() => getComputedStyle(document.querySelector("main > div")).cursor);
+    await page.mouse.move(450, 280);
+    await page.mouse.down();
+    for (let x = 450; x <= 600; x += 15) await page.mouse.move(x, 290);
+    await page.mouse.up();
+    await page.waitForTimeout(300);
+    const after = (await hint.getAttribute("data-gone")) !== null;
+    await page.goto(base + "/?tier=low", { waitUntil: "load" });
+    await sceneSettled(page);
+    const stays = (await page.locator("p", { hasText: "Drag to look around" }).getAttribute("data-gone")) !== null;
+    check("drag hint", "a grab cursor and the hint; the hint goes after a drag, for good", before && cursor === "grab" && after && stays, `cursor ${cursor}`);
+    await context.close();
+  }
+
+  // 14. sound: the button turns it off and on, and the choice is remembered
+  {
+    const context = await browser.newContext(SMALL);
+    const page = await context.newPage();
+    await page.goto(base + "/?tier=low", { waitUntil: "load" });
+    const sound = page.getByRole("button", { name: "Sound" });
+    const first = await sound.getAttribute("aria-pressed");
+    await sound.click(); // off, even before any music has started
+    const off = await sound.getAttribute("aria-pressed");
+    await page.reload({ waitUntil: "load" });
+    const remembered = await page.getByRole("button", { name: "Sound" }).getAttribute("aria-pressed");
+    await page.getByRole("button", { name: "Sound" }).click();
+    const back = await page.getByRole("button", { name: "Sound" }).getAttribute("aria-pressed");
+    check("sound", "on by default; one click turns it off, it stays off, and a click turns it on", first === "true" && off === "false" && remembered === "false" && back === "true", `${first}, ${off}, ${remembered}, ${back}`);
     await context.close();
   }
 

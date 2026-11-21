@@ -1,4 +1,4 @@
-/* Copied from .top in prototype/look.html. No background until a page of words scrolls (DESIGN_SPEC.md 7.1). */
+/* Copied from .top in prototype/look.html. Always over a scene, so it never has a background (DESIGN_SPEC.md 7.1). */
 .top {
   position: fixed;
   z-index: 3;
@@ -7,12 +7,14 @@
   align-items: center;
   gap: 32px;
   padding: 22px var(--gutter);
-  background: transparent;
-  transition: background-color var(--dur-fast) ease-out;
+  pointer-events: none; /* the header's empty middle is still the scene: drag through it */
 }
 
-.top[data-scrolled] {
-  background: var(--space);
+.wordmark,
+.sound {
+  pointer-events: auto;
+  white-space: nowrap;
+  text-shadow: 0 0 12px oklch(0.13 0.04 275 / 0.9);
 }
 
 .wordmark {
@@ -22,24 +24,8 @@
   margin-right: auto;
 }
 
-.nav {
-  display: flex;
-  gap: 28px;
-}
-
-.nav a {
-  font-size: 15px;
-  text-decoration: none;
-  padding: 6px 0;
-  border-bottom: 1px solid transparent;
-}
-
-.nav a:hover,
-.nav a[aria-current="page"] {
-  border-bottom-color: var(--ink);
-}
-
-.pause {
+/* Sound: a speaker with waves when on, with a cross when off; the word beside it. */
+.sound {
   font: inherit;
   font-size: 15px;
   color: var(--ink);
@@ -54,29 +40,13 @@
   gap: 8px;
 }
 
-/* Two bars while motion plays; a play triangle once paused. */
-.pause i {
-  width: 9px;
-  height: 11px;
-  border-left: 2px solid var(--ink);
-  border-right: 2px solid var(--ink);
+.sound:not([data-on]) {
+  color: var(--ink-2);
 }
 
-:global(html[data-motion="paused"]) .pause i {
-  width: 0;
-  height: 0;
-  border: 6px solid transparent;
-  border-left: 10px solid var(--ink);
-  border-right: 0;
-}
-
-.whenPaused,
-:global(html[data-motion="paused"]) .whenOn {
-  display: none;
-}
-
-:global(html[data-motion="paused"]) .whenPaused {
-  display: inline;
+.sound:hover span {
+  text-decoration: underline;
+  text-underline-offset: 5px;
 }
 
 @media (max-width: 720px) {
@@ -84,26 +54,18 @@
     gap: 18px;
     padding: 16px var(--gutter);
   }
-}
 
-.wordmark,
-.pause {
-  white-space: nowrap;
-}
-
-@media (max-width: 720px) {
   .wordmark {
     font-size: 20px;
   }
 
-  /* no room for the words beside the wordmark and About: the control keeps its icon and a 44 px
-     target, and its words stay for screen readers */
-  .pause {
+  /* the control keeps its icon and a 44 px target; its word stays for screen readers */
+  .sound {
     min-width: var(--touch);
     justify-content: center;
   }
 
-  .pause span {
+  .sound span {
     position: absolute;
     width: 1px;
     height: 1px;

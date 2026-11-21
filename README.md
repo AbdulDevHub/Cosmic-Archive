@@ -2,13 +2,14 @@
 
 A spectacle of the cosmos you click through. Real-time scenes of the cosmic web, a spiral galaxy, a black hole, a nebula and a quasar, with a smooth flight from each one into the next.
 
-**Status:** being polished; not deployed yet. The universe (`/`, three zoom stops) and three places (`/black-hole`, `/nebula`, `/quasar`) are built with the flow between them. Next: making each scene richer. The plan is in `docs/`.
+**Status:** being polished; not deployed yet. The universe (`/`, three zoom stops) and three places (`/black-hole`, `/nebula`, `/quasar`) are built with the flow between them, a deep sky behind every scene, and sound. Next: making each scene richer. The plan is in `docs/`.
 
 ## Ideas that shape it
 
 - **Cosmos alone.** The scenery fills the screen, with nothing drawn over it. Each view has a name and one line.
 - **Click to travel.** Pull back from the galaxy to the cosmic web, or click a light to fall into it: the camera dives in, the screen passes through the place's own colour, and the place grows into view.
 - **Honest in its few words.** Every line is tied to a checked source; every picture is an illustration.
+- **Look around and listen.** Drag to turn around a black hole or pan across a nebula, zoom right into a quasar, with music and a whoosh for every flight.
 - **Works without 3D.** Every screen is complete HTML with a still of its scene; the live scenes adapt to the device.
 
 ## Tech stack
@@ -41,7 +42,7 @@ npm run dev
 | `npm run build` | Production build (every route is static) |
 | `npm run shots` | Starts the built app and screenshots each route at 1440x900, 390x844 and 1440x900 with reduced motion into `screenshots/` |
 | `npm run posters` | Renders scene stills into `public/posters/` from the built app's own scenes; build again afterwards |
-| `npm run fallbacks` | Runs the scene tests on the built app: reduced motion, no WebGL, slow device, no 3D code on About, every place, the flow between scenes with and without motion, keyboard only and touch only |
+| `npm run fallbacks` | Runs the scene tests on the built app: reduced motion, no WebGL, slow device, no 3D code on the 404 page, every place, the flow between scenes with and without motion, keyboard only and touch only |
 | `npm run a11y` | Scans every route with axe-core, wide and on a phone; fails on serious or critical findings |
 
 `npm run shots` uses Playwright's Chromium; run `npx playwright install chromium` once if it is missing.
