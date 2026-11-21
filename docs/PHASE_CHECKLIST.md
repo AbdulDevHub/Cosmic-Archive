@@ -4,11 +4,43 @@ Tick an item only when it is implemented and verified. Sessions are defined in `
 
 ## Next session (read this first)
 
-Folded in from the old `OPUS_NEXT_WEEK_PROMPT.md` (D-106). A fresh session has no memory: read `CLAUDE.md`, this file, `docs/DESIGN_SPEC.md`, `docs/ARCHITECTURE.md` (sections 3 and 4) and `docs/DECISIONS.md` from D-092 on. The original ChatGPT direction is in git commit `15e3478` (the owner also keeps a copy in `Cosmic_Archive_Opus_Handoff/`, not in git); the owner's newer decisions override it.
+Folded in from the old `OPUS_NEXT_WEEK_PROMPT.md` (D-106). A fresh session has no memory: read `CLAUDE.md`, this section, `docs/DESIGN_SPEC.md` (2 bans and their start-page exception, 7.0 the start page, 7 the screens), `docs/ARCHITECTURE.md` (3 the scene system and the flow, 4 the atlas) and `docs/DECISIONS.md` from D-092 on. The original ChatGPT direction is in git commit `15e3478` (the owner also keeps a copy in `Cosmic_Archive_Opus_Handoff/`, not in git). **The owner's newer decisions override it**: where the two disagree, the decision log wins.
 
-**Next: S2, galaxy and cosmic web** (atlas scene only). Ask the owner first what they noticed. Then: richer colour from core to arms; pink star-forming knots and blue young clusters; the disc denser between the arms, as in `reference images/` (not in git); a deeper, glowing web (thin on a phone at `low`); a finer dive through the disc; posters re-rendered. Checks: `npm run check`, `build`, `shots` (look at every still against DESIGN_SPEC 11), `fallbacks`, `a11y`; draw calls on `low` under 30; the atlas chunk under 40 KB; film a dive and look at it.
+### Where things stand (2026-11-21, end of a long session)
 
-**Before reporting:** every screenshot against DESIGN_SPEC 11; nothing outside `src/scene/` imports three; WebGL off and reduced motion tested, not assumed; every line still sourced; one session only; this file and `DECISIONS.md` updated; committed with gitmoji, not pushed. Report in ten lines or fewer: what was built, files, checks with results, what to look at, known problems, next session.
+Last commit: `2499543` (start page). Everything is committed; nothing is pushed or deployed. Sessions this day, in order: S1 spectacle (D-092 to D-098), S1b fuller with sound (D-099 to D-102), S1c nebula, jets, gentle sound (D-103 to D-105), S1d start page and file tidy (D-106, D-107).
+
+The site now: `/` opens on the start page (Home.png); Begin flies into the galaxy (stops 0 close in, 1 galaxy, 2 cosmic web, hotspots); from there dive into `/black-hole`, `/nebula`, `/quasar` (Closer, Further, drag, pinch); Further or Escape flies back. No About page, no Pause button (reduced motion still respected). Sound: the owner's "Magical Space" plus Web Audio whooshes, started by Begin or any first gesture, Sound button in the header.
+
+### What the owner wants (their words, so nothing is misread again)
+
+- "A spectacle site that showcases beauty, not an educational site." Almost no text: a name and one line per view.
+- Click to travel, smooth flow between scenes; wheel and pinch as extras; nothing scrolls.
+- No drawn lines over the scenery ("the universe doesn't have them"). Dust must never look like lines.
+- "Fill it", "it feels empty": full, colourful frames, as in `reference images/` (not in git; look at them).
+- They love the black hole effect ("really cool"). They wanted quasar jets that show power. The new nebula replaced one they found ugly.
+- The start page follows `reference images/Home.png`: they asked for it "like the image", including the gradient text, glass bar and dock, pill button, menus and search kept as "coming soon" decoration for pages they may build later, and the ship ("make it as cool as possible; if it looks bad or fake we can remove it").
+- On S1d, their verdict: **"It's a good start, definitely needs some polish."** They did not yet say what to polish.
+
+### Next: polish the start page (S1e), then S2
+
+1. **Ask the owner first what to polish** on the start page; do not guess at large changes. Offer the known candidates below.
+2. Known candidates, from our own look at the screenshots (`npm run shots`, `screenshots/start-still-*`, and a filmed flight):
+   - the ship: simple primitives, reads a little like a paper plane; more detail (panel lines, lights, a more sculpted hull) or remove, as the owner says;
+   - the planet: seen almost edge-on its continents stretch; the city lights and clouds could be richer; compare with Home.png's planet;
+   - phone: asteroids sit close to the words at the bottom;
+   - the flight in (3.8 s): check it at real speed on a GPU, not only software WebGL;
+   - the galaxy on the start page and in the atlas is thinner between its arms than the references (this is S2's work).
+3. Then **S2, galaxy and cosmic web** (atlas scene only): richer colour from core to arms; pink star-forming knots and blue young clusters; the disc denser between the arms; a deeper, glowing web (thin on a phone at `low`); a finer dive through the disc; posters re-rendered.
+4. Later: S3 black hole and quasar polish, S4 nebula (phone composition), S5 owner review then deploy (Vercel, only when the owner says so; they set `NEXT_PUBLIC_SITE_URL`).
+
+### How to check (all must pass before reporting)
+
+`npm run check`; `npm run build`; `npm run posters` then build again if a scene changed; `npm run shots` (33, look at the stills against DESIGN_SPEC 11); `npm run fallbacks` (41; slow under software WebGL, run it in the background); `npm run a11y` (8). Draw calls on `low` under 30; scene chunks under 40 KB. Tests that need the atlas itself use `/#atlas` (skips the start page). Under software WebGL some frames take seconds: click heavy scenes from inside the page (`locator.evaluate(el => el.click())`), as test 12 does.
+
+### Working habits the owner expects
+
+Short replies, results first. Commit each finished piece with the `gitmoji-commit` style, never push. Run the reviewer agent on substantial diffs before reporting (it found real bugs twice). Leave the production server running for them (`npx next start -H 0.0.0.0 -p 3000`; phone at the computer's LAN address). Update this section, `DECISIONS.md` and the memory note at the end of every session.
 
 ## F0 Re-plan
 
@@ -155,7 +187,7 @@ Fable's part ends here (D-028). Everything below is built by Opus.
 - [x] S1c Gentler, more beautiful, more powerful (2026-11-21): the flight sound a breath of air (D-103), quasar jets with a hot spine, bursts and a shared pulse (D-104), a new luminous nebula (D-105). Checks: fallbacks 38 of 38, shots 30 of 30.
 - [x] S1d The start page (2026-11-21), from the owner's `Home.png` (D-107): planet, moons, asteroids and ship drawn in code before the galaxy; the image's words, glowing Begin, dock and header (Outfit); Begin starts the music and flies into the galaxy; Home flies back out; `/#atlas` skips it. Prompt files folded into this checklist (D-106).
   - [x] Checks: `npm run check`; `npm run build`; `npm run posters`; `npm run shots` 33 of 33; `npm run fallbacks` 41 of 41 (new: the start page and Begin, Home back out; the no-WebGL start page); `npm run a11y` 8 of 8 after naming the wordmark by its visible words.
-  - [ ] Owner looks at the start page and the ship ("if it looks bad or fake we can remove it"), with sound.
+  - [x] Owner looked: "It's a good start, definitely needs some polish." What to polish: ask next session (S1e).
 - [ ] S2 Galaxy and cosmic web.
 - [ ] S3 Black hole and quasar.
 - [ ] S4 Nebula.
