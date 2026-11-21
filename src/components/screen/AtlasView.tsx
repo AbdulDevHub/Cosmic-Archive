@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { calm, diveInto, flowBusy, getFlow, useFlow } from "@/scene/host/flow";
-import { playMusic, whoosh } from "@/lib/sound";
+import { playMusic, playSample, whoosh } from "@/lib/sound";
 import { sceneParams } from "@/scene/host/params";
 import { SceneSlot } from "@/scene/host/SceneSlot";
 import {
@@ -96,19 +96,9 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
     sync();
   };
   /**
-   * The two buttons move between scenes only (D-112); the wheel and a pinch zoom freely. From the
-   * galaxy, Closer dives into the black hole at its heart and Further glides out to the web; from
-   * the web, Closer glides back in to the galaxy.
+   * One button (D-114): Further, the way back out, from the galaxy to the web. Places are entered
+   * by clicking them (and the galaxy, from the web, by clicking it); the wheel and a pinch zoom.
    */
-  const closer = () => {
-    if (flowBusy()) return;
-    if (getSceneInput().zoom > WEB_AT) {
-      glideTo(ZOOM_MIN);
-      return;
-    }
-    const heart = spots.find((entry) => entry.anchor === "core");
-    if (heart?.href) diveInto((href) => routerRef.current.push(href), heart.href, heart.anchor, heart.veil);
-  };
   const further = () => {
     if (getSceneInput().zoom <= WEB_AT) glideTo(ZOOM_MAX);
   };
@@ -148,7 +138,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
       leaving.current = setTimeout(() => setStartPhase("atlas"), live ? 260 : 0);
       return;
     }
-    whoosh("in", BEGIN_MS / 1000);
+    playSample("journey");
     animateSceneInput({ intro: 0 }, BEGIN_MS);
     leaving.current = setTimeout(() => setStartPhase("atlas"), BEGIN_MS * 0.8);
   };
@@ -168,7 +158,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
         setSceneInput({ intro: 1, zoom: ZOOM_MIN, yaw: 0, pitch: 0 });
         return;
       }
-      whoosh("out", BACK_MS / 1000);
+      playSample("travel");
       animateSceneInput({ intro: 1, zoom: ZOOM_MIN, yaw: 0, pitch: 0 }, BACK_MS);
     };
     const hash = () => {
@@ -322,10 +312,6 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
       <DragHint live={live} />
       {live ? (
         <div className={styles.controls}>
-          <button type="button" className={styles.control} onClick={closer}>
-            <i className={`${styles.icon} ${styles.closer}`} aria-hidden="true" />
-            <span>Closer</span>
-          </button>
           <button type="button" className={styles.control} onClick={() => !atWeb && further()} aria-disabled={atWeb}>
             <i className={`${styles.icon} ${styles.further}`} aria-hidden="true" />
             <span>Further</span>

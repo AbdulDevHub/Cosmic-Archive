@@ -25,7 +25,7 @@ The palette, type and galaxy come from `prototype/look.html`; its ink and vessel
 - **Budgets** in `docs/ARCHITECTURE.md` section 3 are limits, not targets to revisit.
 - **Science:** every line is true. No fact, number or name from memory: fetch the source, name it in `content/places.ts`, record the checked date. `npm run check` enforces it.
 - **Imagery:** our own illustrations only. Never embed or host telescope photos or third-party art. The owner's `reference images/` are inspiration, kept out of git.
-- **Sound:** the owner's own music and whooshes made in the browser; nothing before the first gesture; the Sound button always works (D-100).
+- **Sound:** the owner's own music, the effects the owner supplied in `public/sounds/` (D-114), and whooshes made in the browser; nothing before the first gesture; the Sound button always works (D-100).
 - **Scope:** the v1 table in the blueprint; the beauty sessions (S2 to S4) before new places. One roadmap session at a time, then stop.
 
 ## Working rules

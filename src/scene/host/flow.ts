@@ -14,7 +14,7 @@
 
 import { useSyncExternalStore } from "react";
 import { animateSceneInput, getSceneState, setOpening, setSceneInput, subscribeScene, type SceneInput } from "./store";
-import { whoosh } from "@/lib/sound";
+import { playSample } from "@/lib/sound";
 import { sceneParams } from "./params";
 
 /**
@@ -98,7 +98,7 @@ export function flowBusy(): boolean {
  * Leaves for another scene's page. `opening` is the view the next scene starts on once motion
  * is allowed; `arrive` is the glide that then brings it to rest.
  */
-function leave(push: (href: string) => void, href: string, veil: string, out: { glide: Partial<Record<"dive" | "arrive", number>>; ms: number; veilAt: number; undo: Partial<Record<"dive" | "arrive", number>>; sound: "in" | "out" }, opening: Partial<SceneInput>, rest: Partial<SceneInput>, arrive: Partial<Record<"dive" | "arrive" | "zoom", number>>): void {
+function leave(push: (href: string) => void, href: string, veil: string, out: { glide: Partial<Record<"dive" | "arrive", number>>; ms: number; veilAt: number; undo: Partial<Record<"dive" | "arrive", number>> }, opening: Partial<SceneInput>, rest: Partial<SceneInput>, arrive: Partial<Record<"dive" | "arrive" | "zoom", number>>): void {
   if (flowBusy()) return;
   reset();
   leftToken = getSceneState().slot?.token ?? null;
@@ -112,7 +112,7 @@ function leave(push: (href: string) => void, href: string, veil: string, out: { 
     onArrive = then;
     push(href);
   };
-  whoosh(out.sound, calm() ? 0.9 : (out.ms + ARRIVE_MS * 0.5) / 1000);
+  playSample("travel"); // the owner's warp-out, into a place or back out of one (D-114)
   if (calm()) {
     set({ phase: "leaving", veil });
     later(CALM_MS, () => go({ ...opening, ...rest }, lift));
@@ -133,12 +133,12 @@ function leave(push: (href: string) => void, href: string, veil: string, out: { 
 export function diveInto(push: (href: string) => void, href: string, anchor: string, veil: string): void {
   if (flowBusy()) return;
   setSceneInput({ focus: anchor });
-  leave(push, href, veil, { glide: { dive: 1 }, ms: DIVE_MS, veilAt: VEIL_AT, undo: { dive: 0 }, sound: "in" }, { arrive: 0 }, { arrive: 1 }, { arrive: 1 });
+  leave(push, href, veil, { glide: { dive: 1 }, ms: DIVE_MS, veilAt: VEIL_AT, undo: { dive: 0 } }, { arrive: 0 }, { arrive: 1 }, { arrive: 1 });
 }
 
 /** From a place back out to the atlas, at the stop the place was found at. */
 export function pullOut(push: (href: string) => void, href: string, anchor: string, zoom: number, veil: string): void {
-  leave(push, href, veil, { glide: { arrive: 0 }, ms: SHRINK_MS, veilAt: SHRINK_VEIL_AT, undo: { arrive: 1 }, sound: "out" }, { zoom, focus: anchor, dive: 1 }, { dive: 0 }, { dive: 0 });
+  leave(push, href, veil, { glide: { arrive: 0 }, ms: SHRINK_MS, veilAt: SHRINK_VEIL_AT, undo: { arrive: 1 } }, { zoom, focus: anchor, dive: 1 }, { dive: 0 }, { dive: 0 });
 }
 
 /** The veil lifts; the flow is idle once it has faded. The next scene's opening has been used. */

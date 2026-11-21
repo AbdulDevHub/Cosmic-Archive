@@ -34,7 +34,9 @@ The owner approved the start page and asked for S2, and said phones no longer ma
 
 - [x] First-load screen; black hole at the galaxy's heart; scenes open all the way in; buttons move between scenes only; Title Case names. Checked: check, build, posters, shots 33, a11y 8, fallbacks (see the commit), and a Playwright run: Closer on the galaxy lands on `/black-hole`, a place has only Further, no loader without JavaScript.
 
-### S3 done (2026-11-21, D-113). Next: S4, the nebula (ask the owner first; they may want to review S3)
+### S4 done (2026-11-21, D-114), with the owner's sounds and Closer removed. Next: S5, the owner's review, then deploy only when they say (and decide about the Star Trek sound files first)
+
+### S3 done (2026-11-21, D-113)
 
 ### Owner's backlog (to do, not yet scheduled)
 
@@ -208,5 +210,5 @@ Fable's part ends here (D-028). Everything below is built by Opus.
   - [x] Owner looked: "It's a good start, definitely needs some polish." What to polish: ask next session (S1e).
 - [x] S2 Galaxy and cosmic web (2026-11-21, D-111): gold-to-azure disc, filaments, pink and blue clumps, clouds, fine dust, warm heart; glowing web strands and knots; a finer dive; posters re-rendered. Checked: check, build, posters, shots 33, fallbacks 41 (29 draw calls max), a11y 8; atlas chunk 14.7 KB gzip.
 - [x] S3 Black hole and quasar (2026-11-21, D-113): crisp photon ring, stronger Doppler, finer lensed stars, quasar glare and host tighten close in, jet knots, a host galaxy with arms and a dust lane. Also: drag tilt fixed, galaxy heart a blaze of light.
-- [ ] S4 Nebula.
+- [x] S4 Nebula (2026-11-21, D-114): parallax layers, a natural young cluster, deeper colour and contrast.
 - [ ] S5 Owner review, then deploy.

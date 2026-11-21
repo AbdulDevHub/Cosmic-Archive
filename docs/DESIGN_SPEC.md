@@ -98,7 +98,7 @@ Every scene shows a grab cursor (a closed hand while dragging). Until the visito
 
 - Three stops of one scene: **2** the cosmic web, **1** the whole galaxy, centred, **0** close in over the disc.
 - Lower left: the stop's name and its line, changing softly as the stop changes.
-- Lower right (a phone: lower left, under the words): **Closer** and **Further**, a plus and a minus in a circle with the word. They move between scenes only (D-112): on the galaxy, Closer dives into the black hole at its heart and Further glides out to the web; on the web, Closer glides back in and Further is dimmed (`aria-disabled`). The atlas opens close in; the wheel and a pinch zoom freely.
+- Lower right (a phone: lower left, under the words): **Further**, a minus in a circle with the word: the way back out (D-114). On the galaxy it glides out to the web; on the web it is dimmed (`aria-disabled`). Places, and the galaxy from the web, are entered by clicking them. The atlas opens close in; the wheel and a pinch zoom freely.
 - Hotspots: at stops 0 and 1, **Black hole** (the core) and **Nebula** (in an arm); at stop 2, **Quasar** (a far, bright galaxy) and **The galaxy** (ours, which glides back in).
 - Drag turns the galaxy (and tilts it, with a mouse); the wheel and a pinch zoom.
 - Keys: + and − zoom, the arrows turn and tilt, Escape goes one stop further out.

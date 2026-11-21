@@ -59,6 +59,7 @@ export class NebulaWorld {
         uTime: { value: 0 },
         uOctaves: { value: OCTAVES.medium },
         uSkyShift: { value: new Vector2(0, 0) },
+        uPan: { value: new Vector2(0, 0) },
         uSky: { value: sky },
         uNorm: { value: 1 },
       },
@@ -98,6 +99,7 @@ export class NebulaWorld {
     const panY = view.pitch * -PAN;
     u.uCentre.value.set(this.x + panX, this.y + panY);
     u.uSkyShift.value.set(panX * 0.3, panY * 0.3);
+    (u.uPan.value as Vector2).set(panX, -panY); // y up, as the shader's q
   }
 
   setTime(seconds: number): void {
