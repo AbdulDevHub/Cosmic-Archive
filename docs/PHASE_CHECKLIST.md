@@ -34,6 +34,8 @@ The owner approved the start page and asked for S2, and said phones no longer ma
 
 - [x] First-load screen; black hole at the galaxy's heart; scenes open all the way in; buttons move between scenes only; Title Case names. Checked: check, build, posters, shots 33, a11y 8, fallbacks (see the commit), and a Playwright run: Closer on the galaxy lands on `/black-hole`, a place has only Further, no loader without JavaScript.
 
+### S3 done (2026-11-21, D-113). Next: S4, the nebula (ask the owner first; they may want to review S3)
+
 ### Owner's backlog (to do, not yet scheduled)
 
 - [ ] **Sound that rises with power (owner, 2026-11-21):** better whooshes, and the music should swell into something more powerful at the black hole and the quasar, to show their power. Needs the owner's own music for those parts (D-100: their music, browser-made effects), so ask what they have first.
@@ -205,6 +207,6 @@ Fable's part ends here (D-028). Everything below is built by Opus.
   - [x] Checks: `npm run check`; `npm run build`; `npm run posters`; `npm run shots` 33 of 33; `npm run fallbacks` 41 of 41 (new: the start page and Begin, Home back out; the no-WebGL start page); `npm run a11y` 8 of 8 after naming the wordmark by its visible words.
   - [x] Owner looked: "It's a good start, definitely needs some polish." What to polish: ask next session (S1e).
 - [x] S2 Galaxy and cosmic web (2026-11-21, D-111): gold-to-azure disc, filaments, pink and blue clumps, clouds, fine dust, warm heart; glowing web strands and knots; a finer dive; posters re-rendered. Checked: check, build, posters, shots 33, fallbacks 41 (29 draw calls max), a11y 8; atlas chunk 14.7 KB gzip.
-- [ ] S3 Black hole and quasar.
+- [x] S3 Black hole and quasar (2026-11-21, D-113): crisp photon ring, stronger Doppler, finer lensed stars, quasar glare and host tighten close in, jet knots, a host galaxy with arms and a dust lane. Also: drag tilt fixed, galaxy heart a blaze of light.
 - [ ] S4 Nebula.
 - [ ] S5 Owner review, then deploy.

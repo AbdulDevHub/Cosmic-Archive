@@ -45,6 +45,7 @@ uniform vec2 uJetDir;      // the near jet's direction on screen, y up
 uniform float uJetLength;  // horizon radii
 uniform float uHostAngle;  // the host galaxy's long axis on screen, radians
 uniform float uMarch;      // CSS pixels from the hole inside which rays are bent
+uniform float uClose;      // 0 at the quasar's own framing, 1 all the way in (S3, D-113)
 const vec3 AZURE = vec3(0.42, 0.66, 1.0);
 const vec3 WHITE = vec3(0.94, 0.96, 1.0);
 #endif
@@ -81,6 +82,7 @@ float streaks(float r, float angle){
   return ringNoise(vec2(x * 14.0, r * 2.3), 14.0) * 0.6 + ringNoise(vec2(x * 44.0, r * 5.2 + 11.0), 44.0) * 0.4;
 }
 
+#define SKY_LAYERS 4
 ${SKY_CHUNK}
 
 /* the deep sky behind the hole: at a galaxy's heart, full and warm, with the crowded core of stars
@@ -127,7 +129,7 @@ vec4 disc(vec3 hit, vec3 travel){
   colour = mix(colour, vec3(1.0, 0.96, 0.88), smoothstep(0.8, 1.5, heat));
 #endif
 
-  float glow = pow(R_IN / r, 1.05) * pow(doppler, 1.9) * lift;
+  float glow = pow(R_IN / r, 1.05) * pow(doppler, 2.6) * lift; // S3: the approaching side blazes
   float cover = edge * clamp(pattern, 0.0, 1.0);
   return vec4(colour * glow * pattern * 2.6, cover * 0.94);
 }
@@ -142,13 +144,22 @@ vec3 hostGalaxy(vec2 u){
   float body = exp(-r * r * 2.4) * 0.3 + exp(-r * 5.0) * 0.2;
   float mottle = ringNoise(h * 5.0 + 3.0, 400.0) * 0.6 + ringNoise(h * 13.0 + 9.0, 400.0) * 0.4;
   body *= 0.55 + 0.8 * mottle;
+  // S3 (D-113): two arms winding out of the bulge, blue with young stars and pink with knots of
+  // new ones, and a dark lane of dust across the middle
+  float theta = atan(h.y, h.x);
+  float arm = pow(0.5 + 0.5 * cos(2.0 * theta - 5.5 * log(r + 0.06)), 3.0) * smoothstep(0.12, 0.35, r) * exp(-r * r * 1.3);
+  vec2 kc = u * 0.7; // round knots, set in the picture's own units so the oval does not stretch them
+  vec2 kid = floor(kc);
+  float knot = step(0.9, hash21(kid + 17.0)) * smoothstep(0.3, 0.0, length(fract(kc) - 0.5 - (vec2(hash21(kid + 4.0), hash21(kid + 8.0)) - 0.5) * 0.4));
+  vec3 arms = mix(AZURE * 0.55, VIOLET * 0.6, mottle) * arm * 0.55 + ROSE * knot * arm * 0.6;
+  float lane = 1.0 - 0.6 * exp(-pow((h.y + 0.04 * sin(h.x * 6.0)) / 0.05, 2.0)) * smoothstep(0.9, 0.15, r);
   // its own stars, thinning outward
   vec2 g = u * 1.6;
   vec2 id = floor(g);
   float star = hash21(id + 31.0);
   float speck = step(0.9, star) * smoothstep(0.32, 0.0, length(fract(g) - 0.5 - (vec2(hash21(id + 2.0), hash21(id + 5.0)) - 0.5) * 0.5));
   body += speck * exp(-r * r * 1.8) * 0.5 * (star - 0.9) * 10.0;
-  return mix(EMBER * 0.85, vec3(1.0, 0.88, 0.76), exp(-r * 3.0)) * body;
+  return (mix(EMBER * 0.85, vec3(1.0, 0.88, 0.76), exp(-r * 3.0)) * body + arms) * lane;
 }
 
 /* how hard the engine is running: the jets and the core's glare breathe together (D-104) */
@@ -186,8 +197,15 @@ vec3 jet(float along, float across, float bright){
   vec3 colour = mix(WHITE, AZURE, smoothstep(0.0, L * 0.6, along));
   vec3 light = WHITE * spine * 1.5 + colour * beam * (0.55 + 1.5 * burst) + mix(AZURE, VIOLET, 0.4) * sheath * (0.35 + 0.25 * burst);
   light = light * span * fade * beat() + WHITE * grain * span * fade;
-  // the base flares where the jet leaves the glare
-  light += WHITE * exp(-along * 0.9) * exp(-(x * x) / (width * width * 2.0)) * 0.6 * beat();
+  // S3 (D-113): knots, bright clumps that ride slowly out along the jet, as in real ones
+  for (int k = 0; k < 6; k++) {
+    if (abs(x) > width * 4.0) break; // far from the jet's axis no knot reaches: skip the work
+    float fk = float(k);
+    float at = 1.6 + fract(fk * 0.173 + 0.07 + t * 0.006) * L * 0.8;
+    float d = (along - at) / (width * 1.4);
+    float knot = exp(-d * d) * exp(-(x * x) / (width * width * 0.25));
+    light += mix(WHITE, AZURE, at / L) * knot * (0.9 + 0.5 * hash21(vec2(fk, 3.0))) * span * fade * beat();
+  }
   // where the jet ploughs into the gas around the galaxy it spreads into a lobe, with a hot spot
   vec2 lobe = vec2(along - L * 0.92, across) / vec2(5.6, 4.0);
   float spread = exp(-dot(lobe, lobe));
@@ -245,16 +263,28 @@ void main(){
 #endif
   light += (1.0 - hidden) * (captured ? SHADOW : skyDeep(outDir, SKY_RICH));
 
+  // S3 (D-113): the photon ring, crisp, where light has circled the hole before escaping: rays whose
+  // impact parameter is the critical one, 3√3/2 horizon radii, a pixel or two wide at any size
+  float b = sqrt(h2);
+  float ringW = max(1.6 / uScale, 0.012);
+  float ring = exp(-pow((b - 2.598) / ringW, 2.0));
+  light += (1.0 - hidden * 0.65) * vec3(1.0, 0.9, 0.74) * ring * 1.6;
+
 #ifdef QUASAR
   vec2 u = q / uScale; // horizon radii from the hole, y up
-  light += (1.0 - hidden * 0.7) * hostGalaxy(u);
+  // all the way in, the host galaxy's own light would veil the disc: it thins (S3, D-113)
+  light += (1.0 - hidden * 0.7) * hostGalaxy(u) * mix(1.0, 0.2, uClose);
   float along = dot(u, uJetDir);
   float acrossJet = u.x * uJetDir.y - u.y * uJetDir.x;
   light += jet(along, acrossJet, 1.0);                       // toward us: beamed brighter
   light += (1.0 - hidden) * jet(-along, acrossJet, 0.2);     // away from us, partly behind the disc
+  // the jets' base flares where they leave the glare, the same on both sides (no seam at the core)
+  float flareW = 0.5;
+  light += WHITE * exp(-abs(along) * 0.9) * exp(-(acrossJet * acrossJet) / (flareW * flareW * 2.0)) * 0.6 * beat();
   // the core outshines everything around it
   float rc = length(u);
-  light += WHITE * (2.2 / (1.0 + rc * rc * 0.35) + 0.08 / (1.0 + rc * 0.1)) * (0.75 + 0.3 * beat());
+  // close in the glare tightens to the core, so the disc and the shadow are not washed out (S3)
+  light += WHITE * (mix(2.2, 1.1, uClose) / (1.0 + rc * rc * mix(0.35, 9.0, uClose)) + mix(0.08, 0.02, uClose) / (1.0 + rc * 0.1)) * (0.75 + 0.3 * beat());
   light = 1.0 - exp(-light * 1.15); // keep the glare from clipping flat
 #endif
 

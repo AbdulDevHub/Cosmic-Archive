@@ -136,7 +136,7 @@ function buildGalaxy(rng: Rng, n: number): Cloud {
       const z = gauss() * 0.085;
       const r = Math.hypot(x, z);
       const c = mixC(C.white, C.gold, clamp(r / 0.14, 0, 1));
-      put(rng, d, x, gauss() * 0.032 * Math.exp(-r * 5), z, scaleC(c, 0.2), 0.7 + rand() * 1.2); // dimmer since D-112, so the black hole at the heart shows
+      put(rng, d, x, gauss() * 0.032 * Math.exp(-r * 5), z, scaleC(c, 0.3), 0.7 + rand() * 1.2);
       continue;
     }
     const r = 0.1 - Math.log(1 - rand() * 0.93) * 0.4; // exponential disc
@@ -428,12 +428,11 @@ function buildHeart(): Cloud {
 }
 
 /**
- * The black hole at the heart (D-112), drawn larger than life so it reads at the galaxy's scale:
- * a bright photon ring, a hot accretion disc turning around it (white-blue inside, gold, then
- * ember), and three streams of gas spiralling in from the bulge to feed it. One cloud, so it is one
- * draw call; the dark shadow is its own sprite (`NUCLEUS_SHADOW`).
+ * The heart (D-112, D-113): no dark spot, since in galaxy images the centre is a blaze of light.
+ * A white-hot disc of gas turning fast around the hole, and streams of light spiralling in from
+ * the bulge, brightest where they converge. One cloud, one draw call.
  */
-export const HOLE_R = 0.042;
+export const HOLE_R = 0.02;
 function buildNucleus(n: number): Cloud {
   const rng = makeRng(20261127);
   const { rand, gauss } = rng;
@@ -442,47 +441,31 @@ function buildNucleus(n: number): Cloud {
   const disc = Math.round(n * 0.4);
   for (let i = 0; i < ring; i++) {
     const th = rand() * TAU;
-    const r = HOLE_R * 1.18 + gauss() * 0.0012;
+    const r = Math.abs(gauss()) * HOLE_R * 1.6;
     put(rng, d, r * Math.cos(th), gauss() * 0.0008, r * Math.sin(th), scaleC(mixC(C.white, C.gold, rand() * 0.4), 1.6), 1.0 + rand() * 0.7);
   }
   for (let i = 0; i < disc; i++) {
     const u = Math.pow(rand(), 1.6); // crowded toward the inner edge
-    const r = HOLE_R * 1.45 + u * 0.075;
+    const r = HOLE_R * 1.2 + u * 0.09;
     const th = rand() * TAU;
     const hot = 1 - u;
     // rings of brighter and fainter gas, so the disc has grain rather than a flat glow
     const band = 0.55 + 0.45 * Math.sin(r * 520);
     const c = u < 0.2 ? mixC(C.white, C.gold, u / 0.2) : u < 0.6 ? mixC(C.gold, C.amber, (u - 0.2) / 0.4) : mixC(C.amber, C.ember, (u - 0.6) / 0.4);
-    put(rng, d, r * Math.cos(th), gauss() * 0.0015 * (1 + u * 2), r * Math.sin(th), scaleC(c, (0.18 + hot * 0.4) * band), 0.5 + Math.pow(rand(), 3) * 0.9);
+    put(rng, d, r * Math.cos(th), gauss() * 0.0015 * (1 + u * 2), r * Math.sin(th), scaleC(c, (0.22 + hot * 0.6) * band), 0.5 + Math.pow(rand(), 3) * 0.9);
   }
   while (d.n < n) {
     // a stream: a tight spiral from the bulge into the disc, thinner and hotter as it falls
-    const k = (rand() * 3) | 0;
+    const k = (rand() * 5) | 0;
     const u = rand();
-    const r = mix(0.45, HOLE_R * 1.6, Math.pow(u, 0.7));
-    const th = k * (TAU / 3) + 1.9 * Math.log(0.45 / r);
+    const r = mix(0.5, HOLE_R * 1.4, Math.pow(u, 0.7));
+    const th = k * (TAU / 5) + 1.9 * Math.log(0.5 / r);
     const w = 0.004 + 0.02 * (1 - u);
     const c = mixC(mixC(C.rose, C.amber, 0.5), C.gold, u);
-    put(rng, d, r * Math.cos(th) + gauss() * w, gauss() * 0.003, r * Math.sin(th) + gauss() * w, scaleC(c, 0.12 + u * 0.3), 0.5 + rand() * 0.8);
+    put(rng, d, r * Math.cos(th) + gauss() * w, gauss() * 0.003, r * Math.sin(th) + gauss() * w, scaleC(c, 0.15 + u * 0.55), 0.5 + rand() * 0.8);
   }
   return d;
 }
-
-/**
- * Dust around the nucleus (D-112): two wide, soft dark sprites at the heart, ridden in the dust
- * layer. They take the burn out of the bulge just around the hole, so its ring and disc have
- * something darker to glow against. Colours above 1 because the dust layer's strength is ~0.1.
- */
-export function nucleusDust(): Cloud {
-  const rng = makeRng(20261128);
-  const d = alloc(2);
-  put(rng, d, 0, 0, 0, [6, 6.4, 7], HOLE_R * 1500);
-  put(rng, d, 0, 0, 0, [3.2, 3.5, 4.0], HOLE_R * 750);
-  return d;
-}
-
-/** The hole's shadow: one dark sprite, drawn after everything bright at the heart. */
-export const NUCLEUS_SHADOW: RGB = [1, 1, 1];
 
 /** One cloud from two, the second's light scaled by `k` (fewer layers, fewer draw calls). */
 export function joinClouds(a: Cloud, b: Cloud, k: number): Cloud {
@@ -717,7 +700,7 @@ export interface Counts {
   clouds: number;
   fineDust: number;
   webStrands: number;
-  /** D-112: the black hole's ring, disc and feeding streams. */
+  /** D-112, D-113: the heart's light: its hot core, the disc around the hole, the streams feeding it. */
   nucleus: number;
 }
 
