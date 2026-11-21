@@ -93,7 +93,7 @@ export function requestScene(id: SceneId, mode: SceneMode, wanted: Partial<Scene
   // another view; the flow between scenes, when one is under way, wins over both
   const flowing = Object.keys(opening).length > 0;
   // (the flow clears the opening once the move is over, not here: React's development mode mounts a slot twice)
-  Object.assign(input, { zoom: 1, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1 }, flowing ? opening : wanted);
+  Object.assign(input, { zoom: 1, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1, intro: 0 }, flowing ? opening : wanted);
   tweens.clear();
   set({ asked: true, slot, mounted: slot, slotVisible: true });
   return slot.token;
@@ -134,16 +134,18 @@ export interface SceneInput {
   dive: number;
   /** How far a place scene has arrived: 0 small and far off, 1 whole (D-096). */
   arrive: number;
+  /** The atlas's start page: 1 its view (the galaxy on the right, the planet and ship before it), 0 the galaxy (D-107). */
+  intro: number;
 }
 
 /** The numbers in SceneInput: what a glide can move. */
-export type SceneNumber = "zoom" | "yaw" | "pitch" | "dive" | "arrive";
+export type SceneNumber = "zoom" | "yaw" | "pitch" | "dive" | "arrive" | "intro";
 
 export const ZOOM_MIN = 0;
 export const ZOOM_MAX = 2;
 const PITCH_LIMIT = 0.3;
 
-const input: SceneInput = { zoom: 1, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1 };
+const input: SceneInput = { zoom: 1, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1, intro: 0 };
 let inputListener: (() => void) | null = null;
 let opening: Partial<SceneInput> = {};
 
@@ -157,7 +159,7 @@ export interface SceneTween {
 const tweens = new Map<SceneNumber, SceneTween>();
 
 const clampInput = (key: SceneNumber, value: number) =>
-  key === "zoom" ? Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, value)) : key === "pitch" ? Math.min(PITCH_LIMIT, Math.max(-PITCH_LIMIT, value)) : key === "dive" || key === "arrive" ? Math.min(1, Math.max(0, value)) : value;
+  key === "zoom" ? Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, value)) : key === "pitch" ? Math.min(PITCH_LIMIT, Math.max(-PITCH_LIMIT, value)) : key === "dive" || key === "arrive" || key === "intro" ? Math.min(1, Math.max(0, value)) : value;
 
 export function getSceneInput(): Readonly<SceneInput> {
   return input;
@@ -165,7 +167,7 @@ export function getSceneInput(): Readonly<SceneInput> {
 
 /** Moves the camera's target; the host eases toward it. Cancels any glide of the same numbers. */
 export function setSceneInput(patch: Partial<SceneInput>): void {
-  for (const key of ["zoom", "yaw", "pitch", "dive", "arrive"] as const) {
+  for (const key of ["zoom", "yaw", "pitch", "dive", "arrive", "intro"] as const) {
     const value = patch[key];
     if (value === undefined) continue;
     input[key] = clampInput(key, value);

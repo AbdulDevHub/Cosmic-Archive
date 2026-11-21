@@ -18,7 +18,7 @@ The palette, type and galaxy come from `prototype/look.html`; its ink and vessel
 
 ## Rules that do not change without the owner
 
-- **Identity:** cosmos alone. Nothing drawn over the scenery (no rings, ticks, lines or vessel). No glass panels, HUD elements, gradient text, pill navigation or neon UI. One UI accent, `--beacon`.
+- **Identity:** cosmos alone in the scenes: nothing drawn over them (no rings, ticks or lines). The start page and header follow the owner's `Home.png` (D-107): gradient headline, glass bar and dock, glowing pill button, a ship. Elsewhere no glass panels, HUD elements or neon UI; hotspots use `--beacon`.
 - **Spectacle, not text:** a name and one line of at most twelve words per view. Click to travel; nothing scrolls; every move between scenes is a flight (dive, veil, arrive).
 - **Boundaries:** only `src/scene/` imports three. Pages use `<SceneSlot>`. Content holds facts, components hold layout.
 - **Every screen works without the scene.** Poster first; name, line and places in server-rendered HTML; places are real links.

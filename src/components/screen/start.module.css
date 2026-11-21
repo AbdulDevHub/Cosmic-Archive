@@ -1,0 +1,255 @@
+/*
+  The start page (D-107), from the owner's Home.png. Its gradient headline, glowing pill button,
+  spaced line and glass dock are the owner's choice for this page: the earlier bans on them are
+  lifted here (DESIGN_SPEC.md 2).
+*/
+
+.start {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  animation: start-in 1.2s var(--ease-out) both;
+  transition: opacity 900ms ease-in;
+}
+
+.start[data-leaving] {
+  opacity: 0;
+}
+
+.start > * {
+  pointer-events: auto;
+}
+
+@keyframes start-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---- the words, left of the galaxy ---- */
+
+.copy {
+  position: absolute;
+  left: clamp(20px, 4vw, 68px);
+  top: 50%;
+  transform: translateY(-56%);
+  max-width: min(46rem, 56vw);
+  text-shadow: 0 0 24px oklch(0.13 0.04 275 / 0.85);
+}
+
+.eyebrow {
+  margin: 0 0 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font: 400 clamp(12px, 1.05vw, 15px) / 1 var(--font-display);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.eyebrow span:nth-of-type(2) {
+  color: oklch(0.82 0.1 245);
+}
+
+.eyebrow span:nth-of-type(3) {
+  color: oklch(0.8 0.13 295);
+}
+
+.eyebrow i {
+  font-style: normal;
+  color: var(--ink-2);
+}
+
+.title {
+  margin: 0;
+  font: 500 clamp(2.9rem, 6.3vw, 6.4rem) / 1 var(--font-display);
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.gradient {
+  background: linear-gradient(90deg, oklch(0.76 0.13 245), oklch(0.72 0.17 285) 55%, oklch(0.74 0.17 305));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+}
+
+.line {
+  margin: 26px 0 0;
+  max-width: 34rem;
+  font: 300 clamp(1.05rem, 1.45vw, 1.4rem) / 1.5 var(--font-display);
+  color: var(--ink-2);
+}
+
+.begin {
+  margin-top: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 60px;
+  padding: 0 34px;
+  border: 0;
+  border-radius: 999px;
+  font: 500 clamp(1rem, 1.3vw, 1.2rem) / 1 var(--font-display);
+  color: white;
+  cursor: pointer;
+  background: linear-gradient(90deg, oklch(0.62 0.2 300), oklch(0.66 0.16 265) 60%, oklch(0.72 0.13 245));
+  box-shadow:
+    0 0 0 1px oklch(0.85 0.1 280 / 0.5) inset,
+    0 0 28px oklch(0.62 0.2 290 / 0.55),
+    0 0 70px oklch(0.6 0.18 270 / 0.3);
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+
+.begin:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 1px oklch(0.9 0.1 280 / 0.6) inset,
+    0 0 36px oklch(0.66 0.2 290 / 0.7),
+    0 0 90px oklch(0.6 0.18 270 / 0.4);
+}
+
+.begin:hover svg {
+  transform: translateX(3px);
+}
+
+.begin svg {
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+/* ---- "Scroll to explore": a mouse and a falling line ---- */
+
+.scroll {
+  position: absolute;
+  left: clamp(20px, 4vw, 68px);
+  bottom: clamp(28px, 6vh, 64px);
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: start;
+  column-gap: 16px;
+  font: 400 15px / 1 var(--font-display);
+  color: var(--ink);
+  pointer-events: none;
+}
+
+.mouse {
+  position: relative;
+  width: 22px;
+  height: 34px;
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+}
+
+.mouse::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 7px;
+  width: 2px;
+  height: 7px;
+  border-radius: 1px;
+  background: var(--ink);
+  transform: translateX(-50%);
+  animation: wheel 1.8s ease-in-out infinite;
+}
+
+.mouse::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 44px;
+  width: 1.5px;
+  height: clamp(30px, 7vh, 70px);
+  background: linear-gradient(var(--ink), transparent);
+  transform: translateX(-50%);
+}
+
+.scroll > span:last-child {
+  margin-top: 9px;
+}
+
+@keyframes wheel {
+  50% {
+    transform: translate(-50%, 6px);
+    opacity: 0.3;
+  }
+}
+
+/* ---- the dock: four sections to come, on a glass capsule ---- */
+
+.dock {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(20px, 4.5vh, 44px);
+  transform: translateX(-50%);
+  display: flex;
+  padding: 10px 14px;
+  border-radius: 28px;
+  background: var(--glass);
+  border: 1px solid var(--glass-edge);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 0 40px oklch(0.5 0.18 285 / 0.18);
+}
+
+.dockItem {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-width: 112px;
+  padding: 8px 14px;
+  font: 400 15px / 1 var(--font-display);
+  color: var(--ink);
+}
+
+.dockItem + .dockItem {
+  border-left: 1px solid var(--glass-edge);
+}
+
+.dockItem svg {
+  color: oklch(0.82 0.1 270);
+  filter: drop-shadow(0 0 6px oklch(0.7 0.18 285 / 0.7));
+}
+
+/* ---- calm: no bob, no wheel animation ---- */
+
+:global(html[data-motion="paused"]) .start,
+:global(html[data-motion="paused"]) .mouse::before {
+  animation: none;
+}
+
+/* ---- phone: the words lower, over the planet's glow; no dock, no scroll hint ---- */
+
+@media (max-width: 860px) {
+  .copy {
+    top: auto;
+    bottom: clamp(36px, 8vh, 72px);
+    transform: none;
+    max-width: calc(100vw - 40px);
+  }
+
+  .eyebrow {
+    gap: 8px;
+    margin-bottom: 16px;
+    letter-spacing: 0.18em;
+  }
+
+  .line {
+    margin-top: 16px;
+  }
+
+  .begin {
+    margin-top: 26px;
+    min-height: 54px;
+  }
+
+  .dock,
+  .scroll {
+    display: none;
+  }
+}

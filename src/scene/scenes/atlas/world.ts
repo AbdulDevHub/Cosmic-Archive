@@ -43,6 +43,7 @@ import type { ParticleTier } from "../../quality/tiers";
 import { POINT_FRAGMENT, POINT_VERTEX, SPRITE_FRAGMENT, SPRITE_VERTEX } from "../../shaders/points.glsl";
 import { SKY_CHUNK } from "../../shaders/sky.glsl";
 import { isPhone, placeCamera } from "./camera";
+import { StartProps } from "./start";
 import { armAngle, buildAtlas, COUNTS, mix, OUTER, SPIN, sstep, TAU, type Cloud, type Vec3 } from "./model";
 
 // base strengths, faded out together at the far zoom
@@ -241,6 +242,8 @@ export class AtlasWorld {
   private readonly quasarDot: Layer;
   private readonly webNodes: Vec3[];
   private readonly sky: Mesh<BufferGeometry, ShaderMaterial>;
+  /** The start page's planet, moons, asteroids and ship (D-107); drawn only while `intro` is above 0. */
+  private readonly start: StartProps;
   private readonly quasar = new Vector3();
   private readonly focus = new Vector3();
   private readonly scratch = new Vector3();
@@ -250,6 +253,7 @@ export class AtlasWorld {
 
   constructor(tier: ParticleTier, narrow: boolean, sky: Texture) {
     this.sky = backdrop(sky);
+    this.start = new StartProps(narrow);
     const data = buildAtlas(tier, narrow);
     const counts = COUNTS[tier];
     // On a wide screen the galaxy fills the frame, so a lower tier must not look thinner: fewer
@@ -291,6 +295,7 @@ export class AtlasWorld {
       this.discLayers.push(bulge);
       this.galaxy.add(bulge.object);
     }
+    this.root.add(this.start.root);
     this.root.add(this.sky, this.webGlow.object, this.web.object, this.homeDot.object, this.quasarDot.object);
 
     this.galaxy.rotation.z = -0.2;
@@ -362,7 +367,8 @@ export class AtlasWorld {
   frame(camera: PerspectiveCamera, t: number, view: SceneInput, width: number, height: number, out: SceneFrame): void {
     const zoom = view.zoom;
     const focus = view.focus && view.dive > 0 ? this.anchorAt(view.focus, t, this.focus) : null;
-    placeCamera(camera, zoom, width, height, view.yaw, view.pitch, focus, view.dive);
+    placeCamera(camera, zoom, width, height, view.yaw, view.pitch, focus, view.dive, view.intro);
+    this.start.frame(camera, t, view.intro);
 
     const far = sstep(1.2, 1.7, zoom);
     const near = 1 - sstep(1.3, 1.7, zoom);

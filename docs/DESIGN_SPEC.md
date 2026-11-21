@@ -13,6 +13,8 @@ The cosmos fills the window and is the whole picture. A visitor moves through it
 
 ## 2. Bans
 
+The start page and the header are the exception, by the owner's word (D-107): they follow `Home.png`, with its gradient headline, glass bar and dock, glowing pill button, spaced line above the headline, and a ship. Everywhere else, these hold:
+
 These make the site generic or break the idea. Do not introduce them.
 
 - Glass or blurred panels, HUD frames, hex grids, scan lines, corner brackets, fake coordinates or readouts.
@@ -73,7 +75,14 @@ Scale: 1.25 ratio from a 17 px base; a place's name `clamp(2rem, 4.2vw, 3.6rem)`
 
 Every scene route is one screen: the scene fills the window and nothing scrolls.
 
-### 7.1 Header
+### 7.0 The start page (D-107)
+
+`/` opens on the owner's `Home.png`, as our own live scene: the galaxy large on the right; a planet's horizon across the lower left with a thin blue limb; two moons; asteroids at the edges; a ship crossing toward the galaxy with blue engine trails. On the left: "Explore • Discover • Be inspired", "The Universe Awaits" (the last two words in a violet-to-blue gradient), one line, and **Begin Your Journey**, a glowing violet-to-blue pill. Bottom left "Scroll to explore"; bottom middle a glass dock of sections to come. Begin, the wheel or a swipe is the way in: the music starts, the ship speeds away, the planet and rocks sweep past, and the camera lands on the galaxy (3.8 s). Home flies back out. On a phone: the galaxy at the top, the words and Begin at the bottom over the planet; no dock.
+
+### 7.1 Header (replaced by D-107)
+
+The emblem and "COSMIC ARCHIVE" in widely spaced capitals; a glass bar of Home, Explore, Atlas, Journeys, Archive (the page you are on lit); search; a round Sound button. Explore, Journeys, Archive and search are marked "coming soon". On a phone only the wordmark and Sound. What follows is the header before D-107.
+
 
 Wordmark "Cosmic Archive" in the display face, left; it leads home to the universe. Right: **Sound**, a speaker with waves when on and a cross when off, with the word (its icon only on a phone). No background: every page is a scene, and the header's empty middle can be dragged through.
 

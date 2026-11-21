@@ -2,6 +2,14 @@
 
 Tick an item only when it is implemented and verified. Sessions are defined in `PHASED_ROADMAP.md`.
 
+## Next session (read this first)
+
+Folded in from the old `OPUS_NEXT_WEEK_PROMPT.md` (D-106). A fresh session has no memory: read `CLAUDE.md`, this file, `docs/DESIGN_SPEC.md`, `docs/ARCHITECTURE.md` (sections 3 and 4) and `docs/DECISIONS.md` from D-092 on. The original ChatGPT direction is in git commit `15e3478` (the owner also keeps a copy in `Cosmic_Archive_Opus_Handoff/`, not in git); the owner's newer decisions override it.
+
+**Next: S2, galaxy and cosmic web** (atlas scene only). Ask the owner first what they noticed. Then: richer colour from core to arms; pink star-forming knots and blue young clusters; the disc denser between the arms, as in `reference images/` (not in git); a deeper, glowing web (thin on a phone at `low`); a finer dive through the disc; posters re-rendered. Checks: `npm run check`, `build`, `shots` (look at every still against DESIGN_SPEC 11), `fallbacks`, `a11y`; draw calls on `low` under 30; the atlas chunk under 40 KB; film a dive and look at it.
+
+**Before reporting:** every screenshot against DESIGN_SPEC 11; nothing outside `src/scene/` imports three; WebGL off and reduced motion tested, not assumed; every line still sourced; one session only; this file and `DECISIONS.md` updated; committed with gitmoji, not pushed. Report in ten lines or fewer: what was built, files, checks with results, what to look at, known problems, next session.
+
 ## F0 Re-plan
 
 - [x] Docs read, blind spots listed, owner interviewed (5 questions).
@@ -10,7 +18,7 @@ Tick an item only when it is implemented and verified. Sessions are defined in `
 - [x] Blueprint, technical direction, roadmap, design spec rewritten; architecture written.
 - [x] Decisions D-011 to D-025 recorded.
 - [x] `CLAUDE.md` rewritten; `README.md` added.
-- [x] First draft of `OPUS_NEXT_WEEK_PROMPT.md`.
+- [x] First draft of `OPUS_NEXT_WEEK_PROMPT.md` (folded into the "Next session" section above in S1d, D-106).
 
 ## F1 Look prototype
 
@@ -144,6 +152,10 @@ Fable's part ends here (D-028). Everything below is built by Opus.
   - [x] Checks: `npm run check`; `npm run build`; `npm run posters`; `npm run shots` 30 of 30; `npm run fallbacks` 38 of 38 (new: zoom into a place, the drag hint, Sound; the first runs failed on a test selector and on software-WebGL slowness before the sky was baked); `npm run a11y` 8 of 8.
   - [ ] Owner listens and looks on their laptop and phone.
   - [ ] Open: the nebula's dark dust bank fills the lower part of a phone screen (S4).
+- [x] S1c Gentler, more beautiful, more powerful (2026-11-21): the flight sound a breath of air (D-103), quasar jets with a hot spine, bursts and a shared pulse (D-104), a new luminous nebula (D-105). Checks: fallbacks 38 of 38, shots 30 of 30.
+- [x] S1d The start page (2026-11-21), from the owner's `Home.png` (D-107): planet, moons, asteroids and ship drawn in code before the galaxy; the image's words, glowing Begin, dock and header (Outfit); Begin starts the music and flies into the galaxy; Home flies back out; `/#atlas` skips it. Prompt files folded into this checklist (D-106).
+  - [x] Checks: `npm run check`; `npm run build`; `npm run posters`; `npm run shots` 33 of 33; `npm run fallbacks` 41 of 41 (new: the start page and Begin, Home back out; the no-WebGL start page); `npm run a11y` 8 of 8 after naming the wordmark by its visible words.
+  - [ ] Owner looks at the start page and the ship ("if it looks bad or fake we can remove it"), with sound.
 - [ ] S2 Galaxy and cosmic web.
 - [ ] S3 Black hole and quasar.
 - [ ] S4 Nebula.

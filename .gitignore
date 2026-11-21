@@ -21,3 +21,6 @@ next-env.d.ts
 
 # Inspiration from the owner, not our own art: never in the repo or the site (D-018, D-101)
 reference images/
+
+# The owner's copy of the original ChatGPT handoff; the same files are in commit 15e3478
+Cosmic_Archive_Opus_Handoff/

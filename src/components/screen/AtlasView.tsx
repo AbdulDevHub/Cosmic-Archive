@@ -4,11 +4,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { calm, diveInto, flowBusy, getFlow, useFlow } from "@/scene/host/flow";
 import { whoosh } from "@/lib/sound";
+import { sceneParams } from "@/scene/host/params";
 import { SceneSlot } from "@/scene/host/SceneSlot";
 import {
   animateSceneInput,
   getSceneFrame,
   getSceneInput,
+  getSceneState,
   sceneIsLive,
   setSceneInput,
   subscribeSceneFrame,
@@ -17,8 +19,10 @@ import {
   ZOOM_MIN,
   type SceneFrame,
 } from "@/scene/host/store";
+import { HOME_EVENT } from "../SiteHeader";
 import { DragHint } from "./DragHint";
 import styles from "./screen.module.css";
+import { StartScreen, type StartPhase } from "./StartScreen";
 import { useGestures } from "./useGestures";
 
 /*
@@ -48,10 +52,11 @@ export interface Spot {
   veil: string;
 }
 
-const POSTERS = { wide: "/posters/atlas-web-wide.webp", narrow: "/posters/atlas-web-narrow.webp" };
+const POSTERS = { wide: "/posters/atlas-start-wide.webp", narrow: "/posters/atlas-start-narrow.webp" };
 
 const STEP_MS = 1900;
-const INTRO_MS = 3200;
+const BEGIN_MS = 3800; // the flight from the start page to the galaxy
+const BACK_MS = 2800; // and back out to it, from Home
 const WHEEL_ZOOM = 0.0012; // one notch of a wheel is about an eighth of a stop
 const DRAG_YAW = 0.005; // radians per pixel
 const DRAG_PITCH = 0.003;
@@ -59,9 +64,6 @@ const KEY_ZOOM = 0.25;
 const KEY_YAW = 0.15;
 const KEY_PITCH = 0.06;
 const PINCH_ZOOM = 1.1; // stops per halving of the distance between two fingers
-
-/** The opening glide plays once a visit, not every time the atlas is opened again. */
-let introPlayed = false;
 
 const stopOf = (zoom: number) => Math.min(2, Math.max(0, Math.round(zoom))) as 0 | 1 | 2;
 const spotShows = (spot: Spot, zoom: number) => (spot.stop === 2 ? zoom > 1.6 : zoom < 1.45);
@@ -100,17 +102,73 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
     glideTo(direction > 0 ? Math.floor(zoom + 1.01) : Math.ceil(zoom - 1.01));
   };
 
-  // The first time in a visit, with motion on, the atlas opens on the cosmic web and glides in to the galaxy.
-  const intro = useRef(false);
+  // The start page (D-107): shown on arriving at `/` fresh, or by Home; not when the flow brings the
+  // visitor back from a place, not for `/#atlas`, not for a still held at a stop. Begin (or the
+  // wheel, or a swipe) is the way in: the music may start, and the camera flies to the galaxy.
+  const [phase, setPhase] = useState<StartPhase>("start");
+  const phaseRef = useRef<StartPhase>("start");
+  const setStartPhase = (next: StartPhase) => {
+    phaseRef.current = next;
+    setPhase(next);
+  };
+  const wantsStart = () => {
+    const params = sceneParams();
+    return getFlow().phase === "idle" && window.location.hash !== "#atlas" && !(params.shot && params.zoom !== null);
+  };
+  const startsHere = useRef(true);
   const opening = () => {
-    intro.current = !introPlayed && getFlow().phase === "idle" && !calm();
-    return intro.current ? { zoom: 2 } : {};
+    startsHere.current = wantsStart();
+    return startsHere.current ? { intro: 1, zoom: 1 } : {};
   };
   useEffect(() => {
-    if (!live || !intro.current) return;
-    intro.current = false;
-    introPlayed = true;
-    animateSceneInput({ zoom: 1 }, INTRO_MS);
+    // the slot asked first (a child's effect runs before its parent's); without a scene, ask here
+    const start = getSceneState().slot ? startsHere.current : wantsStart();
+    if (!start) setStartPhase("atlas");
+  }, []);
+
+  const leaving = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const begin = () => {
+    if (phaseRef.current !== "start") return;
+    setStartPhase("leaving");
+    clearTimeout(leaving.current);
+    if (!live || calm()) {
+      setSceneInput({ intro: 0 });
+      leaving.current = setTimeout(() => setStartPhase("atlas"), live ? 260 : 0);
+      return;
+    }
+    whoosh("in", BEGIN_MS / 1000);
+    animateSceneInput({ intro: 0 }, BEGIN_MS);
+    leaving.current = setTimeout(() => setStartPhase("atlas"), BEGIN_MS * 0.8);
+  };
+  const beginRef = useRef(begin);
+  useEffect(() => {
+    beginRef.current = begin;
+  });
+
+  // Home (the header's link or wordmark, on `/` itself) flies back out to the start page; the
+  // Atlas link (`/#atlas`) skips it.
+  useEffect(() => {
+    const home = () => {
+      if (phaseRef.current !== "atlas" || flowBusy()) return;
+      clearTimeout(leaving.current);
+      setStartPhase("start");
+      if (!live || calm()) {
+        setSceneInput({ intro: 1, zoom: 1, yaw: 0, pitch: 0 });
+        return;
+      }
+      whoosh("out", BACK_MS / 1000);
+      animateSceneInput({ intro: 1, zoom: 1, yaw: 0, pitch: 0 }, BACK_MS);
+    };
+    const hash = () => {
+      if (window.location.hash === "#atlas") beginRef.current();
+    };
+    window.addEventListener(HOME_EVENT, home);
+    window.addEventListener("hashchange", hash);
+    return () => {
+      window.removeEventListener(HOME_EVENT, home);
+      window.removeEventListener("hashchange", hash);
+      clearTimeout(leaving.current);
+    };
   }, [live]);
 
   // Each drawn frame: the words' stop, and every place stood on its point.
@@ -122,7 +180,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
       // the buttons follow wherever the zoom was set from: a glide, the flow, the wheel
       const { zoom } = getSceneInput();
       setLimit(zoom <= ZOOM_MIN + 0.01 ? "near" : zoom >= ZOOM_MAX - 0.01 ? "far" : null);
-      const busy = flowBusy();
+      const busy = flowBusy() || phaseRef.current !== "atlas";
       for (const item of items) {
         const spot = spots.find((entry) => entry.anchor === item.dataset.anchor);
         const point = frame.points[item.dataset.anchor ?? ""];
@@ -152,16 +210,27 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
   }, [live, spots]);
 
   // Drag turns (and with a mouse, tilts); the wheel and a pinch zoom (useGestures).
+  const swipe = useRef(0);
   useGestures(stage, live, {
     turn: (dx, dy, touch) => {
+      if (phaseRef.current !== "atlas") {
+        swipe.current += Math.abs(dx) + Math.abs(dy);
+        if (touch && swipe.current > 60) beginRef.current();
+        return;
+      }
       const { yaw, pitch } = getSceneInput();
       setSceneInput(touch ? { yaw: yaw - dx * DRAG_YAW } : { yaw: yaw - dx * DRAG_YAW, pitch: pitch + dy * DRAG_PITCH });
     },
     pinch: (steps) => {
+      if (phaseRef.current !== "atlas") return;
       setSceneInput({ zoom: getSceneInput().zoom + steps * PINCH_ZOOM });
       sync();
     },
     wheel: (pixels) => {
+      if (phaseRef.current !== "atlas") {
+        if (pixels > 0) beginRef.current();
+        return;
+      }
       setSceneInput({ zoom: getSceneInput().zoom + pixels * WHEEL_ZOOM });
       sync();
     },
@@ -173,7 +242,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
     if (!live || !element) return;
 
     const onKey = (event: KeyboardEvent) => {
-      if (event.ctrlKey || event.metaKey || event.altKey || flowBusy()) return;
+      if (event.ctrlKey || event.metaKey || event.altKey || flowBusy() || phaseRef.current !== "atlas") return;
       if ((event.target as HTMLElement).closest("input, textarea, select, [contenteditable]")) return;
       const { zoom, yaw, pitch } = getSceneInput();
       if (event.key === "+" || event.key === "=") setSceneInput({ zoom: zoom - KEY_ZOOM });
@@ -211,8 +280,9 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
   }, [live, spots]);
 
   return (
-    <div ref={stage} className={styles.screen} data-live={live ? "" : undefined} data-moving={moving ? "" : undefined}>
+    <div ref={stage} className={styles.screen} data-live={live ? "" : undefined} data-moving={moving ? "" : undefined} data-start={phase !== "atlas" ? "" : undefined}>
       <SceneSlot id="atlas" mode="atlas" posters={POSTERS} opening={opening} />
+      <StartScreen phase={phase} onBegin={begin} />
 
       <div className={styles.caption}>
         <div key={words.zoom} className={live ? styles.words : undefined}>

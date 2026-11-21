@@ -15,6 +15,7 @@
 //  12. place zoom    Closer goes all the way into the quasar; Further comes back to its framing, then leaves
 //  13. drag hint     the hint shows until the first drag, then goes for good
 //  14. sound         the Sound button turns sound off and on, and remembers it
+//  15. start page    the start page, Begin flies into the galaxy, Home flies back out
 
 import { launchBrowser, sceneSettled, serveBuild } from "./lib/serve.mjs";
 
@@ -108,7 +109,8 @@ const DESKTOP = { viewport: { width: 1440, height: 900 } };
 // Software WebGL is slow. Tests that need a steady loop use a small window and pin the quality
 // (`?tier=` turns the governor off), so they do not depend on how fast this machine draws.
 const SMALL = { viewport: { width: 900, height: 560 } };
-const PINNED = "/?tier=low";
+// `#atlas` skips the start page (D-107): these tests are about the atlas itself
+const PINNED = "/?tier=low#atlas";
 const PLACES = ["/black-hole", "/nebula", "/quasar"];
 
 let browser;
@@ -157,7 +159,11 @@ try {
     const loadedThree = watchScripts(page);
     await page.goto(base + "/", { waitUntil: "networkidle" });
     await sceneSettled(page);
+    const startTitle = await page.locator("h1").first().textContent();
+    await page.getByRole("button", { name: "Begin Your Journey" }).click();
+    await page.waitForTimeout(300);
     const state = await pageComplete(page);
+    check("no WebGL", "the start page shows, and Begin works without the scene", startTitle === "The Universe Awaits" && state.headline === "A spiral galaxy", `"${startTitle}", then "${state.headline}"`);
     check("no WebGL", "falls back to the poster", (await html(page, "scene")) === "static" && state.posterLoaded && state.canvases === 0);
     check("no WebGL", "the screen is complete: name, line and every place as a link", state.headline.length > 0 && state.line.length > 0 && state.links >= 3, `"${state.headline}", ${state.links} links`);
     check("no WebGL", "no 3D code downloaded", !(await loadedThree()));
@@ -304,6 +310,7 @@ try {
     await page.getByRole("link", { name: "Cosmic Archive" }).first().click();
     await page.waitForURL((url) => url.pathname === "/");
     await sceneSettled(page);
+    await page.getByRole("button", { name: "Begin Your Journey" }).click();
     await (await spotFor(page, "/black-hole")).click();
     await page.waitForTimeout(300);
     await page.goBack();
@@ -319,7 +326,7 @@ try {
   {
     const context = await browser.newContext({ ...SMALL, reducedMotion: "reduce" });
     const page = await context.newPage();
-    await page.goto(base + "/", { waitUntil: "load" });
+    await page.goto(base + "/#atlas", { waitUntil: "load" });
     await sceneSettled(page);
     const started = Date.now();
     await (await spotFor(page, "/nebula")).click();
@@ -462,6 +469,27 @@ try {
     await page.getByRole("button", { name: "Sound" }).click();
     const back = await page.getByRole("button", { name: "Sound" }).getAttribute("aria-pressed");
     check("sound", "on by default; one click turns it off, it stays off, and a click turns it on", first === "true" && off === "false" && remembered === "false" && back === "true", `${first}, ${off}, ${remembered}, ${back}`);
+    await context.close();
+  }
+
+  // 15. the start page: its words and Begin; Begin flies into the galaxy, whose words and places
+  // then show; Home flies back out to the start page
+  {
+    const context = await browser.newContext(SMALL);
+    const page = await context.newPage();
+    await page.goto(base + "/?tier=low", { waitUntil: "load" });
+    await sceneSettled(page);
+    const begin = page.getByRole("button", { name: "Begin Your Journey" });
+    const first = (await begin.isVisible()) && (await page.locator("h1").first().textContent()) === "The Universe Awaits";
+    await begin.click();
+    const landed = await page
+      .waitForFunction(() => !document.querySelector("[data-start]") && [...document.querySelectorAll("h1")].some((h) => h.textContent === "A spiral galaxy" && getComputedStyle(h).visibility === "visible"), undefined, { timeout: 15000 })
+      .then(() => true, () => false);
+    const spot = await spotFor(page, "/black-hole").then(() => true, () => false);
+    check("start page", "Begin flies into the galaxy; its words and places show", first && landed && spot);
+    await page.getByRole("link", { name: "Home", exact: true }).click();
+    const back = await page.getByRole("button", { name: "Begin Your Journey" }).waitFor({ state: "visible", timeout: 8000 }).then(() => true, () => false);
+    check("start page", "Home flies back out to the start page", back && new URL(page.url()).pathname === "/");
     await context.close();
   }
 

@@ -4,7 +4,7 @@
 
 ## Foundation
 
-F0 and F1 were done by Fable and are finished. The owner then moved Fable to another project (D-028), so Opus builds the rest, starting at F2. `OPUS_NEXT_WEEK_PROMPT.md` always describes the next session in detail; update it at every commit.
+F0 and F1 were done by Fable and are finished. The owner then moved Fable to another project (D-028), so Opus builds the rest, starting at F2. The "Next session" section at the top of `PHASE_CHECKLIST.md` describes the next session; update it at every commit (it replaced `OPUS_NEXT_WEEK_PROMPT.md`, D-106).
 
 | # | Session | Outcome | Acceptance |
 |---|---|---|---|

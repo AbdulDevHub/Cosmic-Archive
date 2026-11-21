@@ -362,3 +362,25 @@
     bottom: auto;
   }
 }
+
+/* ---- the start page (D-107): the atlas's own words, buttons and hint wait until Begin ---- */
+
+.screen .words,
+.screen .controls,
+.screen .hint,
+.screen .spots:not([data-live]) {
+  transition:
+    opacity 900ms ease-out,
+    visibility 0s;
+}
+
+.screen[data-start] .words,
+.screen[data-start] .controls,
+.screen[data-start] .hint,
+.screen[data-start] .spots:not([data-live]) {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 300ms ease-out,
+    visibility 0s 300ms;
+}

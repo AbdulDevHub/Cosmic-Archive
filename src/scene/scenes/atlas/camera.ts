@@ -31,6 +31,13 @@ export const KEYS_PHONE: readonly Key[] = [
   { d: 3000, el: 60, az: 0.55, sx: 0.0, sy: 0.2 },
 ];
 
+/**
+ * The start page (D-107): the galaxy large on the right, seen lower and from further off, with the
+ * planet, moons, asteroids and ship before it (start.ts). `intro` blends from here (1) to stop 1 (0).
+ */
+export const START_DESK: Key = { d: 4.3, el: 36, az: -0.35, sx: 0.34, sy: 0.12 };
+export const START_PHONE: Key = { d: 9.5, el: 42, az: -0.35, sx: 0.0, sy: 0.34 };
+
 /** Phone compositions apply when the view is taller than 5:4 (the prototype's `phone()`). */
 export const isPhone = (width: number, height: number) => width / height < 0.8;
 
@@ -50,6 +57,7 @@ export function placeCamera(
   pitch = 0,
   focus: Vector3 | null = null,
   dive = 0,
+  intro = 0,
 ): void {
   const phone = isPhone(width, height);
   const K = phone ? KEYS_PHONE : KEYS_DESK;
@@ -57,10 +65,14 @@ export function placeCamera(
   const f = sstep(0, 1, zoom - i);
   const a = K[i];
   const b = K[i + 1];
-  const d = Math.exp(mix(Math.log(a.d), Math.log(b.d), f));
+  // the start page's view blends in over the stop's (it is only ever shown at stop 1)
+  const s = phone ? START_PHONE : START_DESK;
+  const g = sstep(0, 1, intro);
+  const lerpKey = (k: keyof Key) => mix(mix(a[k], b[k], f), s[k], g);
+  const d = Math.exp(mix(mix(Math.log(a.d), Math.log(b.d), f), Math.log(s.d), g));
   // the tilt never takes the view under the disc or straight down onto it
-  const el = clamp(mix(a.el, b.el, f) * DEG + pitch, 14 * DEG, 84 * DEG);
-  const az = mix(a.az, b.az, f) + yaw;
+  const el = clamp(lerpKey("el") * DEG + pitch, 14 * DEG, 84 * DEG);
+  const az = lerpKey("az") + yaw;
   camera.aspect = width / height;
   camera.position.set(Math.sin(az) * Math.cos(el) * d, Math.sin(el) * d, Math.cos(az) * Math.cos(el) * d);
   look.set(0, 0, 0);
@@ -76,8 +88,8 @@ export function placeCamera(
   camera.lookAt(look);
   camera.updateProjectionMatrix();
   // lens shift: moves the subject without changing perspective; a dive centres its place
-  camera.projectionMatrix.elements[8] = -mix(a.sx, b.sx, f) * (1 - k);
-  camera.projectionMatrix.elements[9] = -mix(a.sy, b.sy, f) * (1 - k);
+  camera.projectionMatrix.elements[8] = -lerpKey("sx") * (1 - k);
+  camera.projectionMatrix.elements[9] = -lerpKey("sy") * (1 - k);
   camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
   camera.updateMatrixWorld(true);
 }
