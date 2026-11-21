@@ -2,10 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { whoosh } from "@/lib/sound";
-import { calm, flowBusy, pullOut } from "@/scene/host/flow";
+import { flowBusy, pullOut } from "@/scene/host/flow";
 import { SceneSlot } from "@/scene/host/SceneSlot";
-import { animateSceneInput, getSceneInput, sceneIsLive, setSceneInput, useSceneState, type SceneId } from "@/scene/host/store";
+import { getSceneInput, sceneIsLive, setSceneInput, useSceneState, type SceneId } from "@/scene/host/store";
+import { ReturnIcon } from "../icons";
 import { DragHint } from "./DragHint";
 import styles from "./screen.module.css";
 import { useGestures } from "./useGestures";
@@ -15,11 +15,11 @@ import { useGestures } from "./useGestures";
 
   It opens all the way in, the place as large as it gets (D-112). The wheel and a pinch zoom out to
   its own framing and back; a drag turns around it (the black hole and the quasar) or pans across
-  it (the nebula). Further, the one button, shrinks it away and returns to the atlas, dived into
+  it (the nebula). Return, the one button (D-115), shrinks it away and returns to the atlas, dived into
   the place's light, which then pulls back to where it was found (the flow, D-096). Escape does
   the same, and so does pulling the wheel on past the framing.
 
-  Without the scene it is the poster, the same words, and "Further" as a plain link home.
+  Without the scene it is the poster, the same words, and "Return" as a plain link home.
 */
 
 export interface PlaceWords {
@@ -33,7 +33,6 @@ export interface PlaceWords {
 }
 
 const ATLAS_VEIL = "#090a1c"; // --space: the atlas's own darkness
-const STEP_MS = 1600;
 const WHEEL_ZOOM = 0.0012; // as on the atlas: one notch is about an eighth of the way
 const WHEEL_OUT = 260; // pixels of wheel pulled on past the framing before the place is left
 const WHEEL_GAP = 350; // ms of no wheel after zooming out to the framing before a pull can leave
@@ -59,13 +58,9 @@ export function PlaceView({ place }: { place: PlaceWords }) {
     // back to the view the place is seen from: the web for the quasar, close in for the rest (D-112)
     pullOut((href) => routerRef.current.push(href), place.outTo, place.anchor, place.stop === 2 ? 2 : 0, ATLAS_VEIL);
   };
-  const zoomTo = (zoom: number, glide: boolean) => {
+  const zoomTo = (zoom: number) => {
     if (flowBusy()) return;
-    const to = Math.min(FRAMED, Math.max(0, zoom));
-    if (glide && !calm()) {
-      if (Math.abs(to - getSceneInput().zoom) > 0.05) whoosh("glide", STEP_MS / 1000);
-      animateSceneInput({ zoom: to }, STEP_MS);
-    } else setSceneInput({ zoom: to });
+    setSceneInput({ zoom: Math.min(FRAMED, Math.max(0, zoom)) });
   };
   /** Further leaves the place at once (D-112): the button moves between scenes; the wheel zooms. */
   const further = leave;
@@ -83,14 +78,14 @@ export function PlaceView({ place }: { place: PlaceWords }) {
       const { yaw, pitch } = getSceneInput();
       setSceneInput({ yaw: yaw - dx * DRAG, pitch: pitch + dy * DRAG });
     },
-    pinch: (steps) => actions.current.zoomTo(getSceneInput().zoom + steps * PINCH_ZOOM * 0.5, false),
+    pinch: (steps) => actions.current.zoomTo(getSceneInput().zoom + steps * PINCH_ZOOM * 0.5),
     wheel: (pixels) => {
       const { zoom } = getSceneInput();
       const now = performance.now();
       if (zoom < FRAMED - 0.001 || pixels < 0) {
         pulled.current.pixels = 0;
         pulled.current.zoomed = now;
-        actions.current.zoomTo(zoom + pixels * WHEEL_ZOOM, false);
+        actions.current.zoomTo(zoom + pixels * WHEEL_ZOOM);
         return;
       }
       if (now - pulled.current.zoomed < WHEEL_GAP) {
@@ -115,10 +110,10 @@ export function PlaceView({ place }: { place: PlaceWords }) {
       if (event.ctrlKey || event.metaKey || event.altKey || flowBusy()) return;
       const { zoom, yaw, pitch } = getSceneInput();
       if (event.key === "Escape") leave();
-      else if (event.key === "+" || event.key === "=") actions.current.zoomTo(zoom - KEY_ZOOM, false);
+      else if (event.key === "+" || event.key === "=") actions.current.zoomTo(zoom - KEY_ZOOM);
       else if (event.key === "-" || event.key === "_") {
         if (zoom >= FRAMED - 0.01) leave();
-        else actions.current.zoomTo(zoom + KEY_ZOOM, false);
+        else actions.current.zoomTo(zoom + KEY_ZOOM);
       } else if (event.key === "ArrowLeft") setSceneInput({ yaw: yaw - KEY_TURN });
       else if (event.key === "ArrowRight") setSceneInput({ yaw: yaw + KEY_TURN });
       else if (event.key === "ArrowUp") setSceneInput({ pitch: pitch - KEY_TURN * 0.5 });
@@ -150,8 +145,10 @@ export function PlaceView({ place }: { place: PlaceWords }) {
             further();
           }}
         >
-          <i className={`${styles.icon} ${styles.further}`} aria-hidden="true" />
-          <span>Further</span>
+          <i className={styles.icon} aria-hidden="true">
+            <ReturnIcon />
+          </i>
+          <span>Return</span>
         </a>
       </div>
     </div>

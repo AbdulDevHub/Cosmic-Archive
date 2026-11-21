@@ -4,7 +4,7 @@ Tick an item only when it is implemented and verified. Sessions are defined in `
 
 ## Next session (read this first)
 
-Folded in from the old `OPUS_NEXT_WEEK_PROMPT.md` (D-106). A fresh session has no memory: read `CLAUDE.md`, this section, `docs/DESIGN_SPEC.md` (2 bans and their start-page exception, 7.0 the start page, 7 the screens), `docs/ARCHITECTURE.md` (3 the scene system and the flow, 4 the atlas) and `docs/DECISIONS.md` from D-092 on. The original ChatGPT direction is in git commit `15e3478` (the owner also keeps a copy in `Cosmic_Archive_Opus_Handoff/`, not in git). **The owner's newer decisions override it**: where the two disagree, the decision log wins.
+Folded in from the old `OPUS_NEXT_WEEK_PROMPT.md` (D-106). A fresh session has no memory: read `CLAUDE.md`, this section, `docs/DESIGN_SPEC.md` (2 bans and their start-page exception, 7.0 the start page, 7 the screens), `docs/ARCHITECTURE.md` (3 the scene system and the flow, 4 the atlas) and `docs/DECISIONS.md` from D-092 on. The original ChatGPT direction is in git commit `15e3478` (the owner also keeps a copy in `Vision_Docs/` (renamed from `Cosmic_Archive_Opus_Handoff/`, D-115), not in git). **The owner's newer decisions override it**: where the two disagree, the decision log wins.
 
 ### Where things stand (2026-11-21, end of a long session)
 

@@ -8,11 +8,11 @@
 //   5. no scene      a page with no scene (the 404) downloads no 3D code
 //   6. navigation    home and back, slowly and at once, shows the scene again
 //   7. places        each place: its loop on `low` under the draw-call limit, reduced motion, no WebGL
-//   8. flow          a click on a place dives in, the veil falls and lifts on the place's page; Further comes back
+//   8. flow          a click on a place dives in, the veil falls and lifts on the place's page; Return comes back
 //   9. calm flow     with reduced motion the same moves are a short cross-fade, and the veil never stays down
 //  10. keyboard      by keyboard only: focus reaches the controls, keys zoom, a place opens, Escape comes back
 //  11. touch         by touch only: a pinch zooms, a tap on a place opens it
-//  12. place zoom    no Closer; a place opens all the way in; - zooms out; Further leaves at once
+//  12. place zoom    no Closer; a place opens all the way in; - zooms out; Return leaves at once
 //  13. drag hint     the hint shows until the first drag, then goes for good
 //  14. sound         the Sound button turns sound off and on, and remembers it
 //  15. start page    the start page, Begin flies into the galaxy, Home flies back out
@@ -163,7 +163,7 @@ try {
     await page.getByRole("button", { name: "Begin Your Journey" }).click();
     await page.waitForTimeout(300);
     const state = await pageComplete(page);
-    check("no WebGL", "the start page shows, and Begin works without the scene", startTitle === "The Universe Awaits" && state.headline === "Inside the Disc", `"${startTitle}", then "${state.headline}"`);
+    check("no WebGL", "the start page shows, and Begin works without the scene", startTitle === "The Universe Awaits" && state.headline === "A Spiral Galaxy", `"${startTitle}", then "${state.headline}"`);
     check("no WebGL", "falls back to the poster", (await html(page, "scene")) === "static" && state.posterLoaded && state.canvases === 0);
     check("no WebGL", "the screen is complete: name, line and every place as a link", state.headline.length > 0 && state.line.length > 0 && state.links >= 3, `"${state.headline}", ${state.links} links`);
     check("no WebGL", "no 3D code downloaded", !(await loadedThree()));
@@ -276,13 +276,13 @@ try {
       await page.goto(base + path, { waitUntil: "networkidle" });
       await sceneSettled(page);
       const state = await pageComplete(page);
-      const further = await page.locator('a[href="/"]', { hasText: "Further" }).count();
-      check(name, "no WebGL: poster, name, line, Further, no 3D code", (await html(page, "scene")) === "static" && state.posterLoaded && state.canvases === 0 && state.headline.length > 0 && state.line.length > 0 && further === 1 && !(await loadedThree()), `"${state.headline}"`);
+      const back = await page.locator('a[href="/"]', { hasText: "Return" }).count();
+      check(name, "no WebGL: poster, name, line, Return, no 3D code", (await html(page, "scene")) === "static" && state.posterLoaded && state.canvases === 0 && state.headline.length > 0 && state.line.length > 0 && back === 1 && !(await loadedThree()), `"${state.headline}"`);
       await context.close();
     }
   }
 
-  // 8. the flow, with motion: dive in through the veil, then Further back out
+  // 8. the flow, with motion: dive in through the veil, then Return back out
   {
     const context = await browser.newContext(SMALL);
     await context.addInitScript(watchVeil);
@@ -298,11 +298,11 @@ try {
     const fell = await page.evaluate(() => window.__veil.fell);
     check("flow", "a click on a place dives in, through the veil, and the veil lifts on its page", arrived && fell > 0, `veil fell ${fell} times`);
     await page.waitForTimeout(500);
-    await page.getByRole("link", { name: "Further" }).click();
+    await page.getByRole("link", { name: "Return" }).click();
     await page.waitForURL(base + "/", { timeout: 15000 });
     const back = await settledFlow(page);
     const canvases = await page.evaluate(() => document.querySelectorAll("canvas").length);
-    check("flow", "Further shrinks the place away and comes back to the galaxy", back && canvases === 1 && problems.length === 0, problems.join("; "));
+    check("flow", "Return shrinks the place away and comes back to the galaxy", back && canvases === 1 && problems.length === 0, problems.join("; "));
 
     // Back in the middle of a dive calls the move off: the visitor is not pushed forward again
     await page.goto(base + "/nebula?tier=low", { waitUntil: "load" });
@@ -347,26 +347,26 @@ try {
     await page.goto(base + PINNED, { waitUntil: "load" });
     await sceneSettled(page);
     await page.waitForTimeout(3500); // the opening glide from the web to the galaxy
-    const further = page.getByRole("button", { name: "Further" });
+    const atWeb = () => page.evaluate(() => document.querySelector("[data-web]") !== null);
     let reached = false;
     let visible = false;
     for (let i = 0; i < 40 && !reached; i++) {
       await page.keyboard.press("Tab");
       ({ reached, visible } = await page.evaluate(() => {
         const active = document.activeElement;
-        return { reached: active?.textContent?.trim() === "Further", visible: !!active?.matches(":focus-visible") };
+        return { reached: active?.textContent?.trim() === "Return", visible: !!active?.matches(":focus-visible") };
       }));
     }
     check("keyboard", "Tab reaches the controls, with a visible focus", reached && visible);
-    await page.keyboard.press("Enter");
+    // - zooms out a quarter stop at a time: eight reach the web from close in (D-115)
+    for (let i = 0; i < 8; i++) await page.keyboard.press("-");
     await page.waitForTimeout(300);
-    const atWeb = (await further.getAttribute("aria-disabled")) === "true";
-    // + zooms a quarter stop at a time: three of them bring the view back in from the web (D-112)
-    for (let i = 0; i < 3; i++) await page.keyboard.press("+");
+    const out = await atWeb();
+    await page.keyboard.press("Enter"); // Return, still focused: back in to the galaxy
     await page.waitForTimeout(300);
-    const closer = (await further.getAttribute("aria-disabled")) === "false";
-    check("keyboard", "Enter on Further glides out to the web, + zooms back in", atWeb && closer);
-    for (let i = 0; i < 3; i++) await page.keyboard.press("-"); // back out to the web
+    const backIn = !(await atWeb());
+    check("keyboard", "- zooms out to the web, Enter on Return comes back in", out && backIn);
+    for (let i = 0; i < 8; i++) await page.keyboard.press("-"); // out to the web again
     await page.waitForTimeout(2500); // the camera eases out and the web's places appear
     let onPlace = false;
     for (let i = 0; i < 12 && !onPlace; i++) {
@@ -377,8 +377,8 @@ try {
     const opened = onPlace && (await page.waitForURL((url) => url.pathname === "/quasar", { timeout: 15000 }).then(() => true, () => false));
     check("keyboard", "Enter on a place opens it", opened && (await settledFlow(page)), page.url().replace(base, ""));
     await page.keyboard.press("Escape");
-    const out = await page.waitForURL(base + "/", { timeout: 15000 }).then(() => true, () => false);
-    check("keyboard", "Escape comes back out", out && (await settledFlow(page)));
+    const home = await page.waitForURL(base + "/", { timeout: 15000 }).then(() => true, () => false);
+    check("keyboard", "Escape comes back out", home && (await settledFlow(page)));
     await context.close();
   }
 
@@ -389,8 +389,8 @@ try {
     await page.goto(base + PINNED, { waitUntil: "load" });
     await sceneSettled(page);
     await page.waitForTimeout(3500); // the opening glide
-    const further = page.getByRole("button", { name: "Further" });
-    const before = await further.getAttribute("aria-disabled");
+    const webFlag = () => page.evaluate(() => document.querySelector("[data-web]") !== null);
+    const before = await webFlag();
     const cdp = await context.newCDPSession(page);
     const cx = 195;
     const cy = 300;
@@ -399,8 +399,8 @@ try {
     for (let d = 130; d >= 30; d -= 10) await touch("touchMove", d);
     await touch("touchEnd", 0);
     await page.waitForTimeout(400);
-    const after = await further.getAttribute("aria-disabled");
-    check("touch", "a pinch pulls back to the cosmic web", before !== "true" && after === "true", `Further disabled: ${before} then ${after}`);
+    const after = await webFlag();
+    check("touch", "a pinch pulls back to the cosmic web", !before && after, `on the web: ${before} then ${after}`);
     const spot = await spotFor(page, "/quasar").catch(() => null);
     if (spot) await spot.tap();
     const opened = !!spot && (await page.waitForURL((url) => url.pathname === "/quasar", { timeout: 15000 }).then(() => true, () => false));
@@ -409,7 +409,7 @@ try {
   }
 
   // 12. a place (D-112): it opens all the way in, with no Closer button; - zooms out and stays,
-  // and Further leaves at once
+  // and Return leaves at once
   {
     const context = await browser.newContext(SMALL);
     const page = await context.newPage();
@@ -422,14 +422,14 @@ try {
     await page.keyboard.press("-");
     await page.waitForTimeout(400);
     const stayed = new URL(page.url()).pathname === "/quasar";
-    await press(page.getByRole("link", { name: "Further" }));
+    await press(page.getByRole("link", { name: "Return" }));
     const left = await page.waitForURL((url) => url.pathname === "/", { timeout: 15000 }).then(() => true, () => false);
-    check("place zoom", "no Closer on a place; - zooms out and stays; Further leaves at once", noCloser && stayed && left);
+    check("place zoom", "no Closer on a place; - zooms out and stays; Return leaves at once", noCloser && stayed && left);
     // and none on the atlas either (D-114): checked past the start page, where the controls show
     await page.goto(base + "/?tier=low#atlas", { waitUntil: "load" });
     await sceneSettled(page);
-    await page.getByRole("button", { name: "Further" }).waitFor({ timeout: 15000 });
-    check("place zoom", "no Closer on the atlas, Further there", (await page.getByRole("button", { name: "Closer" }).count()) === 0);
+    await page.getByRole("button", { name: "Return" }).waitFor({ timeout: 15000 });
+    check("place zoom", "no Closer on the atlas, Return there", (await page.getByRole("button", { name: "Closer" }).count()) === 0);
     await context.close();
   }
 
@@ -483,7 +483,7 @@ try {
     const first = (await begin.isVisible()) && (await page.locator("h1").first().textContent()) === "The Universe Awaits";
     await begin.click();
     const landed = await page
-      .waitForFunction(() => !document.querySelector("[data-start]") && [...document.querySelectorAll("h1")].some((h) => h.textContent === "Inside the Disc" && getComputedStyle(h).visibility === "visible"), undefined, { timeout: 15000 })
+      .waitForFunction(() => !document.querySelector("[data-start]") && [...document.querySelectorAll("h1")].some((h) => h.textContent === "A Spiral Galaxy" && getComputedStyle(h).visibility === "visible"), undefined, { timeout: 15000 })
       .then(() => true, () => false);
     const spot = await spotFor(page, "/black-hole").then(() => true, () => false);
     check("start page", "Begin flies into the galaxy; its words and places show", first && landed && spot);

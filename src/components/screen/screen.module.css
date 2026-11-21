@@ -93,30 +93,15 @@
   text-underline-offset: 5px;
 }
 
-/* the icons: a plus and a minus in a circle, drawn with borders */
+/* the icon: a return arrow in a circle (D-115) */
 .icon {
-  position: relative;
-  width: 22px;
-  height: 22px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
   border: 1.5px solid currentColor;
   border-radius: 50%;
   flex: none;
-}
-
-.icon::before,
-.icon::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 10px;
-  height: 1.5px;
-  background: currentColor;
-  transform: translate(-50%, -50%);
-}
-
-.further::after {
-  display: none;
 }
 
 /* ---- the places you can click ---- */
