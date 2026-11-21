@@ -134,50 +134,63 @@ export function toggleSound(): void {
 }
 
 /**
- * A whoosh for a flight: filtered noise sweeping up (`in`, a dive), down (`out`, a pull-out), or
- * a softer swell (`glide`, between stops), with a low hum under it. The music dips while it plays.
+ * A breath of air for a flight (D-103): soft noise, filtered high and wide, swelling slowly and
+ * fading slowly, its colour drifting up for a dive (`in`), down for a pull-out (`out`), barely at
+ * all between stops (`glide`); over it a faint shimmer of two high, detuned tones. No low end and
+ * no sharp onset, so it never thumps. The music dips a little under it.
  */
 export function whoosh(kind: "in" | "out" | "glide", seconds = 1.4): void {
   if (!state.enabled || !state.playing || !ctx || !master || !noise || !musicGain) return;
   const now = ctx.currentTime;
-  const loud = kind === "glide" ? 0.12 : 0.22;
+  const end = now + seconds;
+  const peak = now + seconds * (kind === "out" ? 0.4 : 0.6);
+  const loud = kind === "glide" ? 0.05 : 0.08;
 
+  // the air: noise through a wide band-pass that drifts, then a gentle low cut so nothing booms
   const source = ctx.createBufferSource();
   source.buffer = noise;
   source.loop = true;
-  const filter = ctx.createBiquadFilter();
-  filter.type = "bandpass";
-  filter.Q.value = 1.4;
-  const [from, to] = kind === "out" ? [2600, 260] : kind === "in" ? [240, 2800] : [300, 900];
-  filter.frequency.setValueAtTime(from, now);
-  filter.frequency.exponentialRampToValueAtTime(to, now + seconds);
-  const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(loud, now + seconds * 0.55);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + seconds);
-  source.connect(filter).connect(gain).connect(master);
-
-  const hum = ctx.createOscillator();
-  hum.type = "sine";
-  hum.frequency.setValueAtTime(kind === "out" ? 110 : 55, now);
-  hum.frequency.exponentialRampToValueAtTime(kind === "out" ? 55 : 110, now + seconds);
-  const humGain = ctx.createGain();
-  humGain.gain.setValueAtTime(0.0001, now);
-  humGain.gain.exponentialRampToValueAtTime(loud * 0.6, now + seconds * 0.6);
-  humGain.gain.exponentialRampToValueAtTime(0.0001, now + seconds);
-  hum.connect(humGain).connect(master);
-
+  const band = ctx.createBiquadFilter();
+  band.type = "bandpass";
+  band.Q.value = 0.6;
+  const [from, to] = kind === "out" ? [2600, 900] : kind === "in" ? [900, 3200] : [1400, 1900];
+  band.frequency.setValueAtTime(from, now);
+  band.frequency.linearRampToValueAtTime(to, end);
+  const lowCut = ctx.createBiquadFilter();
+  lowCut.type = "highpass";
+  lowCut.frequency.value = 420;
+  const air = ctx.createGain();
+  air.gain.setValueAtTime(0, now);
+  air.gain.linearRampToValueAtTime(loud, peak);
+  air.gain.linearRampToValueAtTime(0, end);
+  source.connect(band).connect(lowCut).connect(air).connect(master);
   source.start(now);
-  source.stop(now + seconds + 0.05);
-  hum.start(now);
-  hum.stop(now + seconds + 0.05);
+  source.stop(end + 0.05);
 
-  // the music dips under the flight and comes back
+  // the shimmer: two quiet high tones, a fifth apart and slightly detuned, gliding with the flight
+  const base = kind === "out" ? 880 : 660;
+  const glideTo = kind === "out" ? 660 : kind === "in" ? 880 : 700;
+  for (const [ratio, detune] of [[1, -6], [1.5, 7]] as const) {
+    const tone = ctx.createOscillator();
+    tone.type = "sine";
+    tone.detune.value = detune;
+    tone.frequency.setValueAtTime(base * ratio, now);
+    tone.frequency.linearRampToValueAtTime(glideTo * ratio, end);
+    const level = ctx.createGain();
+    level.gain.setValueAtTime(0, now);
+    level.gain.linearRampToValueAtTime(loud * 0.12, peak);
+    level.gain.linearRampToValueAtTime(0, end);
+    tone.connect(level).connect(master);
+    tone.start(now);
+    tone.stop(end + 0.05);
+  }
+
+  // the music dips a little under the flight and comes back
   const g = musicGain.gain;
   g.cancelScheduledValues(now);
   g.setValueAtTime(g.value, now);
-  g.linearRampToValueAtTime(MUSIC_VOLUME * 0.55, now + 0.3);
-  g.linearRampToValueAtTime(MUSIC_VOLUME, now + seconds + 0.8);
+  g.linearRampToValueAtTime(MUSIC_VOLUME * 0.75, now + seconds * 0.4);
+  g.linearRampToValueAtTime(MUSIC_VOLUME, end + 0.8);
 }
 
 if (typeof window !== "undefined") {
