@@ -5,10 +5,9 @@
  * blown open around a young cluster, a bright rim where the cloud's edge faces the cluster,
  * dark columns of dust standing up into the cavity with lit tips, and billowing gas fading out
  * into space. The gas is warped fractal noise; the columns are rounded segments, roughened by
- * the same warp. The colours are the subject's palette (DESIGN_SPEC.md 3), not real filters.
+ * the same warp. The colours are the place's palette (DESIGN_SPEC.md 3), not real filters.
  *
- * Over it, in screen space, is the atlas's ink: contour lines of the cloud's density, as a map
- * draws a hill, every third one heavier; a ticked ring around the cavity; the vessel riding it.
+ * Nothing is drawn over it: no contours, no rings (D-094).
  *
  * Units: one unit is `uScale` CSS pixels; the cluster sits at the origin, y up.
  */
@@ -46,7 +45,6 @@ uniform vec2 uResolution;  // drawing buffer, device pixels
 uniform float uDpr;        // device pixels per CSS pixel
 uniform vec2 uCentre;      // the cluster on screen, CSS pixels from the top left
 uniform float uScale;      // CSS pixels per unit
-uniform float uRing;       // radius of the ticked ring, CSS pixels
 uniform float uTime;
 uniform int uOctaves;
 uniform float uNorm;       // 1 / the sum of the octaves' weights, so every tier is as bright
@@ -62,7 +60,6 @@ const vec3 TEAL = vec3(0.3, 0.86, 0.82);
 const vec3 GOLD = vec3(1.0, 0.78, 0.42);
 const vec3 WHITE = vec3(1.0, 0.96, 0.88);
 const vec3 HOT = vec3(0.78, 0.88, 1.0);
-const vec3 INK = vec3(0.95, 0.92, 0.85);
 const vec3 SPACE = vec3(0.035, 0.039, 0.11);   // --space, so the sky meets the page
 
 const int STARS = ${CLUSTER.length};
@@ -109,7 +106,6 @@ float column(vec2 p, vec2 foot, vec2 tip, float wide, float narrow){
   return length(pa - ba * h) - mix(wide, narrow, h);
 }
 
-float line(float distancePx){ return clamp(1.0 - distancePx * uDpr + 0.5, 0.0, 1.0); }
 
 vec3 sky(vec2 css){
   vec3 col = SPACE;
@@ -139,7 +135,7 @@ void main(){
   // ---- the gas ----
   vec2 warp = vec2(broad(p * 0.17 + vec2(3.1, t)), broad(p * 0.17 + vec2(-t, 7.7))) - 0.5;
   float n = fbm(p * 0.24 + warp * 2.6 + vec2(t * 0.6, 0.0));
-  float m = broad(p * 0.11 + warp * 0.9 + 21.0); // the cloud's broad lie, for its outline and the contours
+  float m = broad(p * 0.11 + warp * 0.9 + 21.0); // the cloud's broad lie, for its outline
 
   // the cloud's outline: most of it below and to the right of the cluster, thin above, so the
   // cavity is a blister open toward the top
@@ -195,34 +191,6 @@ void main(){
   // a soft roll-off instead of a hard clip at white
   col = col / (1.0 + max(col - 0.8, 0.0) * 0.9);
 
-  // ---- ink, in screen space ----
-  // contours of the cloud's broad lie, outside the cavity, every third one heavier
-  float level = (1.0 - smoothstep(0.2, 1.25, body)) * (0.55 + 0.45 * m);
-  float spacing = 0.12;
-  float k = level / spacing;
-  float near = min(fract(k), 1.0 - fract(k)) * spacing / max(fwidth(level), 1e-4); // device pixels
-  float heavy = mod(floor(k + 0.5), 3.0) == 0.0 ? 0.24 : 0.11;
-  float ink = clamp(1.0 - near + 0.5, 0.0, 1.0) * heavy * smoothstep(0.2, 0.3, level) * smoothstep(0.8, 2.2, wall);
-
-  float radius = length(q);
-  float theta = atan(q.y, q.x);
-  ink = max(ink, line(abs(radius - uRing)) * 0.42);
-  ink = max(ink, line(abs(radius - uRing * 1.17)) * 0.14);
-  float cell = TAU / 72.0;
-  float tick = theta / cell;
-  float nearest = floor(tick + 0.5);
-  float alongArc = abs(tick - nearest) * cell * uRing;
-  float tickLength = mod(nearest, 6.0) == 0.0 ? 11.0 : 5.0;
-  ink = max(ink, line(alongArc) * step(uRing, radius) * step(radius, uRing + tickLength) * 0.5);
-
-  // the vessel rides the ring, its trail fading behind it
-  float vesselAngle = 2.6 + uTime * 0.025;
-  float behind = mod(vesselAngle - theta, TAU);
-  float trail = behind < 0.95 ? pow(1.0 - behind / 0.95, 1.6) : 0.0;
-  ink = max(ink, clamp(1.6 - abs(radius - uRing) * uDpr, 0.0, 1.0) * trail);
-  vec2 vessel = vec2(cos(vesselAngle), sin(vesselAngle)) * uRing;
-  ink = max(ink, clamp(2.4 - length(q - vessel), 0.0, 1.0));
-
-  gl_FragColor = vec4(mix(col, INK, ink), 1.0);
+  gl_FragColor = vec4(col, 1.0);
 }
 `;

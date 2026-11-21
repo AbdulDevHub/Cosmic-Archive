@@ -121,6 +121,22 @@ Fable's part ends here (D-028). Everything below is built by Opus.
   - [x] `npm run a11y` (axe-core, every route, wide and phone): 18 of 18 with no findings, 37 to 42 rules passing per page (D-089). Run before the review fixes.
   - [x] Budgets (gzip): no-scene routes `/about`, `/archive`, `/journeys/a-stars-life` 138.6 KB (limit 140); scene routes `/` 145.6, `/explore` 146.3, `/subjects/quasars` 142.7 (D-047); host + three + R3F 183.0 KB (220); scene chunks 4.5 to 13.5 KB (40); draw calls a frame on `low`: 1 (black hole, nebula, quasar), 16 (galaxies), 20 (atlas) (30).
   - [x] After the review fixes: `npm run check`, `npm run build`, `npm run shots` 67 of 67.
-  - [ ] Re-run `npm run fallbacks` and `npm run a11y` on the build with the review fixes: the run was stopped by the system for low memory. Both passed on the build before the fixes (31 of 31; 18 of 18).
+  - [x] Re-run `npm run fallbacks` and `npm run a11y`: done in S1 on the new screens (35 of 35; 10 of 10).
   - [ ] Not measured: frame rate on real hardware, LCP and CLS on a real 4G phone.
-- [ ] O8 Owner review, then deploy.
+- [x] O8 Owner review: superseded. The owner's read-through turned the site into a spectacle (D-092); the copy items above marked "Owner has read" no longer apply, because that copy is removed.
+
+## Spectacle sessions
+
+- [x] S1 Strip to spectacle (2026-11-20):
+  - [x] Content: `content/places.ts` (three stops, three places, eight sources, every line at most twelve words); the MDX pipeline, subject pages, journey, archive, home sections and footer removed, and seven packages with them (D-095).
+  - [x] Ink and vessel removed from all four scenes; shader scenes centred and larger; posters and share images re-rendered (D-094).
+  - [x] Screens: `/` (three stops, Closer and Further, hotspots on the canvas) and `/black-hole`, `/nebula`, `/quasar` (name, line, Further). Wheel, pinch, drag and keys as extras; nothing scrolls (D-097).
+  - [x] The flow: dive, veil in the place's colour, loader after 400 ms, arrival; reversed going out; a 220 ms cross-fade with reduced motion; scene chunks fetched when idle (D-096). Filmed headlessly in and out of the black hole: no black frame, the loader shows while the scene compiles.
+  - [x] Checks: `npm run check`; `npm run build`; `npm run shots` 36 of 36 (one earlier run timed out on the live black hole under software WebGL; the re-run passed); `npm run fallbacks` 35 of 35 (after the review fixes: the flow is busy from the first click, Back mid-dive calls it off, the opening is cleared when the veil lifts, the intro plays once a visit); `npm run a11y` 10 of 10.
+  - [x] Budgets (gzip): `/about` 138.8 KB first load (limit 140; the 2.4 KB home-route chunk the header link prefetches is not counted); scene routes 143.8 to 145.0 KB (D-047); host + three + R3F 180.5 KB (220); scene chunks 3.8 to 7.0 KB (40); draw calls a frame on `low`: 15 (atlas), 1 (each place) (30).
+  - [ ] Owner clicks through on their laptop and phone.
+  - [ ] Not measured on real hardware: frame rate, the pinch, and how the flow feels at 60 fps.
+- [ ] S2 Galaxy and cosmic web.
+- [ ] S3 Black hole and quasar.
+- [ ] S4 Nebula.
+- [ ] S5 Owner review, then deploy.

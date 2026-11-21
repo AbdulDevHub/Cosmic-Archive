@@ -1,0 +1,282 @@
+/*
+  The screen (DESIGN_SPEC.md 7): the scene fills the window, nothing scrolls, and the few words sit
+  in the lower left. No panels, no lines: the cosmos is the whole picture (D-092, D-094).
+*/
+
+/* Absolute, not fixed: a fixed box makes a stacking context of its own, and the poster inside it
+   would then paint over the canvas, which sits behind the page at a negative z-index. */
+.screen {
+  position: absolute;
+  inset: 0;
+  height: 100svh;
+  overflow: hidden;
+  touch-action: none; /* drag turns, pinch zooms: the page itself never scrolls */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.screen[data-dragging] {
+  cursor: grabbing;
+}
+
+/* ---- the words ---- */
+
+.caption {
+  position: absolute;
+  left: var(--gutter);
+  bottom: clamp(28px, 7vh, 72px);
+  max-width: min(30rem, calc(100vw - 2 * var(--gutter)));
+  pointer-events: none;
+  /* a soft dark halo keeps the words readable where they cross bright scenery */
+  text-shadow:
+    0 0 18px oklch(0.13 0.04 275 / 0.9),
+    0 0 4px oklch(0.13 0.04 275 / 0.8);
+}
+
+.caption h1 {
+  font-size: clamp(2rem, 4.2vw, 3.6rem);
+  line-height: 1;
+}
+
+.caption p {
+  margin: var(--gap-3) 0 0;
+  font-size: var(--lede);
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+
+/* a new stop's words come in softly */
+.words {
+  animation: words-in 700ms var(--ease-out) both;
+}
+
+@keyframes words-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* ---- the controls ---- */
+
+.controls {
+  position: absolute;
+  right: var(--gutter);
+  bottom: clamp(28px, 7vh, 72px);
+  display: flex;
+  gap: var(--gap-5);
+}
+
+.control {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-2);
+  min-height: var(--touch);
+  padding: 0 var(--gap-1);
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: 500 15px / 1 var(--font-text);
+  text-decoration: none;
+  cursor: pointer;
+  text-shadow: 0 0 12px oklch(0.13 0.04 275 / 0.9);
+}
+
+.control[aria-disabled="true"] {
+  color: var(--ink-2);
+  opacity: 0.45;
+  cursor: default;
+}
+
+.control:hover:not([aria-disabled="true"]) span {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+
+/* the icons: a plus and a minus in a circle, drawn with borders */
+.icon {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  flex: none;
+}
+
+.icon::before,
+.icon::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 1.5px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+
+.closer::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.further::after {
+  display: none;
+}
+
+/* ---- the places you can click ---- */
+
+.spots {
+  margin: var(--gap-5) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-3) var(--gap-6);
+  pointer-events: auto;
+}
+
+/* Live: the list leaves the caption and each place stands on the canvas, where the scene says. */
+.spots[data-live] {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.spot {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-3);
+  min-height: var(--touch);
+  color: var(--ink);
+  text-decoration: none;
+  font: 500 var(--label-size) / 1.2 var(--font-text);
+  letter-spacing: var(--label-track);
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 0;
+  background: none;
+  padding: 0;
+}
+
+.spots[data-live] .spot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  /* the ring's centre on the point: half the 44 px target */
+  margin: -22px 0 0 -22px;
+  padding-right: var(--gap-2);
+  pointer-events: auto;
+  will-change: transform;
+}
+
+.spots[data-live] .spot[data-hidden] {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.mark {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex: none;
+}
+
+/* a small soft light in the one accent, breathing slowly */
+.mark::before,
+.mark::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.mark::before {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--beacon);
+  /* a dark edge inside and out keeps the ring clear on the galaxy's bright core */
+  box-shadow:
+    0 0 0 1.5px oklch(0.13 0.04 275 / 0.75),
+    inset 0 0 0 1.5px oklch(0.13 0.04 275 / 0.75),
+    0 0 14px oklch(0.85 0.13 82 / 0.5);
+}
+
+.mark::after {
+  width: 4px;
+  height: 4px;
+  background: var(--beacon);
+  animation: breathe 3.2s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  50% {
+    box-shadow: 0 0 0 7px oklch(0.85 0.13 82 / 0);
+    opacity: 0.6;
+  }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 oklch(0.85 0.13 82 / 0.5);
+  }
+}
+
+:global(html[data-motion="paused"]) .mark::after {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mark::after {
+    animation: none;
+  }
+}
+
+.name {
+  text-shadow:
+    0 0 10px oklch(0.13 0.04 275 / 0.95),
+    0 0 3px oklch(0.13 0.04 275 / 0.9);
+  transition: opacity var(--dur-base) ease-out;
+}
+
+/* On the canvas a place's name shows on hover and focus; a touch screen has no hover, so it always shows. */
+@media (hover: hover) and (pointer: fine) {
+  .spots[data-live] .name {
+    opacity: 0;
+  }
+
+  .spots[data-live] .spot:hover .name,
+  .spots[data-live] .spot:focus-visible .name {
+    opacity: 1;
+  }
+}
+
+.spot:hover .mark::before,
+.spot:focus-visible .mark::before {
+  background: oklch(0.85 0.13 82 / 0.25);
+}
+
+.spot:focus-visible {
+  outline: none;
+}
+
+.spot:focus-visible .mark {
+  outline: 2px solid var(--beacon);
+  outline-offset: -6px;
+  border-radius: 50%;
+}
+
+/* ---- phone ---- */
+
+@media (max-width: 720px) {
+  .caption {
+    bottom: calc(var(--touch) + 44px);
+  }
+
+  .controls {
+    left: var(--gutter);
+    right: auto;
+    bottom: 22px;
+  }
+}

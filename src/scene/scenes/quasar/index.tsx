@@ -1,5 +1,5 @@
 /**
- * The Quasars subject scene: the black-hole scene seen from far off, with its jets and its
+ * The quasar: the black-hole scene seen from far off, with its jets and its
  * host galaxy (world.ts). One draw call. Mounted by the host through the registry; never
  * imported by a page.
  */
@@ -15,7 +15,7 @@ export const budget: SceneBudget = {
   particles: { low: 0, medium: 0, high: 0 }, // no particles: the cost is steps per pixel near the hole
 };
 
-export default function QuasarScene({ rung, time, publish, onReady }: SceneProps) {
+export default function QuasarScene({ rung, time, view, publish, onReady }: SceneProps) {
   const width = useThree((s) => s.size.width);
   const height = useThree((s) => s.size.height);
   const dpr = useThree((s) => s.viewport.dpr);
@@ -34,6 +34,7 @@ export default function QuasarScene({ rung, time, publish, onReady }: SceneProps
   const drawn = useRef(false);
   useFrame(() => {
     world.setTime(time.current);
+    world.setArrive(view.current.arrive);
     publish(frame);
     if (!drawn.current) {
       drawn.current = true;

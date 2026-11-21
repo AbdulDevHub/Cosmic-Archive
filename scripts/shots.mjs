@@ -3,9 +3,9 @@
 // Starts `next start` on a free port, captures each route at desktop, phone and desktop with
 // reduced motion, writes PNGs to screenshots/, and fails on any console error or failed request.
 //
-// `home` and `explore` are the pages as a visitor gets them (the device picks the quality). The
-// `-still` shots are the deterministic frames to hold beside prototype/shots/: `?shot=1&t=12` at
-// the prototype's counts, with `&zoom=` holding the stage (0 hero, 1 chart, 2 cosmic web).
+// `home` and each place are the pages as a visitor gets them (the device picks the quality). The
+// `-still` shots are deterministic frames: `?shot=1&t=12` at the prototype's counts, with `&zoom=`
+// holding the atlas's stop (0 close in, 1 the galaxy, 2 the cosmic web).
 
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
@@ -13,30 +13,15 @@ import { launchBrowser, sceneSettled, serveBuild } from "./lib/serve.mjs";
 
 const ROUTES = [
   { path: () => "/", name: "home", scene: true },
-  { path: (view) => `/?shot=1&t=12&tier=${view.tier}`, name: "home-still", scene: true, mustDraw: true },
-  { path: (view) => `/?shot=1&t=12&zoom=1&tier=${view.tier}`, name: "chart-still", scene: true, mustDraw: true, beacons: 3 },
-  { path: (view) => `/?shot=1&t=12&zoom=2&tier=${view.tier}`, name: "web-still", scene: true, mustDraw: true, beacons: 2 },
-  { path: () => "/explore", name: "explore", scene: true },
-  { path: (view) => `/explore?shot=1&t=12&tier=${view.tier}`, name: "explore-still", scene: true, mustDraw: true, beacons: 3 },
-  { path: () => "/subjects/black-holes", name: "black-holes", scene: true },
-  { path: (view) => `/subjects/black-holes?shot=1&t=12&tier=${view.tier}`, name: "black-holes-still", scene: true, mustDraw: true, beacons: 4 },
-  { path: () => "/subjects/galaxies", name: "galaxies", scene: true },
-  { path: (view) => `/subjects/galaxies?shot=1&t=12&tier=${view.tier}`, name: "galaxies-still", scene: true, mustDraw: true, beacons: 4 },
-  { path: () => "/subjects/nebulae", name: "nebulae", scene: true },
-  { path: (view) => `/subjects/nebulae?shot=1&t=12&tier=${view.tier}`, name: "nebulae-still", scene: true, mustDraw: true, beacons: 4 },
-  { path: () => "/subjects/quasars", name: "quasars", scene: true },
-  { path: (view) => `/subjects/quasars?shot=1&t=12&tier=${view.tier}`, name: "quasars-still", scene: true, mustDraw: true, beacons: 4 },
+  { path: (view) => `/?shot=1&t=12&zoom=0&tier=${view.tier}`, name: "close-still", scene: true, mustDraw: true },
+  { path: (view) => `/?shot=1&t=12&zoom=1&tier=${view.tier}`, name: "galaxy-still", scene: true, mustDraw: true, spots: 2 },
+  { path: (view) => `/?shot=1&t=12&zoom=2&tier=${view.tier}`, name: "web-still", scene: true, mustDraw: true, spots: 2 },
+  ...["black-hole", "nebula", "quasar"].flatMap((id) => [
+    { path: () => `/${id}`, name: id, scene: true },
+    { path: (view) => `/${id}?shot=1&t=12&tier=${view.tier}`, name: `${id}-still`, scene: true, mustDraw: true },
+  ]),
   { path: () => "/about", name: "about", scene: false },
-  // the whole page below the top of the window: the homepage's sections under the scene, and the reading pages
-  { path: () => "/", name: "home-below", scene: true, from: "#destinations" },
   { path: () => "/about", name: "about-full", scene: false, from: "body" },
-  { path: () => "/archive", name: "archive-full", scene: false, from: "body" },
-  { path: () => "/journeys/a-stars-life", name: "journey-full", scene: false, from: "body" },
-  { path: () => "/subjects/galaxies", name: "galaxies-body", scene: true, from: "#an-island-of-stars" },
-  { path: () => "/subjects/nebulae", name: "nebulae-body", scene: true, from: "#a-cloud-between-the-stars" },
-  { path: () => "/subjects/quasars", name: "quasars-body", scene: true, from: "#a-light-brighter-than-a-galaxy" },
-  // the phone menu, open
-  { path: () => "/archive", name: "menu", scene: false, only: "phone", open: "[aria-controls='site-menu']" },
 ];
 
 const VIEWS = [
@@ -74,26 +59,21 @@ try {
         // with a forced tier, "static" means WebGL failed and the shot would only show the poster
         if (route.mustDraw && !note.startsWith("scene ready")) problems.push("the scene did not draw: this is the poster, not the scene");
         await page.waitForTimeout(450); // the canvas fades in over the poster (300 ms)
-        if (route.beacons) {
-          // every beacon of the stage on show must be a visible link, inside the window
+        if (route.spots) {
+          // every place of the stop on show must stand on the canvas, inside the window
           const placed = await page.evaluate(() => {
             const inView = (el) => {
               const r = el.getBoundingClientRect();
               return getComputedStyle(el).visibility === "visible" && r.width > 0 && r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight;
             };
-            return [...document.querySelectorAll("[data-anchor] [data-label]")].filter(inView).length;
+            return [...document.querySelectorAll("[data-anchor]")].filter(inView).length;
           });
-          if (placed !== route.beacons) problems.push(`${placed} beacon labels on screen, expected ${route.beacons}`);
+          if (placed !== route.spots) problems.push(`${placed} places on screen, expected ${route.spots}`);
         }
       }
 
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       if (overflow > 0) problems.push(`horizontal overflow of ${overflow}px`);
-
-      if (route.open) {
-        await page.click(route.open);
-        await page.waitForTimeout(100);
-      }
 
       const file = join(OUT, `${route.name}-${name}.png`);
       if (route.from) {

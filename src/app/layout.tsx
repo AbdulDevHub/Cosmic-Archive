@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Hanken_Grotesk, Syne } from "next/font/google";
 import type { ReactNode } from "react";
-import { SiteFooter } from "@/components/SiteFooter";
+import { Veil } from "@/components/screen/Veil";
 import { SiteHeader } from "@/components/SiteHeader";
 import { motionInitScript } from "@/lib/motion";
 import { DEFAULT_OG, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
@@ -53,7 +53,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         <SceneHostLoader />
         <SiteHeader />
         <main id="content">{children}</main>
-        <SiteFooter />
+        <Veil />
       </body>
     </html>
   );

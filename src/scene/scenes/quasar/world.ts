@@ -2,10 +2,10 @@
  * The quasar: the black-hole scene seen from far off, with jets (D-073). The same shader as
  * `scenes/black-hole`, compiled with `QUASAR` defined, on one full-screen triangle.
  *
- * As with the black hole, the composition is set in CSS pixels: the core stands at a chosen point
- * of the window and a horizon radius is a chosen number of pixels, so the page's copy keeps its
- * calm zone at every window size. The jets leave along the disc's axis; the camera's roll tilts
- * them off the vertical. The scene tells the DOM where its named places are (`ANCHORS`).
+ * As with the black hole, the composition is set in CSS pixels: the core stands in the middle of
+ * the window and the jets reach most of the way to its edges (D-092). The jets leave along the
+ * disc's axis; the camera's roll tilts them off the vertical. On arrival (`view.arrive`, D-096)
+ * the whole quasar grows from far off to that size.
  */
 
 import { BufferAttribute, BufferGeometry, Mesh, ShaderMaterial, Vector2, Vector3 } from "three";
@@ -19,7 +19,9 @@ import { cameraBasis, MARCH } from "../black-hole/world";
 const CAMERA_DISTANCE = 120;
 const ELEVATION = (24 * Math.PI) / 180;
 const AZIMUTH = 0.6;
-const RING_RADIUS = 14; // around the core, inside the host galaxy
+const RADIUS = 14; // horizon radii: the core and its glare, inside the host galaxy
+/** How large the quasar is when an arrival starts, as a share of its full size. */
+const ARRIVE_FROM = 0.3;
 const MARCH_RADIUS = 26; // rays are bent only this close to the hole; beyond, the bending is too small to see
 const HOST_ANGLE = -0.25; // the host galaxy's long axis on screen, radians from the horizontal
 
@@ -28,38 +30,23 @@ export const isPhone = (width: number, height: number) => width / height < 0.8;
 /** Where the core stands, how big a horizon radius is, how long each jet is and how it leans. */
 function compose(width: number, height: number) {
   if (isPhone(width, height)) {
-    const scale = Math.min(width * 0.0135, height * 0.0063);
-    // the jets cross the narrow screen on a diagonal, leaving the upper left and the lower right for the labels
-    return { x: width * 0.5, y: height * 0.36, scale, jet: (height * 0.25) / scale, roll: (42 * Math.PI) / 180 };
+    const scale = Math.min(width * 0.0145, height * 0.0068);
+    // the jets cross the narrow screen on a diagonal
+    return { x: width * 0.5, y: height * 0.44, scale, jet: (height * 0.3) / scale, roll: (30 * Math.PI) / 180 };
   }
-  // right of centre, the near jet rising to the upper right, the far one falling past the copy's right edge
-  const scale = Math.min(height * 0.0062, width * 0.0042);
-  return { x: width * 0.64, y: height * 0.5, scale, jet: (height * 0.36) / scale, roll: (20 * Math.PI) / 180 };
+  const scale = Math.min(height * 0.0072, width * 0.005);
+  return { x: width * 0.5, y: height * 0.5, scale, jet: (height * 0.4) / scale, roll: (20 * Math.PI) / 180 };
 }
 
-/**
- * The places a callout can point at. `content/subjects/quasars.mdx` names one per callout; the
- * scene owns where each is. `screen` is an offset in horizon radii, y up; `jet` a fraction of a
- * jet's length along it (negative: the far jet); `host` a point in the host galaxy's own axes.
- */
-type Anchor = { screen: readonly [number, number] } | { jet: number } | { host: readonly [number, number] };
-const ANCHORS: Record<string, Anchor> = {
-  nucleus: { screen: [0, 0] },
-  jet: { jet: 0.5 },
-  counterjet: { jet: -0.55 },
-  host: { host: [-24, 4] },
-};
-
 export function makeFrame(): SceneFrame {
-  const points: SceneFrame["points"] = {};
-  for (const name of Object.keys(ANCHORS)) points[name] = { x: 0, y: 0, on: true };
-  return { zoom: 0, width: 1, height: 1, narrow: false, points, radius: 1, shade: () => 0 };
+  return { zoom: 0, width: 1, height: 1, narrow: false, points: {}, radius: 1 };
 }
 
 export class QuasarWorld {
   readonly root: Mesh;
   private readonly material: ShaderMaterial;
   private roll = Number.NaN;
+  private scale = 1;
 
   constructor() {
     const geometry = new BufferGeometry();
@@ -75,7 +62,6 @@ export class QuasarWorld {
         uDpr: { value: 1 },
         uCentre: { value: new Vector2(0, 0) },
         uScale: { value: 1 },
-        uRing: { value: 1 },
         uTime: { value: 0 },
         uSteps: { value: MARCH.medium.steps },
         uStride: { value: MARCH.medium.stride },
@@ -110,45 +96,23 @@ export class QuasarWorld {
     u.uResolution.value.set(Math.round(width * dpr), Math.round(height * dpr));
     u.uDpr.value = dpr;
     u.uCentre.value.set(x, y);
-    u.uScale.value = scale;
-    u.uRing.value = RING_RADIUS * scale;
+    this.scale = scale;
     u.uSteps.value = MARCH[tier].steps;
     u.uStride.value = MARCH[tier].stride;
     u.uJetLength.value = jet;
-    u.uMarch.value = MARCH_RADIUS * scale;
-
-    const dir = u.uJetDir.value as Vector2;
-    const c = Math.cos(HOST_ANGLE);
-    const s = Math.sin(HOST_ANGLE);
-    for (const [name, anchor] of Object.entries(ANCHORS)) {
-      const point = frame.points[name];
-      let ux: number;
-      let uy: number;
-      if ("screen" in anchor) [ux, uy] = anchor.screen;
-      else if ("jet" in anchor) [ux, uy] = [dir.x * anchor.jet * jet, dir.y * anchor.jet * jet];
-      else [ux, uy] = [c * anchor.host[0] - s * anchor.host[1], s * anchor.host[0] + c * anchor.host[1]];
-      point.x = x + ux * scale;
-      point.y = y - uy * scale;
-    }
 
     frame.width = width;
     frame.height = height;
     frame.narrow = isPhone(width, height);
-    frame.radius = RING_RADIUS * scale;
-    // Bright at the core and along the jets; the ring; faint over the host galaxy; dark elsewhere.
-    frame.shade = (px, py) => {
-      const ux = (px - x) / scale;
-      const uy = (y - py) / scale;
-      const r = Math.hypot(ux, uy);
-      if (r < 8) return 0.95;
-      if (Math.abs(r - RING_RADIUS) < 2.5) return 0.6; // the ticked ring: keep labels off it
-      const along = Math.abs(ux * dir.x + uy * dir.y);
-      const across = Math.abs(ux * dir.y - uy * dir.x);
-      if (along < jet * 1.05 && across < 3 + along * 0.06) return 0.75;
-      const hx = (c * ux + s * uy) / 40;
-      const hy = (-s * ux + c * uy) / 16;
-      return Math.hypot(hx, hy) < 0.9 ? 0.35 : 0;
-    };
+    frame.radius = RADIUS * scale;
+  }
+
+  /** How far the quasar has arrived: 0 small and far off, 1 full size. */
+  setArrive(arrive: number): void {
+    const scale = this.scale * (ARRIVE_FROM + (1 - ARRIVE_FROM) * arrive);
+    const u = this.material.uniforms;
+    u.uScale.value = scale;
+    u.uMarch.value = MARCH_RADIUS * scale;
   }
 
   setTime(seconds: number): void {

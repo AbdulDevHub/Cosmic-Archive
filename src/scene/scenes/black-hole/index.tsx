@@ -1,5 +1,5 @@
 /**
- * The Black Holes subject scene: a black hole and its disc of gas, with light bent as the
+ * The black hole: a black hole and its disc of gas, with light bent as the
  * hole's gravity bends it. One draw call. Mounted by the host through the registry; never
  * imported by a page.
  */
@@ -15,7 +15,7 @@ export const budget: SceneBudget = {
   particles: { low: 0, medium: 0, high: 0 }, // no particles: the cost is steps per pixel (world.ts)
 };
 
-export default function BlackHoleScene({ rung, time, publish, onReady }: SceneProps) {
+export default function BlackHoleScene({ rung, time, view, publish, onReady }: SceneProps) {
   const width = useThree((s) => s.size.width);
   const height = useThree((s) => s.size.height);
   const dpr = useThree((s) => s.viewport.dpr);
@@ -34,6 +34,7 @@ export default function BlackHoleScene({ rung, time, publish, onReady }: ScenePr
   const drawn = useRef(false);
   useFrame(() => {
     world.setTime(time.current);
+    world.setArrive(view.current.arrive);
     publish(frame);
     if (!drawn.current) {
       drawn.current = true;

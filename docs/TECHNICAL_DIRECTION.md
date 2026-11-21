@@ -1,6 +1,6 @@
 # Cosmic Archive: Technical Direction
 
-**Status:** v2, 2026-11-11. The stack is decided; this is no longer a list of preferences. Structure and budgets are in `ARCHITECTURE.md`.
+**Status:** v2, 2026-11-11; content row updated 2026-11-20 (D-095). The stack is decided; this is no longer a list of preferences. Structure and budgets are in `ARCHITECTURE.md`.
 
 ## Stack
 
@@ -11,7 +11,7 @@
 | Package manager | npm | Already installed; nothing here needs more |
 | Styling | CSS Modules + CSS variables in `src/styles/tokens.css` (OKLCH) | Full art direction, no theme to fight. No Tailwind, no UI kit |
 | 3D | three + @react-three/fiber, WebGL2, GLSL | See below |
-| Content | MDX files with zod-validated frontmatter | Long-form prose with embedded components; structure enforced at build |
+| Content | One TypeScript file, `content/places.ts`, checked at build and by `npm run check` | A name and one sourced line per view; MDX and zod were removed with the long-form pages (D-095) |
 | Lint | ESLint flat config, run as `eslint .` (`next lint` no longer exists in Next 16) | |
 | Fonts | `next/font`, self-hosted | No third-party requests at runtime |
 | Screenshots | Playwright (dev dependency) via `npm run shots` | The visual verify loop |

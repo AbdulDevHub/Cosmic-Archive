@@ -42,59 +42,37 @@
   font-size: var(--step-4);
 }
 
-/* ---- the legend: a line sample and its word, then what it means ---- */
+/* ---- the real thing, and the sources: a link, then who published it ---- */
 
-.legend {
-  margin: var(--gap-6) 0 0;
-  border-top: var(--hairline) solid color-mix(in srgb, var(--ink) 20%, transparent);
+.group {
+  margin-top: var(--gap-7);
 }
 
-.legendRow {
-  display: grid;
-  grid-template-columns: 11rem 1fr;
-  gap: var(--gap-2) var(--gap-6);
-  padding: var(--gap-4) 0;
-  border-bottom: var(--hairline) solid color-mix(in srgb, var(--ink) 20%, transparent);
-}
-
-.legendRow dt {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 600;
-}
-
-.legendRow dd {
+.group h3 {
   margin: 0;
+  font: 600 var(--step-1) / 1.2 var(--font-text);
+}
+
+.links {
+  list-style: none;
+  margin: var(--gap-4) 0 0;
+  padding: 0;
+}
+
+.links li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--gap-3) 0;
+}
+
+.links span {
   color: var(--ink-2);
+  font-size: var(--step--1);
 }
 
-.drawn {
-  font-style: italic;
-}
+/* ---- credits ---- */
 
-@media (max-width: 560px) {
-  .legendRow {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ---- method and credits ---- */
-
-.method {
-  margin: var(--gap-6) 0 0;
-  padding: 0 0 0 1.4em;
-  color: var(--ink-2);
-}
-
-.method li + li {
-  margin-top: var(--gap-3);
-}
-
-.method li::marker {
-  color: var(--ink);
-  font-weight: 600;
-}
 
 .credits {
   list-style: none;

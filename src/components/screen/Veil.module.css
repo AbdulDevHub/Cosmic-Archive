@@ -1,0 +1,65 @@
+/* Over everything but the skip link; it takes clicks only while a move is under way. */
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 500ms ease-in-out;
+  display: grid;
+  place-items: center;
+}
+
+.veil[data-active] {
+  pointer-events: auto;
+}
+
+.veil[data-down] {
+  opacity: 1;
+}
+
+/* With reduced motion or Pause the move is a short cross-fade (flow.ts CALM_MS). */
+:global(html[data-motion="paused"]) .veil {
+  transition-duration: 220ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .veil {
+    transition-duration: 220ms;
+  }
+}
+
+/* the loader: one small light in the accent, breathing */
+.loader {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--beacon);
+  box-shadow: 0 0 16px oklch(0.85 0.13 82 / 0.6);
+  animation:
+    loader-in 400ms ease-out both,
+    loader-breathe 1.6s ease-in-out 400ms infinite;
+}
+
+@keyframes loader-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes loader-breathe {
+  50% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+}
+
+:global(html[data-motion="paused"]) .loader {
+  animation: loader-in 400ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader {
+    animation: loader-in 400ms ease-out both;
+  }
+}

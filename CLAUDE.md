@@ -1,6 +1,6 @@
 # Cosmic Archive
 
-A living atlas of the universe: real-time cosmic scenes with a map-maker's ink layer, and sourced science pages. Next.js 16, React 19, TypeScript, CSS Modules, three + React Three Fiber.
+The universe to look at: real-time cosmic scenes a visitor clicks through, from the cosmic web into a galaxy and the places inside it (D-092). Next.js 16, React 19, TypeScript, CSS Modules, three + React Three Fiber.
 
 Verify: npm run check
 
@@ -14,18 +14,18 @@ Verify-full: npm run build && npm run shots
 4. `docs/PROJECT_BLUEPRINT.md` (scope and editorial rules), when touching content or scope
 5. `docs/DECISIONS.md`, before changing anything that looks deliberate
 
-The look is defined by `prototype/look.html` and `prototype/shots/`.
+The palette, type and galaxy come from `prototype/look.html`; its ink and vessel are gone (D-094).
 
 ## Rules that do not change without the owner
 
-- **Identity:** cosmos plus ink. The vessel stays tiny. No glass panels, HUD elements, gradient text, pill navigation or neon UI. One UI accent, `--beacon`.
-- **Evidence is drawn and written:** solid observed/established, long dash theoretical, short dash hypothetical, dotted speculative. Never colour or line alone.
+- **Identity:** cosmos alone. Nothing drawn over the scenery (no rings, ticks, lines or vessel). No glass panels, HUD elements, gradient text, pill navigation or neon UI. One UI accent, `--beacon`.
+- **Spectacle, not text:** a name and one line of at most twelve words per view. Click to travel; nothing scrolls; every move between scenes is a flight (dive, veil, arrive).
 - **Boundaries:** only `src/scene/` imports three. Pages use `<SceneSlot>`. Content holds facts, components hold layout.
-- **Every page works without the scene.** Poster first; all meaning in server-rendered HTML; destinations are real links.
+- **Every screen works without the scene.** Poster first; name, line and places in server-rendered HTML; places are real links.
 - **Budgets** in `docs/ARCHITECTURE.md` section 3 are limits, not targets to revisit.
-- **Science:** no fact, number or name from memory. Fetch the source, tie the claim to it, record the checked date. `npm run check` enforces it.
+- **Science:** every line is true. No fact, number or name from memory: fetch the source, name it in `content/places.ts`, record the checked date. `npm run check` enforces it.
 - **Imagery:** our own illustrations only. Never embed or host telescope photos or third-party art; link to them.
-- **Scope:** the v1 table in the blueprint. One roadmap session at a time, then stop.
+- **Scope:** the v1 table in the blueprint; the beauty sessions (S2 to S4) before new places. One roadmap session at a time, then stop.
 
 ## Working rules
 

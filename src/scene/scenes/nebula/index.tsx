@@ -1,5 +1,5 @@
 /**
- * The Nebulae subject scene: our own star-forming cloud, its cavity, columns of dust and young
+ * The nebula: our own star-forming cloud, its cavity, columns of dust and young
  * cluster. One draw call, no particles. Mounted by the host through the registry; never
  * imported by a page.
  */
@@ -15,7 +15,7 @@ export const budget: SceneBudget = {
   particles: { low: 0, medium: 0, high: 0 }, // no particles: the cost is noise octaves per pixel (world.ts)
 };
 
-export default function NebulaScene({ rung, time, publish, onReady }: SceneProps) {
+export default function NebulaScene({ rung, time, view, publish, onReady }: SceneProps) {
   const width = useThree((s) => s.size.width);
   const height = useThree((s) => s.size.height);
   const dpr = useThree((s) => s.viewport.dpr);
@@ -34,6 +34,7 @@ export default function NebulaScene({ rung, time, publish, onReady }: SceneProps
   const drawn = useRef(false);
   useFrame(() => {
     world.setTime(time.current);
+    world.setArrive(view.current.arrive);
     publish(frame);
     if (!drawn.current) {
       drawn.current = true;

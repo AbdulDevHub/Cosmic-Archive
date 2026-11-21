@@ -20,7 +20,9 @@ import styles from "./SceneHost.module.css";
 import { sceneParams, START_TIME } from "./params";
 import { SCENES } from "./registry";
 import {
+  endSceneTween,
   getSceneInput,
+  getSceneTweens,
   markReady,
   onSceneInput,
   publishSceneFrame,
@@ -29,6 +31,7 @@ import {
   useSceneState,
   type SceneId,
   type SceneInput,
+  type SceneNumber,
   type SlotRequest,
 } from "./store";
 import type { Box, SceneProps } from "./types";
@@ -68,7 +71,7 @@ export default function SceneHost() {
 
   const [params] = useState(sceneParams);
   const timeRef = useRef(params.time ?? START_TIME);
-  const viewRef = useRef<SceneInput>({ zoom: 0, yaw: 0, pitch: 0 });
+  const viewRef = useRef<SceneInput>({ zoom: 1, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1 });
   const runningRef = useRef(false);
 
   const rung = typeof quality === "number" ? quality : RUNG_MEDIUM;
@@ -155,6 +158,19 @@ export default function SceneHost() {
     invalidateRef.current = () => store.getState().invalidate();
   }, [root, size, dpr, isRunning, mounted, rung, governor, params.shot, params.tier, params.zoom]);
 
+  // Once a scene is on screen, fetch the others while the browser is idle: the next one is then
+  // already here when the visitor clicks, and the flow between scenes does not wait (D-096).
+  useEffect(() => {
+    if (!ready) return;
+    const fetchAll = () => Object.values(SCENES).forEach((load) => void load());
+    if ("requestIdleCallback" in window) {
+      const id = requestIdleCallback(fetchAll, { timeout: 4000 });
+      return () => cancelIdleCallback(id);
+    }
+    const id = setTimeout(fetchAll, 1500);
+    return () => clearTimeout(id);
+  }, [ready]);
+
   const on = ready && !lost;
   return (
     <div
@@ -193,30 +209,43 @@ function SceneTree({ slot, rung, timeRef, viewRef, runningRef, fixedZoom, govern
 }
 
 const EASE_PER_SECOND = 5; // the prototype's: the camera closes a fifth of the gap every 40 ms
+const NUMBERS: readonly SceneNumber[] = ["zoom", "yaw", "pitch", "dive", "arrive"];
+const easeInOut = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 3 / 2);
 
 /**
  * Advances scene time while the loop runs, moves the camera toward what the visitor asked for,
  * and feeds the governor. Mounted before the scene, so it ticks first.
  *
- * While the loop runs the camera eases. While it is stopped (reduced motion, Pause, a still for a
- * screenshot) there is no gliding: the zoom steps between the three views and each is one frame.
+ * While the loop runs the camera eases: a click's glide over its set time, eased in and out (D-097),
+ * anything else (wheel, drag, keys) by closing part of the gap each frame. While it is stopped
+ * (reduced motion, Pause, a still for a screenshot) there is no gliding: each view is one frame.
  */
 function Clock({ timeRef, viewRef, runningRef, fixedZoom, governor }: Omit<SceneTreeProps, "slot" | "rung">) {
   const started = useRef(false);
   useFrame((_, delta) => {
     const target = getSceneInput();
+    const tweens = getSceneTweens();
     const view = viewRef.current;
     const running = runningRef.current;
     const dt = Math.min(delta, 0.05);
-    if (!running || !started.current) {
-      view.zoom = running ? target.zoom : Math.round(target.zoom);
-      view.yaw = target.yaw;
-      view.pitch = target.pitch;
-    } else {
-      const k = Math.min(1, dt * EASE_PER_SECOND);
-      view.zoom += (target.zoom - view.zoom) * k;
-      view.yaw += (target.yaw - view.yaw) * k;
-      view.pitch += (target.pitch - view.pitch) * k;
+    const now = performance.now();
+    view.focus = target.focus;
+    for (const key of NUMBERS) {
+      const tween = tweens.get(key);
+      if (!running || !started.current) {
+        view[key] = key === "zoom" && !running ? Math.round(target.zoom) : target[key];
+        if (tween) endSceneTween(key);
+      } else if (tween) {
+        if (tween.from === null) {
+          tween.from = view[key];
+          tween.start = now;
+        }
+        const p = Math.min(1, (now - tween.start) / tween.ms);
+        view[key] = tween.from + (tween.to - tween.from) * easeInOut(p);
+        if (p >= 1) endSceneTween(key);
+      } else {
+        view[key] += (target[key] - view[key]) * Math.min(1, dt * EASE_PER_SECOND);
+      }
     }
     if (fixedZoom !== null) view.zoom = fixedZoom;
     started.current = true;

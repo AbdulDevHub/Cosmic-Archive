@@ -7,9 +7,9 @@
   /* ---- Colour: the interface ---- */
   --space: oklch(0.13 0.04 275); /* page background: deep indigo, never pure black */
   --space-2: oklch(0.18 0.05 275); /* raised surfaces (rare) */
-  --ink: oklch(0.95 0.02 85); /* text and linework: warm white */
+  --ink: oklch(0.95 0.02 85); /* text: warm white */
   --ink-2: oklch(0.82 0.03 85); /* secondary text, still above 4.5:1 on --space */
-  --beacon: oklch(0.85 0.13 82); /* the one UI accent: links, beacons, focus */
+  --beacon: oklch(0.85 0.13 82); /* the one UI accent: hotspots, links, focus */
 
   /* ---- Colour: scenery only (scenes and illustrations, never UI chrome) ----
      sRGB equivalents of the prototype's scene palette `C`. */
@@ -34,12 +34,12 @@
   --step-2: 1.66rem; /* 26.6 px */
   --step-3: 2.075rem; /* 33.2 px */
   --step-4: 2.594rem; /* 41.5 px */
-  --h1: clamp(2.3rem, 6vw, 5.75rem); /* hero headline */
+  --h1: clamp(2.3rem, 6vw, 5.75rem); /* large headline (About) */
   --h2: clamp(1.75rem, 3.5vw, 3.1rem); /* section headline */
   --lede: clamp(1rem, 1.25vw, 1.2rem); /* the one sentence under a headline */
   --measure: 31rem; /* supporting copy; body columns stay 45 to 75 characters */
 
-  /* Map labels: only on the chart, attached to a line or beacon */
+  /* Hotspot names: only beside a hotspot */
   --label-size: 11.5px;
   --label-track: 0.14em;
 
@@ -62,7 +62,5 @@
   --dur-fast: 150ms;
   --dur-base: 250ms;
   --dur-slow: 300ms;
-  --dur-turn: 600ms; /* the hero ring's ticks turning a notch */
-  --dur-orbit: 9s; /* the vessel circling the hero ring */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }

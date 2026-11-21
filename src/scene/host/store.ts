@@ -3,19 +3,17 @@
  *
  * Pages reach the scene system only through <SceneSlot> and the functions in the "for pages"
  * sections: the slot calls `requestScene`, `withdrawScene` and `setSlotVisible`; a page's own
- * controls call `setSceneInput` (scroll, wheel, drag, keys) and read what the scene drew through
- * `subscribeSceneFrame`. Everything else here is for the host.
+ * controls call `setSceneInput` (wheel, drag, keys) or `animateSceneInput` (a click: a timed
+ * glide) and read what the scene drew through `subscribeSceneFrame`. The flow between scenes
+ * (flow.ts) sets the next scene's opening view with `setOpening`. Everything else is for the host.
  */
 
 import { useSyncExternalStore } from "react";
 import { rememberQuality, type Quality } from "../quality/tiers";
 
 export type SceneId = "atlas" | "black-hole" | "nebula" | "quasar";
-/** How the page drives the scene: by scroll position (`/`), by free control (`/explore`), or not at all (a subject page). */
-export type SceneMode = "scroll" | "explore" | "subject";
-
-/** The zoom a page opens on: the hero on `/`, the chart on `/explore`. */
-const OPENING_ZOOM: Record<SceneMode, number> = { scroll: 0, explore: 1, subject: 0 };
+/** The atlas (`/`, free control and zoom stops) or one place (a page of its own). */
+export type SceneMode = "atlas" | "place";
 
 export interface SlotRequest {
   token: number;
@@ -88,12 +86,15 @@ export const sceneIsLive = (s: SceneState): boolean =>
 
 // ---- for pages, through <SceneSlot> ----
 
-export function requestScene(id: SceneId, mode: SceneMode): number {
+export function requestScene(id: SceneId, mode: SceneMode, wanted: Partial<SceneInput> = {}): number {
   clearTimeout(unmountTimer);
   const slot = { token: nextToken++, id, mode };
-  input.zoom = OPENING_ZOOM[mode];
-  input.yaw = 0;
-  input.pitch = 0;
+  // the atlas opens on the whole galaxy and a place arrives whole, unless the page asks for
+  // another view; the flow between scenes, when one is under way, wins over both
+  const flowing = Object.keys(opening).length > 0;
+  // (the flow clears the opening once the move is over, not here: React's development mode mounts a slot twice)
+  Object.assign(input, { zoom: 1, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1 }, flowing ? opening : wanted);
+  tweens.clear();
   set({ asked: true, slot, mounted: slot, slotVisible: true });
   return slot.token;
 }
@@ -121,30 +122,81 @@ export function setSlotVisible(token: number, visible: boolean): void {
  * event, and the host eases toward it frame by frame.
  */
 export interface SceneInput {
-  /** 0 hero, 1 chart, 2 cosmic web (ARCHITECTURE.md 4). */
+  /** The atlas's stops: 0 close in, 1 the whole galaxy, 2 the cosmic web (ARCHITECTURE.md 4). */
   zoom: number;
   /** Turn about the vertical axis, in radians, from free control. */
   yaw: number;
   /** Tilt, in radians, from free control. */
   pitch: number;
+  /** The atlas anchor the camera dives toward, or null. */
+  focus: string | null;
+  /** How far the atlas camera has dived into `focus`: 0 not at all, 1 inside it. */
+  dive: number;
+  /** How far a place scene has arrived: 0 small and far off, 1 whole (D-096). */
+  arrive: number;
 }
+
+/** The numbers in SceneInput: what a glide can move. */
+export type SceneNumber = "zoom" | "yaw" | "pitch" | "dive" | "arrive";
 
 export const ZOOM_MIN = 0;
 export const ZOOM_MAX = 2;
 const PITCH_LIMIT = 0.3;
 
-const input: SceneInput = { zoom: 0, yaw: 0, pitch: 0 };
+const input: SceneInput = { zoom: 1, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1 };
 let inputListener: (() => void) | null = null;
+let opening: Partial<SceneInput> = {};
+
+/** A timed glide of one number, from where the camera was drawn when it started. */
+export interface SceneTween {
+  from: number | null;
+  to: number;
+  start: number;
+  ms: number;
+}
+const tweens = new Map<SceneNumber, SceneTween>();
+
+const clampInput = (key: SceneNumber, value: number) =>
+  key === "zoom" ? Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, value)) : key === "pitch" ? Math.min(PITCH_LIMIT, Math.max(-PITCH_LIMIT, value)) : key === "dive" || key === "arrive" ? Math.min(1, Math.max(0, value)) : value;
 
 export function getSceneInput(): Readonly<SceneInput> {
   return input;
 }
 
+/** Moves the camera's target; the host eases toward it. Cancels any glide of the same numbers. */
 export function setSceneInput(patch: Partial<SceneInput>): void {
-  if (patch.zoom !== undefined) input.zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, patch.zoom));
-  if (patch.yaw !== undefined) input.yaw = patch.yaw;
-  if (patch.pitch !== undefined) input.pitch = Math.min(PITCH_LIMIT, Math.max(-PITCH_LIMIT, patch.pitch));
+  for (const key of ["zoom", "yaw", "pitch", "dive", "arrive"] as const) {
+    const value = patch[key];
+    if (value === undefined) continue;
+    input[key] = clampInput(key, value);
+    tweens.delete(key);
+  }
+  if (patch.focus !== undefined) input.focus = patch.focus;
   inputListener?.();
+}
+
+/** A click's move: each number glides to its target over `ms`, eased in and out (D-097). */
+export function animateSceneInput(patch: Partial<Record<SceneNumber, number>>, ms: number): void {
+  const start = performance.now();
+  for (const [key, value] of Object.entries(patch) as [SceneNumber, number][]) {
+    input[key] = clampInput(key, value);
+    tweens.set(key, { from: null, to: input[key], start, ms });
+  }
+  inputListener?.();
+}
+
+/** The glides in progress; the host fills in `from` on the first frame of each. */
+export function getSceneTweens(): ReadonlyMap<SceneNumber, SceneTween> {
+  return tweens;
+}
+
+export function endSceneTween(key: SceneNumber): void {
+  tweens.delete(key);
+}
+
+/** The view the next scene a page asks for opens on (the flow between scenes), until the flow clears it. */
+export function setOpening(patch: Partial<SceneInput>): void {
+  opening = { ...patch };
 }
 
 // ---- for pages: what the scene drew ----
@@ -158,7 +210,7 @@ export interface ScenePoint {
 }
 
 /**
- * What the DOM needs to draw over a frame (beacons and their labels). One object per scene,
+ * What the DOM needs to place over a frame (hotspots). One object per scene,
  * rewritten in place each frame: read it inside the listener, do not keep it.
  */
 export interface SceneFrame {
@@ -170,10 +222,8 @@ export interface SceneFrame {
   narrow: boolean;
   /** Named places in the scene, projected to the screen. */
   points: Record<string, ScenePoint>;
-  /** A length in CSS pixels that scales with the subject, for sizing leader lines. */
+  /** A length in CSS pixels that scales with the subject on screen. */
   radius: number;
-  /** How bright the scenery is under a screen point, 0 to 1. */
-  shade: (x: number, y: number) => number;
 }
 
 const frameListeners = new Set<(frame: SceneFrame) => void>();

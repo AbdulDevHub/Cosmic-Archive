@@ -1,15 +1,17 @@
-// Fallback tests for the scene system (docs/ARCHITECTURE.md section 8): tested, not assumed.
+// Fallback and flow tests for the scene system (docs/ARCHITECTURE.md section 8): tested, not assumed.
 // Usage: npm run build && npm run fallbacks
 //
 //   1. live          the loop runs, stays under the draw-call limit, and Pause motion stops it
 //   2. reduced       reduced motion draws a still frame and never loops
-//   3. no WebGL      the poster shows, the page is complete, no 3D code is downloaded
+//   3. no WebGL      the poster shows, the screen is complete, no 3D code is downloaded
 //   4. slow device   under CPU throttling the governor steps the quality down
 //   5. no scene      a cold load of /about downloads no 3D code
 //   6. navigation    leaving for /about stops the loop; coming back (slowly, and at once) shows the scene again
-//   7. subjects      each subject page: its loop on `low` under the draw-call limit, reduced motion, no WebGL
-//   8. keyboard      /explore by keyboard only: focus reaches the controls, keys zoom, a beacon opens
-//   9. touch         /explore by touch only: a pinch zooms, a tap on a beacon opens
+//   7. places        each place: its loop on `low` under the draw-call limit, reduced motion, no WebGL
+//   8. flow          a click on a place dives in, the veil falls and lifts on the place's page; Further comes back
+//   9. calm flow     with reduced motion the same moves are a short cross-fade, and the veil never stays down
+//  10. keyboard      by keyboard only: focus reaches the controls, keys zoom, a place opens, Escape comes back
+//  11. touch         by touch only: a pinch zooms, a tap on a place opens it
 
 import { launchBrowser, sceneSettled, serveBuild } from "./lib/serve.mjs";
 
@@ -44,6 +46,14 @@ function removeWebGL() {
   };
 }
 
+/** Notes whenever the veil is down, so a test can tell that a move went through it. */
+function watchVeil() {
+  window.__veil = { fell: 0 };
+  new MutationObserver(() => {
+    if (document.querySelector("[data-down]")) window.__veil.fell += 1;
+  }).observe(document, { subtree: true, attributes: true, attributeFilter: ["data-down"] });
+}
+
 const draws = (page) => page.evaluate(() => window.__draws.total);
 const html = (page, key) => page.evaluate((k) => document.documentElement.dataset[k], key);
 
@@ -56,17 +66,33 @@ function watchScripts(page) {
   return async () => (await Promise.all(bodies)).some((text) => text.includes("WebGLRenderer"));
 }
 
-/** The page's meaning is all there without the scene: headline, both actions, poster loaded. */
+/** The screen's meaning is all there without the scene: name, line, links, poster loaded. */
 function pageComplete(page) {
   return page.evaluate(() => {
     const poster = document.querySelector("picture img");
     return {
       headline: document.querySelector("h1")?.textContent ?? "",
+      line: document.querySelector("h1 + p")?.textContent ?? "",
       links: document.querySelectorAll("main a[href]").length,
       posterLoaded: !!poster && poster.complete && poster.naturalWidth > 0,
       canvases: document.querySelectorAll("canvas").length,
     };
   });
+}
+
+/** Waits until the move between scenes is over: the veil is up and takes no clicks. */
+function settledFlow(page, timeout = 15000) {
+  return page
+    .waitForFunction(() => !document.querySelector("[data-active]") && document.documentElement.dataset.scene === "ready", undefined, { timeout })
+    .then(() => true)
+    .catch(() => false);
+}
+
+/** A place's light, once it stands on the canvas. */
+async function spotFor(page, href) {
+  const spot = page.locator(`a[data-anchor][href="${href}"]:not([data-hidden])`);
+  await spot.waitFor({ state: "visible", timeout: 20000 });
+  return spot;
 }
 
 const results = [];
@@ -80,8 +106,7 @@ const DESKTOP = { viewport: { width: 1440, height: 900 } };
 // (`?tier=` turns the governor off), so they do not depend on how fast this machine draws.
 const SMALL = { viewport: { width: 900, height: 560 } };
 const PINNED = "/?tier=low";
-/** The subject pages with a scene of their own (test 7). */
-const SUBJECTS = ["/subjects/black-holes", "/subjects/galaxies", "/subjects/nebulae", "/subjects/quasars"];
+const PLACES = ["/black-hole", "/nebula", "/quasar"];
 
 let browser;
 const { base, stop } = await serveBuild("fallbacks");
@@ -140,8 +165,11 @@ try {
     await sceneSettled(page);
     const state = await pageComplete(page);
     check("no WebGL", "falls back to the poster", (await html(page, "scene")) === "static" && state.posterLoaded && state.canvases === 0);
-    check("no WebGL", "the page is complete", state.headline.length > 0 && state.links >= 2, `"${state.headline}", ${state.links} links`);
+    check("no WebGL", "the screen is complete: name, line and every place as a link", state.headline.length > 0 && state.line.length > 0 && state.links >= 3, `"${state.headline}", ${state.links} links`);
     check("no WebGL", "no 3D code downloaded", !(await loadedThree()));
+    await page.click('a[href="/nebula"]');
+    await page.waitForURL("**/nebula");
+    check("no WebGL", "a place opens as a plain link, and its veil never falls", (await page.locator("[data-active]").count()) === 0 && (await page.locator("h1").textContent()) === "Nebula");
     await context.close();
   }
 
@@ -216,9 +244,9 @@ try {
     await context.close();
   }
 
-  // 7. subject pages: each one's own scene, on the low tier, with reduced motion and without WebGL
-  for (const path of SUBJECTS) {
-    const name = path.split("/").pop();
+  // 7. places: each one's own scene, on the low tier, with reduced motion and without WebGL
+  for (const path of PLACES) {
+    const name = path.slice(1);
     {
       const context = await browser.newContext(SMALL);
       await context.addInitScript(countDraws);
@@ -253,58 +281,118 @@ try {
       await page.goto(base + path, { waitUntil: "networkidle" });
       await sceneSettled(page);
       const state = await pageComplete(page);
-      const sources = await page.evaluate(() => document.querySelectorAll("#sources ~ ol li").length);
-      check(name, "no WebGL: poster, the whole text, no 3D code", (await html(page, "scene")) === "static" && state.posterLoaded && state.canvases === 0 && state.headline.length > 0 && sources > 0 && !(await loadedThree()), `"${state.headline}", ${sources} sources`);
+      const further = await page.locator('a[href="/"]', { hasText: "Further" }).count();
+      check(name, "no WebGL: poster, name, line, Further, no 3D code", (await html(page, "scene")) === "static" && state.posterLoaded && state.canvases === 0 && state.headline.length > 0 && state.line.length > 0 && further === 1 && !(await loadedThree()), `"${state.headline}"`);
       await context.close();
     }
   }
 
-  // 8. keyboard only, on /explore: the controls are reachable and visibly focused, the keys zoom,
-  // and a beacon opens its page
+  // 8. the flow, with motion: dive in through the veil, then Further back out
   {
-    const context = await browser.newContext(DESKTOP);
+    const context = await browser.newContext(SMALL);
+    await context.addInitScript(watchVeil);
     const page = await context.newPage();
-    await page.goto(base + "/explore?tier=low", { waitUntil: "load" });
+    const problems = [];
+    page.on("console", (msg) => msg.type() === "error" && problems.push(msg.text()));
+    page.on("pageerror", (err) => problems.push(err.message));
+    await page.goto(base + PINNED, { waitUntil: "load" });
     await sceneSettled(page);
-    const pullBack = page.getByRole("button", { name: "Pull back" });
+    await (await spotFor(page, "/black-hole")).click();
+    await page.waitForURL("**/black-hole", { timeout: 15000 });
+    const arrived = await settledFlow(page);
+    const fell = await page.evaluate(() => window.__veil.fell);
+    check("flow", "a click on a place dives in, through the veil, and the veil lifts on its page", arrived && fell > 0, `veil fell ${fell} times`);
+    await page.waitForTimeout(500);
+    await page.getByRole("link", { name: "Further" }).click();
+    await page.waitForURL(base + "/", { timeout: 15000 });
+    const back = await settledFlow(page);
+    const canvases = await page.evaluate(() => document.querySelectorAll("canvas").length);
+    check("flow", "Further shrinks the place away and comes back to the galaxy", back && canvases === 1 && problems.length === 0, problems.join("; "));
+
+    // Back in the middle of a dive calls the move off: the visitor is not pushed forward again
+    await page.goto(base + "/about?tier=low", { waitUntil: "load" });
+    await page.getByRole("link", { name: "Cosmic Archive" }).first().click();
+    await page.waitForURL((url) => url.pathname === "/");
+    await sceneSettled(page);
+    await (await spotFor(page, "/black-hole")).click();
+    await page.waitForTimeout(300);
+    await page.goBack();
+    await page.waitForURL((url) => url.pathname === "/about", { timeout: 10000 });
+    await page.waitForTimeout(2500);
+    const stayed = new URL(page.url()).pathname === "/about";
+    const lifted = (await page.locator("[data-active]").count()) === 0;
+    check("flow", "Back mid-dive calls the move off, and the veil lifts", stayed && lifted, new URL(page.url()).pathname);
+    await context.close();
+  }
+
+  // 9. the flow with reduced motion: a short cross-fade each way, never a veil left down
+  {
+    const context = await browser.newContext({ ...SMALL, reducedMotion: "reduce" });
+    const page = await context.newPage();
+    await page.goto(base + "/", { waitUntil: "load" });
+    await sceneSettled(page);
+    const started = Date.now();
+    await (await spotFor(page, "/nebula")).click();
+    await page.waitForURL("**/nebula", { timeout: 10000 });
+    const arrived = await settledFlow(page, 10000);
+    check("calm flow", "reduced motion: a place opens through a short cross-fade", arrived, `${Date.now() - started} ms`);
+    await page.keyboard.press("Escape");
+    await page.waitForURL(base + "/", { timeout: 10000 });
+    check("calm flow", "reduced motion: Escape comes back, and the veil lifts", await settledFlow(page, 10000));
+    await context.close();
+  }
+
+  // 10. keyboard only: the controls are reachable and visibly focused, the keys zoom, a place opens
+  // and Escape comes back out
+  {
+    const context = await browser.newContext(SMALL);
+    const page = await context.newPage();
+    await page.goto(base + PINNED, { waitUntil: "load" });
+    await sceneSettled(page);
+    await page.waitForTimeout(3500); // the opening glide from the web to the galaxy
+    const further = page.getByRole("button", { name: "Further" });
     let reached = false;
     let visible = false;
     for (let i = 0; i < 40 && !reached; i++) {
       await page.keyboard.press("Tab");
       ({ reached, visible } = await page.evaluate(() => {
         const active = document.activeElement;
-        return { reached: active?.textContent?.trim() === "Pull back", visible: !!active?.matches(":focus-visible") };
+        return { reached: active?.textContent?.trim() === "Further", visible: !!active?.matches(":focus-visible") };
       }));
     }
     check("keyboard", "Tab reaches the controls, with a visible focus", reached && visible);
     await page.keyboard.press("Enter");
-    await page.waitForTimeout(400);
-    const atWeb = (await pullBack.getAttribute("aria-disabled")) === "true";
+    await page.waitForTimeout(300);
+    const atWeb = (await further.getAttribute("aria-disabled")) === "true";
     await page.keyboard.press("+");
     await page.waitForTimeout(300);
-    const closer = (await pullBack.getAttribute("aria-disabled")) === "false";
-    check("keyboard", "Enter steps the view, + moves closer", atWeb && closer);
+    const closer = (await further.getAttribute("aria-disabled")) === "false";
+    check("keyboard", "Enter glides to the next stop, + moves closer", atWeb && closer);
     await page.keyboard.press("-");
-    await page.waitForTimeout(1500); // the camera eases out and the web's beacons fade in
-    let onBeacon = false;
-    for (let i = 0; i < 12 && !onBeacon; i++) {
+    await page.waitForTimeout(2500); // the camera eases out and the web's places appear
+    let onPlace = false;
+    for (let i = 0; i < 12 && !onPlace; i++) {
       await page.keyboard.press("Shift+Tab");
-      onBeacon = await page.evaluate(() => !!document.activeElement?.matches("a[data-anchor]"));
+      onPlace = await page.evaluate(() => !!document.activeElement?.matches("a[data-anchor]"));
     }
-    if (onBeacon) await page.keyboard.press("Enter");
-    const opened = onBeacon && (await page.waitForURL((url) => url.pathname.startsWith("/subjects/"), { timeout: 8000 }).then(() => true, () => false));
-    check("keyboard", "a beacon opens its subject page", opened, page.url().replace(base, ""));
+    if (onPlace) await page.keyboard.press("Enter");
+    const opened = onPlace && (await page.waitForURL((url) => url.pathname === "/quasar", { timeout: 15000 }).then(() => true, () => false));
+    check("keyboard", "Enter on a place opens it", opened && (await settledFlow(page)), page.url().replace(base, ""));
+    await page.keyboard.press("Escape");
+    const out = await page.waitForURL(base + "/", { timeout: 15000 }).then(() => true, () => false);
+    check("keyboard", "Escape comes back out", out && (await settledFlow(page)));
     await context.close();
   }
 
-  // 9. touch only, on /explore: a pinch zooms, a tap on a beacon opens its page
+  // 11. touch only: a pinch zooms, a tap on a place opens it
   {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
     const page = await context.newPage();
-    await page.goto(base + "/explore?tier=low", { waitUntil: "load" });
+    await page.goto(base + PINNED, { waitUntil: "load" });
     await sceneSettled(page);
-    const pullBack = page.getByRole("button", { name: "Pull back" });
-    const before = await pullBack.getAttribute("aria-disabled");
+    await page.waitForTimeout(3500); // the opening glide
+    const further = page.getByRole("button", { name: "Further" });
+    const before = await further.getAttribute("aria-disabled");
     const cdp = await context.newCDPSession(page);
     const cx = 195;
     const cy = 300;
@@ -313,15 +401,12 @@ try {
     for (let d = 130; d >= 30; d -= 10) await touch("touchMove", d);
     await touch("touchEnd", 0);
     await page.waitForTimeout(400);
-    const after = await pullBack.getAttribute("aria-disabled");
-    check("touch", "a pinch pulls back to the cosmic web", before !== "true" && after === "true", `Pull back disabled: ${before} then ${after}`);
-    await page.waitForTimeout(1500);
-    // the link itself is a zero-size pin on the canvas; its label is what a finger lands on
-    const beacon = page.locator("a[data-anchor] [data-label]:visible").first();
-    const target = await beacon.evaluate((label) => label.closest("a")?.getAttribute("href")).catch(() => null);
-    if (target) await beacon.tap();
-    const opened = !!target && (await page.waitForURL((url) => url.pathname.startsWith("/subjects/"), { timeout: 8000 }).then(() => true, () => false));
-    check("touch", "a tap on a beacon opens its subject page", opened, page.url().replace(base, ""));
+    const after = await further.getAttribute("aria-disabled");
+    check("touch", "a pinch pulls back to the cosmic web", before !== "true" && after === "true", `Further disabled: ${before} then ${after}`);
+    const spot = await spotFor(page, "/quasar").catch(() => null);
+    if (spot) await spot.tap();
+    const opened = !!spot && (await page.waitForURL((url) => url.pathname === "/quasar", { timeout: 15000 }).then(() => true, () => false));
+    check("touch", "a tap on a place opens it", opened && (await settledFlow(page)), page.url().replace(base, ""));
     await context.close();
   }
 

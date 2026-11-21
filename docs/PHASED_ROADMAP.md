@@ -1,6 +1,6 @@
 # Cosmic Archive: Roadmap
 
-**Status:** v3, 2026-11-11. Re-ordered: the scenes come first. Opus builds from F2 on. Each numbered item is sized for one working session and ends with a commit. Progress is tracked in `PHASE_CHECKLIST.md`.
+**Status:** v4, 2026-11-20. The owner turned the site into a spectacle at O8 (D-092): the S sessions below replace O8. Each numbered item is sized for one working session and ends with a commit. Progress is tracked in `PHASE_CHECKLIST.md`. F and O sessions are history: what they built is partly removed (D-093 to D-095).
 
 ## Foundation
 
@@ -15,7 +15,7 @@ F0 and F1 were done by Fable and are finished. The owner then moved Fable to ano
 | F3b | Atlas chart, zoom out, Explore | Atlas Level 2, the scroll-driven zoom through all three stages, beacon links, list view, the map margin; `/explore` with free control | Chart and zoom-out screenshots match the prototype; every beacon is a working link |
 | F4 | Content model + Black Holes | MDX pipeline, content check, the Black Holes page with its live scene and sourced copy | `npm run check` fails when a source is removed; owner reads the copy |
 
-## Later sessions (one per session, in order)
+## Atlas sessions (done; partly removed by S1)
 
 | # | Session | Outcome | Acceptance |
 |---|---|---|---|
@@ -26,11 +26,21 @@ F0 and F1 were done by Fable and are finished. The owner then moved Fable to ano
 | O5 | Journey: A star's life | `/journeys/a-stars-life`, the branching trail line | Each step says why it leads to the next |
 | O6 | Explore polish | Touch and keyboard control, list view, atlas-to-subject transition | Usable by keyboard only and by touch only |
 | O7 | Release prep | Metadata, OG images, sitemap, JSON-LD, performance and accessibility audit | Budgets in `ARCHITECTURE.md` measured and met |
-| O8 | Owner review, then deploy | Fixes from the owner's read-through; Vercel only when the owner says so | Owner sign-off |
+| O8 | Owner review, then deploy | Superseded: the read-through changed the direction (D-092) | — |
 
-## After v1
+## Spectacle sessions (one per session, in order)
 
-Theoretical Frontiers pages; more atlas levels (Solar System, Local Group, observable universe); more core subjects; search; optional sound; the separate fiction and technology collection. None of these start without the owner.
+| # | Session | Outcome | Acceptance |
+|---|---|---|---|
+| S1 | Strip to spectacle (done) | Words cut to a name and a line; ink, vessel and reading pages removed; `/` with three stops and `/black-hole`, `/nebula`, `/quasar`; click-to-zoom; the flow between scenes (dive, veil, arrive) | Shots, fallbacks (with the flow, keyboard and touch) and a11y pass; owner clicks through |
+| S2 | Galaxy and cosmic web | Richer colour from core to arms, star-forming knots and young clusters along the arms, layered dust, a light bloom of our own (no dependency), a deeper, glowing web, a finer dive through the disc | Budgets on `low`; owner's look |
+| S3 | Black hole and quasar | A crisper photon ring, Doppler brightening, a finer lensed star field, knots in the jets, a richer host galaxy | Budgets on `low`; owner's look |
+| S4 | Nebula | Layered depth with parallax as you drag, embedded young stars, deeper colour and contrast | Budgets on `low`; owner's look |
+| S5 | Owner review, then deploy | Fixes from the owner's look; Vercel only when the owner says so | Owner sign-off |
+
+## After that
+
+More places to fly into (a supernova, a planet, the Solar System); more atlas stops (the Local Group, the observable universe); optional sound. None of these start without the owner.
 
 ## Discipline
 

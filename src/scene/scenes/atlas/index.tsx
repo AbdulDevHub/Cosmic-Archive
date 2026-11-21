@@ -1,5 +1,5 @@
 /**
- * The atlas scene: the galaxy (Level 1) and the cosmic web (Level 2), on one zoom scalar.
+ * The atlas scene: the galaxy (stops 0 and 1) and the cosmic web (stop 2), on one zoom scalar.
  * Mounted by the host through the registry; never imported by a page.
  */
 
@@ -13,9 +13,9 @@ import { COUNTS } from "./model";
 import { AtlasWorld, makeFrame } from "./world";
 
 export const budget: SceneBudget = {
-  // The most drawn in one frame is mid-way between the levels: 12 galaxy layers, 5 ink lines,
-  // trail, vessel and the web's points (limit 30). At the web itself it is 6.
-  drawCalls: 20,
+  // The most drawn in one frame is mid-way between the levels: 11 galaxy layers and the web's 4
+  // (limit 30). At the web itself it is 6.
+  drawCalls: 15,
   particles: {
     low: COUNTS.low.disc + COUNTS.low.web,
     medium: COUNTS.medium.disc + COUNTS.medium.web,
@@ -23,7 +23,7 @@ export const budget: SceneBudget = {
   },
 };
 
-export default function AtlasScene({ mode, rung, time, view, publish, onReady }: SceneProps) {
+export default function AtlasScene({ rung, time, view, publish, onReady }: SceneProps) {
   const camera = useThree((s) => s.camera) as PerspectiveCamera;
   const width = useThree((s) => s.size.width);
   const height = useThree((s) => s.size.height);
@@ -31,10 +31,9 @@ export default function AtlasScene({ mode, rung, time, view, publish, onReady }:
   const invalidate = useThree((s) => s.invalidate);
   const { particles, glow } = RUNGS[rung];
   const narrow = isPhone(width, height);
-  const subject = mode === "subject"; // the Galaxies page: the galaxy alone, framed whole
 
   // Particle attributes are built once per tier (and per phone/desktop composition), never per frame.
-  const world = useMemo(() => new AtlasWorld(particles, narrow, subject), [particles, narrow, subject]);
+  const world = useMemo(() => new AtlasWorld(particles, narrow), [particles, narrow]);
   useEffect(() => () => world.dispose(), [world]);
   const frame = useMemo(() => makeFrame(), []);
 

@@ -1,22 +1,15 @@
 # Cosmic Archive: Design Spec
 
-**Status:** v2, 2026-11-11. The look is approved by the owner. Site-wide visual language first, homepage second. Replaces the ChatGPT homepage spec v1.1.
-**Reference for the look:** `prototype/look.html` and the screenshots in `prototype/shots/`. When this document and the approved prototype disagree, the prototype wins and this document gets corrected.
+**Status:** v3, 2026-11-20. Rewritten after the owner's read-through: the site is a spectacle to look at, not an atlas to read (D-092). Replaces v2 (2026-11-11, in git), whose ink layer, vessel and reading pages are gone.
+**Reference for the look:** the scenes themselves. The palette, type and the galaxy's look still come from `prototype/look.html`, without its ink and vessel.
 
-## 1. The idea: a Living Atlas
+## 1. The idea: the universe, to look at
 
-A star chart that came alive. Two layers, always both present:
+The cosmos fills the window and is the whole picture. A visitor moves through it by clicking: from the cosmic web into a galaxy, then into one of its places, and back out. The words are a name and one line per view.
 
-1. **The cosmos:** luminous, colourful, stylised real-time scenery with real depth. Clear shapes and confident colour rather than photorealism.
-2. **The ink:** a map-maker's fine linework drawn over it. Hairline orbits and rings, tick marks, small labels, a few words of annotation.
-
-Three motifs carry the identity everywhere:
-
-- **The trail.** The tiny vessel leaves a thin glowing line. That line is the ink: it draws the map on the homepage, connects the stops of a journey, and runs down the margin of a subject page as its thread.
-- **Line style is evidence.** Solid ink means observed or established. Long dashes mean theoretical, short dashes hypothetical, dots speculative. Like the dashed coastline of an unsurveyed shore. Always paired with the word.
-- **The vessel is tiny.** A few pixels of hull and a trail. It gives scale and direction and is never the subject. No cockpit, no weapons, no detail shots.
-
-This is original work. It borrows a principle from good science animation (clear shapes, bold colour, friendly explanation), not anyone's artwork, characters or layouts.
+- **Cosmos alone.** No rings, ticks, contours, leader lines, measured baselines, vessel or trail are drawn over the scenery (D-094). The universe has no lines on it, so the site draws none.
+- **Clear shapes, confident colour.** Stylised real-time scenery with real depth, not photorealism. It borrows a principle from good science animation, not anyone's artwork.
+- **Every move is a flight.** Changing view is never a cut: the camera glides between stops, dives into a place, and the place grows in as the screen passes through its own dark colour (D-096).
 
 ## 2. Bans
 
@@ -24,145 +17,120 @@ These make the site generic or break the idea. Do not introduce them.
 
 - Glass or blurred panels, HUD frames, hex grids, scan lines, corner brackets, fake coordinates or readouts.
 - Gradient-filled text. Neon glow on UI. Pill-shaped navigation.
-- A large or detailed spaceship. Lens-flare stock imagery. Any embedded photograph.
-- Tracked uppercase "eyebrow" lines above headlines; 01/02/03 section numbering; rows of identical cards; hero statistics; side-stripe borders.
-- Dim grey text. Text placed over a bright part of a scene without a calm zone.
-- Scroll hijacking, forced intros, autoplay sound, camera spins, fast or flashing motion.
+- Lines drawn over the scenery: orbits, rings, ticks, contours, leader lines, grids (D-094). A spaceship of any size.
+- Lens-flare stock imagery. Any embedded photograph.
+- Tracked uppercase "eyebrow" lines above headlines; section numbering; rows of identical cards; hero statistics.
+- Paragraphs on a scene screen. One name and one line, at most twelve words (enforced by `npm run check`).
+- Dim grey text. Text over a bright part of a scene without its dark halo.
+- Scroll hijacking of a reading page, autoplay sound, camera spins, fast or flashing motion. The opening glide on `/` is short, and any input takes over from it.
 
 ## 3. Colour
 
-Tokens live in `src/styles/tokens.css` in OKLCH. The owner approved the prototype on 2026-11-11, so these values are locked; copy them from the `:root` block of `prototype/look.html`.
+Tokens live in `src/styles/tokens.css` in OKLCH, copied from the approved prototype.
 
 | Token | Value | Use |
 |---|---|---|
 | `--space` | `oklch(0.13 0.04 275)` | Page background. Deep indigo, never pure black |
 | `--space-2` | `oklch(0.18 0.05 275)` | Raised surfaces (rare) |
-| `--ink` | `oklch(0.95 0.02 85)` | Text and linework. Warm white |
+| `--ink` | `oklch(0.95 0.02 85)` | Text. Warm white |
 | `--ink-2` | `oklch(0.82 0.03 85)` | Secondary text. Still above 4.5:1 on `--space` |
-| `--beacon` | `oklch(0.85 0.13 82)` | The one UI accent: links, beacons, focus. Warm gold |
-| `--gold` `--ember` `--rose` `--violet` `--azure` `--teal` | scenery | Used by scenes and illustrations only, never for UI chrome |
+| `--beacon` | `oklch(0.85 0.13 82)` | The one UI accent: hotspots, links, focus, the loader. Warm gold |
+| `--gold` `--ember` `--rose` `--violet` `--azure` `--teal` | scenery | Used by scenes only, never for UI chrome |
 
 Rules:
 
 - One accent in the interface (`--beacon`). Everything else in the UI is ink on space.
-- Colour belongs to the scenery. Each subject has a three-colour scene palette: Black Holes gold, ember, violet. Galaxies azure, violet, gold. Nebulae rose, teal, gold. Quasars azure, white, ember.
-- Body text contrast at least 4.5:1, measured against the brightest frame behind it, not the average.
+- Colour belongs to the scenery. Each place has a three-colour palette: black hole gold, ember, violet; galaxy azure, violet, gold; nebula rose, teal, gold; quasar azure, white, ember.
+- Each place also has a veil colour: its own darkness, which the screen passes through on the way in and out (`content/places.ts`).
+- Text carries a soft dark halo in `--space`, so it reads over any frame.
 
 ## 4. Type
 
 | Role | Face | Notes |
 |---|---|---|
-| Display | Syne, weight 600, letter-spacing -0.03em (owner's pick, D-026) | Headlines, subject titles, the wordmark. No serif anywhere on the site |
-| Text and UI | Hanken Grotesk | Body, navigation, buttons. Its italic is used for map notes and object names |
-| Map labels | Hanken Grotesk, uppercase, 11 to 12 px, letter-spacing 0.14em | Only on the chart, attached to a line or beacon. Never as a headline eyebrow |
+| Display | Syne, weight 600, letter-spacing -0.03em (D-026) | The place's name, the wordmark. No serif anywhere |
+| Text and UI | Hanken Grotesk | The one line, buttons, About |
+| Hotspot names | Hanken Grotesk, uppercase, 11.5 px, letter-spacing 0.14em | Only beside a hotspot |
 
-Scale: 1.25 ratio from a 17 px base; hero headline `clamp(2.3rem, 6vw, 5.75rem)`, section headline `clamp(1.75rem, 3.5vw, 3.1rem)`. Syne is wide, so check every headline at 390 px. Body lines 45 to 75 characters. Paragraphs are short. The hero has one sentence under the headline.
+Scale: 1.25 ratio from a 17 px base; a place's name `clamp(2rem, 4.2vw, 3.6rem)`. Check every name at 390 px.
 
-## 5. Linework
+## 5. Hotspots
 
-- Hairlines are one device pixel wide at every zoom and screen size (drawn in the scene with constant screen-width lines, or in DOM/SVG at 1 px).
-- Ink opacity carries hierarchy: 0.9 for the trail and active lines, 0.45 for rings, 0.2 for ticks and construction lines.
-- Rings lie in the plane of the thing they describe, so perspective comes for free.
-- A beacon is a small ring with a dot, in `--beacon`, with a label on a short leader line. Its ring uses the evidence line style of its destination.
+- A hotspot is a small soft light in `--beacon`: a 14 px ring with a dark edge (so it reads over the galaxy's bright core) and a breathing dot, on a 44 px target.
+- Its name shows beside it on hover and focus. A touch screen has no hover, so there the name always shows.
+- Hotspots are real links (or a button, for the galaxy seen from the web), laid over the canvas where the scene says the place is. They hide while a move is under way and when their point leaves the screen.
 
 ## 6. Motion
 
-- Slow and continuous: the galaxy turns, dust drifts, the vessel moves a little.
-- The camera moves only in response to the visitor (scroll, drag, focus) and eases to rest.
-- DOM transitions 150 to 300 ms, ease-out, opacity and transform only.
-- A "Pause motion" control is always in the header. Reduced-motion visitors get a single still frame and no loop.
+- Slow and continuous scenery: the galaxy turns, gas drifts.
+- The camera moves only in response to the visitor, except the opening glide on `/` (the web to the galaxy, 3.2 s, once a visit), which any input takes over.
+- A click's move is a timed glide, eased in and out: about 1.9 s between stops, 1.4 s for a dive, 1.7 s for an arrival (D-097). The wheel, a pinch, a drag and the keys ease by closing part of the gap each frame.
+- DOM transitions 150 to 300 ms, ease-out, opacity and transform only. The veil fades in 500 ms.
+- A "Pause motion" control is always in the header. With reduced motion or Pause there is no glide, dive or growth: each view is one still frame, and a move between scenes is a 220 ms cross-fade through the veil.
 
-## 7. Homepage
+## 7. The screen
 
-The homepage is one scene and one scroll.
+Every scene route is one screen: the scene fills the window and nothing scrolls.
 
 ### 7.1 Header
 
-Wordmark "Cosmic Archive" in the display face, left. Text links right: Explore, Journeys, Archive, About (only those that exist), then the Pause motion control. No background until the page scrolls, then a solid `--space` bar. Mobile: wordmark plus a menu button opening a full-screen list.
+Wordmark "Cosmic Archive" in the display face, left; it leads home to the universe. Right: About, then Pause motion (its icon only on a phone). No background over a scene; on About it turns solid once the page scrolls.
 
-### 7.2 Stage 1, the hero
+### 7.2 The universe, `/`
 
-- The galaxy is close and overflows the frame: cropped by the right edge, its core right of centre, an outer arm reaching behind the headline. It must feel immense, so the pull-back in stage 3 has somewhere to go. The ticked ring arcs across the top.
-- The galaxy is full, not a sprinkle of dots: a soft glow under the whole disc, stars between the arms, dark dust lanes on the inner edge of the main arms, a halo of old stars, one small companion galaxy.
-- The vessel is low in the frame, small, its trail curving up to join the ticked ring.
-- Bottom left: headline **Explore the extraordinary.**, one line of support, and two actions. A dark scrim sits behind the copy where the arm passes.
-- **Begin exploring** (to `/explore`) is a small copy of the chart's ticked ring in `--beacon`, with an arrow inside and a tiny vessel circling it, then the words. On hover the ring fills gold, the arrow turns dark and the ticks turn a notch. The circling stops with Pause motion and reduced motion.
-- **Browse the archive** is an index mark (three ruled lines) and a ruled word.
-- Supporting line (draft): "A living atlas of the universe, from the worlds around us to its deepest mysteries."
-- Phone: the galaxy sits in the top half, the text in the bottom half, the vessel between them.
+- Three stops of one scene: **2** the cosmic web, **1** the whole galaxy, centred, **0** close in over the disc.
+- Lower left: the stop's name and its line, changing softly as the stop changes.
+- Lower right (a phone: lower left, under the words): **Closer** and **Further**, a plus and a minus in a circle with the word. At either end the button is dimmed and says so (`aria-disabled`).
+- Hotspots: at stops 0 and 1, **Black hole** (the core) and **Nebula** (in an arm); at stop 2, **Quasar** (a far, bright galaxy) and **The galaxy** (ours, which glides back in).
+- Keys: + and − zoom, the arrows turn and tilt, Escape goes one stop further out.
 
-### 7.3 Stage 2, the chart
+### 7.3 A place, `/black-hole`, `/nebula`, `/quasar`
 
-Scrolling raises the camera to a higher, more map-like angle. Rings sharpen, beacons and labels appear. Heading: **Where would you like to go?** Beacons at this level: Black Holes (the core), Nebulae (in an arm), Galaxies (the whole disc).
+- The place, centred and as large as the window allows.
+- Lower left: its name and its line. Lower right: **Further**, which shrinks the place away and returns to the galaxy (or the web, for the quasar), dived into the place's light, then pulls back.
+- Escape, the − key, or the wheel pulled back do the same.
 
-### 7.4 Stage 3, the zoom out
+### 7.4 The flow between scenes (D-096)
 
-Scrolling further pulls back until the galaxy is one point in a web of thousands. One line: "Every point of light here is a galaxy." Beacons at this level: Quasars, and the galaxy we just left. At the margin, in dashed ink: **Uncharted**, the entry to Theoretical Frontiers.
+1. The camera dives into the hotspot's place (1.4 s); the look turns toward it and the distance closes on it.
+2. Two thirds of the way in, the veil falls: the screen fades to the place's own dark colour.
+3. The place's page opens under the veil. If its scene takes more than 400 ms to draw, a small gold light breathes in the middle: the loader.
+4. The place's first frame is drawn small and far off; the veil lifts as it grows to full size (1.7 s).
 
-The three stages are driven by scroll position. The page never takes control of scrolling. A "Skip to destinations" link jumps past the scene.
+Going out is the same, reversed. The veil never stays down: a page that draws no scene lifts it at once, and it gives up after six seconds.
 
-### 7.5 Below the scene (plain page sections on `--space`)
+## 8. About
 
-1. **Destinations.** The four flagships. Not four identical cards: each is a window of its own shape and palette onto a still of its scene, with a title and one sentence.
-2. **A journey.** "A star's life" drawn as one branching line: cloud, star, then the fork to white dwarf, neutron star or black hole, with the reason for the fork in a few words.
-3. **Uncharted.** The frontiers teaser, drawn entirely in dashed and dotted ink with the evidence legend beside it.
-4. **Footer.** Navigation, one sentence about the project, "All imagery is illustration", link to method and sources.
-
-Teaser copy (draft; verify each against a source before launch):
-
-- Black holes: "Where gravity reshapes space and time."
-- Galaxies: "Vast islands of stars, gas, dust and dark matter."
-- Nebulae: "Clouds where stars are born, and where stars leave their mark."
-- Quasars: "Some of the brightest beacons in the distant universe."
-
-## 8. Subject pages
-
-- Open on the subject's own scene with the title and a one-sentence hook. The scene is the top of the page, not a background for the whole article.
-- The body is a readable column on `--space`. The trail runs down one margin as a hairline and marks each section.
-- Diagrams are flat, bold and labelled: this is where the "clear shapes" principle is strongest.
-- Every claim that is not the page's main status shows its evidence label inline. Sources sit at the end with checked dates.
-- "What we have actually seen" links out to the real observations; it never embeds them.
+The one page of words, a plain column on `--space`: what the site is, "every picture is our own illustration", the real telescope images (linked, never embedded), the sources behind the site's few lines with their checked dates, and credits.
 
 ## 9. Responsive and accessibility
 
-- Designed at 390, 768 and 1440 wide. Phone layouts are composed, not shrunk.
-- Every destination is a real link; the scene is decoration and is hidden from assistive technology. A list view of the atlas is always one control away.
+- Designed at 390, 768 and 1440 wide. Phone compositions are their own, not shrunk.
+- Every place is a real link; the scene is decoration, hidden from assistive technology. Without the scene the hotspots are a plain list of links under the words.
 - Visible focus rings in `--beacon`. Touch targets at least 44 px.
-- The page is complete and readable with the scene replaced by its still.
+- Every screen is complete with the scene replaced by its poster: name, line, places, Further.
 
-## 10. What the prototype settled, and what it leaves open
+## 10. What the prototype settled, and what is still open
 
-Settled by `prototype/look.html` (carry these into the app as they are):
+Settled and kept: the galaxy's colour sweep (gold heart, ember, rose, violet, azure, a teal rim); fullness from layers (body glow, arm haze, dust sprites that darken what is behind them, a halo, a companion); large glow sprites as instanced quads.
 
-- The galaxy's colour sweep: gold heart, ember, rose, violet, azure, a teal rim. Soft additive points plus large faint sprites for glow; no bloom pass was needed.
-- Hero framing (second round, after the owner asked for a bigger, fuller galaxy): camera close and high, the galaxy overflowing the top and right edges; the headline bottom left over a scrim.
-- Fullness comes from layers, not from more points (the point budget did not change): a body glow under the disc, haze on the arms, dust lanes drawn as sprites that darken what is behind them (blend: zero, one-minus-source-colour), a halo, a companion that does not turn with the disc. Arms fade toward the rim.
-- Chart framing: the ticked ring (radius 1.2 against a disc of about 1.0) sits to the right of the text column and may be cropped at the bottom.
-- The hero actions (ticked-ring button and index link), as described in section 7.2.
-- Labels inside the bright disc are led out on angled leader lines to dark space. Labels carry a dark halo (`text-shadow` in `--space`). Beacon rings have a dark fill so they read over bright scenery.
-- The map margin at the zoomed-out view: a dashed rule, the Uncharted entry with a dashed beacon ring, and the evidence legend drawn as line samples.
-- Phone: galaxy in the top half, copy in the bottom half, shorter leaders, notes allowed to wrap.
+Open, for the beauty sessions (S2 to S4 in `PHASED_ROADMAP.md`):
 
-Left open (prototype shortcuts that production must replace):
-
-- GL lines are one device pixel and cannot be styled. Production draws constant-width screen-space lines so dashes and weights are controllable.
-- Large glow sprites are `gl.POINTS`, which vanish when their centre leaves the screen and are size-capped on some phones. Production uses instanced quads.
-- Label offsets are hard-coded pixels. Production derives them from the projected disc radius and clamps labels to the viewport.
-- "Where you started" sits in a void. In production the home galaxy sits on a thread of the web.
-- The cosmic web is thin on a phone at the `low` particle budget. It needs a denser, smaller web volume for narrow screens.
-- On a phone at the low point budget the galaxy's heart is a little dull. Give the bulge its own small bright layer.
-- Label positions clear the scenery only at the tested time and sizes. The disc turns, so production needs real collision avoidance.
+- Diving into the core passes through disc stars, which grow into large soft discs near the camera. Read as flying through stars; it could be finer.
+- The cosmic web is thin on a phone at the `low` particle budget.
+- The black hole's far starlight is bent into long thin arcs; they could read as drawn lines.
+- The nebula's young cluster is a tidy pattern of dots; it wants to look more natural.
 
 ## 11. Self-review checklist for screenshots
 
 Run this on every screenshot before calling a visual task done.
 
-1. Could this be any space website? If yes, the ink layer is missing or too faint.
-2. Is the vessel smaller than the headline's cap height? Is there exactly one?
+1. Is anything drawn over the scenery that the universe does not have: a ring, tick, line, grid or vessel? Remove it.
+2. Is the subject centred and large, filling the frame without being cropped awkwardly?
 3. Is there any glass, glow-on-UI, gradient text, pill nav or HUD element? Remove it.
-4. Does text sit in a calm zone, with contrast measured against the brightest pixel behind it?
+4. Are the words only the name and one line, in the lower left, readable over the brightest frame behind them?
 5. One accent colour in the UI, and is it `--beacon`?
-6. Does every interactive thing look interactive, and every non-interactive thing not?
+6. Does every hotspot look clickable, sit on its place, and stay clear of the words and buttons?
 7. Phone: is the composition deliberate, with nothing clipped and no horizontal scroll?
 8. Reduced motion: is the still frame as good as the moving one?
-9. Does it match `prototype/look.html` in palette, type and line weight?
+9. Mid-move (a filmed dive): is there ever a flash of black, a jump, or a frame with no veil and no scene?

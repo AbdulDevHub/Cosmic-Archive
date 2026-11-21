@@ -349,7 +349,7 @@ export interface Web {
   threads: Thread[];
 }
 
-/** Web points keep this far from the home galaxy, so its beacon and the galaxy itself stay clear. */
+/** Web points keep this far from the home galaxy, so its hotspot and the galaxy itself stay clear. */
 const WEB_CLEAR = 60;
 
 function buildWebNodes(rng: Rng, narrow: boolean): Vec3[] {

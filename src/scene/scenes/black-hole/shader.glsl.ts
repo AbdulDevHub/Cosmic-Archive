@@ -12,13 +12,12 @@
  * It is an illustration, not a simulation: the disc is a flat sheet of streaked light, the hole
  * does not spin, and the colours are the atlas's palette, not temperatures.
  *
- * Over the picture, in screen space and unbent, is the atlas's ink: a ticked ring, a faint
- * outer ring, and the vessel with its trail riding the ticked ring.
+ * Nothing is drawn over the picture: no lines, no labels (D-094).
  *
  * With `QUASAR` defined (the Quasars page, `scenes/quasar`) the same hole is seen from far off:
  * the disc is ember and white, only the pixels near the hole are marched, and three things are
  * added in screen space: the glare of the core, the host galaxy around it, and two jets along the
- * disc's axis, the near one brighter. The ink adds a measured line along the jets' axis. Without
+ * disc's axis, the near one brighter. Without
  * the define the shader is exactly the Black Holes scene.
  */
 
@@ -35,7 +34,6 @@ uniform vec2 uResolution;  // drawing buffer, device pixels
 uniform float uDpr;        // device pixels per CSS pixel
 uniform vec2 uCentre;      // the hole on screen, CSS pixels from the top left
 uniform float uScale;      // CSS pixels per horizon radius, at the hole
-uniform float uRing;       // radius of the ticked ring, CSS pixels
 uniform float uTime;
 uniform int uSteps;
 uniform float uStride;     // step length as a fraction of the distance to the hole
@@ -58,7 +56,6 @@ const vec3 GOLD = vec3(1.0, 0.78, 0.42);
 const vec3 EMBER = vec3(1.0, 0.46, 0.28);
 const vec3 ROSE = vec3(0.98, 0.34, 0.62);
 const vec3 VIOLET = vec3(0.52, 0.4, 1.0);
-const vec3 INK = vec3(0.95, 0.92, 0.85);
 const vec3 SPACE = vec3(0.035, 0.039, 0.11);   // --space, so the sky meets the page
 const vec3 SHADOW = vec3(0.012, 0.013, 0.036); // darker than the sky, never pure black
 
@@ -146,7 +143,6 @@ vec4 disc(vec3 hit, vec3 travel){
   return vec4(colour * glow * pattern * 2.6, cover * 0.94);
 }
 
-float line(float distancePx){ return clamp(1.0 - distancePx * uDpr + 0.5, 0.0, 1.0); }
 
 #ifdef QUASAR
 /* the galaxy the quasar lives in: a faint, mottled oval of starlight; u is in horizon radii */
@@ -211,7 +207,6 @@ void main(){
   if (length(q) > uMarch) steps = 0; // far from the hole the light runs straight
 #endif
   {
-    // (a block of its own, so the loop's names stay out of the ink below)
     for (int i = 0; i < ${MAX_STEPS}; i++) {
       if (i >= steps) { captured = dot(p, p) < 6.0; break; }
       float r2 = dot(p, p);
@@ -246,40 +241,6 @@ void main(){
   light = 1.0 - exp(-light * 1.15); // keep the glare from clipping flat
 #endif
 
-  // ---- ink, in screen space ----
-  float radius = length(q);
-  float theta = atan(q.y, q.x);
-  float ink = line(abs(radius - uRing)) * 0.42;
-  ink = max(ink, line(abs(radius - uRing * 1.17)) * 0.14);
-  float cell = TAU / 72.0;
-  float k = theta / cell;
-  float nearest = floor(k + 0.5);
-  float alongArc = abs(k - nearest) * cell * uRing;
-  float tickLength = mod(nearest, 6.0) == 0.0 ? 11.0 : 5.0;
-  ink = max(ink, line(alongArc) * step(uRing, radius) * step(radius, uRing + tickLength) * 0.5);
-
-  // the vessel rides the ring, its trail fading behind it
-  float vesselAngle = 2.25 + uTime * 0.025;
-  float behind = mod(vesselAngle - theta, TAU);
-  float trail = behind < 0.95 ? pow(1.0 - behind / 0.95, 1.6) : 0.0;
-  ink = max(ink, clamp(1.6 - abs(radius - uRing) * uDpr, 0.0, 1.0) * trail);
-  vec2 vessel = vec2(cos(vesselAngle), sin(vesselAngle)) * uRing;
-  ink = max(ink, clamp(2.4 - length(q - vessel), 0.0, 1.0));
-
-#ifdef QUASAR
-  // the jets' axis, measured: a construction hairline from the ring to past each lobe, with a
-  // bar across at each end, as a surveyor marks a baseline
-  float alongPx = dot(q, uJetDir);
-  float acrossPx = q.x * uJetDir.y - q.y * uJetDir.x;
-  float reach = uJetLength * uScale * 1.08;
-  float onAxis = step(uRing + 4.0, abs(alongPx)) * step(abs(alongPx), reach);
-  ink = max(ink, line(abs(acrossPx)) * onAxis * 0.2);
-  float bar = line(abs(abs(alongPx) - reach)) * step(abs(acrossPx), 9.0);
-  ink = max(ink, bar * 0.45);
-  float mid = line(abs(abs(alongPx) - reach * 0.5)) * step(abs(acrossPx), 4.0);
-  ink = max(ink, mid * 0.3);
-#endif
-
-  gl_FragColor = vec4(mix(light, INK, ink), 1.0);
+  gl_FragColor = vec4(light, 1.0);
 }
 `;

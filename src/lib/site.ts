@@ -9,8 +9,7 @@
 import type { Metadata } from "next";
 
 export const SITE_NAME = "Cosmic Archive";
-export const SITE_TAGLINE = "Explore the extraordinary.";
-export const SITE_DESCRIPTION = "A living atlas of the universe, from the worlds around us to its deepest mysteries.";
+export const SITE_DESCRIPTION = "The universe, to look at: click from the cosmic web into a galaxy, a nebula, a black hole and a quasar.";
 
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://cosmic-archive.example").replace(/\/$/, "");
 
@@ -25,14 +24,13 @@ export function ogImage(name: string, alt: string) {
   return { url: `/og/${name}.jpg`, width: 1200, height: 630, alt };
 }
 
-export const DEFAULT_OG = ogImage("atlas", "Our own illustration of a spiral galaxy, drawn with map-maker's ink.");
+export const DEFAULT_OG = ogImage("atlas", "Our own illustration of a spiral galaxy.");
 
-/** Open Graph images for the subject scenes, by scene id. */
-export const SCENE_OG: Readonly<Record<string, { name: string; alt: string }>> = {
-  atlas: { name: "galaxies", alt: "Our own illustration of a spiral galaxy, with its ticked ring." },
-  "black-hole": { name: "black-holes", alt: "Our own illustration of a black hole and its bent disc of gas." },
-  nebula: { name: "nebulae", alt: "Our own illustration of a star-forming cloud, with contour ink." },
-  quasar: { name: "quasars", alt: "Our own illustration of a quasar: a bright core, its jets and its host galaxy." },
+/** Open Graph images for the places, by place id. */
+export const PLACE_OG: Readonly<Record<string, { name: string; alt: string }>> = {
+  "black-hole": { name: "black-hole", alt: "Our own illustration of a black hole and its bent disc of gas." },
+  nebula: { name: "nebula", alt: "Our own illustration of a star-forming cloud." },
+  quasar: { name: "quasar", alt: "Our own illustration of a quasar: a bright core, its jets and its host galaxy." },
 };
 
 /** A JSON-LD block, safe to put in a <script> (no closing tag can end it early). */

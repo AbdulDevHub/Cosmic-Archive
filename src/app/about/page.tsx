@@ -1,38 +1,27 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EvidenceLine } from "@/components/atlas/Evidence";
-import { EVIDENCE_WORD, type Evidence } from "@/lib/content/atlas";
+import { ATLAS_OBSERVATIONS, PLACES, SOURCES } from "@/lib/content/places";
 import { pageMetadata } from "@/lib/site";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = pageMetadata({
   title: "About",
-  description: "What Cosmic Archive is, how it draws what is certain and what is not, and how every page is sourced.",
+  description: "What Cosmic Archive is, where its few words come from, and where to see the real thing.",
   path: "/about",
 });
 
 /*
-  About (PROJECT_BLUEPRINT.md 4 and 6): the purpose, the evidence legend, the sourcing method, the
-  imagery rule and the credits. Nothing here is a claim about the universe; it describes how the
-  site works, so it cites no sources.
+  About (D-095): the one page of words. What the site is, that every picture is our own
+  illustration, links to the real observations, the sources behind the few lines the site says,
+  and the credits.
 */
 
-/** PROJECT_BLUEPRINT.md 6.1, in the site's own words. */
-const LEGEND: readonly { evidence: Evidence; meaning: string; drawn: string }[] = [
-  { evidence: "observed", meaning: "Directly detected. The page says how.", drawn: "Solid ink" },
-  { evidence: "established", meaning: "Supported by several independent lines of evidence that agree.", drawn: "Solid ink" },
-  { evidence: "theoretical", meaning: "A model that has been tested or can be tested, but is not directly confirmed.", drawn: "Long dashes" },
-  { evidence: "hypothetical", meaning: "Proposed, but not confirmed.", drawn: "Short dashes" },
-  { evidence: "speculative", meaning: "Little or no evidence for it yet.", drawn: "Dots" },
-];
+const DATE = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+const longDate = (day: string) => DATE.format(new Date(`${day}T00:00:00Z`));
 
-const METHOD: readonly string[] = [
-  "Sources come first. Before a page is written, its sources are fetched and read: NASA, ESA, ESO, the Event Horizon Telescope, LIGO, major observatories, peer-reviewed papers and university research groups.",
-  "Every statement of fact is tied to the source it came from, and every source is listed at the end of its page with the date it was checked.",
-  "The site will not build if a statement names a source that is not listed, or a source has no checked date.",
-  "No number, distance, date or name is written from memory. If no source was read for it, it is not on the page.",
-  "Where researchers disagree, the page says so. Where a figure is an estimate, the page gives the source's own range and wording.",
-  "Each page is read by a person before it is published, and shows when it was last reviewed.",
+const SEEN = [
+  { title: "Galaxies and the cosmic web", observations: ATLAS_OBSERVATIONS },
+  ...PLACES.map((place) => ({ title: place.name, observations: place.observations })),
 ];
 
 /* Designer names from the Google Fonts metadata (github.com/google/fonts, ofl/syne and ofl/hankengrotesk METADATA.pb), checked 2026-11-17. */
@@ -49,57 +38,49 @@ export default function About() {
     <article className={styles.page}>
       <h1 className={styles.title}>About</h1>
       <p className={styles.lede}>
-        Cosmic Archive is a living atlas of the universe: scenes you can move through, with a map-maker&rsquo;s ink drawn
-        over them, and pages that explain what we know, how we know it, and what nobody knows yet.
+        Cosmic Archive is the universe to look at. Start in <Link href="/">the galaxy</Link>, pull back to the cosmic web,
+        and click a light to fall into it.
       </p>
       <p>
-        It is made for anyone who is curious about space, with or without a science background. You can find your way
-        by eye on the <Link href="/explore">atlas</Link>, look things up in the <Link href="/archive">archive</Link>, or
-        follow a journey from one idea to the next.
+        Every picture is our own illustration, drawn for this site in real time. None is a photograph, and nothing is to
+        scale.
       </p>
 
-      <section id="evidence" className={styles.part} aria-labelledby="evidence-title">
-        <h2 id="evidence-title">How certainty is drawn</h2>
-        <p>
-          Every subject, and every statement that is less certain than its page, carries one of these labels. The line
-          style and the word always appear together, so neither colour nor line has to carry the meaning alone. The
-          labels say how sure science is, not how interesting an idea is.
-        </p>
-        <dl className={styles.legend}>
-          {LEGEND.map((row) => (
-            <div key={row.evidence} className={styles.legendRow}>
-              <dt>
-                <EvidenceLine evidence={row.evidence} />
-                {EVIDENCE_WORD[row.evidence]}
-              </dt>
-              <dd>
-                {row.meaning} <span className={styles.drawn}>{row.drawn}.</span>
-              </dd>
-            </div>
-          ))}
-        </dl>
-        <p>
-          Ideas that have no confirmed place in the universe are not put on the map. They wait at its margin, under
-          Uncharted, in dashed ink.
-        </p>
+      <section id="seen" className={styles.part} aria-labelledby="seen-title">
+        <h2 id="seen-title">The real thing</h2>
+        <p>Telescope images, at the places their makers published them.</p>
+        {SEEN.map((group) => (
+          <div key={group.title} className={styles.group}>
+            <h3>{group.title}</h3>
+            <ul className={styles.links}>
+              {group.observations.map((observation) => (
+                <li key={observation.url}>
+                  <a href={observation.url} rel="noopener">
+                    {observation.label}
+                  </a>
+                  <span>{observation.publisher}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </section>
 
-      <section id="method" className={styles.part} aria-labelledby="method-title">
-        <h2 id="method-title">How every page is sourced</h2>
-        <ol className={styles.method}>
-          {METHOD.map((step) => (
-            <li key={step}>{step}</li>
+      <section id="sources" className={styles.part} aria-labelledby="sources-title">
+        <h2 id="sources-title">Sources</h2>
+        <p>Each line the site says comes from one of these pages, read on the date given.</p>
+        <ul className={styles.links}>
+          {SOURCES.map((source) => (
+            <li key={source.id}>
+              <a href={source.url} rel="noopener">
+                {source.title}
+              </a>
+              <span>
+                {source.publisher}. Checked {longDate(source.checked)}.
+              </span>
+            </li>
           ))}
-        </ol>
-      </section>
-
-      <section id="imagery" className={styles.part} aria-labelledby="imagery-title">
-        <h2 id="imagery-title">Every picture is an illustration</h2>
-        <p>
-          The scenes, the stills made from them and the diagrams are all drawn for this site. None of them is a
-          photograph or a measurement, and the atlas is not to scale. Real observations, such as the first images of
-          black holes, are linked to where their makers published them, never copied here.
-        </p>
+        </ul>
       </section>
 
       <section id="credits" className={styles.part} aria-labelledby="credits-title">

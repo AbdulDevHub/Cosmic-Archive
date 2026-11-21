@@ -4,21 +4,23 @@ Everything WebGL lives here, and only here. Nothing outside this folder imports 
 
 | Folder | Holds |
 |---|---|
-| `host/` | `SceneHostLoader` (in the root layout, no three), `SceneHost` (the one persistent canvas), `SceneSlot` (what pages render), the registry, the store, the URL switches |
+| `host/` | `SceneHostLoader` (in the root layout, no three), `SceneHost` (the one persistent canvas), `SceneSlot` (what pages render), the registry, the store, the flow between scenes (`flow.ts`, no three), the URL switches |
 | `quality/` | device tier detection and the frame-time governor (no three) |
-| `scenes/atlas/` | the galaxy and the cosmic web, ported from `prototype/look.html`: `model.ts` (particle data, no three), `world.ts` (three objects), `camera.ts` (the zoom rig). In `subject` mode (the Galaxies page) it uses its own camera key and draws no vessel |
-| `scenes/black-hole/` | the Black Holes subject scene (F4) |
-| `scenes/quasar/` | the Quasars subject scene (O4): the black-hole shader with `QUASAR` defined, seen from far off, with jets and a host galaxy |
-| `scenes/nebula/` | the Nebulae subject scene (O3): one shader, a star-forming cloud with contour ink |
+| `scenes/atlas/` | the galaxy and the cosmic web, ported from `prototype/look.html`: `model.ts` (particle data, no three), `world.ts` (three objects, the anchors hotspots stand on), `camera.ts` (the zoom rig and the dive) |
+| `scenes/black-hole/` | the black hole |
+| `scenes/quasar/` | the quasar: the black-hole shader with `QUASAR` defined, seen from far off, with jets and a host galaxy |
+| `scenes/nebula/` | the nebula: one shader, a star-forming cloud |
 | `shaders/` | shared GLSL chunks as `.glsl.ts` template strings |
 
 ## How a page gets a scene
 
 ```tsx
-<SceneSlot id="atlas" mode="hero" posters={{ wide: "/posters/atlas-hero-wide.webp", narrow: "/posters/atlas-hero-narrow.webp" }} />
+<SceneSlot id="nebula" mode="place" posters={{ wide: "/posters/nebula-wide.webp", narrow: "/posters/nebula-narrow.webp" }} />
 ```
 
-Put it inside a positioned section. The poster is in the server HTML; the canvas fades in over it once the first frame is drawn. Pages without a slot never download 3D code.
+Put it inside a positioned box that does not make a stacking context (absolute, not fixed: D-097), or the poster paints over the canvas. The poster is in the server HTML; the canvas fades in over it once the first frame is drawn. Pages without a slot never download 3D code.
+
+A place scene reads `view.arrive` (0 small and far off, 1 whole) each frame; the atlas reads `view.focus` and `view.dive`. The flow (`flow.ts`) drives them; see ARCHITECTURE.md 3.3.
 
 ## Adding a scene
 
@@ -26,13 +28,14 @@ Put it inside a positioned section. The poster is in the server HTML; the canvas
 2. One line in `host/registry.ts`, and the id in `SceneId` (`host/store.ts`).
 3. A poster entry in `scripts/posters.mjs`.
 
-Scenes never read a clock: time and zoom come in as boxes the host writes each frame.
+Scenes never read a clock: time and the view come in as boxes the host writes each frame. Nothing is drawn over the scenery (D-094).
 
 ## URL switches
 
 | Switch | Effect |
 |---|---|
-| `?shot=1` | one frame, no loop, no fade (screenshots and posters) |
+| `?shot=1` | one frame, no loop, no fade, no flow (screenshots and posters) |
+| `?zoom=1` | with `shot`: hold the atlas at a stop (0 close in, 1 the galaxy, 2 the web) |
 | `?t=12` | scene time for that frame (with `shot`) |
 | `?tier=low`, `medium`, `high` or `static` | force a quality and keep it (the governor is off) |
 
@@ -41,5 +44,5 @@ Scenes never read a clock: time and zoom come in as boxes the host writes each f
 ## Scripts (all need `npm run build` first)
 
 - `npm run posters` renders `public/posters/` from the scenes themselves. Build again afterwards.
-- `npm run shots` writes `screenshots/`; hold `home-still-*.png` beside `prototype/shots/`.
-- `npm run fallbacks` runs the fallback tests: reduced motion, no WebGL, slow device, no 3D code on a no-scene route.
+- `npm run shots` writes `screenshots/`: each stop and place, as a visitor gets it and as a still.
+- `npm run fallbacks` runs the fallback and flow tests: reduced motion, no WebGL, slow device, no 3D code on About, every place, the flow with and without motion, keyboard and touch.

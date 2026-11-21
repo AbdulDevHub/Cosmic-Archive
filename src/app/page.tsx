@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { HomeAtlas } from "@/components/atlas/HomeAtlas";
-import { Destinations } from "@/components/home/Destinations";
-import { JourneyPreview } from "@/components/home/JourneyPreview";
-import { UnchartedTeaser } from "@/components/home/UnchartedTeaser";
+import { AtlasView, type Spot, type StopWords } from "@/components/screen/AtlasView";
+import { PLACES, STOPS } from "@/lib/content/places";
 import { jsonLd, pageMetadata, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({ description: SITE_DESCRIPTION, path: "/" });
@@ -17,19 +15,20 @@ const WEBSITE = {
   inLanguage: "en",
 };
 
-/*
-  The homepage (DESIGN_SPEC.md 7): one scene and one scroll (hero, chart, zoom out), then plain
-  sections on --space: the destinations, a journey, Uncharted. The atlas's list view lives on
-  /explore; here the Destinations section is what "Skip to destinations" lands on.
-*/
+const STOP_WORDS: StopWords[] = STOPS.map(({ zoom, name, line }) => ({ zoom, name, line }));
+
+const SPOTS: Spot[] = [
+  ...PLACES.map((place) => ({ id: place.id, name: place.name, href: `/${place.id}`, anchor: place.anchor, stop: place.stop === 2 ? 2 : 1, veil: place.veil }) satisfies Spot),
+  // seen from the web, the galaxy is one light among many: it glides back in, it opens no page
+  { id: "galaxy", name: "The galaxy", href: null, anchor: "home", stop: 2, veil: "" },
+];
+
+/* The universe (DESIGN_SPEC.md 7): one scene, three stops, the places you can click. */
 export default function Home() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(WEBSITE) }} />
-      <HomeAtlas />
-      <Destinations />
-      <JourneyPreview />
-      <UnchartedTeaser />
+      <AtlasView stops={STOP_WORDS} spots={SPOTS} />
     </>
   );
 }

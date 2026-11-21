@@ -11,44 +11,30 @@ import { launchBrowser, sceneSettled, serveBuild } from "./lib/serve.mjs";
 
 const OUT = join("public", "posters");
 
+const WIDE = { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3 };
+const NARROW = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 };
+
 // `wide` covers landscape screens, `narrow` the phone composition (SceneSlot picks by aspect).
+// `/` opens on the cosmic web (its opening glide starts there), so the web is its poster; the
+// galaxy and close-in stills are for the screenshots and the share image.
 const POSTERS = [
-  { file: "atlas-hero-wide.webp", path: "/?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.8 },
-  { file: "atlas-hero-narrow.webp", path: "/?shot=1&t=12&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.8 },
-  // The chart is what /explore opens on. The chart and the web also stand in for their sections of
-  // the homepage on a device that will not draw the scene at all.
-  { file: "atlas-chart-wide.webp", path: "/?shot=1&t=12&zoom=1&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.8 },
-  { file: "atlas-chart-narrow.webp", path: "/?shot=1&t=12&zoom=1&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.8 },
-  { file: "atlas-web-wide.webp", path: "/?shot=1&t=12&zoom=2&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.75 },
-  { file: "atlas-web-narrow.webp", path: "/?shot=1&t=12&zoom=2&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.75 },
-  // Subject scenes: `<scene id>-wide` and `<scene id>-narrow`, the names the subject page asks for.
-  { file: "black-hole-wide.webp", path: "/subjects/black-holes?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.8 },
-  { file: "black-hole-narrow.webp", path: "/subjects/black-holes?shot=1&t=12&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.8 },
-  // the atlas galaxy in its subject framing (the Galaxies page asks for `atlas-subject-*`)
-  { file: "atlas-subject-wide.webp", path: "/subjects/galaxies?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.8 },
-  { file: "atlas-subject-narrow.webp", path: "/subjects/galaxies?shot=1&t=12&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.8 },
-  { file: "nebula-wide.webp", path: "/subjects/nebulae?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.8 },
-  { file: "nebula-narrow.webp", path: "/subjects/nebulae?shot=1&t=12&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.8 },
-  { file: "quasar-wide.webp", path: "/subjects/quasars?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, quality: 0.8 },
-  { file: "quasar-narrow.webp", path: "/subjects/quasars?shot=1&t=12&tier=low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, quality: 0.8 },
-  // Windows for the homepage's Destinations section: a part of a scene, cropped. `crop` is in CSS
-  // pixels of the viewport; `out` is the saved width. A destination whose own scene is not built yet
-  // looks at the place on the atlas where it is found (quasars on the web).
-  { file: "window-black-holes.webp", path: "/subjects/black-holes?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, crop: { x: 630, y: 90, w: 640, h: 640 }, out: 720, quality: 0.8 },
-  { file: "window-galaxies.webp", path: "/?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, crop: { x: 540, y: 110, w: 900, h: 600 }, out: 960, quality: 0.78 },
-  { file: "window-nebulae.webp", path: "/subjects/nebulae?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, crop: { x: 773, y: 150, w: 340, h: 430 }, out: 480, quality: 0.8 },
-  { file: "window-quasars.webp", path: "/?shot=1&t=12&zoom=2&tier=high", viewport: { width: 1440, height: 900 }, crop: { x: 800, y: 560, w: 480, h: 160 }, out: 960, quality: 0.8 },
+  { file: "atlas-web-wide.webp", path: "/?shot=1&t=12&zoom=2&tier=high", ...WIDE, quality: 0.75 },
+  { file: "atlas-web-narrow.webp", path: "/?shot=1&t=12&zoom=2&tier=low", ...NARROW, quality: 0.75 },
+  // Places: `<scene id>-wide` and `<scene id>-narrow`, the names the place page asks for.
+  ...["black-hole", "nebula", "quasar"].flatMap((id) => [
+    { file: `${id}-wide.webp`, path: `/${id}?shot=1&t=12&tier=high`, ...WIDE, quality: 0.8 },
+    { file: `${id}-narrow.webp`, path: `/${id}?shot=1&t=12&tier=low`, ...NARROW, quality: 0.8 },
+  ]),
   // Open Graph images (O7, D-088): 1200x630 JPEG crops of the same frames, into public/og/.
   ...[
-    ["atlas", "/?shot=1&t=12&tier=high"],
-    ["galaxies", "/subjects/galaxies?shot=1&t=12&tier=high"],
-    ["black-holes", "/subjects/black-holes?shot=1&t=12&tier=high"],
-    ["nebulae", "/subjects/nebulae?shot=1&t=12&tier=high"],
-    ["quasars", "/subjects/quasars?shot=1&t=12&tier=high"],
+    ["atlas", "/?shot=1&t=12&zoom=1&tier=high"],
+    ["black-hole", "/black-hole?shot=1&t=12&tier=high"],
+    ["nebula", "/nebula?shot=1&t=12&tier=high"],
+    ["quasar", "/quasar?shot=1&t=12&tier=high"],
   ].map(([name, path]) => ({ file: `${name}.jpg`, dir: join("public", "og"), path, viewport: { width: 1440, height: 900 }, crop: { x: 0, y: 72, w: 1440, h: 756 }, out: 1200, quality: 0.82, type: "image/jpeg" })),
 ];
 
-// `npm run posters -- window-` makes only the posters whose path contains the word (`-- og` for the
+// `npm run posters -- nebula` makes only the posters whose path contains the word (`-- og` for the
 // Open Graph images).
 const only = process.argv[2];
 

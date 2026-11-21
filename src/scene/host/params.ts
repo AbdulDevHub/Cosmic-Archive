@@ -3,7 +3,7 @@
  *
  *   ?shot=1        render one frame, no loop, no fade (screenshots and posters)
  *   ?t=12          scene time for that frame (only with shot)
- *   ?zoom=1        hold the zoom there whatever the page asks: 0 hero, 1 chart, 2 web (only with shot)
+ *   ?zoom=1        hold the atlas at a stop whatever the page asks: 0 close in, 1 the galaxy, 2 the web (only with shot)
  *   ?tier=low|medium|high|static   force a quality and keep it: the governor is off (tests and posters)
  */
 
