@@ -97,7 +97,7 @@ try {
           await page.screenshot({ path: file, fullPage: true, clip });
         }
       } else {
-        await page.screenshot({ path: file });
+        await page.screenshot({ path: file, timeout: 90_000 }); // software WebGL can take tens of seconds a frame
       }
       console.log(`${problems.length ? "FAIL" : "ok  "} ${file}${note ? `  (${note})` : ""}`);
       for (const p of problems) console.log(`     ${p}`);

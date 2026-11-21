@@ -5,10 +5,10 @@
 // It runs the same code the build runs (src/lib/content/place-check.ts), loaded as TypeScript by
 // Node itself (type stripping, Node 22.18 or later).
 
-import { FEATURED, PLACES, SOURCES, STOPS } from "../content/places.ts";
+import { PLACES, SOURCES, STOPS } from "../content/places.ts";
 import { placeProblems } from "../src/lib/content/place-check.ts";
 
-const problems = placeProblems(SOURCES, [...STOPS, ...PLACES, ...FEATURED]);
+const problems = placeProblems(SOURCES, [...STOPS, ...PLACES]);
 if (problems.length === 0) {
   console.log(`ok   content/places.ts  (${STOPS.length} stops, ${PLACES.length} places, ${SOURCES.length} sources)`);
   process.exit(0);

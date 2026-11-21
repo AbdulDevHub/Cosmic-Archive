@@ -24,7 +24,7 @@ The site now: `/` opens on the start page (Home.png); Begin flies into the galax
 
 ### S1e, part 1 (2026-11-21): the start page's UI closer to Home.png (D-108)
 
-Owner asked for the UI, font, menu and buttons to match Home.png, "not so much the models". Done: Google Sans Flex, plain header links with a lit Home pill, restyled headline, button and dock, and the Featured Topics card (four real links that fly in and dive). Checked: `npm run check`, `npm run build`, `npm run shots` (33; one run timed out on a heavy frame under software WebGL, the rerun passed), `npm run a11y` (8), and a Playwright click of each topic landing on its page. Still open from the list below: the ship and planet models.
+Owner asked for the UI, font, menu and buttons to match Home.png, "not so much the models". Done: Google Sans Flex, plain header links with a lit Home pill, restyled headline, button and dock. Second pass (D-109): Featured Topics removed, arrow cursor, music waits for Begin, flared dock, tighter links, ship shows its top, galaxy rolled to face it. Checked again: check, build, shots (33, screenshot timeout raised to 90 s for software WebGL), a11y (8), a Playwright test that start-page clicks do not play music and Begin does. Checked: `npm run check`, `npm run build`, `npm run shots` (33; one run timed out on a heavy frame under software WebGL, the rerun passed), `npm run a11y` (8), and a Playwright click of each topic landing on its page. Still open from the list below: the ship and planet models.
 
 ### Next: polish the start page (S1e), then S2
 

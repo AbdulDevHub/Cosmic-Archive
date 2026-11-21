@@ -292,6 +292,12 @@
   cursor: grabbing;
 }
 
+/* the start page has nothing to turn: a plain arrow until the flight in */
+.screen[data-start],
+.screen[data-start][data-live][data-dragging] {
+  cursor: default;
+}
+
 .hint {
   position: absolute;
   left: 50%;

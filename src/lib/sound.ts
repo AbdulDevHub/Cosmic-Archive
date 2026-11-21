@@ -3,7 +3,8 @@
  * soft whoosh made in the browser for every flight (a dive, a pull-out, a glide between stops).
  *
  * Browsers only let a page make sound after the visitor does something, so the music starts on
- * the first click, tap or key press, and fades in. The header's Sound button turns it all off
+ * the first click, tap or key press, and fades in. On the start page it waits for Begin instead
+ * (`holdMusic`, `playMusic`): the owner wants Begin to be what starts it. The header's Sound button turns it all off
  * and on; the choice is remembered. Nothing plays while the tab is hidden.
  *
  * Client only. Imports nothing.
@@ -82,6 +83,18 @@ function fade(gain: AudioParam, to: number, seconds: number): void {
 }
 
 let starting = false;
+/** True while the start page is up: a gesture there does not start the music, only Begin does. */
+let held = false;
+
+export function holdMusic(on: boolean): void {
+  held = on;
+}
+
+/** Begin: lets the music start, and starts it (its click is the gesture that allows sound). */
+export function playMusic(): void {
+  held = false;
+  void start();
+}
 
 /**
  * Starts the music, inside a gesture. Playing is only marked once the context is really running:
@@ -201,7 +214,7 @@ if (typeof window !== "undefined") {
   }
   // the first gesture anywhere starts the music (the Sound button handles its own click)
   const onGesture = (event: Event) => {
-    if ((event.target as Element | null)?.closest?.("[data-sound-toggle]")) return;
+    if (held || (event.target as Element | null)?.closest?.("[data-sound-toggle]")) return;
     void start();
   };
   // pointerdown is permission only for a mouse; a touch gives it on pointerup and click
@@ -211,7 +224,7 @@ if (typeof window !== "undefined") {
       music?.pause();
       void ctx?.suspend();
       set({ playing: false });
-    } else if (state.enabled && ctx) {
+    } else if (state.enabled && ctx && !held) {
       void start();
     }
   });

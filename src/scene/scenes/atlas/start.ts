@@ -213,6 +213,9 @@ function part(geometry: BufferGeometry, which: number, at: [number, number, numb
   return g;
 }
 
+/** How far the ship rolls about its heading: enough to show its top, wings spread (D-109). */
+const SHIP_BANK = 1.0;
+
 /** The ship, nose toward +x, about one unit long: a tapered body, swept wings, twin engines, a fin. */
 function shipGeometry(): BufferGeometry {
   const alongX = new Matrix4().makeRotationZ(-Math.PI / 2); // cylinders and cones stand on y; lay them along x
@@ -463,7 +466,7 @@ export class StartProps {
     this.at(camera, sx + 0.9, sy + 0.32, sd + 30, this.v); // where it is heading
     this.w.subVectors(this.v, this.ship.position).normalize();
     this.ship.quaternion.setFromUnitVectors(this.s.set(1, 0, 0), this.w);
-    this.q.setFromAxisAngle(this.w, -0.35 + Math.sin(t * 0.4) * 0.05); // banked a little toward the viewer
+    this.q.setFromAxisAngle(this.w, SHIP_BANK + Math.sin(t * 0.4) * 0.05); // rolled so its top faces the viewer
     this.ship.quaternion.premultiply(this.q);
     this.ship.scale.setScalar(narrow ? 0.5 : 0.68);
     this.ship.updateMatrixWorld();

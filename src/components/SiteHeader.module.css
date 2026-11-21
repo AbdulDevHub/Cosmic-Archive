@@ -38,15 +38,15 @@
 .bar {
   display: flex;
   align-items: center;
-  gap: clamp(2px, 0.6vw, 12px);
+  gap: 2px;
 }
 
 .link {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
   min-height: 44px;
-  padding: 0 18px;
+  padding: 0 14px;
   border-radius: 999px;
   font: 400 16px / 1 var(--font-display);
   color: oklch(0.95 0.01 270);
@@ -67,6 +67,8 @@
 }
 
 .link[aria-current="page"] {
+  padding: 0 22px;
+  margin-right: 6px;
   font-weight: 500;
   background: linear-gradient(180deg, oklch(0.32 0.1 265 / 0.85), oklch(0.24 0.08 268 / 0.85));
   box-shadow:
