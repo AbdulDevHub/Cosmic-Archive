@@ -33,6 +33,8 @@ F0 and F1 were done by Fable and are finished. The owner then moved Fable to ano
 | # | Session | Outcome | Acceptance |
 |---|---|---|---|
 | S1 | Strip to spectacle (done) | Words cut to a name and a line; ink, vessel and reading pages removed; `/` with three stops and `/black-hole`, `/nebula`, `/quasar`; click-to-zoom; the flow between scenes (dive, veil, arrive) | Shots, fallbacks (with the flow, keyboard and touch) and a11y pass; owner clicks through |
+| S1b to S1d | Owner's notes on S1 (done, 2026-11-21) | Deep sky behind every scene, sound, zoom and drag in places, About and Pause removed; a new nebula, powerful jets, a gentle flight sound; the start page from `Home.png` | Tests pass; owner: "a good start, needs some polish" |
+| S1e | Start page polish | What the owner asks for (ask first); candidates in `PHASE_CHECKLIST.md` | Owner's look |
 | S2 | Galaxy and cosmic web | Richer colour from core to arms, star-forming knots and young clusters along the arms, layered dust, a light bloom of our own (no dependency), a deeper, glowing web, a finer dive through the disc | Budgets on `low`; owner's look |
 | S3 | Black hole and quasar | A crisper photon ring, Doppler brightening, a finer lensed star field, knots in the jets, a richer host galaxy | Budgets on `low`; owner's look |
 | S4 | Nebula | Layered depth with parallax as you drag, embedded young stars, deeper colour and contrast | Budgets on `low`; owner's look |
