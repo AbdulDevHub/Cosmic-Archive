@@ -12,7 +12,7 @@
 //   9. calm flow     with reduced motion the same moves are a short cross-fade, and the veil never stays down
 //  10. keyboard      by keyboard only: focus reaches the controls, keys zoom, a place opens, Escape comes back
 //  11. touch         by touch only: a pinch zooms, a tap on a place opens it
-//  12. place zoom    Closer goes all the way into the quasar; Further comes back to its framing, then leaves
+//  12. place zoom    no Closer; a place opens all the way in; - zooms out; Further leaves at once
 //  13. drag hint     the hint shows until the first drag, then goes for good
 //  14. sound         the Sound button turns sound off and on, and remembers it
 //  15. start page    the start page, Begin flies into the galaxy, Home flies back out
@@ -425,6 +425,11 @@ try {
     await press(page.getByRole("link", { name: "Further" }));
     const left = await page.waitForURL((url) => url.pathname === "/", { timeout: 15000 }).then(() => true, () => false);
     check("place zoom", "no Closer on a place; - zooms out and stays; Further leaves at once", noCloser && stayed && left);
+    // and none on the atlas either (D-114): checked past the start page, where the controls show
+    await page.goto(base + "/?tier=low#atlas", { waitUntil: "load" });
+    await sceneSettled(page);
+    await page.getByRole("button", { name: "Further" }).waitFor({ timeout: 15000 });
+    check("place zoom", "no Closer on the atlas, Further there", (await page.getByRole("button", { name: "Closer" }).count()) === 0);
     await context.close();
   }
 

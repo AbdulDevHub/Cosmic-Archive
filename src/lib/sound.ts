@@ -1,6 +1,8 @@
 /**
- * Sound (D-100): the owner's own music, "Magical Space", looped quietly under the scenes, and a
- * soft whoosh made in the browser for every flight (a dive, a pull-out, a glide between stops).
+ * Sound (D-100, D-114): the owner's own music, "Magical Space", looped quietly under the scenes;
+ * three effects the owner chose: a warp jump for Begin (`journey`), a warp-out for every flight
+ * into or out of a place (`travel`), a short beep for every click on a button or link (`click`);
+ * and a soft whoosh made in the browser for a glide between the galaxy and the web.
  *
  * Browsers only let a page make sound after the visitor does something, so the music starts on
  * the first click, tap or key press, and fades in. On the start page it waits for Begin instead
@@ -32,6 +34,15 @@ let master: GainNode | null = null;
 let music: HTMLAudioElement | null = null;
 let musicGain: GainNode | null = null;
 let noise: AudioBuffer | null = null;
+
+/** The owner's effects (D-114), decoded once the audio graph exists. */
+export type Sample = "journey" | "travel" | "click";
+const SAMPLES: Record<Sample, { url: string; gain: number; duck: number }> = {
+  journey: { url: "/sounds/tng_warp6_clean.mp3", gain: 0.6, duck: 0.45 },
+  travel: { url: "/sounds/tng_warp_out1.mp3", gain: 0.55, duck: 0.55 },
+  click: { url: "/sounds/padd_3.mp3", gain: 0.35, duck: 1 },
+};
+const decoded: Partial<Record<Sample, Promise<AudioBuffer | null>>> = {};
 
 function set(patch: Partial<SoundState>): void {
   state = { ...state, ...patch };
@@ -66,6 +77,14 @@ function graph(): AudioContext | null {
   musicGain = ctx.createGain();
   musicGain.gain.value = 0;
   ctx.createMediaElementSource(music).connect(musicGain).connect(master);
+
+  // the effects: fetched and decoded now, so they are ready by the time they are asked for
+  for (const name of Object.keys(SAMPLES) as Sample[]) {
+    decoded[name] = fetch(SAMPLES[name].url)
+      .then((response) => response.arrayBuffer())
+      .then((bytes) => ctx!.decodeAudioData(bytes))
+      .catch(() => null);
+  }
 
   // one second of white noise, the raw material of every whoosh
   noise = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
@@ -147,6 +166,39 @@ export function toggleSound(): void {
 }
 
 /**
+ * One of the owner's effects (D-114). Called from a gesture, it may build the audio graph itself,
+ * so a click can sound before the music has started (the music still waits for Begin). If the
+ * effect is still loading it plays when ready, unless that is more than a moment late. The music
+ * dips under the longer ones.
+ */
+export function playSample(name: Sample): void {
+  if (!state.enabled || document.hidden) return;
+  const audio = graph();
+  if (!audio || !master) return;
+  if (audio.state === "suspended") void audio.resume();
+  const asked = performance.now();
+  void decoded[name]?.then((buffer) => {
+    if (!buffer || !ctx || !master || !state.enabled || performance.now() - asked > 1200) return;
+    const { gain, duck } = SAMPLES[name];
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    const level = ctx.createGain();
+    level.gain.value = gain;
+    source.connect(level).connect(master);
+    source.start();
+    if (duck < 1 && musicGain && state.playing) {
+      const now = ctx.currentTime;
+      const g = musicGain.gain;
+      g.cancelScheduledValues(now);
+      g.setValueAtTime(g.value, now);
+      g.linearRampToValueAtTime(MUSIC_VOLUME * duck, now + 0.4);
+      g.setValueAtTime(MUSIC_VOLUME * duck, now + buffer.duration * 0.7);
+      g.linearRampToValueAtTime(MUSIC_VOLUME, now + buffer.duration + 1.2);
+    }
+  });
+}
+
+/**
  * A breath of air for a flight (D-103): soft noise, filtered high and wide, swelling slowly and
  * fading slowly, its colour drifting up for a dive (`in`), down for a pull-out (`out`), barely at
  * all between stops (`glide`); over it a faint shimmer of two high, detuned tones. No low end and
@@ -219,6 +271,16 @@ if (typeof window !== "undefined") {
   };
   // pointerdown is permission only for a mouse; a touch gives it on pointerup and click
   for (const type of ["pointerdown", "pointerup", "click", "touchend", "keydown"]) window.addEventListener(type, onGesture, { capture: true, passive: true });
+  // every click on a button or a link beeps (D-114); a dimmed one does not
+  window.addEventListener(
+    "click",
+    (event) => {
+      const target = (event.target as Element | null)?.closest?.("button, a[href], [role='link'], [role='button']");
+      if (!target || target.getAttribute("aria-disabled") === "true") return;
+      playSample("click");
+    },
+    { capture: true, passive: true },
+  );
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       music?.pause();
