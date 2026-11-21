@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Hanken_Grotesk, Syne } from "next/font/google";
+import { Hanken_Grotesk, Outfit } from "next/font/google";
 import type { ReactNode } from "react";
 import { Veil } from "@/components/screen/Veil";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -8,11 +8,11 @@ import { DEFAULT_OG, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import { SceneHostLoader } from "@/scene/host/SceneHostLoader";
 import "./globals.css";
 
-/* Display: Syne 600 (D-026). Text and UI: Hanken Grotesk; its italic is for map notes. */
-const syne = Syne({
+/* Display and UI: Outfit, a clean geometric face like the owner's Home.png (D-107; replaces Syne, D-026). Text: Hanken Grotesk. */
+const outfit = Outfit({
   subsets: ["latin"],
-  weight: "600",
-  variable: "--font-syne",
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-outfit",
   display: "swap",
 });
 
@@ -42,7 +42,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en" data-motion="on" className={`${syne.variable} ${hanken.variable}`} suppressHydrationWarning>
+    <html lang="en" data-motion="on" className={`${outfit.variable} ${hanken.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: motionInitScript }} />
       </head>

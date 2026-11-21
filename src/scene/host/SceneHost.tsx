@@ -71,7 +71,7 @@ export default function SceneHost() {
 
   const [params] = useState(sceneParams);
   const timeRef = useRef(params.time ?? START_TIME);
-  const viewRef = useRef<SceneInput>({ zoom: 1, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1 });
+  const viewRef = useRef<SceneInput>({ zoom: 1, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1, intro: 0 });
   const runningRef = useRef(false);
 
   const rung = typeof quality === "number" ? quality : RUNG_MEDIUM;
@@ -209,7 +209,7 @@ function SceneTree({ slot, rung, timeRef, viewRef, runningRef, fixedZoom, govern
 }
 
 const EASE_PER_SECOND = 5; // the prototype's: the camera closes a fifth of the gap every 40 ms
-const NUMBERS: readonly SceneNumber[] = ["zoom", "yaw", "pitch", "dive", "arrive"];
+const NUMBERS: readonly SceneNumber[] = ["zoom", "yaw", "pitch", "dive", "arrive", "intro"];
 const easeInOut = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 3 / 2);
 
 /**

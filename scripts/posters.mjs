@@ -15,11 +15,11 @@ const WIDE = { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3 
 const NARROW = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 };
 
 // `wide` covers landscape screens, `narrow` the phone composition (SceneSlot picks by aspect).
-// `/` opens on the cosmic web (its opening glide starts there), so the web is its poster; the
-// galaxy and close-in stills are for the screenshots and the share image.
+// `/` opens on its start page (D-107): the galaxy on the right, the planet, moons, rocks and ship
+// before it. That is its poster and its share image.
 const POSTERS = [
-  { file: "atlas-web-wide.webp", path: "/?shot=1&t=12&zoom=2&tier=high", ...WIDE, quality: 0.75 },
-  { file: "atlas-web-narrow.webp", path: "/?shot=1&t=12&zoom=2&tier=low", ...NARROW, quality: 0.75 },
+  { file: "atlas-start-wide.webp", path: "/?shot=1&t=12&tier=high", ...WIDE, quality: 0.8 },
+  { file: "atlas-start-narrow.webp", path: "/?shot=1&t=12&tier=low", ...NARROW, quality: 0.8 },
   // Places: `<scene id>-wide` and `<scene id>-narrow`, the names the place page asks for.
   ...["black-hole", "nebula", "quasar"].flatMap((id) => [
     { file: `${id}-wide.webp`, path: `/${id}?shot=1&t=12&tier=high`, ...WIDE, quality: 0.8 },
@@ -27,7 +27,7 @@ const POSTERS = [
   ]),
   // Open Graph images (O7, D-088): 1200x630 JPEG crops of the same frames, into public/og/.
   ...[
-    ["atlas", "/?shot=1&t=12&zoom=1&tier=high"],
+    ["atlas", "/?shot=1&t=12&tier=high"],
     ["black-hole", "/black-hole?shot=1&t=12&tier=high"],
     ["nebula", "/nebula?shot=1&t=12&tier=high"],
     ["quasar", "/quasar?shot=1&t=12&tier=high"],

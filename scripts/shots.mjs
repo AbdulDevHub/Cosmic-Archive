@@ -13,6 +13,7 @@ import { launchBrowser, sceneSettled, serveBuild } from "./lib/serve.mjs";
 
 const ROUTES = [
   { path: () => "/", name: "home", scene: true },
+  { path: (view) => `/?shot=1&t=12&tier=${view.tier}`, name: "start-still", scene: true, mustDraw: true },
   { path: (view) => `/?shot=1&t=12&zoom=0&tier=${view.tier}`, name: "close-still", scene: true, mustDraw: true },
   { path: (view) => `/?shot=1&t=12&zoom=1&tier=${view.tier}`, name: "galaxy-still", scene: true, mustDraw: true, spots: 2 },
   { path: (view) => `/?shot=1&t=12&zoom=2&tier=${view.tier}`, name: "web-still", scene: true, mustDraw: true, spots: 2 },

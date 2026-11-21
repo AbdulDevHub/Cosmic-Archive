@@ -21,10 +21,16 @@
   --teal: rgb(77 219 209);
 
   /* ---- Type ---- */
-  --font-display: var(--font-syne), system-ui, sans-serif;
+  --font-display: var(--font-outfit), system-ui, sans-serif;
   --font-text: var(--font-hanken), system-ui, sans-serif;
-  --display-weight: 600;
-  --display-track: -0.03em;
+  --display-weight: 500;
+  --display-track: -0.02em;
+
+  /* ---- The start page and header (D-107): the owner's Home.png ---- */
+  --glow-violet: oklch(0.68 0.2 300);
+  --glow-blue: oklch(0.74 0.14 250);
+  --glass: oklch(0.2 0.06 275 / 0.42);
+  --glass-edge: oklch(0.95 0.02 85 / 0.16);
 
   /* 1.25 ratio from a 17 px base */
   --step--2: 0.68rem; /* 10.9 px */

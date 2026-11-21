@@ -14,9 +14,10 @@ import { bakeSky } from "../../sky";
 import { AtlasWorld, makeFrame } from "./world";
 
 export const budget: SceneBudget = {
-  // The most drawn in one frame is mid-way between the levels: 11 galaxy layers and the web's 4
-  // (limit 30). At the web itself it is 6.
-  drawCalls: 15,
+  // The most drawn in one frame: on the start page, the sky, 11 galaxy layers and 6 for the
+  // planet, its air, the moons, the rocks, the ship and its engines (limit 30); mid-way between
+  // the levels 16; at the web itself 7.
+  drawCalls: 18,
   particles: {
     low: COUNTS.low.disc + COUNTS.low.web,
     medium: COUNTS.medium.disc + COUNTS.medium.web,
