@@ -48,6 +48,10 @@ import { armAngle, buildAtlas, COUNTS, mix, OUTER, SPIN, sstep, TAU, type Cloud,
 
 // base strengths, faded out together at the far zoom
 const A = { haze: 0.05, body: 0.02, dust: 0.1, core: 0.22, halo: 0.8 };
+// S2 (D-111): the disc's new layers, at the `high` counts
+const S2 = { filaments: 0.45, clusterStars: 0.85, clusterGlow: 0.09, clouds: 0.04, fineDust: 0.16, heart: 0.035, webStrands: 0.42, webGlow: 0.26 };
+/** View depth under which a disc particle fades as the camera passes it (a dive); the fade ends just past the camera's near plane (0.05). */
+const NEAR = 0.12;
 
 /**
  * The places a hotspot can stand. `content/places.ts` names one per place; the scene
@@ -85,6 +89,7 @@ interface LayerOptions {
   soft?: number;
   order?: number;
   dust?: boolean;
+  near?: number;
 }
 
 /** One cloud of soft discs, drawn as points or as instanced quads. */
@@ -113,6 +118,7 @@ class Layer {
         uAtten: { value: this.atten },
         uAlpha: { value: o.alpha ?? 1 },
         uSoft: { value: o.soft ?? 1.6 },
+        uNear: { value: o.near ?? 0 },
         uViewport: { value: new Vector2(1, 1) },
       },
       transparent: true,
@@ -236,6 +242,11 @@ export class AtlasWorld {
   private readonly dust: Layer;
   private readonly core: Layer;
   private readonly discLayers: Layer[];
+  /** S2's additions to the galaxy, each with its base strength; they fade out with the rest. */
+  private readonly s2: [Layer, number][];
+  private readonly webStrands: Layer;
+  /** The disc's own strength; close in it is dimmed a little so the arms do not burn to white. */
+  private readonly discAlpha: number;
   private readonly web: Layer;
   private readonly webGlow: Layer;
   private readonly homeDot: Layer;
@@ -264,6 +275,7 @@ export class AtlasWorld {
     // dust only part of the way: at full strength the few lanes left read as blots
     this.glow = { body: A.body * carry("body"), haze: A.haze * carry("haze"), dust: A.dust * Math.sqrt(carry("dust")) };
     const discAlpha = narrow ? counts.discAlpha : counts.discAlphaWide;
+    this.discAlpha = discAlpha;
 
     this.wash = new Layer(data.wash, true, { atten: 0, alpha: 0.07, maxPx: 1024, soft: 2.2, order: 0 });
     this.stars = new Layer(data.stars, false, { atten: 0, twinkle: 0.35, maxPx: 8, alpha: 1.0, soft: 1.3, order: 0 });
@@ -273,7 +285,7 @@ export class AtlasWorld {
     this.companionStars = new Layer(data.companionStars, false, { twinkle: 0.2, alpha: A.halo, maxPx: 1024, order: 1 });
     this.companionGlow = new Layer(data.companionGlow, true, { twinkle: 0.2, alpha: A.halo, maxPx: 1024, order: 1 });
     // fewer points carry more light each
-    const disc = new Layer(data.disc, false, { spin: SPIN, twinkle: 0.15, alpha: discAlpha, maxPx: 40, order: 2 });
+    const disc = new Layer(data.disc, false, { spin: SPIN, twinkle: 0.15, alpha: discAlpha, maxPx: 40, order: 2, near: NEAR });
     this.dust = new Layer(data.dust, true, { spin: SPIN, alpha: this.glow.dust, soft: 1.8, maxPx: 1024, dust: true, order: 3 });
     this.core = new Layer(data.core, true, { alpha: A.core, soft: 3.2, maxPx: 1024, order: 4 });
 
@@ -285,10 +297,32 @@ export class AtlasWorld {
     this.homeDot = new Layer(single([1.0, 0.9, 0.74], 7), false, { atten: 0, alpha: 0, maxPx: 10, soft: 2.2, order: 1 });
     this.quasarDot = new Layer(single([0.85, 0.94, 1.0], 9), false, { atten: 0, alpha: 0, maxPx: 12, soft: 2.0, order: 1 });
 
+    // S2: filaments, young clumps and their glow, clouds, fine dust, a warm heart. Lower tiers
+    // on a wide screen carry more light per particle, as the glow layers above do.
+    const more = (key: "filaments" | "clusters" | "clouds" | "fineDust") => (narrow ? 1 : Math.sqrt(top[key] / counts[key]));
+    const filaments = new Layer(data.filaments, false, { spin: SPIN, twinkle: 0.1, alpha: 0, maxPx: 40, order: 2, near: NEAR });
+    const clusterStars = new Layer(data.clusterStars, false, { spin: SPIN, twinkle: 0.2, alpha: 0, maxPx: 40, order: 2, near: NEAR });
+    const clusterGlow = new Layer(data.clusterGlow, true, { spin: SPIN, alpha: 0, soft: 2.0, maxPx: 1024, order: 2, near: NEAR * 2 });
+    const clouds = new Layer(data.clouds, true, { spin: SPIN, alpha: 0, soft: 2.2, maxPx: 1024, order: 1, near: NEAR * 3 });
+    const fineDust = new Layer(data.fineDust, true, { spin: SPIN, alpha: 0, soft: 1.6, maxPx: 1024, dust: true, order: 3, near: NEAR });
+    const heart = new Layer(data.heart, true, { alpha: 0, soft: 2.6, maxPx: 2048, order: 4 });
+    this.s2 = [
+      [filaments, S2.filaments * more("filaments")],
+      [clusterStars, S2.clusterStars * more("clusters")],
+      [clusterGlow, S2.clusterGlow * more("clusters")],
+      [clouds, S2.clouds * more("clouds")],
+      [fineDust, S2.fineDust * more("fineDust")],
+      [heart, S2.heart],
+    ];
+    this.webStrands = new Layer(data.webStrands, true, { alpha: 0, maxPx: 1024, soft: 2.2, order: 1 });
+
     this.layers = [this.wash, this.stars, this.body, this.haze, this.halo, this.companionStars, this.companionGlow, disc, this.dust, this.core];
+    for (const [layer] of this.s2) this.layers.push(layer);
+    this.layers.push(this.webStrands);
     this.layers.push(this.webGlow, this.web, this.homeDot, this.quasarDot);
-    this.glowLayers = [this.body, this.haze, this.dust];
-    this.discLayers = [disc];
+    // the governor's last step thins every large glow layer, S2's included (D-111)
+    this.glowLayers = [this.body, this.haze, this.dust, clouds, clusterGlow, this.webStrands];
+    this.discLayers = [disc, filaments, clusterStars, clusterGlow, clouds, fineDust];
     if (data.bulge.n > 0) {
       const bulge = new Layer(data.bulge, false, { spin: SPIN, twinkle: 0.1, alpha: 1, maxPx: 40, order: 2 });
       this.layers.push(bulge);
@@ -296,12 +330,13 @@ export class AtlasWorld {
       this.galaxy.add(bulge.object);
     }
     this.root.add(this.start.root);
-    this.root.add(this.sky, this.webGlow.object, this.web.object, this.homeDot.object, this.quasarDot.object);
+    this.root.add(this.sky, this.webGlow.object, this.webStrands.object, this.web.object, this.homeDot.object, this.quasarDot.object);
 
     this.galaxy.rotation.z = -0.2;
     this.root.add(this.wash.object, this.stars.object, this.galaxy);
     this.galaxy.add(this.body.object, this.haze.object, this.halo.object, this.companionStars.object, this.companionGlow.object);
     this.galaxy.add(disc.object, this.dust.object, this.core.object);
+    for (const [layer] of this.s2) this.galaxy.add(layer.object);
     this.root.updateMatrixWorld(true);
   }
 
@@ -375,7 +410,7 @@ export class AtlasWorld {
     const sky = this.sky.material.uniforms;
     (sky.uInvProj.value as Matrix4).copy(camera.projectionMatrixInverse);
     (sky.uCamRot.value as Matrix3).setFromMatrix4(camera.matrixWorld);
-    sky.uRich.value = mix(1, 0.3, far);
+    sky.uRich.value = mix(1, 0.45, far);
     for (const layer of this.layers) layer.time = t;
     this.stars.alpha = mix(1, 0.12, far);
     this.wash.alpha = 0.05 * (1 - far);
@@ -387,12 +422,20 @@ export class AtlasWorld {
     this.halo.alpha = A.halo * near;
     this.companionStars.alpha = A.halo * near;
     this.companionGlow.alpha = A.halo * near;
+    // close in the arms overlap into white: the disc's light is turned down toward stop 0
+    const closeIn = mix(0.7, 1, sstep(0, 1, zoom));
+    this.discLayers[0].alpha = this.discAlpha * closeIn;
+    for (const [layer, base] of this.s2) {
+      const thinned = this.glowLayers.includes(layer) ? this.glowGain : 1;
+      layer.alpha = base * near * thinned * (layer.material.blending === AdditiveBlending ? closeIn : 1);
+    }
     // From the web the whole disc is under a pixel and the home light stands for it.
-    for (const layer of this.discLayers) layer.object.visible = zoom < 1.97;
+    for (const layer of this.discLayers) layer.object.visible = zoom < 1.97 && layer.material.uniforms.uAlpha.value > 0.0005;
 
     const landmarks = sstep(1.6, 1.95, zoom);
     this.web.alpha = sstep(1.35, 1.9, zoom);
-    this.webGlow.alpha = 0.11 * landmarks;
+    this.webGlow.alpha = S2.webGlow * landmarks;
+    this.webStrands.alpha = S2.webStrands * landmarks * this.glowGain;
     this.homeDot.alpha = landmarks;
     this.quasarDot.alpha = landmarks;
 

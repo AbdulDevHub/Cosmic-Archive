@@ -137,9 +137,9 @@ Settled and kept: the galaxy's colour sweep (gold heart, ember, rose, violet, az
 
 Open, for the beauty sessions (S2 to S4 in `PHASED_ROADMAP.md`):
 
-- Diving into the core passes through disc stars, which grow into large soft discs near the camera. Read as flying through stars; it could be finer.
-- The cosmic web is thin on a phone at the `low` particle budget.
-- The galaxy itself could be denser between its arms (the references fill every part of the disc).
+- ~~Diving into the core passes through disc stars, which grow into large soft discs.~~ Done in S2 (D-111): near stars are capped and sharpened.
+- The cosmic web is thin on a phone at the `low` particle budget (phone polish waits, D-110).
+- ~~The galaxy could be denser between its arms.~~ S2 (D-111) added filaments, clouds and clumps; the outermost arm still has a darker gap inside it.
 - The nebula's young cluster is a tidy pattern of dots; it wants to look more natural.
 
 ## 11. Self-review checklist for screenshots
