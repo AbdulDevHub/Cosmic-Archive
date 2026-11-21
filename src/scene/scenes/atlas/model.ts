@@ -50,6 +50,9 @@ export const C = {
   white: [1.0, 0.96, 0.86],
   gold: [1.0, 0.78, 0.42],
   ember: [1.0, 0.46, 0.28],
+  amber: [1.0, 0.6, 0.26],
+  magenta: [1.0, 0.3, 0.72],
+  young: [0.62, 0.8, 1.0],
   rose: [0.98, 0.34, 0.62],
   violet: [0.52, 0.4, 1.0],
   azure: [0.28, 0.62, 1.0],
@@ -98,18 +101,22 @@ export const OUTER = 1.62;
 export const SATELLITE: RGB = [1.42 * Math.cos(3.75), 0.08, 1.42 * Math.sin(3.75)];
 
 export function discColor(t: number, knot: number): RGB {
-  // t = radius 0..1: gold heart, ember and rose mid-disc, violet, azure, a teal rim
+  // t = radius 0..1 (S2, D-111): a white-gold heart, gold and amber far out into the disc, then
+  // rose, violet and azure, a teal rim. The warm part is wider than the prototype's, as in the
+  // references, and passes through amber rather than ember, so the middle reads gold, not salmon.
   let c =
-    t < 0.16
-      ? mixC(C.gold, C.ember, t / 0.16)
-      : t < 0.36
-        ? mixC(C.ember, C.rose, (t - 0.16) / 0.2)
-        : t < 0.58
-          ? mixC(C.rose, C.violet, (t - 0.36) / 0.22)
-          : t < 0.84
-            ? mixC(C.violet, C.azure, (t - 0.58) / 0.26)
-            : mixC(C.azure, C.teal, clamp((t - 0.84) / 0.16, 0, 1));
-  if (knot === 1) c = mixC(c, C.rose, 0.75);
+    t < 0.1
+      ? mixC(C.white, C.gold, t / 0.1)
+      : t < 0.3
+        ? mixC(C.gold, C.amber, (t - 0.1) / 0.2)
+        : t < 0.48
+          ? mixC(C.amber, C.rose, (t - 0.3) / 0.18)
+          : t < 0.66
+            ? mixC(C.rose, C.violet, (t - 0.48) / 0.18)
+            : t < 0.88
+              ? mixC(C.violet, C.azure, (t - 0.66) / 0.22)
+              : mixC(C.azure, C.teal, clamp((t - 0.88) / 0.12, 0, 1));
+  if (knot === 1) c = mixC(c, C.magenta, 0.75);
   if (knot === 2) c = mixC(c, [0.75, 0.88, 1.0], 0.8);
   if (knot === 3) c = mixC(c, C.teal, 0.8);
   return c;
@@ -160,7 +167,7 @@ function buildGalaxy(rng: Rng, n: number): Cloud {
     const knot = k < 0.04 ? 1 : k < 0.1 ? 2 : k < 0.125 ? 3 : 0;
     const rr = Math.hypot(x, z) / GAL_R;
     let c = discColor(rr + gauss() * 0.045, knot);
-    if (dim <= 0.5) c = mixC(c, C.gold, 0.32);
+    if (dim <= 0.5) c = rr < 0.4 ? mixC(c, C.gold, 0.32) : mixC(c, C.violet, 0.25);
     const b = dim * (knot ? 1.5 : 0.75 + rand() * 0.5) * mix(0.24, 1.0, sstep(0.05, 0.6, rr)) * taper(rr);
     put(rng, d, x, gauss() * 0.011, z, scaleC(c, b), (knot ? 1.5 : 0.55) + Math.pow(rand(), 3) * 2.3);
   }
@@ -292,6 +299,131 @@ function buildWash(rng: Rng): Cloud {
     const k = STAR_R / Math.hypot(x, y, z);
     put(rng, d, x * k, y * k, z * k, c, s);
   }
+  return d;
+}
+
+// ---------- S2 (D-111): texture and life in the disc ----------
+// Each layer has its own random stream, so none of them moves the galaxy or the web above.
+
+const leadOf = (arm: number) => (arm > 1 ? 0.75 : 1);
+
+/**
+ * Flocculent filaments: many short, thin arcs at the arms' own pitch, starting anywhere in the
+ * disc. Together they give the disc the streaked, combed look of the references, between the
+ * arms as well as on them.
+ */
+function buildFilaments(n: number): Cloud {
+  const rng = makeRng(20261121);
+  const { rand, gauss } = rng;
+  const d = alloc(n);
+  while (d.n < n) {
+    const r0 = 0.1 + Math.pow(rand(), 0.75) * 0.98;
+    const th0 = rand() * TAU;
+    const span = 0.35 + rand() * 1.1; // radians of turn
+    const width = 0.003 + rand() * 0.007;
+    const k = rand();
+    const tint: RGB | null = k < 0.22 ? C.magenta : k < 0.48 ? C.young : k < 0.6 ? C.violet : null;
+    const gain = 0.35 + rand() * 0.45;
+    const m = Math.min(n - d.n, 30 + ((rand() * 60) | 0));
+    for (let i = 0; i < m; i++) {
+      const u = rand() * span;
+      const r = r0 * Math.exp(u / WIND);
+      const th = th0 + u;
+      const rr = r / GAL_R;
+      if (rr > 1.02) continue;
+      let c = discColor(clamp(rr + gauss() * 0.03, 0, 1), 0);
+      if (tint && rr > 0.22) c = mixC(c, tint, 0.55);
+      const b = gain * mix(0.18, 1, sstep(0.06, 0.45, rr)) * taper(rr);
+      put(rng, d, r * Math.cos(th) + gauss() * width, gauss() * 0.006, r * Math.sin(th) + gauss() * width, scaleC(c, b), 0.5 + Math.pow(rand(), 3) * 1.4);
+    }
+  }
+  return d;
+}
+
+/**
+ * Young life on the arms: tight clumps of stars, pink where new stars light their gas, blue-white
+ * where young clusters have cleared it. Each clump also gets one soft glow sprite (`glow`).
+ */
+function buildClusters(clumps: number): { stars: Cloud; glow: Cloud } {
+  const rng = makeRng(20261122);
+  const { rand, gauss } = rng;
+  const stars = alloc(clumps * 34);
+  const glow = alloc(clumps);
+  for (let j = 0; j < clumps; j++) {
+    const a = rand();
+    const arm = a < ARM_W[0] ? 0 : a < ARM_W[1] ? 1 : a < ARM_W[2] ? 2 : 3;
+    const r = 0.18 + Math.pow(rand(), 0.8) * 0.88;
+    const rr = r / GAL_R;
+    const th = armAngle(arm, r) + gauss() * 0.04 + 0.03;
+    const cx = r * Math.cos(th);
+    const cz = r * Math.sin(th);
+    const pink = rand() < 0.55;
+    const base = pink ? C.magenta : C.young;
+    const spread = 0.004 + rand() * 0.01;
+    const tp = taper(rr) * leadOf(arm);
+    const m = 10 + ((rand() * 24) | 0);
+    for (let i = 0; i < m; i++) {
+      const c = mixC(base, C.white, rand() * 0.35);
+      put(rng, stars, cx + gauss() * spread, gauss() * 0.004, cz + gauss() * spread, scaleC(c, (0.7 + rand() * 0.8) * tp), 0.7 + Math.pow(rand(), 2) * 1.8);
+    }
+    put(rng, glow, cx, 0, cz, scaleC(base, tp * (0.6 + rand() * 0.6)), 5 + rand() * 9 + spread * 500);
+  }
+  return { stars, glow };
+}
+
+/** Violet, blue and rose clouds of gas, clumped along the arms' leading edges and in the outer disc. */
+function buildClouds(n: number): Cloud {
+  const rng = makeRng(20261123);
+  const { rand, gauss } = rng;
+  const d = alloc(n);
+  while (d.n < n) {
+    const arm = (rand() * 4) | 0;
+    const r = 0.3 + Math.pow(rand(), 0.7) * 0.85;
+    const rr = r / GAL_R;
+    const th = armAngle(arm, r) + (rand() < 0.6 ? 0.12 + rand() * 0.35 : rand() * TAU);
+    const k = rand();
+    const base = k < 0.45 ? C.violet : k < 0.8 ? C.azure : C.magenta;
+    const m = Math.min(n - d.n, 3 + ((rand() * 5) | 0));
+    const spread = 0.02 + 0.04 * rand();
+    for (let i = 0; i < m; i++) {
+      put(rng, d, r * Math.cos(th) + gauss() * spread, gauss() * 0.01, r * Math.sin(th) + gauss() * spread, scaleC(mixC(base, discColor(rr, 0), 0.3), taper(rr) * (0.5 + rand() * 0.5)), 12 + rand() * 26);
+    }
+  }
+  return d;
+}
+
+/** Fine dust: thin dark lanes on the inner edge of all four arms, and dark filaments between them. */
+function buildFineDust(n: number): Cloud {
+  const rng = makeRng(20261124);
+  const { rand, gauss } = rng;
+  const d = alloc(n);
+  while (d.n < n) {
+    const lane = rand() < 0.55;
+    const arm = (rand() * 4) | 0;
+    const r0 = lane ? 0.2 + rand() * 0.75 : 0.18 + Math.pow(rand(), 0.8) * 0.85;
+    const th0 = lane ? armAngle(arm, r0) - 0.06 - 0.04 * rand() : rand() * TAU;
+    const span = 0.2 + rand() * 0.8;
+    const m = Math.min(n - d.n, 8 + ((rand() * 14) | 0));
+    for (let i = 0; i < m; i++) {
+      const u = rand() * span;
+      const r = r0 * Math.exp(u / WIND);
+      const rr = r / GAL_R;
+      const th = th0 + u;
+      const k = (0.5 + rand() * 0.5) * sstep(0.14, 0.3, rr) * (1 - sstep(0.85, 1.0, rr));
+      put(rng, d, r * Math.cos(th) + gauss() * 0.004, gauss() * 0.003, r * Math.sin(th) + gauss() * 0.004, [0.6 * k, 0.75 * k, 0.95 * k], 2.2 + rand() * 3.5);
+    }
+  }
+  return d;
+}
+
+/** The heart's warm glow: a few large gold and amber sprites, wider than the core's own. */
+function buildHeart(): Cloud {
+  const rng = makeRng(20261125);
+  const d = alloc(4);
+  put(rng, d, 0, 0, 0, C.gold, 260);
+  put(rng, d, 0, 0, 0, C.amber, 190);
+  put(rng, d, 0, 0, 0, mixC(C.gold, C.white, 0.5), 90);
+  put(rng, d, 0, 0, 0, C.white, 40);
   return d;
 }
 
@@ -470,6 +602,24 @@ function buildWebGlow(rng: Rng, n: number, web: Web, carry: number): Cloud {
   return d;
 }
 
+/** S2: a bright, narrow strand of gas down the middle of each thread, and a hot light at each knot. */
+function buildWebStrands(n: number, web: Web): Cloud {
+  const rng = makeRng(20261126);
+  const { rand } = rng;
+  const d = alloc(n + web.nodes.length);
+  while (d.n < n) {
+    const p = alongThread(rng, web.threads, 6);
+    if (Math.hypot(p[0], p[1], p[2]) < WEB_CLEAR) continue;
+    const k = rand();
+    const c = k < 0.5 ? mixC(C.violet, C.azure, rand()) : k < 0.8 ? mixC(C.azure, C.young, rand()) : C.magenta;
+    put(rng, d, p[0], p[1], p[2], c, 2200 + rand() * 3200);
+  }
+  web.nodes.forEach((k, i) => {
+    if (i) put(rng, d, k[0], k[1], k[2], mixC(C.white, C.gold, rand() * 0.6), 7000 + rand() * 7000);
+  });
+  return d;
+}
+
 // ---------- counts per tier (ARCHITECTURE.md 3.4) ----------
 export interface Counts {
   disc: number;
@@ -489,13 +639,19 @@ export interface Counts {
   webGlow: number;
   /** Fewer web points are each drawn larger, so the threads stay readable. */
   webSize: number;
+  /** S2 (D-111): filaments, young clumps, gas clouds, fine dust, and the web's bright strands. */
+  filaments: number;
+  clusters: number;
+  clouds: number;
+  fineDust: number;
+  webStrands: number;
 }
 
 /** `high` is the prototype's desktop build; `low` is its phone build cut to the 40k budget. */
 export const COUNTS: Record<ParticleTier, Counts> = {
-  high: { disc: 160000, stars: 13000, halo: 6500, companion: 2600, body: 700, haze: 2200, dust: 2800, bulge: 0, discAlpha: 0.52, discAlphaWide: 0.52, web: 60000, webGlow: 6000, webSize: 1 },
-  medium: { disc: 90000, stars: 10000, halo: 4500, companion: 1800, body: 500, haze: 1550, dust: 1950, bulge: 0, discAlpha: 0.68, discAlphaWide: 0.8, web: 35000, webGlow: 4000, webSize: 1.15 },
-  low: { disc: 40000, stars: 6000, halo: 2500, companion: 1000, body: 320, haze: 900, dust: 1100, bulge: 1400, discAlpha: 0.9, discAlphaWide: 1.4, web: 15000, webGlow: 2500, webSize: 1.35 },
+  high: { disc: 160000, stars: 13000, halo: 6500, companion: 2600, body: 700, haze: 2200, dust: 2800, bulge: 0, discAlpha: 0.52, discAlphaWide: 0.52, web: 60000, webGlow: 6000, webSize: 1, filaments: 60000, clusters: 1100, clouds: 1800, fineDust: 9000, webStrands: 9000 },
+  medium: { disc: 90000, stars: 10000, halo: 4500, companion: 1800, body: 500, haze: 1550, dust: 1950, bulge: 0, discAlpha: 0.68, discAlphaWide: 0.8, web: 35000, webGlow: 4000, webSize: 1.15, filaments: 32000, clusters: 700, clouds: 1200, fineDust: 5500, webStrands: 6000 },
+  low: { disc: 40000, stars: 6000, halo: 2500, companion: 1000, body: 320, haze: 900, dust: 1100, bulge: 1400, discAlpha: 0.9, discAlphaWide: 1.4, web: 15000, webGlow: 2500, webSize: 1.35, filaments: 12000, clusters: 350, clouds: 600, fineDust: 2500, webStrands: 3500 },
 };
 
 export interface AtlasData {
@@ -513,6 +669,13 @@ export interface AtlasData {
   bulge: Cloud;
   dust: Cloud;
   core: Cloud;
+  filaments: Cloud;
+  clusterStars: Cloud;
+  clusterGlow: Cloud;
+  clouds: Cloud;
+  fineDust: Cloud;
+  heart: Cloud;
+  webStrands: Cloud;
 }
 
 /**
@@ -536,6 +699,7 @@ export function buildAtlas(tier: ParticleTier, narrow: boolean): AtlasData {
   const core = buildCore(rng);
   const webGlow = buildWebGlow(rng, n.webGlow, web, Math.sqrt(COUNTS.high.webGlow / n.webGlow));
   const webPoints = buildWeb(rng, n.web, web, n.webSize);
+  const clusters = buildClusters(n.clusters);
   return {
     webNodes,
     web: webPoints,
@@ -551,5 +715,12 @@ export function buildAtlas(tier: ParticleTier, narrow: boolean): AtlasData {
     bulge: buildBulge(n.bulge),
     dust,
     core,
+    filaments: buildFilaments(n.filaments),
+    clusterStars: clusters.stars,
+    clusterGlow: clusters.glow,
+    clouds: buildClouds(n.clouds),
+    fineDust: buildFineDust(n.fineDust),
+    heart: buildHeart(),
+    webStrands: buildWebStrands(n.webStrands, web),
   };
 }

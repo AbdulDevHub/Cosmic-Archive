@@ -26,7 +26,11 @@ The site now: `/` opens on the start page (Home.png); Begin flies into the galax
 
 Owner asked for the UI, font, menu and buttons to match Home.png, "not so much the models". Done: Google Sans Flex, plain header links with a lit Home pill, restyled headline, button and dock. Second pass (D-109): Featured Topics removed, arrow cursor, music waits for Begin, flared dock, tighter links, ship shows its top, galaxy rolled to face it. Checked again: check, build, shots (33, screenshot timeout raised to 90 s for software WebGL), a11y (8), a Playwright test that start-page clicks do not play music and Begin does. Checked: `npm run check`, `npm run build`, `npm run shots` (33; one run timed out on a heavy frame under software WebGL, the rerun passed), `npm run a11y` (8), and a Playwright click of each topic landing on its page. Still open from the list below: the ship and planet models.
 
-### Next: polish the start page (S1e), then S2
+### S2 done (2026-11-21, D-111); laptop first from now on (D-110)
+
+The owner approved the start page and asked for S2, and said phones no longer matter until a final pass. Next: **S3, black hole and quasar polish** (ask the owner first whether anything in S2 needs another pass). Judge everything on the 1440x900 desktop shots.
+
+### Earlier: polish the start page (S1e), then S2
 
 1. **Ask the owner first what to polish** on the start page; do not guess at large changes. Offer the known candidates below.
 2. Known candidates, from our own look at the screenshots (`npm run shots`, `screenshots/start-still-*`, and a filmed flight):
@@ -192,7 +196,7 @@ Fable's part ends here (D-028). Everything below is built by Opus.
 - [x] S1d The start page (2026-11-21), from the owner's `Home.png` (D-107): planet, moons, asteroids and ship drawn in code before the galaxy; the image's words, glowing Begin, dock and header (Outfit); Begin starts the music and flies into the galaxy; Home flies back out; `/#atlas` skips it. Prompt files folded into this checklist (D-106).
   - [x] Checks: `npm run check`; `npm run build`; `npm run posters`; `npm run shots` 33 of 33; `npm run fallbacks` 41 of 41 (new: the start page and Begin, Home back out; the no-WebGL start page); `npm run a11y` 8 of 8 after naming the wordmark by its visible words.
   - [x] Owner looked: "It's a good start, definitely needs some polish." What to polish: ask next session (S1e).
-- [ ] S2 Galaxy and cosmic web.
+- [x] S2 Galaxy and cosmic web (2026-11-21, D-111): gold-to-azure disc, filaments, pink and blue clumps, clouds, fine dust, warm heart; glowing web strands and knots; a finer dive; posters re-rendered. Checked: check, build, posters, shots 33, fallbacks 41 (29 draw calls max), a11y 8; atlas chunk 14.7 KB gzip.
 - [ ] S3 Black hole and quasar.
 - [ ] S4 Nebula.
 - [ ] S5 Owner review, then deploy.

@@ -248,6 +248,11 @@ function Clock({ timeRef, viewRef, runningRef, fixedZoom, governor }: Omit<Scene
       }
     }
     if (fixedZoom !== null) view.zoom = fixedZoom;
+    const held = sceneParams();
+    if (held.dive !== null && held.focus) {
+      view.dive = held.dive;
+      view.focus = held.focus;
+    }
     started.current = true;
     if (!running) return;
     timeRef.current += dt;
