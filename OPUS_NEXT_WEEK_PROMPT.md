@@ -1,6 +1,6 @@
 # Cosmic Archive: prompt for the next Opus session
 
-**Last updated:** 2026-11-20, after O6 (Explore polish). Keep this file current: after every commit, update "What exists" and rewrite "Your session" for the next roadmap item.
+**Last updated:** 2026-11-20, after O7 (Release prep). Keep this file current: after every commit, update "What exists" and rewrite "Your session" for the next roadmap item.
 
 You are Claude Opus 5.5, continuing Cosmic Archive alone. You have no memory of earlier sessions. Everything you need is in this file and the docs it names.
 
@@ -26,11 +26,12 @@ A living atlas of the universe: a Next.js site with real-time WebGL scenes behin
 | `3c66385` | O3: the Nebulae page, the `nebula` scene (one shader, contour ink), the `nebula-kinds` diagram, the new Nebulae window |
 | `8a02b40` | O4: the Quasars page, the `quasar` scene (the black-hole shader with `QUASAR` defined: jets, glare, host galaxy), the `quasar-views` diagram, fallback test 7 for every subject page |
 | `235d798` | O5: the journey "A star's life" (`content/journeys/`, `/journeys/a-stars-life`), the homepage preview made from it, Journeys in the nav |
-| latest (`git log -1`) | O6: touch (pinch, tilt) and keyboard control on `/explore`, the eased atlas-to-subject transition, keyboard-only and touch-only tests |
+| `7e7b09c` | O6: touch (pinch, tilt) and keyboard control on `/explore`, the eased atlas-to-subject transition, keyboard-only and touch-only tests |
+| latest (`git log -1`) | O7: metadata, canonical links, Open Graph images from our own stills, sitemap, robots.txt, JSON-LD, `npm run a11y`, every budget measured |
 
 `prototype/look.html` is the approved look. It is one file (plain three from a CDN) showing the three stages of the homepage scene: hero (`?stage=0`), chart (`?stage=1`), zoomed-out cosmic web (`?stage=2`). `?t=12` fixes the time. Without switches, scrolling drives the zoom. It needs internet for three and the fonts. The six stills in `prototype/shots/` (`desktop-stage0..2.png`, `phone-stage0..2.png`) are the visual bar. `prototype/fonts.html` and `font-options.png` are a record of the font choice; ignore them.
 
-Built: routes `/`, `/explore`, `/about`, `/archive`, `/subjects/black-holes`, `/subjects/galaxies`, `/subjects/nebulae`, `/subjects/quasars`, `/journeys/a-stars-life`; the scene system with four scenes (`atlas`, also in a `subject` framing for Galaxies; `black-hole`; `nebula`; `quasar`, the black-hole shader seen from far off); the content model (`content/subjects/*.mdx` checked by `src/lib/content/subject-check.ts`; data in `content/destinations.ts`, `content/home.ts` and `content/journeys/*.ts` checked by `src/lib/content/cited.ts`); four diagrams; scripts `check`, `shots` (67 shots), `posters` (with crops), `fallbacks` (31 tests: every subject page, and `/explore` by keyboard only and by touch only). Read `src/scene/README.md` before touching a scene. Nothing has been pushed or deployed.
+Built: routes `/`, `/explore`, `/about`, `/archive`, `/subjects/black-holes`, `/subjects/galaxies`, `/subjects/nebulae`, `/subjects/quasars`, `/journeys/a-stars-life`; the scene system with four scenes (`atlas`, also in a `subject` framing for Galaxies; `black-hole`; `nebula`; `quasar`, the black-hole shader seen from far off); the content model (`content/subjects/*.mdx` checked by `src/lib/content/subject-check.ts`; data in `content/destinations.ts`, `content/home.ts` and `content/journeys/*.ts` checked by `src/lib/content/cited.ts`); four diagrams; scripts `check`, `shots` (67 shots), `posters` (with crops), `fallbacks` (31 tests: every subject page, and `/explore` by keyboard only and by touch only), `a11y` (axe-core on every route). Read `src/scene/README.md` before touching a scene. Nothing has been pushed or deployed.
 
 ## Read first, in this order
 
@@ -53,35 +54,27 @@ Built: routes `/`, `/explore`, `/about`, `/archive`, `/subjects/black-holes`, `/
 
 If one of these seems wrong, do not work around it. Say so in your report and leave it for the owner.
 
-## Your session: O7, Release prep
+## Your session: O8, Owner review, then deploy
 
-Do only this.
+This one starts with the owner, not with code.
 
-**Before you write code**
+**Before anything else**
 
-- Read `ARCHITECTURE.md` 3 (every budget) and 8 (the fallback tests), `DESIGN_SPEC.md` 9 (accessibility), and `src/app/layout.tsx`.
-- Check the current Next.js metadata API (`metadata`, `generateMetadata`, `opengraph-image`, `sitemap.ts`, `robots.ts`) through context7 before using it.
+- Ask the owner for their read-through. Every subject page, the journey and the homepage copy are unread (`PHASE_CHECKLIST.md`). Their notes are the work list.
+- Ask them to try the site on a real phone and an integrated-GPU laptop: frame rate, the pinch on `/explore`, the poster-to-scene fade. Nothing here has run on real hardware.
 
-**Scope** (roadmap: metadata, OG images, sitemap, JSON-LD, performance and accessibility audit)
+**Scope**
 
-- Metadata on every route: title template, description, canonical, Open Graph and Twitter cards. The site URL comes from one setting (an environment variable with a placeholder default), since nothing is deployed yet.
-- Open Graph images from our own posters (never telescope photos), one per subject and a default.
-- `sitemap.ts` and `robots.ts` built from the routes that exist.
-- JSON-LD: `WebSite` on the homepage, `Article` on subject pages (with `dateModified` from `lastReviewed` and the sources as `citation`).
-- Audit: measure every budget in `ARCHITECTURE.md` 3 and record the numbers; an automated accessibility scan (axe through Playwright, if added say why in `DECISIONS.md`) of every route, fixing what it finds.
-
-**Acceptance**
-
-- Roadmap: **budgets in `ARCHITECTURE.md` measured and met** (scene routes against D-047).
-- `npm run check`, `npm run build`, `npm run shots`, `npm run fallbacks` pass; no accessibility violations of serious or critical impact.
+- Fix what the owner raises, one note at a time, each with its checks (`npm run check`, `npm run build`, `npm run shots`, `npm run fallbacks`, `npm run a11y`).
+- Deploy to Vercel **only when the owner says so**. Before that, they set `NEXT_PUBLIC_SITE_URL` in the Vercel project (README, D-087). Nothing is pushed or deployed until then.
 
 **Open items the owner may raise**
 
-- The owner has not read the Black Holes, O1, Galaxies, Nebulae, Quasars or journey copy yet.
-- Real-hardware frame rate and touch are unmeasured; the one-shader scenes cost per pixel.
 - Scene routes load about 142 to 146 KB of JS up front; the 140 KB limit is for routes with no scene (D-047).
+- The quasar scene's starfield is not bent beyond 26 horizon radii (D-073).
+- `npm run shots` once placed 2 of 3 chart labels in one reduced-motion still (homepage, O6 run); the O7 run is in the checklist.
 
-**Stop point:** commit (gitmoji style, no push), tick O7 in the checklist, rewrite this section for O8, report.
+**Stop point:** the owner's sign-off. Then commit, tick O8, report.
 
 ## Later sessions (one each; acceptance in `docs/PHASED_ROADMAP.md`)
 

@@ -10,6 +10,7 @@ import styles from "@/components/subject/subject.module.css";
 import { EVIDENCE_WORD } from "@/lib/content/atlas";
 import { getJourney } from "@/lib/content/journeys";
 import { allSubjects, getSubject, relatedTo } from "@/lib/content/subjects";
+import { jsonLd, ogImage, pageMetadata, SCENE_OG, SITE_NAME, SITE_URL } from "@/lib/site";
 import type { SceneId } from "@/scene/host/store";
 
 /*
@@ -29,7 +30,15 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const subject = getSubject((await params).slug);
   if (!subject) return {};
-  return { title: subject.title, description: subject.description };
+  const og = subject.scene ? SCENE_OG[subject.scene] : undefined;
+  return pageMetadata({
+    title: subject.title,
+    description: subject.description,
+    path: `/subjects/${subject.id}`,
+    image: og ? ogImage(og.name, og.alt) : undefined,
+    type: "article",
+    modified: subject.lastReviewed,
+  });
 }
 
 const DATE = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
@@ -51,8 +60,22 @@ export default async function SubjectPage({ params }: Props) {
     return journey ? [journey] : [];
   });
 
+  // for search engines: the page as a schema.org Article, its sources as citations
+  const article = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: subject.title,
+    description: subject.description,
+    url: `${SITE_URL}/subjects/${subject.id}`,
+    dateModified: subject.lastReviewed,
+    inLanguage: "en",
+    isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_URL },
+    citation: subject.sources.map((source) => ({ "@type": "CreativeWork", name: source.title, url: source.url, publisher: { "@type": "Organization", name: source.publisher } })),
+  };
+
   return (
     <article className={styles.page}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(article) }} />
       <SubjectHero scene={scene} posters={posters} callouts={subject.callouts.map(({ anchor, label, note }) => ({ anchor, label, note }))}>
         <p className={styles.status}>
           <EvidenceLine evidence={subject.status} />

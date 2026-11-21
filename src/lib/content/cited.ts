@@ -58,8 +58,12 @@ interface ForkLike {
 export function journeyProblems(sources: readonly ListedSource[], journey: { id: string; trunk: readonly StopLike[]; fork: ForkLike }): string[] {
   const entries: CitingEntry[] = [];
   const problems: string[] = [];
+  const stopIds = new Set<string>();
   const walkStops = (where: string, stops: readonly StopLike[], leadsOn: boolean) => {
     stops.forEach((stop, index) => {
+      // a stop's id is its anchor on the page: one per journey
+      if (stopIds.has(stop.id)) problems.push(`stop id "${stop.id}" is used twice`);
+      stopIds.add(stop.id);
       entries.push({ id: `${where}:${stop.id}`, sources: stop.sources });
       const last = index === stops.length - 1;
       if ((!last || leadsOn) && !stop.why) problems.push(`"${where}:${stop.id}" does not say why it leads to the next stop`);

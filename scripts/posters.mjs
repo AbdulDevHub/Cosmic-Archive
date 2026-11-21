@@ -38,9 +38,18 @@ const POSTERS = [
   { file: "window-galaxies.webp", path: "/?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, crop: { x: 540, y: 110, w: 900, h: 600 }, out: 960, quality: 0.78 },
   { file: "window-nebulae.webp", path: "/subjects/nebulae?shot=1&t=12&tier=high", viewport: { width: 1440, height: 900 }, deviceScaleFactor: 4 / 3, crop: { x: 773, y: 150, w: 340, h: 430 }, out: 480, quality: 0.8 },
   { file: "window-quasars.webp", path: "/?shot=1&t=12&zoom=2&tier=high", viewport: { width: 1440, height: 900 }, crop: { x: 800, y: 560, w: 480, h: 160 }, out: 960, quality: 0.8 },
+  // Open Graph images (O7, D-088): 1200x630 JPEG crops of the same frames, into public/og/.
+  ...[
+    ["atlas", "/?shot=1&t=12&tier=high"],
+    ["galaxies", "/subjects/galaxies?shot=1&t=12&tier=high"],
+    ["black-holes", "/subjects/black-holes?shot=1&t=12&tier=high"],
+    ["nebulae", "/subjects/nebulae?shot=1&t=12&tier=high"],
+    ["quasars", "/subjects/quasars?shot=1&t=12&tier=high"],
+  ].map(([name, path]) => ({ file: `${name}.jpg`, dir: join("public", "og"), path, viewport: { width: 1440, height: 900 }, crop: { x: 0, y: 72, w: 1440, h: 756 }, out: 1200, quality: 0.82, type: "image/jpeg" })),
 ];
 
-// `npm run posters -- window-` makes only the posters whose file name contains the word.
+// `npm run posters -- window-` makes only the posters whose path contains the word (`-- og` for the
+// Open Graph images).
 const only = process.argv[2];
 
 mkdirSync(OUT, { recursive: true });
@@ -51,7 +60,7 @@ const { base, stop } = await serveBuild("posters");
 try {
   browser = await launchBrowser();
   for (const poster of POSTERS) {
-    if (only && !poster.file.includes(only)) continue;
+    if (only && !join(poster.dir ?? OUT, poster.file).includes(only)) continue;
     const context = await browser.newContext({ viewport: poster.viewport, deviceScaleFactor: poster.deviceScaleFactor });
     const page = await context.newPage();
     const problems = [];
@@ -62,7 +71,7 @@ try {
 
     await page.goto(base + poster.path, { waitUntil: "load" });
     await sceneSettled(page);
-    const result = await page.evaluate(({ quality, crop, out }) => {
+    const result = await page.evaluate(({ quality, crop, out, type }) => {
       if (document.documentElement.dataset.scene !== "ready") return { error: "the scene did not draw (static fallback)" };
       let canvas = document.querySelector("canvas");
       if (!canvas) return { error: "no canvas" };
@@ -74,10 +83,10 @@ try {
         part.getContext("2d").drawImage(canvas, crop.x * k, crop.y * k, crop.w * k, crop.h * k, 0, 0, part.width, part.height);
         canvas = part;
       }
-      const url = canvas.toDataURL("image/webp", quality);
-      if (!url.startsWith("data:image/webp")) return { error: "this browser cannot encode WebP" };
+      const url = canvas.toDataURL(type, quality);
+      if (!url.startsWith(`data:${type}`)) return { error: `this browser cannot encode ${type}` };
       return { url, width: canvas.width, height: canvas.height };
-    }, { quality: poster.quality, crop: poster.crop ?? null, out: poster.out ?? 0 });
+    }, { quality: poster.quality, crop: poster.crop ?? null, out: poster.out ?? 0, type: poster.type ?? "image/webp" });
 
     if (result.error) problems.push(result.error);
     if (problems.length) {
@@ -86,8 +95,10 @@ try {
       for (const p of problems) console.log(`     ${p}`);
     } else {
       const bytes = Buffer.from(result.url.split(",")[1], "base64");
-      writeFileSync(join(OUT, poster.file), bytes);
-      console.log(`ok   ${join(OUT, poster.file)}  ${result.width}x${result.height}  ${(bytes.length / 1024).toFixed(0)} KB`);
+      const dir = poster.dir ?? OUT;
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(join(dir, poster.file), bytes);
+      console.log(`ok   ${join(dir, poster.file)}  ${result.width}x${result.height}  ${(bytes.length / 1024).toFixed(0)} KB`);
     }
     await context.close();
   }

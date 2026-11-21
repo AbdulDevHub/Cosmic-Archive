@@ -33,7 +33,7 @@ function Stop({ stop, numberOf, end }: { stop: JourneyStop; numberOf: NumberOf; 
   return (
     <li className={styles.stop} data-evidence={stop.evidence} data-end={end ? "" : undefined}>
       <i className={styles.dot} aria-hidden="true" />
-      <h2 className={styles.label} id={stop.id}>
+      <h2 className={styles.label} id={`stop-${stop.id}`}>
         {stop.label}
       </h2>
       <p className={styles.note}>

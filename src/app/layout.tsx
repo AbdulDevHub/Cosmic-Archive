@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { motionInitScript } from "@/lib/motion";
+import { DEFAULT_OG, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import { SceneHostLoader } from "@/scene/host/SceneHostLoader";
 import "./globals.css";
 
@@ -24,11 +25,15 @@ const hanken = Hanken_Grotesk({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "Cosmic Archive",
-    template: "%s · Cosmic Archive",
+    default: SITE_NAME,
+    template: `%s · ${SITE_NAME}`,
   },
-  description: "A living atlas of the universe, from the worlds around us to its deepest mysteries.",
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  openGraph: { type: "website", siteName: SITE_NAME, locale: "en_GB", images: [DEFAULT_OG] },
+  twitter: { card: "summary_large_image", images: [DEFAULT_OG.url] },
 };
 
 export const viewport: Viewport = {

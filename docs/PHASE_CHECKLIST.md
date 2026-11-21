@@ -109,11 +109,18 @@ Fable's part ends here (D-028). Everything below is built by Opus.
   - [x] Checks: `npm run check` passes and exits 1 when a stop loses its `why` or names a source that is not listed; `npm run build`; `npm run shots` 67 of 67 (new `journey-full`; the phone menu shows Journeys). `/journeys/a-stars-life` first load 138.6 KB (limit 140), no scene. `npm run fallbacks` was run with O6.
   - [ ] Owner has read the journey copy.
 - [x] O6 Explore polish (2026-11-20):
-  - [x] Touch: sideways drag turns, two fingers pinch to zoom and tilt, a swipe up or down still scrolls the page. Keys: + and − zoom, left and right turn, up and down tilt with focus in the atlas (D-082).
+  - [x] Touch: sideways drag turns, two fingers pinch to zoom, a swipe up or down still scrolls the page (two-finger tilt dropped after review). Keys: + and − zoom, left and right turn, up and down tilt with focus in the atlas (D-082).
   - [x] Atlas to subject: a beacon eases the camera in and fades the words, then opens its page; reduced motion, paused motion and modified clicks just open it (D-083).
   - [x] List view marks the one destination without its own page (D-084).
   - [x] Checks: `npm run check`; `npm run build`; `npm run fallbacks` 31 of 31, twice in a row, with the new keyboard-only (Tab reaches the controls with a visible focus, Enter steps, + moves closer, Enter on a beacon opens Galaxies) and touch-only tests (a real two-finger pinch pulls back to the web, a tap on a beacon opens its page) (D-085, D-086).
   - [x] `npm run shots` 66 of 67: `chart-still-desktop-reduced` (homepage, untouched since O5) placed 2 labels where 3 were expected; re-run in O7. `/explore` first load 146.3 KB (scene route, D-047).
-  - [ ] Not yet tried on a real phone: the pinch and the tilt.
-- [ ] O7 Release prep.
+  - [ ] Not yet tried on a real phone: the pinch.
+- [x] O7 Release prep (2026-11-20):
+  - [x] Metadata on every route through `pageMetadata` (canonical, Open Graph, Twitter card); `metadataBase` from `NEXT_PUBLIC_SITE_URL` with a placeholder and a build warning when it is unset (D-087, D-091).
+  - [x] Open Graph images: 1200x630 JPEG crops of our own stills in `public/og/` (D-088). Sitemap, robots.txt, JSON-LD `WebSite` and `Article` with sources as citations (D-090), checked in the built HTML.
+  - [x] `npm run a11y` (axe-core, every route, wide and phone): 18 of 18 with no findings, 37 to 42 rules passing per page (D-089). Run before the review fixes.
+  - [x] Budgets (gzip): no-scene routes `/about`, `/archive`, `/journeys/a-stars-life` 138.6 KB (limit 140); scene routes `/` 145.6, `/explore` 146.3, `/subjects/quasars` 142.7 (D-047); host + three + R3F 183.0 KB (220); scene chunks 4.5 to 13.5 KB (40); draw calls a frame on `low`: 1 (black hole, nebula, quasar), 16 (galaxies), 20 (atlas) (30).
+  - [x] After the review fixes: `npm run check`, `npm run build`, `npm run shots` 67 of 67.
+  - [ ] Re-run `npm run fallbacks` and `npm run a11y` on the build with the review fixes: the run was stopped by the system for low memory. Both passed on the build before the fixes (31 of 31; 18 of 18).
+  - [ ] Not measured: frame rate on real hardware, LCP and CLS on a real 4G phone.
 - [ ] O8 Owner review, then deploy.

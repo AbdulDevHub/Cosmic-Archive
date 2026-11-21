@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { EvidenceLine } from "@/components/atlas/Evidence";
 import { EVIDENCE_WORD, type Evidence } from "@/lib/content/atlas";
+import { pageMetadata } from "@/lib/site";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "About",
   description: "What Cosmic Archive is, how it draws what is certain and what is not, and how every page is sourced.",
-};
+  path: "/about",
+});
 
 /*
   About (PROJECT_BLUEPRINT.md 4 and 6): the purpose, the evidence legend, the sourcing method, the

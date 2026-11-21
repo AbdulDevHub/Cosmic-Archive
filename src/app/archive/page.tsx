@@ -9,13 +9,14 @@ import {
 import { TEASERS } from "@/lib/content/home";
 import { allJourneys } from "@/lib/content/journeys";
 import { allSubjects } from "@/lib/content/subjects";
+import { pageMetadata } from "@/lib/site";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Archive",
-  description:
-    "Everything in Cosmic Archive in one plain list, with how certain each subject is and when it was last reviewed.",
-};
+  description: "Everything in Cosmic Archive in one plain list, with how certain each subject is and when it was last reviewed.",
+  path: "/archive",
+});
 
 /*
   The archive (PROJECT_BLUEPRINT.md 4): a plain index of everything published, then what is being

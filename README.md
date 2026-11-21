@@ -2,7 +2,7 @@
 
 An immersive, educational atlas of the cosmos. Real-time scenes of galaxies, black holes and the cosmic web, drawn over with a map-maker's fine ink, and science pages where every claim is tied to a checked source.
 
-**Status:** in early development. The plan is in `docs/`; the approved look is `prototype/look.html`. The app scaffold, header and hero copy are in place; the scenes are next.
+**Status:** v1 is built and waiting for the owner's review; not deployed yet. Four subject pages (Black Holes, Galaxies, Nebulae, Quasars), the atlas with its zoom out to the cosmic web, the journey "A star's life", the archive and About. The plan is in `docs/`; the approved look is `prototype/look.html`.
 
 ## Ideas that shape it
 
@@ -41,8 +41,13 @@ npm run dev
 | `npm run build` | Production build (every route is static) |
 | `npm run shots` | Starts the built app and screenshots each route at 1440x900, 390x844 and 1440x900 with reduced motion into `screenshots/` |
 | `npm run posters` | Renders scene stills into `public/posters/` from the built app's own scenes; build again afterwards |
-| `npm run fallbacks` | Runs the scene fallback tests on the built app: reduced motion, no WebGL, slow device, no 3D code on a page without a scene |
+| `npm run fallbacks` | Runs the scene fallback tests on the built app: reduced motion, no WebGL, slow device, no 3D code on a page without a scene, every subject page, and the atlas by keyboard only and by touch only |
+| `npm run a11y` | Scans every route with axe-core, wide and on a phone; fails on serious or critical findings |
 
 `npm run shots` uses Playwright's Chromium; run `npx playwright install chromium` once if it is missing.
+
+## Deploying
+
+Set `NEXT_PUBLIC_SITE_URL` to the site's address (for example in Vercel's project settings). Canonical links, Open Graph tags, the sitemap and robots.txt are built from it; without it they point at a placeholder on `cosmic-archive.example`.
 
 All imagery is original illustration. Nothing here is a telescope photograph.

@@ -5,6 +5,7 @@ import { EvidenceLine } from "@/components/atlas/Evidence";
 import { JourneyTrail } from "@/components/journey/JourneyTrail";
 import { allJourneys, getJourney, type JourneyFork } from "@/lib/content/journeys";
 import { getSubject } from "@/lib/content/subjects";
+import { jsonLd, pageMetadata, SITE_NAME, SITE_URL } from "@/lib/site";
 import styles from "./page.module.css";
 
 /*
@@ -24,7 +25,7 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const journey = getJourney((await params).slug);
   if (!journey) return {};
-  return { title: journey.title, description: journey.description };
+  return pageMetadata({ title: journey.title, description: journey.description, path: `/journeys/${journey.id}`, type: "article", modified: journey.lastReviewed });
 }
 
 const DATE = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
@@ -46,8 +47,21 @@ export default async function JourneyPage({ params }: Props) {
     return subject ? [subject] : [];
   });
 
+  const article = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: journey.title,
+    description: journey.description,
+    url: `${SITE_URL}/journeys/${journey.id}`,
+    dateModified: journey.lastReviewed,
+    inLanguage: "en",
+    isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_URL },
+    citation: journey.sources.map((source) => ({ "@type": "CreativeWork", name: source.title, url: source.url, publisher: { "@type": "Organization", name: source.publisher } })),
+  };
+
   return (
     <article className={styles.page}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(article) }} />
       <p className={styles.kind}>Journey</p>
       <h1 className={styles.title}>{journey.title}</h1>
       <p className={styles.hook}>{journey.hook}</p>

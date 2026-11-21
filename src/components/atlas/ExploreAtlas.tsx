@@ -22,8 +22,8 @@ import { fade, stageOpacity, unfade } from "./stages";
 
 /*
   The atlas under free control (ARCHITECTURE.md 2 and 4): the wheel, a pinch and the + and - keys
-  pull back or move closer; a drag or the left and right arrow keys turn the chart; a mouse drag,
-  a two-finger drag or the up and down arrow keys (with focus in the atlas) tilt it; and two
+  pull back or move closer; a drag or the left and right arrow keys turn the chart; a mouse drag or
+  the up and down arrow keys (with focus in the atlas) tilt it; and two
   buttons step between the views for anyone using none of these. A one-finger swipe up or down
   still scrolls the page.
 
@@ -135,12 +135,13 @@ export function ExploreAtlas() {
     };
 
     // Pointers down on the atlas, by id. One mouse or pen: turn and tilt. One finger: turn (a
-    // swipe up or down is the page's scroll, so it does not tilt). Two fingers: pinch to zoom,
-    // move together up or down to tilt.
+    // swipe up or down is the page's scroll, so it does not tilt). Two fingers: pinch to zoom. No
+    // two-finger tilt: with `pan-y` the browser may claim a vertical two-finger move as a scroll
+    // and cancel the pointers mid-gesture (D-082).
     const pointers = new Map<number, { x: number; y: number; touch: boolean }>();
     const pair = () => {
       const [a, b] = [...pointers.values()];
-      return { distance: Math.hypot(a.x - b.x, a.y - b.y), y: (a.y + b.y) / 2 };
+      return { distance: Math.hypot(a.x - b.x, a.y - b.y) };
     };
     const onDown = (event: PointerEvent) => {
       if (event.button !== 0 || (event.target as Element).closest("a, button")) return;
@@ -158,7 +159,7 @@ export function ExploreAtlas() {
         last.y = event.clientY;
         const after = pair();
         if (before.distance > 0 && after.distance > 0) {
-          setSceneInput({ zoom: zoom + Math.log2(before.distance / after.distance) * PINCH_ZOOM, pitch: pitch + (after.y - before.y) * DRAG_PITCH });
+          setSceneInput({ zoom: zoom + Math.log2(before.distance / after.distance) * PINCH_ZOOM });
           sync();
         }
         return;
@@ -195,6 +196,7 @@ export function ExploreAtlas() {
 
     // Following a beacon: ease toward the galaxy, let the words fade, then open the page.
     let leaving: ReturnType<typeof setTimeout> | undefined;
+    let leavingTo: string | null = null;
     const onClick = (event: MouseEvent) => {
       const link = (event.target as Element).closest<HTMLAnchorElement>("a[data-anchor]");
       if (!link || event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
@@ -204,8 +206,12 @@ export function ExploreAtlas() {
       event.preventDefault();
       if (leaving) return;
       element.dataset.leaving = "";
+      leavingTo = href;
       setSceneInput({ zoom: Math.max(ZOOM_MIN, getSceneInput().zoom - LEAVE_ZOOM) });
-      leaving = setTimeout(() => routerRef.current.push(href), LEAVE_MS);
+      leaving = setTimeout(() => {
+        leavingTo = null; // opened: the cleanup below must not open it twice
+        routerRef.current.push(href);
+      }, LEAVE_MS);
     };
 
     element.addEventListener("click", onClick);
@@ -217,6 +223,8 @@ export function ExploreAtlas() {
     document.addEventListener("keydown", onKey);
     return () => {
       clearTimeout(leaving);
+      // the click was already taken from the link: if the page is still to open, open it now
+      if (leaving && leavingTo) routerRef.current.push(leavingTo);
       delete element.dataset.leaving;
       element.removeEventListener("click", onClick);
       element.removeEventListener("wheel", onWheel);
