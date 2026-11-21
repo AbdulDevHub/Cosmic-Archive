@@ -131,7 +131,7 @@ export class BlackHoleWorld {
     if (view.yaw === this.yaw && view.pitch === this.pitch) return;
     this.yaw = view.yaw;
     this.pitch = view.pitch;
-    const basis = cameraBasis(CAMERA_DISTANCE, ELEVATION - view.pitch, AZIMUTH + view.yaw, ROLL);
+    const basis = cameraBasis(CAMERA_DISTANCE, Math.max(-1.45, Math.min(1.45, ELEVATION + view.pitch)), AZIMUTH + view.yaw, ROLL); // dragging down tips the top toward you (D-113)
     this.cam.copy(basis.cam);
     this.fwd.copy(basis.fwd);
     this.right.copy(basis.right);

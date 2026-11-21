@@ -79,6 +79,7 @@ export class QuasarWorld {
         uJetLength: { value: 40 },
         uHostAngle: { value: HOST_ANGLE },
         uMarch: { value: 1 },
+        uClose: { value: 0 },
         uSky: { value: sky },
       },
     });
@@ -120,6 +121,8 @@ export class QuasarWorld {
     const u = this.material.uniforms;
     u.uScale.value = scale;
     u.uMarch.value = MARCH_RADIUS * scale;
+    // how far in the visitor is, 0 at the framing and 1 all the way (S3: the glare tightens)
+    u.uClose.value = Math.min(1, Math.max(0, Math.log(scale / this.scale) / Math.log(CLOSE)));
     if (view.yaw === this.yaw && view.pitch === this.pitch) return;
     this.yaw = view.yaw;
     this.pitch = view.pitch;
@@ -131,7 +134,7 @@ export class QuasarWorld {
     const u = this.material.uniforms;
     const yaw = Number.isNaN(this.yaw) ? 0 : this.yaw;
     const pitch = Number.isNaN(this.pitch) ? 0 : this.pitch;
-    const { cam, fwd, right, up } = cameraBasis(CAMERA_DISTANCE, ELEVATION - pitch, AZIMUTH + yaw, roll);
+    const { cam, fwd, right, up } = cameraBasis(CAMERA_DISTANCE, Math.max(-1.45, Math.min(1.45, ELEVATION + pitch)), AZIMUTH + yaw, roll); // dragging down tips the top toward you (D-113)
     u.uCam.value.copy(cam);
     u.uFwd.value.copy(fwd);
     u.uRight.value.copy(right);

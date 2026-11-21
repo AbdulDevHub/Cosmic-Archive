@@ -88,24 +88,28 @@ export const SKY_CHUNK = /* glsl */ `
 ${SKY_COMMON}
 uniform samplerCube uSky;
 
-/* the stars: three layers of cells on the sphere, the coarsest with a few spiked bright ones */
+/* the stars: three layers of cells on the sphere, the coarsest with a few spiked bright ones; a
+   scene may ask for a fourth, finer layer (S3, D-113: the lensed field around a black hole) */
+#ifndef SKY_LAYERS
+#define SKY_LAYERS 3
+#endif
 vec3 skyStars(vec3 d, float rich){
   vec2 uv = vec2(atan(d.z, d.x), asin(clamp(d.y, -1.0, 1.0)));
   vec3 col = vec3(0.0);
-  for (int layer = 0; layer < 3; layer++) {
-    float cells = layer == 0 ? 20.0 : layer == 1 ? 56.0 : 130.0;
+  for (int layer = 0; layer < SKY_LAYERS; layer++) {
+    float cells = layer == 0 ? 20.0 : layer == 1 ? 56.0 : layer == 2 ? 130.0 : 320.0;
     vec2 g = uv * cells;
     vec2 id = floor(g) + float(layer) * 37.0;
     vec2 f = fract(g) - 0.5;
     float h = skyHash2(id);
-    float keep = layer == 2 ? mix(0.8, 0.42, rich) : layer == 1 ? 0.7 : 0.62;
+    float keep = layer == 3 ? mix(0.9, 0.62, min(rich, 1.0)) : layer == 2 ? mix(0.8, 0.42, rich) : layer == 1 ? 0.7 : 0.62;
     if (h > keep) {
       vec2 p = f - (vec2(skyHash2(id + 3.1), skyHash2(id + 7.7)) - 0.5) * 0.6;
       float tone = skyHash2(id + 5.5);
       vec3 tint = tone < 0.35 ? vec3(0.66, 0.78, 1.0) : tone < 0.8 ? vec3(1.0, 0.95, 0.88) : vec3(1.0, 0.76, 0.52);
       float bright = (h - keep) / (1.0 - keep);
-      float size = layer == 0 ? 0.05 : layer == 1 ? 0.07 : 0.1;
-      float light = smoothstep(size, 0.0, length(p)) * mix(0.35, 1.3, bright);
+      float size = layer == 0 ? 0.05 : layer == 1 ? 0.07 : layer == 2 ? 0.1 : 0.16;
+      float light = smoothstep(size, 0.0, length(p)) * mix(0.35, 1.3, bright) * (layer == 3 ? 0.55 : 1.0);
       if (layer == 0 && bright > 0.82) {
         // a bright star: a soft halo and four thin spikes
         light += exp(-length(p) * 20.0) * 0.6;
