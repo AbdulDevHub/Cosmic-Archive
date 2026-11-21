@@ -71,7 +71,7 @@ export default function SceneHost() {
 
   const [params] = useState(sceneParams);
   const timeRef = useRef(params.time ?? START_TIME);
-  const viewRef = useRef<SceneInput>({ zoom: 1, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1, intro: 0 });
+  const viewRef = useRef<SceneInput>({ zoom: 0, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1, intro: 0 });
   const runningRef = useRef(false);
 
   const rung = typeof quality === "number" ? quality : RUNG_MEDIUM;

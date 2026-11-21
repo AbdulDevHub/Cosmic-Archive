@@ -30,6 +30,14 @@ Owner asked for the UI, font, menu and buttons to match Home.png, "not so much t
 
 The owner approved the start page and asked for S2, and said phones no longer matter until a final pass. Next: **S3, black hole and quasar polish** (ask the owner first whether anything in S2 needs another pass). Judge everything on the 1440x900 desktop shots.
 
+### Owner's round after S2 (2026-11-21, D-112)
+
+- [x] First-load screen; black hole at the galaxy's heart; scenes open all the way in; buttons move between scenes only; Title Case names. Checked: check, build, posters, shots 33, a11y 8, fallbacks (see the commit), and a Playwright run: Closer on the galaxy lands on `/black-hole`, a place has only Further, no loader without JavaScript.
+
+### Owner's backlog (to do, not yet scheduled)
+
+- [ ] **Sound that rises with power (owner, 2026-11-21):** better whooshes, and the music should swell into something more powerful at the black hole and the quasar, to show their power. Needs the owner's own music for those parts (D-100: their music, browser-made effects), so ask what they have first.
+
 ### Earlier: polish the start page (S1e), then S2
 
 1. **Ask the owner first what to polish** on the start page; do not guess at large changes. Offer the known candidates below.

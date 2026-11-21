@@ -1,11 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { whoosh } from "@/lib/sound";
 import { calm, flowBusy, pullOut } from "@/scene/host/flow";
 import { SceneSlot } from "@/scene/host/SceneSlot";
-import { animateSceneInput, getSceneFrame, getSceneInput, sceneIsLive, setSceneInput, subscribeSceneFrame, useSceneState, type SceneId } from "@/scene/host/store";
+import { animateSceneInput, getSceneInput, sceneIsLive, setSceneInput, useSceneState, type SceneId } from "@/scene/host/store";
 import { DragHint } from "./DragHint";
 import styles from "./screen.module.css";
 import { useGestures } from "./useGestures";
@@ -13,11 +13,11 @@ import { useGestures } from "./useGestures";
 /*
   One place (DESIGN_SPEC.md 7, D-092): its scene fills the window, with its name and one line.
 
-  Closer moves in on it (all the way into the quasar's core, D-102); a drag turns around it (the
-  black hole and the quasar) or pans across it (the nebula); the wheel and a pinch zoom. Further,
-  at the place's own framing, shrinks it away and returns to the atlas, dived into the place's
-  light, which then pulls back to the stop it was found at (the flow, D-096). Escape does the same,
-  and so does pulling the wheel on past the framing.
+  It opens all the way in, the place as large as it gets (D-112). The wheel and a pinch zoom out to
+  its own framing and back; a drag turns around it (the black hole and the quasar) or pans across
+  it (the nebula). Further, the one button, shrinks it away and returns to the atlas, dived into
+  the place's light, which then pulls back to where it was found (the flow, D-096). Escape does
+  the same, and so does pulling the wheel on past the framing.
 
   Without the scene it is the poster, the same words, and "Further" as a plain link home.
 */
@@ -53,12 +53,11 @@ export function PlaceView({ place }: { place: PlaceWords }) {
     routerRef.current = router;
   }, [router]);
   const posters = { wide: `/posters/${place.scene}-wide.webp`, narrow: `/posters/${place.scene}-narrow.webp` };
-  // Closer has nowhere left to go once all the way in
-  const [closest, setClosest] = useState(false);
 
   const leave = () => {
     if (flowBusy()) return;
-    pullOut((href) => routerRef.current.push(href), place.outTo, place.anchor, place.stop, ATLAS_VEIL);
+    // back to the view the place is seen from: the web for the quasar, close in for the rest (D-112)
+    pullOut((href) => routerRef.current.push(href), place.outTo, place.anchor, place.stop === 2 ? 2 : 0, ATLAS_VEIL);
   };
   const zoomTo = (zoom: number, glide: boolean) => {
     if (flowBusy()) return;
@@ -68,21 +67,12 @@ export function PlaceView({ place }: { place: PlaceWords }) {
       animateSceneInput({ zoom: to }, STEP_MS);
     } else setSceneInput({ zoom: to });
   };
-  const closer = () => zoomTo(getSceneInput().zoom - 0.5, true);
-  /** Further: back out to the framing first, then out of the place. */
-  const further = () => (getSceneInput().zoom < FRAMED - 0.01 ? zoomTo(getSceneInput().zoom + 0.5 > FRAMED - 0.2 ? FRAMED : getSceneInput().zoom + 0.5, true) : leave());
-  const actions = useRef({ further, closer, zoomTo });
+  /** Further leaves the place at once (D-112): the button moves between scenes; the wheel zooms. */
+  const further = leave;
+  const actions = useRef({ zoomTo });
   useEffect(() => {
-    actions.current = { further, closer, zoomTo };
+    actions.current = { zoomTo };
   });
-
-  // the buttons follow the zoom, wherever it was set from
-  useEffect(() => {
-    if (!live) return;
-    const apply = () => setClosest(getSceneInput().zoom <= 0.01);
-    if (getSceneFrame()) apply();
-    return subscribeSceneFrame(apply);
-  }, [live]);
 
   // Drag turns or pans, the wheel and a pinch zoom; pulled on past the framing, the wheel leaves.
   // `zoomed` is when the wheel last moved the zoom: a pull past the framing counts only as a fresh
@@ -151,12 +141,6 @@ export function PlaceView({ place }: { place: PlaceWords }) {
       </div>
       <DragHint live={live} />
       <div className={styles.controls}>
-        {live ? (
-          <button type="button" className={styles.control} onClick={() => !closest && closer()} aria-disabled={closest}>
-            <i className={`${styles.icon} ${styles.closer}`} aria-hidden="true" />
-            <span>Closer</span>
-          </button>
-        ) : null}
         <a
           className={styles.control}
           href={place.outTo}

@@ -107,19 +107,19 @@ export const SOURCES: readonly Source[] = [
 export const STOPS: readonly Stop[] = [
   {
     zoom: 0,
-    name: "Inside the disc",
+    name: "Inside the Disc",
     line: "Spiral arms, rich in gas, where the youngest stars form.",
     sources: ["nasa-galaxy-types"],
   },
   {
     zoom: 1,
-    name: "A spiral galaxy",
+    name: "A Spiral Galaxy",
     line: "An island of stars, gas and dust, held together by gravity.",
     sources: ["nasa-galaxies"],
   },
   {
     zoom: 2,
-    name: "The cosmic web",
+    name: "The Cosmic Web",
     line: "Every point of light here is a galaxy.",
     sources: ["nasa-cosmic-web"],
   },
@@ -128,7 +128,7 @@ export const STOPS: readonly Stop[] = [
 export const PLACES: readonly Place[] = [
   {
     id: "black-hole",
-    name: "Black hole",
+    name: "Black Hole",
     line: "Where gravity reshapes space and time.",
     sources: ["nasa-anatomy", "nasa-too-close"],
     anchor: "core",

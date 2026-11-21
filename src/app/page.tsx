@@ -20,7 +20,7 @@ const STOP_WORDS: StopWords[] = STOPS.map(({ zoom, name, line }) => ({ zoom, nam
 const SPOTS: Spot[] = [
   ...PLACES.map((place) => ({ id: place.id, name: place.name, href: `/${place.id}`, anchor: place.anchor, stop: place.stop === 2 ? 2 : 1, veil: place.veil }) satisfies Spot),
   // seen from the web, the galaxy is one light among many: it glides back in, it opens no page
-  { id: "galaxy", name: "The galaxy", href: null, anchor: "home", stop: 2, veil: "" },
+  { id: "galaxy", name: "The Galaxy", href: null, anchor: "home", stop: 2, veil: "" },
 ];
 
 /* The universe (DESIGN_SPEC.md 7): one scene, three stops, the places you can click. */
