@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Hanken_Grotesk, Outfit } from "next/font/google";
+import { Google_Sans_Flex, Hanken_Grotesk } from "next/font/google";
 import type { ReactNode } from "react";
 import { Veil } from "@/components/screen/Veil";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -8,11 +8,12 @@ import { DEFAULT_OG, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import { SceneHostLoader } from "@/scene/host/SceneHostLoader";
 import "./globals.css";
 
-/* Display and UI: Outfit, a clean geometric face like the owner's Home.png (D-107; replaces Syne, D-026). Text: Hanken Grotesk. */
-const outfit = Outfit({
+/* Display and UI: Google Sans Flex, the face of the owner's Home.png (D-108; replaces Outfit, D-107). Text: Hanken Grotesk. */
+const display = Google_Sans_Flex({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  variable: "--font-outfit",
+  weight: "variable",
+  variable: "--font-display-face",
+  adjustFontFallback: false, // Next has no metrics for this face yet; system-ui stands in while it loads
   display: "swap",
 });
 
@@ -42,7 +43,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en" data-motion="on" className={`${outfit.variable} ${hanken.variable}`} suppressHydrationWarning>
+    <html lang="en" data-motion="on" className={`${display.variable} ${hanken.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: motionInitScript }} />
       </head>

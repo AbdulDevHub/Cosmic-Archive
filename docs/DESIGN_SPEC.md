@@ -51,7 +51,7 @@ Rules:
 
 | Role | Face | Notes |
 |---|---|---|
-| Display | Syne, weight 600, letter-spacing -0.03em (D-026) | The place's name, the wordmark. No serif anywhere |
+| Display | Google Sans Flex (variable), regular for headlines, 500 for names and buttons (D-108; was Syne D-026, then Outfit D-107) | The place's name, the wordmark, the start page and header. No serif anywhere |
 | Text and UI | Hanken Grotesk | The one line, buttons, About |
 | Hotspot names | Hanken Grotesk, uppercase, 11.5 px, letter-spacing 0.14em | Only beside a hotspot |
 
