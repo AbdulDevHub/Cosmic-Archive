@@ -1,8 +1,8 @@
 /**
  * Sound (D-100, D-114): the owner's own music, "Magical Space", looped quietly under the scenes;
- * three effects the owner chose: a warp jump for Begin (`journey`), a warp-out for every flight
- * into or out of a place (`travel`), a short beep for every click on a button or link (`click`);
- * and a soft whoosh made in the browser for a glide between the galaxy and the web.
+ * three effects the owner chose: a warp jump for Begin (`journey`), a warp-out for every move
+ * between scenes (`travel`: into or out of a place, out to the web and back, Return), and a short
+ * beep for a click in the menus (`click`, D-115). The browser-made whooshes are gone (D-115).
  *
  * Browsers only let a page make sound after the visitor does something, so the music starts on
  * the first click, tap or key press, and fades in. On the start page it waits for Begin instead
@@ -33,7 +33,6 @@ let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let music: HTMLAudioElement | null = null;
 let musicGain: GainNode | null = null;
-let noise: AudioBuffer | null = null;
 
 /** The owner's effects (D-114), decoded once the audio graph exists. */
 export type Sample = "journey" | "travel" | "click";
@@ -86,10 +85,6 @@ function graph(): AudioContext | null {
       .catch(() => null);
   }
 
-  // one second of white noise, the raw material of every whoosh
-  noise = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
-  const data = noise.getChannelData(0);
-  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
   return ctx;
 }
 
@@ -198,65 +193,6 @@ export function playSample(name: Sample): void {
   });
 }
 
-/**
- * A breath of air for a flight (D-103): soft noise, filtered high and wide, swelling slowly and
- * fading slowly, its colour drifting up for a dive (`in`), down for a pull-out (`out`), barely at
- * all between stops (`glide`); over it a faint shimmer of two high, detuned tones. No low end and
- * no sharp onset, so it never thumps. The music dips a little under it.
- */
-export function whoosh(kind: "in" | "out" | "glide", seconds = 1.4): void {
-  if (!state.enabled || !state.playing || !ctx || !master || !noise || !musicGain) return;
-  const now = ctx.currentTime;
-  const end = now + seconds;
-  const peak = now + seconds * (kind === "out" ? 0.4 : 0.6);
-  const loud = kind === "glide" ? 0.05 : 0.08;
-
-  // the air: noise through a wide band-pass that drifts, then a gentle low cut so nothing booms
-  const source = ctx.createBufferSource();
-  source.buffer = noise;
-  source.loop = true;
-  const band = ctx.createBiquadFilter();
-  band.type = "bandpass";
-  band.Q.value = 0.6;
-  const [from, to] = kind === "out" ? [2600, 900] : kind === "in" ? [900, 3200] : [1400, 1900];
-  band.frequency.setValueAtTime(from, now);
-  band.frequency.linearRampToValueAtTime(to, end);
-  const lowCut = ctx.createBiquadFilter();
-  lowCut.type = "highpass";
-  lowCut.frequency.value = 420;
-  const air = ctx.createGain();
-  air.gain.setValueAtTime(0, now);
-  air.gain.linearRampToValueAtTime(loud, peak);
-  air.gain.linearRampToValueAtTime(0, end);
-  source.connect(band).connect(lowCut).connect(air).connect(master);
-  source.start(now);
-  source.stop(end + 0.05);
-
-  // the shimmer: two quiet high tones, a fifth apart and slightly detuned, gliding with the flight
-  const base = kind === "out" ? 880 : 660;
-  const glideTo = kind === "out" ? 660 : kind === "in" ? 880 : 700;
-  for (const [ratio, detune] of [[1, -6], [1.5, 7]] as const) {
-    const tone = ctx.createOscillator();
-    tone.type = "sine";
-    tone.detune.value = detune;
-    tone.frequency.setValueAtTime(base * ratio, now);
-    tone.frequency.linearRampToValueAtTime(glideTo * ratio, end);
-    const level = ctx.createGain();
-    level.gain.setValueAtTime(0, now);
-    level.gain.linearRampToValueAtTime(loud * 0.12, peak);
-    level.gain.linearRampToValueAtTime(0, end);
-    tone.connect(level).connect(master);
-    tone.start(now);
-    tone.stop(end + 0.05);
-  }
-
-  // the music dips a little under the flight and comes back
-  const g = musicGain.gain;
-  g.cancelScheduledValues(now);
-  g.setValueAtTime(g.value, now);
-  g.linearRampToValueAtTime(MUSIC_VOLUME * 0.75, now + seconds * 0.4);
-  g.linearRampToValueAtTime(MUSIC_VOLUME, end + 0.8);
-}
 
 if (typeof window !== "undefined") {
   try {
@@ -271,13 +207,13 @@ if (typeof window !== "undefined") {
   };
   // pointerdown is permission only for a mouse; a touch gives it on pointerup and click
   for (const type of ["pointerdown", "pointerup", "click", "touchend", "keydown"]) window.addEventListener(type, onGesture, { capture: true, passive: true });
-  // every click on a button or a link beeps (D-114); a dimmed one does not
+  // a click in the menus beeps (D-115): the header and the start page's dock, "coming soon" items
+  // too. Moves between scenes (Begin, a place, Return) play their own sound instead.
   window.addEventListener(
     "click",
     (event) => {
-      const target = (event.target as Element | null)?.closest?.("button, a[href], [role='link'], [role='button']");
-      if (!target || target.getAttribute("aria-disabled") === "true") return;
-      playSample("click");
+      const target = (event.target as Element | null)?.closest?.("[data-menu] a, [data-menu] button, [data-menu] label, [data-menu] [role='link'], [data-menu] [aria-disabled]");
+      if (target) playSample("click");
     },
     { capture: true, passive: true },
   );

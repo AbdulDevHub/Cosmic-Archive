@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { calm, diveInto, flowBusy, getFlow, useFlow } from "@/scene/host/flow";
-import { playMusic, playSample, whoosh } from "@/lib/sound";
+import { playMusic, playSample } from "@/lib/sound";
 import { sceneParams } from "@/scene/host/params";
 import { SceneSlot } from "@/scene/host/SceneSlot";
 import {
@@ -15,10 +15,10 @@ import {
   setSceneInput,
   subscribeSceneFrame,
   useSceneState,
-  ZOOM_MAX,
   ZOOM_MIN,
   type SceneFrame,
 } from "@/scene/host/store";
+import { ReturnIcon } from "../icons";
 import { HOME_EVENT } from "../SiteHeader";
 import { DragHint } from "./DragHint";
 import styles from "./screen.module.css";
@@ -67,7 +67,6 @@ const PINCH_ZOOM = 1.1; // stops per halving of the distance between two fingers
 
 /** Past this zoom the visitor is out on the cosmic web. */
 const WEB_AT = 1.5;
-const stopOf = (zoom: number) => Math.min(2, Math.max(0, Math.round(zoom))) as 0 | 1 | 2;
 const spotShows = (spot: Spot, zoom: number) => (spot.stop === 2 ? zoom > 1.6 : zoom < 1.45);
 
 export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots: readonly Spot[] }) {
@@ -82,25 +81,29 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
   }, [router]);
 
   // The words follow the stop the scene drew; the server HTML has the opening view's (close in, D-112).
-  const [stop, setStop] = useState<0 | 1 | 2>(0);
+  // one name for the galaxy, close in or whole (D-115); the web's beyond WEB_AT
+  const [stop, setStop] = useState<1 | 2>(1);
   const words = stops.find((entry) => entry.zoom === stop) ?? stops[0];
-  // out on the web, Further has nowhere left to go
+  // out on the web (Return glides back in from there; tests read it as `data-web`)
   const [atWeb, setAtWeb] = useState(false);
   const sync = () => setAtWeb(getSceneInput().zoom > WEB_AT);
 
   const glideTo = (zoom: number) => {
     if (flowBusy()) return;
-    if (Math.abs(zoom - getSceneInput().zoom) > 0.05) whoosh("glide", STEP_MS / 1000);
+    if (Math.abs(zoom - getSceneInput().zoom) > 0.05) playSample("travel");
     if (calm()) setSceneInput({ zoom });
     else animateSceneInput({ zoom }, STEP_MS);
     sync();
   };
   /**
-   * One button (D-114): Further, the way back out, from the galaxy to the web. Places are entered
-   * by clicking them (and the galaxy, from the web, by clicking it); the wheel and a pinch zoom.
+   * One button, Return (D-115): back one step. From the web it glides back in to the galaxy; from
+   * the galaxy it flies back out to the start page. Places are entered by clicking them; the wheel
+   * and a pinch zoom (out to the web, too).
    */
-  const further = () => {
-    if (getSceneInput().zoom <= WEB_AT) glideTo(ZOOM_MAX);
+  const back = () => {
+    if (flowBusy()) return;
+    if (getSceneInput().zoom > WEB_AT) glideTo(ZOOM_MIN);
+    else window.dispatchEvent(new Event(HOME_EVENT));
   };
 
   // The start page (D-107): shown on arriving at `/` fresh, or by Home; not when the flow brings the
@@ -178,7 +181,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
     if (!live) return;
     const items = [...(list.current?.querySelectorAll<HTMLElement>("[data-anchor]") ?? [])];
     const apply = (frame: SceneFrame) => {
-      setStop(stopOf(frame.zoom));
+      setStop(frame.zoom > WEB_AT ? 2 : 1);
       // the buttons follow wherever the zoom was set from: a glide, the flow, the wheel
       setAtWeb(getSceneInput().zoom > WEB_AT);
       const busy = flowBusy() || phaseRef.current !== "atlas";
@@ -248,7 +251,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
       const { zoom, yaw, pitch } = getSceneInput();
       if (event.key === "+" || event.key === "=") setSceneInput({ zoom: zoom - KEY_ZOOM });
       else if (event.key === "-" || event.key === "_") setSceneInput({ zoom: zoom + KEY_ZOOM });
-      else if (event.key === "Escape") further();
+      else if (event.key === "Escape") back();
       else if (event.key === "ArrowLeft") setSceneInput({ yaw: yaw - KEY_YAW });
       else if (event.key === "ArrowRight") setSceneInput({ yaw: yaw + KEY_YAW });
       else if (event.key === "ArrowUp") setSceneInput({ pitch: pitch - KEY_PITCH });
@@ -267,7 +270,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
       event.preventDefault();
       if (flowBusy()) return;
       if (spot.href) diveInto((href) => routerRef.current.push(href), spot.href, spot.anchor, spot.veil);
-      else glideTo(1);
+      else glideTo(ZOOM_MIN); // the galaxy, seen from the web: back in close (D-112)
     };
 
     element.addEventListener("click", onClick);
@@ -276,12 +279,12 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
       element.removeEventListener("click", onClick);
       document.removeEventListener("keydown", onKey);
     };
-    // `further`, `glideTo` and `sync` only read the store and set state
+    // `back`, `glideTo` and `sync` only read the store and set state
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [live, spots]);
 
   return (
-    <div ref={stage} className={styles.screen} data-live={live ? "" : undefined} data-moving={moving ? "" : undefined} data-start={phase !== "atlas" ? "" : undefined}>
+    <div ref={stage} className={styles.screen} data-live={live ? "" : undefined} data-moving={moving ? "" : undefined} data-start={phase !== "atlas" ? "" : undefined} data-web={atWeb ? "" : undefined}>
       <SceneSlot id="atlas" mode="atlas" posters={POSTERS} opening={opening} />
       <StartScreen phase={phase} onBegin={begin} />
 
@@ -312,9 +315,11 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
       <DragHint live={live} />
       {live ? (
         <div className={styles.controls}>
-          <button type="button" className={styles.control} onClick={() => !atWeb && further()} aria-disabled={atWeb}>
-            <i className={`${styles.icon} ${styles.further}`} aria-hidden="true" />
-            <span>Further</span>
+          <button type="button" className={styles.control} onClick={back}>
+            <i className={styles.icon} aria-hidden="true">
+              <ReturnIcon />
+            </i>
+            <span>Return</span>
           </button>
         </div>
       ) : null}

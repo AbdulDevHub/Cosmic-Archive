@@ -39,7 +39,7 @@ export function SiteHeader() {
   };
 
   return (
-    <header className={styles.top}>
+    <header className={styles.top} data-menu>
       <Link className={styles.wordmark} href="/" onClick={home}>
         <Emblem size={56} />
         <span className={styles.letters}>

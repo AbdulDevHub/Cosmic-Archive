@@ -97,6 +97,14 @@ export const SparkIcon = () => (
   </Icon>
 );
 
+/** Return (D-115): an arrow turning back. */
+export const ReturnIcon = () => (
+  <Icon size={14}>
+    <path d="M9 14L4 9l5-5" />
+    <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />
+  </Icon>
+);
+
 export const ArrowIcon = () => (
   <Icon size={20}>
     <path d="M5 12h14M13.5 6.5L19 12l-5.5 5.5" />

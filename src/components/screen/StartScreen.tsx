@@ -64,7 +64,7 @@ export function StartScreen({ phase, onBegin }: { phase: StartPhase; onBegin: ()
         <span>Scroll to explore</span>
       </p>
 
-      <nav className={styles.dock} aria-label="Sections (coming soon)">
+      <nav className={styles.dock} aria-label="Sections (coming soon)" data-menu>
         <svg className={styles.ink} aria-hidden="true" focusable="false">
           <linearGradient id="dock-ink" gradientUnits="userSpaceOnUse" x1="3" y1="3" x2="21" y2="21">
             <stop offset="0" stopColor="#9cc4ff" />

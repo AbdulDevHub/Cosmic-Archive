@@ -20,7 +20,7 @@ export interface Source {
 }
 
 
-/** The atlas's zoom stops: 0 close in, 1 the whole galaxy, 2 the cosmic web. */
+/** The atlas's views: the galaxy (close in or whole, one name since D-115) and the cosmic web. */
 export type StopIndex = 0 | 1 | 2;
 
 export interface Stop {
@@ -61,13 +61,6 @@ export const SOURCES: readonly Source[] = [
     checked: "2026-11-17",
   },
   {
-    id: "nasa-galaxy-types",
-    title: "Galaxy Types",
-    publisher: "NASA Science",
-    url: "https://science.nasa.gov/universe/galaxies/types/",
-    checked: "2026-11-17",
-  },
-  {
     id: "nasa-anatomy",
     title: "Black Hole Anatomy",
     publisher: "NASA Science",
@@ -105,12 +98,6 @@ export const SOURCES: readonly Source[] = [
 ];
 
 export const STOPS: readonly Stop[] = [
-  {
-    zoom: 0,
-    name: "Inside the Disc",
-    line: "Spiral arms, rich in gas, where the youngest stars form.",
-    sources: ["nasa-galaxy-types"],
-  },
   {
     zoom: 1,
     name: "A Spiral Galaxy",
