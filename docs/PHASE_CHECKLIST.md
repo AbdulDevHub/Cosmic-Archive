@@ -108,6 +108,12 @@ Fable's part ends here (D-028). Everything below is built by Opus.
   - [x] The homepage preview is made from the journey and links to it; Journeys is in the nav; the archive lists the journey; Nebulae and Black Holes list it under "Where to go next".
   - [x] Checks: `npm run check` passes and exits 1 when a stop loses its `why` or names a source that is not listed; `npm run build`; `npm run shots` 67 of 67 (new `journey-full`; the phone menu shows Journeys). `/journeys/a-stars-life` first load 138.6 KB (limit 140), no scene. `npm run fallbacks` was run with O6.
   - [ ] Owner has read the journey copy.
-- [ ] O6 Explore polish.
+- [x] O6 Explore polish (2026-11-20):
+  - [x] Touch: sideways drag turns, two fingers pinch to zoom and tilt, a swipe up or down still scrolls the page. Keys: + and − zoom, left and right turn, up and down tilt with focus in the atlas (D-082).
+  - [x] Atlas to subject: a beacon eases the camera in and fades the words, then opens its page; reduced motion, paused motion and modified clicks just open it (D-083).
+  - [x] List view marks the one destination without its own page (D-084).
+  - [x] Checks: `npm run check`; `npm run build`; `npm run fallbacks` 31 of 31, twice in a row, with the new keyboard-only (Tab reaches the controls with a visible focus, Enter steps, + moves closer, Enter on a beacon opens Galaxies) and touch-only tests (a real two-finger pinch pulls back to the web, a tap on a beacon opens its page) (D-085, D-086).
+  - [x] `npm run shots` 66 of 67: `chart-still-desktop-reduced` (homepage, untouched since O5) placed 2 labels where 3 were expected; re-run in O7. `/explore` first load 146.3 KB (scene route, D-047).
+  - [ ] Not yet tried on a real phone: the pinch and the tilt.
 - [ ] O7 Release prep.
 - [ ] O8 Owner review, then deploy.

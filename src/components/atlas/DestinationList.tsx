@@ -8,6 +8,7 @@ import { EvidenceLine } from "./Evidence";
   links, with each one's evidence drawn and written. It is the target of "Skip to destinations"
   and of the atlas's "List view" link, and needs no scene and no script.
   The homepage has the illustrated Destinations section (O1); this list is the index on /explore.
+  A row whose destination has no page of its own yet says so, and where its link goes instead.
 */
 
 interface Row {
@@ -43,6 +44,8 @@ export function DestinationList() {
                       <EvidenceLine evidence={row.evidence} />
                       {EVIDENCE_WORD[row.evidence]}
                     </span>
+                    {/* a destination without its own page yet says where the link goes instead */}
+                    {row.href.startsWith("/subjects/") ? null : <span className={styles.rowWhere}>Its own pages come later. For now, the About page explains it.</span>}
                   </Link>
                 </li>
               ))}

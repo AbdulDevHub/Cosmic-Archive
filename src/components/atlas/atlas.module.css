@@ -332,3 +332,11 @@
 .row:focus-visible .rowName {
   color: var(--beacon);
 }
+
+/* a destination with no page of its own yet */
+.rowWhere {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--ink-2);
+}

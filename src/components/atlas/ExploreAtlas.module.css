@@ -204,3 +204,11 @@
     bottom: 14px;
   }
 }
+
+/* following a beacon: the words and labels fade while the camera eases in (D-083) */
+.stage[data-leaving] .intro,
+.stage[data-leaving] .margin,
+.stage[data-leaving] .caption {
+  opacity: 0 !important;
+  transition: opacity 400ms var(--ease-out);
+}

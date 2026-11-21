@@ -8,6 +8,8 @@
 //   5. no scene      a cold load of /about downloads no 3D code
 //   6. navigation    leaving for /about stops the loop; coming back (slowly, and at once) shows the scene again
 //   7. subjects      each subject page: its loop on `low` under the draw-call limit, reduced motion, no WebGL
+//   8. keyboard      /explore by keyboard only: focus reaches the controls, keys zoom, a beacon opens
+//   9. touch         /explore by touch only: a pinch zooms, a tap on a beacon opens
 
 import { launchBrowser, sceneSettled, serveBuild } from "./lib/serve.mjs";
 
@@ -100,7 +102,10 @@ try {
     const perFrame = await page.evaluate(() => window.__draws.maxPerFrame);
     check("live", `fewer than ${DRAW_CALL_LIMIT} draw calls a frame`, perFrame > 0 && perFrame < DRAW_CALL_LIMIT, `${perFrame}`);
 
-    await page.getByRole("button", { name: /pause motion/i }).click();
+    // pressed from the keyboard: under software WebGL a pointer click sometimes waited out its
+    // timeout while the main thread drew, and the test proves the control, not the pointer
+    await page.getByRole("button", { name: /pause motion/i }).focus();
+    await page.keyboard.press("Enter");
     await page.waitForTimeout(400);
     const paused = await draws(page);
     await page.waitForTimeout(1500);
@@ -252,6 +257,72 @@ try {
       check(name, "no WebGL: poster, the whole text, no 3D code", (await html(page, "scene")) === "static" && state.posterLoaded && state.canvases === 0 && state.headline.length > 0 && sources > 0 && !(await loadedThree()), `"${state.headline}", ${sources} sources`);
       await context.close();
     }
+  }
+
+  // 8. keyboard only, on /explore: the controls are reachable and visibly focused, the keys zoom,
+  // and a beacon opens its page
+  {
+    const context = await browser.newContext(DESKTOP);
+    const page = await context.newPage();
+    await page.goto(base + "/explore?tier=low", { waitUntil: "load" });
+    await sceneSettled(page);
+    const pullBack = page.getByRole("button", { name: "Pull back" });
+    let reached = false;
+    let visible = false;
+    for (let i = 0; i < 40 && !reached; i++) {
+      await page.keyboard.press("Tab");
+      ({ reached, visible } = await page.evaluate(() => {
+        const active = document.activeElement;
+        return { reached: active?.textContent?.trim() === "Pull back", visible: !!active?.matches(":focus-visible") };
+      }));
+    }
+    check("keyboard", "Tab reaches the controls, with a visible focus", reached && visible);
+    await page.keyboard.press("Enter");
+    await page.waitForTimeout(400);
+    const atWeb = (await pullBack.getAttribute("aria-disabled")) === "true";
+    await page.keyboard.press("+");
+    await page.waitForTimeout(300);
+    const closer = (await pullBack.getAttribute("aria-disabled")) === "false";
+    check("keyboard", "Enter steps the view, + moves closer", atWeb && closer);
+    await page.keyboard.press("-");
+    await page.waitForTimeout(1500); // the camera eases out and the web's beacons fade in
+    let onBeacon = false;
+    for (let i = 0; i < 12 && !onBeacon; i++) {
+      await page.keyboard.press("Shift+Tab");
+      onBeacon = await page.evaluate(() => !!document.activeElement?.matches("a[data-anchor]"));
+    }
+    if (onBeacon) await page.keyboard.press("Enter");
+    const opened = onBeacon && (await page.waitForURL((url) => url.pathname.startsWith("/subjects/"), { timeout: 8000 }).then(() => true, () => false));
+    check("keyboard", "a beacon opens its subject page", opened, page.url().replace(base, ""));
+    await context.close();
+  }
+
+  // 9. touch only, on /explore: a pinch zooms, a tap on a beacon opens its page
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+    const page = await context.newPage();
+    await page.goto(base + "/explore?tier=low", { waitUntil: "load" });
+    await sceneSettled(page);
+    const pullBack = page.getByRole("button", { name: "Pull back" });
+    const before = await pullBack.getAttribute("aria-disabled");
+    const cdp = await context.newCDPSession(page);
+    const cx = 195;
+    const cy = 300;
+    const touch = (type, d) => cdp.send("Input.dispatchTouchEvent", { type, touchPoints: type === "touchEnd" ? [] : [{ x: cx - d, y: cy, id: 1 }, { x: cx + d, y: cy, id: 2 }] });
+    await touch("touchStart", 140);
+    for (let d = 130; d >= 30; d -= 10) await touch("touchMove", d);
+    await touch("touchEnd", 0);
+    await page.waitForTimeout(400);
+    const after = await pullBack.getAttribute("aria-disabled");
+    check("touch", "a pinch pulls back to the cosmic web", before !== "true" && after === "true", `Pull back disabled: ${before} then ${after}`);
+    await page.waitForTimeout(1500);
+    // the link itself is a zero-size pin on the canvas; its label is what a finger lands on
+    const beacon = page.locator("a[data-anchor] [data-label]:visible").first();
+    const target = await beacon.evaluate((label) => label.closest("a")?.getAttribute("href")).catch(() => null);
+    if (target) await beacon.tap();
+    const opened = !!target && (await page.waitForURL((url) => url.pathname.startsWith("/subjects/"), { timeout: 8000 }).then(() => true, () => false));
+    check("touch", "a tap on a beacon opens its subject page", opened, page.url().replace(base, ""));
+    await context.close();
   }
 
   // The watcher itself must be able to see three, or tests 3 and 5 prove nothing.
