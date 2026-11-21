@@ -44,12 +44,16 @@ import { POINT_FRAGMENT, POINT_VERTEX, SPRITE_FRAGMENT, SPRITE_VERTEX } from "..
 import { SKY_CHUNK } from "../../shaders/sky.glsl";
 import { isPhone, placeCamera } from "./camera";
 import { StartProps } from "./start";
-import { armAngle, buildAtlas, COUNTS, mix, OUTER, SPIN, sstep, TAU, type Cloud, type Vec3 } from "./model";
+import { armAngle, buildAtlas, COUNTS, HOLE_R, joinClouds, mix, nucleusDust, NUCLEUS_SHADOW, OUTER, SPIN, sstep, TAU, type Cloud, type Vec3 } from "./model";
 
 // base strengths, faded out together at the far zoom
-const A = { haze: 0.05, body: 0.02, dust: 0.1, core: 0.22, halo: 0.8 };
+const A = { haze: 0.05, body: 0.02, dust: 0.1, core: 0.14, halo: 0.8 };
 // S2 (D-111): the disc's new layers, at the `high` counts
 const S2 = { filaments: 0.45, clusterStars: 0.85, clusterGlow: 0.09, clouds: 0.04, fineDust: 0.16, heart: 0.035, webStrands: 0.42, webGlow: 0.26 };
+/** D-112: how fast the black hole's disc and its feeding streams turn (radians per second), and their strength. */
+const NUCLEUS_SPIN = 0.22;
+const NUCLEUS = { glow: 1.0, shadow: 1.0 };
+
 /** View depth under which a disc particle fades as the camera passes it (a dive); the fade ends just past the camera's near plane (0.05). */
 const NEAR = 0.12;
 
@@ -245,6 +249,8 @@ export class AtlasWorld {
   /** S2's additions to the galaxy, each with its base strength; they fade out with the rest. */
   private readonly s2: [Layer, number][];
   private readonly webStrands: Layer;
+  private readonly nucleus: Layer;
+  private readonly shadow: Layer;
   /** The disc's own strength; close in it is dimmed a little so the arms do not burn to white. */
   private readonly discAlpha: number;
   private readonly web: Layer;
@@ -286,8 +292,11 @@ export class AtlasWorld {
     this.companionGlow = new Layer(data.companionGlow, true, { twinkle: 0.2, alpha: A.halo, maxPx: 1024, order: 1 });
     // fewer points carry more light each
     const disc = new Layer(data.disc, false, { spin: SPIN, twinkle: 0.15, alpha: discAlpha, maxPx: 40, order: 2, near: NEAR });
-    this.dust = new Layer(data.dust, true, { spin: SPIN, alpha: this.glow.dust, soft: 1.8, maxPx: 1024, dust: true, order: 3 });
-    this.core = new Layer(data.core, true, { alpha: A.core, soft: 3.2, maxPx: 1024, order: 4 });
+    // the fine dust (S2) rides in the dust layer: one draw call, not two. The nucleus's dust goes
+    // first, because the governor's last step trims a layer's instances from the end
+    this.dust = new Layer(joinClouds(nucleusDust(), joinClouds(data.dust, data.fineDust, S2.fineDust / A.dust), 1), true, { spin: SPIN, alpha: this.glow.dust, soft: 1.7, maxPx: 1024, dust: true, order: 3, near: NEAR * 2 });
+    // the heart's wide warm glow (S2) rides in the core's layer: one draw call, not two
+    this.core = new Layer(joinClouds(data.core, data.heart, S2.heart / A.core), true, { alpha: A.core, soft: 3.2, maxPx: 2048, order: 4 });
 
     // Level 2. Nothing of it is drawn until the zoom reaches it. Our galaxy and the quasar are
     // two of its lights, a little brighter than the rest: no marker is drawn on them (D-094).
@@ -304,25 +313,30 @@ export class AtlasWorld {
     const clusterStars = new Layer(data.clusterStars, false, { spin: SPIN, twinkle: 0.2, alpha: 0, maxPx: 40, order: 2, near: NEAR });
     const clusterGlow = new Layer(data.clusterGlow, true, { spin: SPIN, alpha: 0, soft: 2.0, maxPx: 1024, order: 2, near: NEAR * 2 });
     const clouds = new Layer(data.clouds, true, { spin: SPIN, alpha: 0, soft: 2.2, maxPx: 1024, order: 1, near: NEAR * 3 });
-    const fineDust = new Layer(data.fineDust, true, { spin: SPIN, alpha: 0, soft: 1.6, maxPx: 1024, dust: true, order: 3, near: NEAR });
-    const heart = new Layer(data.heart, true, { alpha: 0, soft: 2.6, maxPx: 2048, order: 4 });
+
     this.s2 = [
       [filaments, S2.filaments * more("filaments")],
       [clusterStars, S2.clusterStars * more("clusters")],
       [clusterGlow, S2.clusterGlow * more("clusters")],
       [clouds, S2.clouds * more("clouds")],
-      [fineDust, S2.fineDust * more("fineDust")],
-      [heart, S2.heart],
     ];
+    // the black hole at the heart (D-112): its shadow, then its ring, disc and streams over it (the near side of the disc crosses in front)
+    this.nucleus = new Layer(data.nucleus, false, { spin: NUCLEUS_SPIN, twinkle: 0.12, alpha: NUCLEUS.glow, maxPx: 40, order: 7, near: NEAR });
+    this.shadow = new Layer(
+      { pos: new Float32Array(3), col: new Float32Array(NUCLEUS_SHADOW), size: new Float32Array([HOLE_R * 300]), seed: new Float32Array(1), n: 1 },
+      true,
+      { alpha: NUCLEUS.shadow, soft: 0.35, maxPx: 4096, dust: true, order: 6 },
+    );
     this.webStrands = new Layer(data.webStrands, true, { alpha: 0, maxPx: 1024, soft: 2.2, order: 1 });
 
     this.layers = [this.wash, this.stars, this.body, this.haze, this.halo, this.companionStars, this.companionGlow, disc, this.dust, this.core];
     for (const [layer] of this.s2) this.layers.push(layer);
+    this.layers.push(this.nucleus, this.shadow);
     this.layers.push(this.webStrands);
     this.layers.push(this.webGlow, this.web, this.homeDot, this.quasarDot);
     // the governor's last step thins every large glow layer, S2's included (D-111)
     this.glowLayers = [this.body, this.haze, this.dust, clouds, clusterGlow, this.webStrands];
-    this.discLayers = [disc, filaments, clusterStars, clusterGlow, clouds, fineDust];
+    this.discLayers = [disc, filaments, clusterStars, clusterGlow, clouds, this.nucleus, this.shadow];
     if (data.bulge.n > 0) {
       const bulge = new Layer(data.bulge, false, { spin: SPIN, twinkle: 0.1, alpha: 1, maxPx: 40, order: 2 });
       this.layers.push(bulge);
@@ -337,6 +351,7 @@ export class AtlasWorld {
     this.galaxy.add(this.body.object, this.haze.object, this.halo.object, this.companionStars.object, this.companionGlow.object);
     this.galaxy.add(disc.object, this.dust.object, this.core.object);
     for (const [layer] of this.s2) this.galaxy.add(layer.object);
+    this.galaxy.add(this.nucleus.object, this.shadow.object);
     this.root.updateMatrixWorld(true);
   }
 
@@ -425,6 +440,8 @@ export class AtlasWorld {
     // close in the arms overlap into white: the disc's light is turned down toward stop 0
     const closeIn = mix(0.7, 1, sstep(0, 1, zoom));
     this.discLayers[0].alpha = this.discAlpha * closeIn;
+    this.nucleus.alpha = NUCLEUS.glow * near;
+    this.shadow.alpha = NUCLEUS.shadow * near;
     for (const [layer, base] of this.s2) {
       const thinned = this.glowLayers.includes(layer) ? this.glowGain : 1;
       layer.alpha = base * near * thinned * (layer.material.blending === AdditiveBlending ? closeIn : 1);

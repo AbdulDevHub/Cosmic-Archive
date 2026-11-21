@@ -98,7 +98,7 @@ Every scene shows a grab cursor (a closed hand while dragging). Until the visito
 
 - Three stops of one scene: **2** the cosmic web, **1** the whole galaxy, centred, **0** close in over the disc.
 - Lower left: the stop's name and its line, changing softly as the stop changes.
-- Lower right (a phone: lower left, under the words): **Closer** and **Further**, a plus and a minus in a circle with the word. At either end the button is dimmed and says so (`aria-disabled`).
+- Lower right (a phone: lower left, under the words): **Closer** and **Further**, a plus and a minus in a circle with the word. They move between scenes only (D-112): on the galaxy, Closer dives into the black hole at its heart and Further glides out to the web; on the web, Closer glides back in and Further is dimmed (`aria-disabled`). The atlas opens close in; the wheel and a pinch zoom freely.
 - Hotspots: at stops 0 and 1, **Black hole** (the core) and **Nebula** (in an arm); at stop 2, **Quasar** (a far, bright galaxy) and **The galaxy** (ours, which glides back in).
 - Drag turns the galaxy (and tilts it, with a mouse); the wheel and a pinch zoom.
 - Keys: + and − zoom, the arrows turn and tilt, Escape goes one stop further out.
@@ -107,7 +107,7 @@ Every scene shows a grab cursor (a closed hand while dragging). Until the visito
 ### 7.3 A place, `/black-hole`, `/nebula`, `/quasar`
 
 - The place, centred and as large as the window allows, in a full deep sky: the black hole at a galaxy's crowded heart, its glow bent into a ring by the hole; the quasar in the sparser sky between galaxies; the nebula wide, cool violet and azure on its far side, warm rose where it faces its cluster (D-101).
-- Lower left: its name and its line. Lower right: **Closer** and **Further**. Closer moves in (the black hole 2.6 times larger, the quasar 14 times, into its glare and disc). Further backs out to the place's own framing, then shrinks the place away and returns to the galaxy (or the web, for the quasar), dived into the place's light, then pulls back.
+- Lower left: its name and its line. Lower right: **Further** only (D-112). The place opens all the way in (the black hole 2.6 times its framing, the quasar 14 times, into its glare and disc); the wheel and a pinch zoom out to the framing and back. Further shrinks the place away and returns to the galaxy close in (or the web, for the quasar), dived into the place's light, then pulls back.
 - Drag turns around the black hole and the quasar (and lifts above or below the disc); on the nebula it pans, the stars behind moving less. The wheel and a pinch zoom; pulled on past the framing, the wheel leaves. Escape leaves; + and − zoom.
 
 ### 7.4 The flow between scenes (D-096)

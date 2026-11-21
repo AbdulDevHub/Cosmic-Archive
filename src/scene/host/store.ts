@@ -89,11 +89,11 @@ export const sceneIsLive = (s: SceneState): boolean =>
 export function requestScene(id: SceneId, mode: SceneMode, wanted: Partial<SceneInput> = {}): number {
   clearTimeout(unmountTimer);
   const slot = { token: nextToken++, id, mode };
-  // the atlas opens on the whole galaxy and a place arrives whole, unless the page asks for
-  // another view; the flow between scenes, when one is under way, wins over both
+  // every scene opens all the way in (D-112): the atlas close to the disc, a place as large as it
+  // gets, unless the page asks for another view; the flow between scenes, when one is under way, wins
   const flowing = Object.keys(opening).length > 0;
   // (the flow clears the opening once the move is over, not here: React's development mode mounts a slot twice)
-  Object.assign(input, { zoom: 1, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1, intro: 0 }, flowing ? opening : wanted);
+  Object.assign(input, { zoom: 0, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1, intro: 0 }, flowing ? opening : wanted);
   tweens.clear();
   set({ asked: true, slot, mounted: slot, slotVisible: true });
   return slot.token;
@@ -145,7 +145,7 @@ export const ZOOM_MIN = 0;
 export const ZOOM_MAX = 2;
 const PITCH_LIMIT = 0.3;
 
-const input: SceneInput = { zoom: 1, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1, intro: 0 };
+const input: SceneInput = { zoom: 0, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1, intro: 0 };
 let inputListener: (() => void) | null = null;
 let opening: Partial<SceneInput> = {};
 

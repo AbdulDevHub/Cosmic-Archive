@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Google_Sans_Flex, Hanken_Grotesk } from "next/font/google";
 import type { ReactNode } from "react";
+import { FirstLoad } from "@/components/FirstLoad";
 import { Veil } from "@/components/screen/Veil";
 import { SiteHeader } from "@/components/SiteHeader";
 import { motionInitScript } from "@/lib/motion";
@@ -55,6 +56,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         <SiteHeader />
         <main id="content">{children}</main>
         <Veil />
+        <FirstLoad />
       </body>
     </html>
   );

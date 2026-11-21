@@ -163,7 +163,7 @@ try {
     await page.getByRole("button", { name: "Begin Your Journey" }).click();
     await page.waitForTimeout(300);
     const state = await pageComplete(page);
-    check("no WebGL", "the start page shows, and Begin works without the scene", startTitle === "The Universe Awaits" && state.headline === "A spiral galaxy", `"${startTitle}", then "${state.headline}"`);
+    check("no WebGL", "the start page shows, and Begin works without the scene", startTitle === "The Universe Awaits" && state.headline === "Inside the Disc", `"${startTitle}", then "${state.headline}"`);
     check("no WebGL", "falls back to the poster", (await html(page, "scene")) === "static" && state.posterLoaded && state.canvases === 0);
     check("no WebGL", "the screen is complete: name, line and every place as a link", state.headline.length > 0 && state.line.length > 0 && state.links >= 3, `"${state.headline}", ${state.links} links`);
     check("no WebGL", "no 3D code downloaded", !(await loadedThree()));
@@ -361,11 +361,12 @@ try {
     await page.keyboard.press("Enter");
     await page.waitForTimeout(300);
     const atWeb = (await further.getAttribute("aria-disabled")) === "true";
-    await page.keyboard.press("+");
+    // + zooms a quarter stop at a time: three of them bring the view back in from the web (D-112)
+    for (let i = 0; i < 3; i++) await page.keyboard.press("+");
     await page.waitForTimeout(300);
     const closer = (await further.getAttribute("aria-disabled")) === "false";
-    check("keyboard", "Enter glides to the next stop, + moves closer", atWeb && closer);
-    await page.keyboard.press("-");
+    check("keyboard", "Enter on Further glides out to the web, + zooms back in", atWeb && closer);
+    for (let i = 0; i < 3; i++) await page.keyboard.press("-"); // back out to the web
     await page.waitForTimeout(2500); // the camera eases out and the web's places appear
     let onPlace = false;
     for (let i = 0; i < 12 && !onPlace; i++) {
@@ -407,29 +408,23 @@ try {
     await context.close();
   }
 
-  // 12. zooming into a place: Closer goes all the way in, Further comes back out to the framing, then leaves
+  // 12. a place (D-112): it opens all the way in, with no Closer button; - zooms out and stays,
+  // and Further leaves at once
   {
     const context = await browser.newContext(SMALL);
     const page = await context.newPage();
     await page.goto(base + "/quasar?tier=low", { waitUntil: "load" });
     await sceneSettled(page);
-    const closer = page.getByRole("button", { name: "Closer" });
     // clicked from inside the page: all the way into the quasar every pixel is ray-marched, and under
     // software WebGL a pointer click waits out its timeout for a frame
     const press = (locator) => locator.evaluate((el) => el.click());
-    const further = page.getByRole("link", { name: "Further" });
-    await press(closer);
-    await press(closer);
+    const noCloser = (await page.getByRole("button", { name: "Closer" }).count()) === 0;
+    await page.keyboard.press("-");
     await page.waitForTimeout(400);
-    check("place zoom", "Closer twice goes all the way into the quasar", (await closer.getAttribute("aria-disabled")) === "true");
-    await press(further);
-    await page.waitForTimeout(400);
-    const stillThere = new URL(page.url()).pathname === "/quasar" && (await closer.getAttribute("aria-disabled")) === "false";
-    await press(further);
-    await page.waitForTimeout(2500);
-    await press(further);
+    const stayed = new URL(page.url()).pathname === "/quasar";
+    await press(page.getByRole("link", { name: "Further" }));
     const left = await page.waitForURL((url) => url.pathname === "/", { timeout: 15000 }).then(() => true, () => false);
-    check("place zoom", "Further comes back to the framing first, then leaves the place", stillThere && left);
+    check("place zoom", "no Closer on a place; - zooms out and stays; Further leaves at once", noCloser && stayed && left);
     await context.close();
   }
 
@@ -483,7 +478,7 @@ try {
     const first = (await begin.isVisible()) && (await page.locator("h1").first().textContent()) === "The Universe Awaits";
     await begin.click();
     const landed = await page
-      .waitForFunction(() => !document.querySelector("[data-start]") && [...document.querySelectorAll("h1")].some((h) => h.textContent === "A spiral galaxy" && getComputedStyle(h).visibility === "visible"), undefined, { timeout: 15000 })
+      .waitForFunction(() => !document.querySelector("[data-start]") && [...document.querySelectorAll("h1")].some((h) => h.textContent === "Inside the Disc" && getComputedStyle(h).visibility === "visible"), undefined, { timeout: 15000 })
       .then(() => true, () => false);
     const spot = await spotFor(page, "/black-hole").then(() => true, () => false);
     check("start page", "Begin flies into the galaxy; its words and places show", first && landed && spot);

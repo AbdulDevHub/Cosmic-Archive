@@ -1,0 +1,100 @@
+/* The first-load screen (D-112): the emblem turning in a soft glow over deep space, the spaced
+   wordmark, and a thin light running under it. Lets every click through. */
+
+.cover {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 22px;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 50% 46%, oklch(0.24 0.08 285 / 0.9), transparent 70%),
+    radial-gradient(40% 40% at 70% 70%, oklch(0.22 0.07 250 / 0.6), transparent 70%),
+    #090a1c;
+  transition: opacity 700ms ease-in-out;
+}
+
+.cover[data-fading] {
+  opacity: 0;
+}
+
+.mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 120px;
+  height: 120px;
+}
+
+.mark svg {
+  position: relative;
+  animation: turn 3.2s linear infinite;
+  filter: drop-shadow(0 0 14px oklch(0.7 0.18 285 / 0.8));
+}
+
+.halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, oklch(0.72 0.17 290 / 0.45), transparent 65%);
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+.word {
+  margin: 0;
+  font: 400 15px / 1 var(--font-display);
+  letter-spacing: 0.6em;
+  text-transform: uppercase;
+  color: oklch(0.93 0.02 280);
+  padding-left: 0.6em; /* letter-spacing trails the last letter; this centres the word */
+}
+
+.line {
+  position: relative;
+  width: 160px;
+  height: 1px;
+  overflow: hidden;
+  background: oklch(0.9 0.04 280 / 0.15);
+}
+
+.line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, oklch(0.85 0.12 280), transparent);
+  animation: run 1.4s ease-in-out infinite;
+}
+
+@keyframes turn {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes breathe {
+  50% {
+    transform: scale(1.15);
+    opacity: 0.6;
+  }
+}
+
+@keyframes run {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mark svg,
+  .halo,
+  .line::after {
+    animation: none;
+  }
+}

@@ -65,6 +65,8 @@ const KEY_YAW = 0.15;
 const KEY_PITCH = 0.06;
 const PINCH_ZOOM = 1.1; // stops per halving of the distance between two fingers
 
+/** Past this zoom the visitor is out on the cosmic web. */
+const WEB_AT = 1.5;
 const stopOf = (zoom: number) => Math.min(2, Math.max(0, Math.round(zoom))) as 0 | 1 | 2;
 const spotShows = (spot: Spot, zoom: number) => (spot.stop === 2 ? zoom > 1.6 : zoom < 1.45);
 
@@ -79,15 +81,12 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
     routerRef.current = router;
   }, [router]);
 
-  // The words follow the stop the scene drew; the server HTML has the galaxy's.
-  const [stop, setStop] = useState<0 | 1 | 2>(1);
+  // The words follow the stop the scene drew; the server HTML has the opening view's (close in, D-112).
+  const [stop, setStop] = useState<0 | 1 | 2>(0);
   const words = stops.find((entry) => entry.zoom === stop) ?? stops[0];
-  // which of the two buttons has nowhere left to go
-  const [limit, setLimit] = useState<"near" | "far" | null>(null);
-  const sync = () => {
-    const { zoom } = getSceneInput();
-    setLimit(zoom <= ZOOM_MIN + 0.01 ? "near" : zoom >= ZOOM_MAX - 0.01 ? "far" : null);
-  };
+  // out on the web, Further has nowhere left to go
+  const [atWeb, setAtWeb] = useState(false);
+  const sync = () => setAtWeb(getSceneInput().zoom > WEB_AT);
 
   const glideTo = (zoom: number) => {
     if (flowBusy()) return;
@@ -96,10 +95,22 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
     else animateSceneInput({ zoom }, STEP_MS);
     sync();
   };
-  /** The next whole stop in a direction: from between two stops, the nearer one first. */
-  const step = (direction: 1 | -1) => {
-    const { zoom } = getSceneInput();
-    glideTo(direction > 0 ? Math.floor(zoom + 1.01) : Math.ceil(zoom - 1.01));
+  /**
+   * The two buttons move between scenes only (D-112); the wheel and a pinch zoom freely. From the
+   * galaxy, Closer dives into the black hole at its heart and Further glides out to the web; from
+   * the web, Closer glides back in to the galaxy.
+   */
+  const closer = () => {
+    if (flowBusy()) return;
+    if (getSceneInput().zoom > WEB_AT) {
+      glideTo(ZOOM_MIN);
+      return;
+    }
+    const heart = spots.find((entry) => entry.anchor === "core");
+    if (heart?.href) diveInto((href) => routerRef.current.push(href), heart.href, heart.anchor, heart.veil);
+  };
+  const further = () => {
+    if (getSceneInput().zoom <= WEB_AT) glideTo(ZOOM_MAX);
   };
 
   // The start page (D-107): shown on arriving at `/` fresh, or by Home; not when the flow brings the
@@ -118,7 +129,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
   const startsHere = useRef(true);
   const opening = () => {
     startsHere.current = wantsStart();
-    return startsHere.current ? { intro: 1, zoom: 1 } : {};
+    return startsHere.current ? { intro: 1, zoom: ZOOM_MIN } : {};
   };
   useEffect(() => {
     // the slot asked first (a child's effect runs before its parent's); without a scene, ask here
@@ -154,11 +165,11 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
       clearTimeout(leaving.current);
       setStartPhase("start");
       if (!live || calm()) {
-        setSceneInput({ intro: 1, zoom: 1, yaw: 0, pitch: 0 });
+        setSceneInput({ intro: 1, zoom: ZOOM_MIN, yaw: 0, pitch: 0 });
         return;
       }
       whoosh("out", BACK_MS / 1000);
-      animateSceneInput({ intro: 1, zoom: 1, yaw: 0, pitch: 0 }, BACK_MS);
+      animateSceneInput({ intro: 1, zoom: ZOOM_MIN, yaw: 0, pitch: 0 }, BACK_MS);
     };
     const hash = () => {
       if (window.location.hash === "#atlas") beginRef.current();
@@ -179,8 +190,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
     const apply = (frame: SceneFrame) => {
       setStop(stopOf(frame.zoom));
       // the buttons follow wherever the zoom was set from: a glide, the flow, the wheel
-      const { zoom } = getSceneInput();
-      setLimit(zoom <= ZOOM_MIN + 0.01 ? "near" : zoom >= ZOOM_MAX - 0.01 ? "far" : null);
+      setAtWeb(getSceneInput().zoom > WEB_AT);
       const busy = flowBusy() || phaseRef.current !== "atlas";
       for (const item of items) {
         const spot = spots.find((entry) => entry.anchor === item.dataset.anchor);
@@ -248,7 +258,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
       const { zoom, yaw, pitch } = getSceneInput();
       if (event.key === "+" || event.key === "=") setSceneInput({ zoom: zoom - KEY_ZOOM });
       else if (event.key === "-" || event.key === "_") setSceneInput({ zoom: zoom + KEY_ZOOM });
-      else if (event.key === "Escape") step(1);
+      else if (event.key === "Escape") further();
       else if (event.key === "ArrowLeft") setSceneInput({ yaw: yaw - KEY_YAW });
       else if (event.key === "ArrowRight") setSceneInput({ yaw: yaw + KEY_YAW });
       else if (event.key === "ArrowUp") setSceneInput({ pitch: pitch - KEY_PITCH });
@@ -276,7 +286,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
       element.removeEventListener("click", onClick);
       document.removeEventListener("keydown", onKey);
     };
-    // `step`, `glideTo` and `sync` only read the store and set state
+    // `further`, `glideTo` and `sync` only read the store and set state
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [live, spots]);
 
@@ -312,11 +322,11 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
       <DragHint live={live} />
       {live ? (
         <div className={styles.controls}>
-          <button type="button" className={styles.control} onClick={() => limit !== "near" && step(-1)} aria-disabled={limit === "near"}>
+          <button type="button" className={styles.control} onClick={closer}>
             <i className={`${styles.icon} ${styles.closer}`} aria-hidden="true" />
             <span>Closer</span>
           </button>
-          <button type="button" className={styles.control} onClick={() => limit !== "far" && step(1)} aria-disabled={limit === "far"}>
+          <button type="button" className={styles.control} onClick={() => !atWeb && further()} aria-disabled={atWeb}>
             <i className={`${styles.icon} ${styles.further}`} aria-hidden="true" />
             <span>Further</span>
           </button>
