@@ -3,13 +3,13 @@
  * rule as `npm run check`: a line without a fetched source fails the build.
  */
 
-import { FEATURED, PLACES, SOURCES, STOPS, type Place, type PlaceId, type Stop, type StopIndex } from "@content/places";
+import { PLACES, SOURCES, STOPS, type Place, type PlaceId, type Stop, type StopIndex } from "@content/places";
 import { placeProblems } from "./place-check";
 
-export { FEATURED, PLACES, SOURCES, STOPS } from "@content/places";
-export type { AtlasAnchor, Featured, Place, PlaceId, Source, Stop, StopIndex } from "@content/places";
+export { PLACES, SOURCES, STOPS } from "@content/places";
+export type { AtlasAnchor, Place, PlaceId, Source, Stop, StopIndex } from "@content/places";
 
-const problems = placeProblems(SOURCES, [...STOPS, ...PLACES, ...FEATURED]);
+const problems = placeProblems(SOURCES, [...STOPS, ...PLACES]);
 if (problems.length > 0) throw new Error(`content/places.ts:\n  ${problems.join("\n  ")}`);
 
 export function getPlace(id: string): Place | undefined {

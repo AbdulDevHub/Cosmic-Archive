@@ -155,21 +155,4 @@ export const PLACES: readonly Place[] = [
   },
 ];
 
-/**
- * The start page's "Featured Topics" (D-108, from the owner's Home.png): four ways in, each a
- * short line cut from a sourced line above. `to` is a place, or "galaxy" for the atlas itself.
- */
-export interface Featured {
-  to: PlaceId | "galaxy";
-  name: string;
-  line: string;
-  sources: readonly string[];
-}
-
-export const FEATURED: readonly Featured[] = [
-  { to: "black-hole", name: "Black Holes", line: "Where gravity reshapes space and time", sources: ["nasa-anatomy", "nasa-too-close"] },
-  { to: "galaxy", name: "Galaxies", line: "Islands of stars, gas and dust", sources: ["nasa-galaxies"] },
-  { to: "nebula", name: "Nebulae", line: "Clouds where stars are born", sources: ["nasa-spaceplace-nebula"] },
-  { to: "quasar", name: "Quasars", line: "Beacons in the distant universe", sources: ["nasa-webb-quasars", "nasa-hubble-quasars"] },
-];
 

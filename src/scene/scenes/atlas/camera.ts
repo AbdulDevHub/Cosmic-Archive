@@ -34,9 +34,11 @@ export const KEYS_PHONE: readonly Key[] = [
 /**
  * The start page (D-107): the galaxy large on the right, seen lower and from further off, with the
  * planet, moons, asteroids and ship before it (start.ts). `intro` blends from here (1) to stop 1 (0).
+ * `roll` turns the view about its axis so the galaxy rises to the upper right, its face opened
+ * toward the ship coming from the lower left (D-109); it unwinds during the flight in.
  */
-export const START_DESK: Key = { d: 4.3, el: 36, az: -0.35, sx: 0.34, sy: 0.12 };
-export const START_PHONE: Key = { d: 9.5, el: 42, az: -0.35, sx: 0.0, sy: 0.34 };
+export const START_DESK: Key & { roll: number } = { d: 4.3, el: 46, az: -0.35, sx: 0.34, sy: 0.12, roll: -0.42 };
+export const START_PHONE: Key & { roll: number } = { d: 9.5, el: 48, az: -0.35, sx: 0.0, sy: 0.34, roll: -0.3 };
 
 /** Phone compositions apply when the view is taller than 5:4 (the prototype's `phone()`). */
 export const isPhone = (width: number, height: number) => width / height < 0.8;
@@ -86,6 +88,7 @@ export function placeCamera(
     camera.position.copy(focus).add(away);
   }
   camera.lookAt(look);
+  if (g > 0) camera.rotateZ(s.roll * g);
   camera.updateProjectionMatrix();
   // lens shift: moves the subject without changing perspective; a dive centres its place
   camera.projectionMatrix.elements[8] = -lerpKey("sx") * (1 - k);
