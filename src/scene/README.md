@@ -45,4 +45,4 @@ Scenes never read a clock: time and the view come in as boxes the host writes ea
 
 - `npm run posters` renders `public/posters/` from the scenes themselves. Build again afterwards.
 - `npm run shots` writes `screenshots/`: each stop and place, as a visitor gets it and as a still.
-- `npm run fallbacks` runs the fallback and flow tests: reduced motion, no WebGL, slow device, no 3D code on About, every place, the flow with and without motion, keyboard and touch.
+- `npm run fallbacks` runs the fallback and flow tests: reduced motion, no WebGL, slow device, no 3D code on the 404 page, every place, the flow with and without motion, keyboard and touch.

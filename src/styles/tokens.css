@@ -34,7 +34,7 @@
   --step-2: 1.66rem; /* 26.6 px */
   --step-3: 2.075rem; /* 33.2 px */
   --step-4: 2.594rem; /* 41.5 px */
-  --h1: clamp(2.3rem, 6vw, 5.75rem); /* large headline (About) */
+  --h1: clamp(2.3rem, 6vw, 5.75rem); /* large headline */
   --h2: clamp(1.75rem, 3.5vw, 3.1rem); /* section headline */
   --lede: clamp(1rem, 1.25vw, 1.2rem); /* the one sentence under a headline */
   --measure: 31rem; /* supporting copy; body columns stay 45 to 75 characters */

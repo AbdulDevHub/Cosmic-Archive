@@ -1,6 +1,6 @@
 # Cosmic Archive: Design Spec
 
-**Status:** v3, 2026-11-20. Rewritten after the owner's read-through: the site is a spectacle to look at, not an atlas to read (D-092). Replaces v2 (2026-11-11, in git), whose ink layer, vessel and reading pages are gone.
+**Status:** v3, 2026-11-20; S1b changes 2026-11-21 (no About, no Pause, sound, the deep sky, zoom and drag in places: D-099 to D-102). Rewritten after the owner's read-through: the site is a spectacle to look at, not an atlas to read (D-092). Replaces v2 (2026-11-11, in git), whose ink layer, vessel and reading pages are gone.
 **Reference for the look:** the scenes themselves. The palette, type and the galaxy's look still come from `prototype/look.html`, without its ink and vessel.
 
 ## 1. The idea: the universe, to look at
@@ -22,7 +22,8 @@ These make the site generic or break the idea. Do not introduce them.
 - Tracked uppercase "eyebrow" lines above headlines; section numbering; rows of identical cards; hero statistics.
 - Paragraphs on a scene screen. One name and one line, at most twelve words (enforced by `npm run check`).
 - Dim grey text. Text over a bright part of a scene without its dark halo.
-- Scroll hijacking of a reading page, autoplay sound, camera spins, fast or flashing motion. The opening glide on `/` is short, and any input takes over from it.
+- Sound before the visitor's first click, tap or key; camera spins; fast or flashing motion. The opening glide on `/` is short, and any input takes over from it.
+- Thin dark lines in the scenery, even as dust: dust is drawn as soft drifts.
 
 ## 3. Colour
 
@@ -34,7 +35,7 @@ Tokens live in `src/styles/tokens.css` in OKLCH, copied from the approved protot
 | `--space-2` | `oklch(0.18 0.05 275)` | Raised surfaces (rare) |
 | `--ink` | `oklch(0.95 0.02 85)` | Text. Warm white |
 | `--ink-2` | `oklch(0.82 0.03 85)` | Secondary text. Still above 4.5:1 on `--space` |
-| `--beacon` | `oklch(0.85 0.13 82)` | The one UI accent: hotspots, links, focus, the loader. Warm gold |
+| `--beacon` | `oklch(0.85 0.13 82)` | The one UI accent: hotspots, focus, the loader. Warm gold |
 | `--gold` `--ember` `--rose` `--violet` `--azure` `--teal` | scenery | Used by scenes only, never for UI chrome |
 
 Rules:
@@ -66,7 +67,7 @@ Scale: 1.25 ratio from a 17 px base; a place's name `clamp(2rem, 4.2vw, 3.6rem)`
 - The camera moves only in response to the visitor, except the opening glide on `/` (the web to the galaxy, 3.2 s, once a visit), which any input takes over.
 - A click's move is a timed glide, eased in and out: about 1.9 s between stops, 1.4 s for a dive, 1.7 s for an arrival (D-097). The wheel, a pinch, a drag and the keys ease by closing part of the gap each frame.
 - DOM transitions 150 to 300 ms, ease-out, opacity and transform only. The veil fades in 500 ms.
-- A "Pause motion" control is always in the header. With reduced motion or Pause there is no glide, dive or growth: each view is one still frame, and a move between scenes is a 220 ms cross-fade through the veil.
+- There is no Pause control (D-099): the device's own reduced-motion setting decides. With it there is no glide, dive or growth: each view is one still frame, and a move between scenes is a 220 ms cross-fade through the veil.
 
 ## 7. The screen
 
@@ -74,7 +75,15 @@ Every scene route is one screen: the scene fills the window and nothing scrolls.
 
 ### 7.1 Header
 
-Wordmark "Cosmic Archive" in the display face, left; it leads home to the universe. Right: About, then Pause motion (its icon only on a phone). No background over a scene; on About it turns solid once the page scrolls.
+Wordmark "Cosmic Archive" in the display face, left; it leads home to the universe. Right: **Sound**, a speaker with waves when on and a cross when off, with the word (its icon only on a phone). No background: every page is a scene, and the header's empty middle can be dragged through.
+
+### 7.1a Sound (D-100)
+
+The owner's own music, "Magical Space", loops quietly under every scene; each flight (a dive, a pull-out, a glide between stops) carries a soft whoosh made in the browser, and the music dips under it. Browsers allow sound only after the visitor does something, so the music fades in after the first click, tap or key. On by default; the Sound button turns it off, and the choice is remembered. Nothing plays while the tab is hidden.
+
+### 7.1b Saying the scene can be dragged (D-102)
+
+Every scene shows a grab cursor (a closed hand while dragging). Until the visitor first drags a scene, a quiet line sits in the bottom middle (on a phone, under the header): two swaying arrows and "Drag to look around · scroll to zoom" ("pinch to zoom" on touch). After the first drag it fades and does not come back.
 
 ### 7.2 The universe, `/`
 
@@ -82,13 +91,15 @@ Wordmark "Cosmic Archive" in the display face, left; it leads home to the univer
 - Lower left: the stop's name and its line, changing softly as the stop changes.
 - Lower right (a phone: lower left, under the words): **Closer** and **Further**, a plus and a minus in a circle with the word. At either end the button is dimmed and says so (`aria-disabled`).
 - Hotspots: at stops 0 and 1, **Black hole** (the core) and **Nebula** (in an arm); at stop 2, **Quasar** (a far, bright galaxy) and **The galaxy** (ours, which glides back in).
+- Drag turns the galaxy (and tilts it, with a mouse); the wheel and a pinch zoom.
 - Keys: + and − zoom, the arrows turn and tilt, Escape goes one stop further out.
+- Behind the galaxy, the deep sky: clouds of violet and azure gas, soft dust, dense stars and a few bright ones with light spikes. It thins toward the web, where the dark between galaxies is the point (D-101).
 
 ### 7.3 A place, `/black-hole`, `/nebula`, `/quasar`
 
-- The place, centred and as large as the window allows.
-- Lower left: its name and its line. Lower right: **Further**, which shrinks the place away and returns to the galaxy (or the web, for the quasar), dived into the place's light, then pulls back.
-- Escape, the − key, or the wheel pulled back do the same.
+- The place, centred and as large as the window allows, in a full deep sky: the black hole at a galaxy's crowded heart, its glow bent into a ring by the hole; the quasar in the sparser sky between galaxies; the nebula wide, cool violet and azure on its far side, warm rose where it faces its cluster (D-101).
+- Lower left: its name and its line. Lower right: **Closer** and **Further**. Closer moves in (the black hole 2.6 times larger, the quasar 14 times, into its glare and disc). Further backs out to the place's own framing, then shrinks the place away and returns to the galaxy (or the web, for the quasar), dived into the place's light, then pulls back.
+- Drag turns around the black hole and the quasar (and lifts above or below the disc); on the nebula it pans, the stars behind moving less. The wheel and a pinch zoom; pulled on past the framing, the wheel leaves. Escape leaves; + and − zoom.
 
 ### 7.4 The flow between scenes (D-096)
 
@@ -101,12 +112,13 @@ Going out is the same, reversed. The veil never stays down: a page that draws no
 
 ## 8. About
 
-The one page of words, a plain column on `--space`: what the site is, "every picture is our own illustration", the real telescope images (linked, never embedded), the sources behind the site's few lines with their checked dates, and credits.
+Removed (D-099). The sources behind the site's few lines stay in `content/places.ts`, checked by the build.
 
 ## 9. Responsive and accessibility
 
 - Designed at 390, 768 and 1440 wide. Phone compositions are their own, not shrunk.
 - Every place is a real link; the scene is decoration, hidden from assistive technology. Without the scene the hotspots are a plain list of links under the words.
+- The device's reduced-motion setting stills everything (there is no Pause control, D-099). The Sound button is a real toggle (`aria-pressed`).
 - Visible focus rings in `--beacon`. Touch targets at least 44 px.
 - Every screen is complete with the scene replaced by its poster: name, line, places, Further.
 
@@ -118,14 +130,15 @@ Open, for the beauty sessions (S2 to S4 in `PHASED_ROADMAP.md`):
 
 - Diving into the core passes through disc stars, which grow into large soft discs near the camera. Read as flying through stars; it could be finer.
 - The cosmic web is thin on a phone at the `low` particle budget.
-- The black hole's far starlight is bent into long thin arcs; they could read as drawn lines.
+- The galaxy itself could be denser between its arms (the references fill every part of the disc).
 - The nebula's young cluster is a tidy pattern of dots; it wants to look more natural.
 
 ## 11. Self-review checklist for screenshots
 
 Run this on every screenshot before calling a visual task done.
 
-1. Is anything drawn over the scenery that the universe does not have: a ring, tick, line, grid or vessel? Remove it.
+1. Is anything drawn over the scenery that the universe does not have: a ring, tick, line, grid or vessel, or dust that reads as a thin line? Remove it.
+1a. Is any part of the frame empty, flat dark? The deep sky should fill it (except the web, a little).
 2. Is the subject centred and large, filling the frame without being cropped awkwardly?
 3. Is there any glass, glow-on-UI, gradient text, pill nav or HUD element? Remove it.
 4. Are the words only the name and one line, in the lower left, readable over the brightest frame behind them?

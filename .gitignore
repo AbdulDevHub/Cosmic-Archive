@@ -18,3 +18,6 @@ screenshots/
 # next.js and typescript
 next-env.d.ts
 *.tsbuildinfo
+
+# Inspiration from the owner, not our own art: never in the repo or the site (D-018, D-101)
+reference images/

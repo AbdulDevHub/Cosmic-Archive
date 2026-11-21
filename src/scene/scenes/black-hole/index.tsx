@@ -8,7 +8,8 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import type { SceneBudget, SceneProps } from "../../host/types";
 import { RUNGS } from "../../quality/tiers";
-import { BlackHoleWorld, makeFrame } from "./world";
+import { bakeSky } from "../../sky";
+import { BlackHoleWorld, makeFrame, SKY_HEART } from "./world";
 
 export const budget: SceneBudget = {
   drawCalls: 1,
@@ -22,7 +23,11 @@ export default function BlackHoleScene({ rung, time, view, publish, onReady }: S
   const invalidate = useThree((s) => s.invalidate);
   const tier = RUNGS[rung].particles;
 
-  const world = useMemo(() => new BlackHoleWorld(), []);
+  const gl = useThree((s) => s.gl);
+  // the deep sky's clouds, with the galaxy's heart behind the hole, drawn once (D-101)
+  const sky = useMemo(() => bakeSky(gl, SKY_HEART, 1), [gl]);
+  useEffect(() => () => sky.dispose(), [sky]);
+  const world = useMemo(() => new BlackHoleWorld(sky.texture), [sky]);
   useEffect(() => () => world.dispose(), [world]);
   const frame = useMemo(() => makeFrame(), []);
 
@@ -34,7 +39,7 @@ export default function BlackHoleScene({ rung, time, view, publish, onReady }: S
   const drawn = useRef(false);
   useFrame(() => {
     world.setTime(time.current);
-    world.setArrive(view.current.arrive);
+    world.setView(view.current);
     publish(frame);
     if (!drawn.current) {
       drawn.current = true;

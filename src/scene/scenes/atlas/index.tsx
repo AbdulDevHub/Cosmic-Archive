@@ -10,6 +10,7 @@ import type { SceneBudget, SceneProps } from "../../host/types";
 import { RUNGS } from "../../quality/tiers";
 import { isPhone } from "./camera";
 import { COUNTS } from "./model";
+import { bakeSky } from "../../sky";
 import { AtlasWorld, makeFrame } from "./world";
 
 export const budget: SceneBudget = {
@@ -33,7 +34,11 @@ export default function AtlasScene({ rung, time, view, publish, onReady }: Scene
   const narrow = isPhone(width, height);
 
   // Particle attributes are built once per tier (and per phone/desktop composition), never per frame.
-  const world = useMemo(() => new AtlasWorld(particles, narrow), [particles, narrow]);
+  const gl = useThree((s) => s.gl);
+  // the deep sky's clouds behind the galaxy and the web, drawn once (D-101)
+  const sky = useMemo(() => bakeSky(gl), [gl]);
+  useEffect(() => () => sky.dispose(), [sky]);
+  const world = useMemo(() => new AtlasWorld(particles, narrow, sky.texture), [particles, narrow, sky]);
   useEffect(() => () => world.dispose(), [world]);
   const frame = useMemo(() => makeFrame(), []);
 

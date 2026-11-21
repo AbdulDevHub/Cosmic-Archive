@@ -1,6 +1,6 @@
 # Cosmic Archive: Architecture
 
-**Status:** v2, 2026-11-20. Updated for the spectacle direction (D-092 to D-097): one screen per scene, click-to-zoom, the flow between scenes, no ink, no MDX. The scene system (section 3) and its budgets are unchanged from v1.
+**Status:** v2, 2026-11-20; S1b 2026-11-21 (D-099 to D-102). Updated for the spectacle direction (D-092 to D-097): one screen per scene, click-to-zoom, the flow between scenes, no ink, no MDX. The scene system (section 3) and its budgets are unchanged from v1.
 
 ## 1. Shape of the app
 
@@ -13,7 +13,8 @@ public/posters/          stills rendered from our own scenes; public/og/ share i
 scripts/                 check-content, shots, posters, fallbacks, a11y
 src/
   app/                   routes and layouts (server components by default)
-  components/screen/     the screen: AtlasView, PlaceView, the Veil, CSS Modules
+  components/screen/     the screen: AtlasView, PlaceView, the Veil, DragHint, useGestures, CSS Modules
+  lib/sound.ts           the music and the whooshes (Web Audio, no dependency)
   lib/content/           loads and checks content/places.ts
   scene/                 everything WebGL (the only place three is imported)
     host/                SceneHost, SceneSlot, store, flow, registry
@@ -41,9 +42,8 @@ src/
 | `/black-hole` | `black-hole` | `place` |
 | `/nebula` | `nebula` | `place` |
 | `/quasar` | `quasar` (the black-hole shader seen from far off) | `place` |
-| `/about` | none | |
 
-All routes are static (`generateStaticParams` for `[place]`, `dynamicParams = false`). No server runtime, no API routes. The routes of v1 (`/explore`, `/subjects/*`, `/journeys/*`, `/archive`) were removed before anything was deployed, so they have no redirects (D-093, D-095).
+All routes are static (`generateStaticParams` for `[place]`, `dynamicParams = false`). No server runtime, no API routes. The routes of v1 (`/explore`, `/subjects/*`, `/journeys/*`, `/archive`) and then `/about` were removed before anything was deployed, so they have no redirects (D-093, D-095, D-099). The 404 page is the one page without a scene.
 
 ## 3. Scene system
 
@@ -71,7 +71,7 @@ Diving into a place from the atlas:
 2. At 0.9 s the veil falls: a full-screen DOM layer fades (500 ms) to the place's own dark colour (`veil` in `content/places.ts`).
 3. At 1.4 s the flow sets the next scene's opening (`arrive: 0`) and calls `router.push`. The new page's slot registers; its scene mounts under the veil.
 4. When the new scene's first frame is drawn (`markReady` for a token newer than the one left), `arrive` glides 0 to 1 over 1.7 s (the shader scenes scale their composition from about a third to full) and the veil lifts.
-5. If the veil has been down 400 ms, the loader shows. A page that draws no scene (no WebGL, About) lifts the veil after 350 ms; it gives up after 6 s whatever happens.
+5. If the veil has been down 400 ms, the loader shows. A page that draws no scene (no WebGL, the 404) lifts the veil after 350 ms; it gives up after 6 s whatever happens.
 
 Pulling out is the same in reverse: `arrive` glides to 0 (0.9 s), the veil falls in the atlas's `--space`, and the atlas opens at the place's stop with `focus` on its anchor and `dive` at 1, then glides `dive` to 0.
 
@@ -89,7 +89,7 @@ Scene time is a value passed in, never read from a clock inside a scene. That gi
 
 - `?shot=1&t=12` renders exactly one deterministic frame, for screenshots; `&zoom=` holds the atlas at a stop.
 - `npm run posters` uses the same switch to render the stills in `public/posters/` and `public/og/`.
-- Reduced motion and "Pause motion" hold time still and render on demand only.
+- Reduced motion holds time still and renders on demand only.
 
 ### 3.6 Quality tiers
 
@@ -139,24 +139,25 @@ Scene routes carry their page code above the no-scene figure (D-047). Targets: 6
 ## 5. Shaders
 
 - GLSL lives in template strings in `.glsl.ts` files, so no bundler loader is needed.
-- Shared chunks in `src/scene/shaders/`: soft point and sprite shaders for the atlas.
+- Shared chunks in `src/scene/shaders/`: soft point and sprite shaders for the atlas, and the deep sky.
+- `sky.glsl.ts` is the deep sky (D-101), a function of a direction: clouds of gas (3D value noise, warped), soft dust, three layers of stars with a few spiked bright ones, and an optional warm galactic heart. Its clouds are baked once per scene into a 512-pixel cube texture (`src/scene/sky.ts`); only the stars are drawn live. The black hole and the quasar sample it with each ray's final direction, so it is lensed; the atlas draws it on a full-screen triangle first (one more draw call), from the camera's inverse projection; the nebula lays it flat, shifted less than the cloud by a drag.
 - The black hole is a single full-screen triangle: rays bent around the hole, a stylised accretion disc with a brighter approaching side, a background star field. The quasar is the same shader with `QUASAR` defined, seen from far off, with jets, glare and a host galaxy. The nebula is one full-screen shader of warped noise, a cavity, columns of dust and a young cluster.
-- The shader scenes are composed in CSS pixels around the window's centre; `setArrive` scales that composition for the flow.
+- The shader scenes are composed in CSS pixels around the window's centre. `setView(view)` scales that composition by the arrival and the visitor's zoom (`placeScale`: `zoom` 1 is the framing, 0 all the way closer), and applies a drag: the black hole and the quasar turn their camera (`yaw` to azimuth, `pitch` to elevation); the nebula pans (D-102).
 
 ## 6. Content model
 
 `content/places.ts` is all the site's words (D-095):
 
 - `STOPS`: the atlas's three stops, each `{ zoom, name, line, sources }`.
-- `PLACES`: each `{ id, name, line, sources, anchor, stop, veil, observations }`. `id` is the route and the scene id.
-- `SOURCES`: `{ id, title, publisher, url, checked }`. `ATLAS_OBSERVATIONS`: real images of galaxies, for About.
+- `PLACES`: each `{ id, name, line, sources, anchor, stop, veil }`. `id` is the route and the scene id.
+- `SOURCES`: `{ id, title, publisher, url, checked }`. Not shown on the site since About went (D-099); still checked by the build.
 
 `src/lib/content/place-check.ts` holds the rule; the build (`src/lib/content/places.ts`) and `npm run check` (`scripts/check-content.mjs`) both run it. It fails when a line is longer than twelve words, names no source or one that is not listed, a source has no checked date or is listed twice, or a source backs no line.
 
 ## 7. Accessibility and SEO
 
 - All meaning is in the DOM. The scene adds nothing a screen reader needs.
-- "Pause motion" in the header, persisted in `localStorage`, satisfies WCAG 2.2.2. Reduced motion defaults it to paused.
+- There is no Pause control (D-099, the owner's call for a personal site): motion follows the device's reduced-motion setting, live. Sound waits for a gesture and has its own toggle.
 - Every control works from the keyboard: Tab reaches the hotspots and the buttons, + and − zoom, the arrows turn and tilt, Escape goes further out (and leaves a place).
 - Each route sets its own title, description, canonical URL and share image. Sitemap, robots and JSON-LD `WebSite`.
 
@@ -165,5 +166,5 @@ Scene routes carry their page code above the no-scene figure (D-047). Targets: 6
 - `Verify: npm run check` (type check, lint, content check; under 60 s, no build).
 - `Verify-full: npm run build && npm run shots`.
 - Scene changes are checked by looking at `screenshots/` with the checklist in `DESIGN_SPEC.md` section 11.
-- `npm run fallbacks` (after a build): reduced motion (no loop), WebGL disabled (poster, screen complete, plain links), CPU throttling (governor steps down), a cold load of About (no three), navigation, each place, the flow with and without motion (the veil falls and lifts), keyboard only and touch only.
+- `npm run fallbacks` (after a build): reduced motion (no loop), WebGL disabled (poster, screen complete, plain links), CPU throttling (governor steps down), the 404 (no three), navigation, each place, the flow with and without motion (the veil falls and lifts, Back mid-dive), keyboard only, touch only, zooming into a place, the drag hint, the Sound button.
 - `npm run a11y`: axe-core on every route, wide and phone.

@@ -3,7 +3,7 @@
  *
  * A "rung" is one step of the governor's ladder. Stepping down goes pixels first, then
  * particle count, then glow (3.5). `still` is not a rung: it is the loop being stopped
- * (reduced motion or Pause), with the counts of whatever rung is active.
+ * (reduced motion), with the counts of whatever rung is active.
  */
 
 export type ParticleTier = "low" | "medium" | "high";

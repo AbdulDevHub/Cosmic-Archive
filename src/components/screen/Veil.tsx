@@ -13,7 +13,7 @@ import styles from "./Veil.module.css";
   in the middle: the loader.
 
   Mounted once in the root layout. It never stays down: a page that draws no scene (no WebGL, or
-  About) lifts it, and so does a scene that has not drawn after a few seconds.
+  the 404) lifts it, and so does a scene that has not drawn after a few seconds.
 */
 
 const LOADER_AFTER_MS = 400;

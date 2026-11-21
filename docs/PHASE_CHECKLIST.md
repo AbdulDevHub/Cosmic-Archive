@@ -134,8 +134,16 @@ Fable's part ends here (D-028). Everything below is built by Opus.
   - [x] The flow: dive, veil in the place's colour, loader after 400 ms, arrival; reversed going out; a 220 ms cross-fade with reduced motion; scene chunks fetched when idle (D-096). Filmed headlessly in and out of the black hole: no black frame, the loader shows while the scene compiles.
   - [x] Checks: `npm run check`; `npm run build`; `npm run shots` 36 of 36 (one earlier run timed out on the live black hole under software WebGL; the re-run passed); `npm run fallbacks` 35 of 35 (after the review fixes: the flow is busy from the first click, Back mid-dive calls it off, the opening is cleared when the veil lifts, the intro plays once a visit); `npm run a11y` 10 of 10.
   - [x] Budgets (gzip): `/about` 138.8 KB first load (limit 140; the 2.4 KB home-route chunk the header link prefetches is not counted); scene routes 143.8 to 145.0 KB (D-047); host + three + R3F 180.5 KB (220); scene chunks 3.8 to 7.0 KB (40); draw calls a frame on `low`: 15 (atlas), 1 (each place) (30).
-  - [ ] Owner clicks through on their laptop and phone.
+  - [x] Owner clicked through: "Much better", with the notes that became S1b.
   - [ ] Not measured on real hardware: frame rate, the pinch, and how the flow feels at 60 fps.
+- [x] S1b Fuller, with sound (2026-11-21), from the owner's notes on S1:
+  - [x] About and Pause motion removed; motion follows the device (D-099).
+  - [x] Sound: the owner's "Magical Space" (Ogg and AAC), Web Audio whooshes for flights, a Sound button, on after the first gesture (D-100).
+  - [x] The deep sky behind every scene, clouds baked into a cube texture; the black hole at its galaxy's lensed heart; a wider, cooler and warmer nebula; no seam around the quasar (D-101).
+  - [x] Closer and Further in places (into the quasar 14x); drag turns around the black hole and quasar, pans the nebula; grab cursor; a one-time drag hint (D-102).
+  - [x] Checks: `npm run check`; `npm run build`; `npm run posters`; `npm run shots` 30 of 30; `npm run fallbacks` 38 of 38 (new: zoom into a place, the drag hint, Sound; the first runs failed on a test selector and on software-WebGL slowness before the sky was baked); `npm run a11y` 8 of 8.
+  - [ ] Owner listens and looks on their laptop and phone.
+  - [ ] Open: the nebula's dark dust bank fills the lower part of a phone screen (S4).
 - [ ] S2 Galaxy and cosmic web.
 - [ ] S3 Black hole and quasar.
 - [ ] S4 Nebula.

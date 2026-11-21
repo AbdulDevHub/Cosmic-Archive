@@ -23,6 +23,8 @@ import {
   Group,
   InstancedBufferAttribute,
   InstancedBufferGeometry,
+  Matrix3,
+  Matrix4,
   Mesh,
   OneFactor,
   OneMinusSrcColorFactor,
@@ -34,10 +36,12 @@ import {
   type Material,
   type Object3D,
   type PerspectiveCamera,
+  type Texture,
 } from "three";
 import type { SceneFrame, SceneInput } from "../../host/store";
 import type { ParticleTier } from "../../quality/tiers";
 import { POINT_FRAGMENT, POINT_VERTEX, SPRITE_FRAGMENT, SPRITE_VERTEX } from "../../shaders/points.glsl";
+import { SKY_CHUNK } from "../../shaders/sky.glsl";
 import { isPhone, placeCamera } from "./camera";
 import { armAngle, buildAtlas, COUNTS, mix, OUTER, SPIN, sstep, TAU, type Cloud, type Vec3 } from "./model";
 
@@ -172,6 +176,46 @@ class Layer {
   }
 }
 
+/**
+ * The deep sky behind the galaxy and the web (D-101): one full-screen triangle drawn first, each
+ * pixel looking out along its own direction from the camera, so the clouds and stars turn with the
+ * view. Full around the galaxy; it thins toward the web, where the space between galaxies is dark.
+ */
+const BACKDROP_VERTEX = /* glsl */ `
+varying vec2 vNdc;
+void main(){ vNdc = position.xy; gl_Position = vec4(position.xy, 0.0, 1.0); }
+`;
+
+const BACKDROP_FRAGMENT = /* glsl */ `
+precision highp float;
+uniform mat4 uInvProj;
+uniform mat3 uCamRot;
+uniform float uRich;
+varying vec2 vNdc;
+${SKY_CHUNK}
+void main(){
+  vec4 v = uInvProj * vec4(vNdc, 1.0, 1.0);
+  vec3 dir = normalize(uCamRot * normalize(v.xyz / v.w));
+  gl_FragColor = vec4(skyDeep(dir, uRich), 1.0);
+}
+`;
+
+function backdrop(sky: Texture): Mesh<BufferGeometry, ShaderMaterial> {
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new BufferAttribute(new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]), 3));
+  const material = new ShaderMaterial({
+    vertexShader: BACKDROP_VERTEX,
+    fragmentShader: BACKDROP_FRAGMENT,
+    uniforms: { uInvProj: { value: new Matrix4() }, uCamRot: { value: new Matrix3() }, uRich: { value: 1 }, uSky: { value: sky } },
+    depthTest: false,
+    depthWrite: false,
+  });
+  const mesh = new Mesh(geometry, material);
+  mesh.frustumCulled = false;
+  mesh.renderOrder = -1;
+  return mesh;
+}
+
 function single(color: readonly [number, number, number], size: number): Cloud {
   return { pos: new Float32Array(3), col: new Float32Array(color), size: new Float32Array([size]), seed: new Float32Array(1), n: 1 };
 }
@@ -196,6 +240,7 @@ export class AtlasWorld {
   private readonly homeDot: Layer;
   private readonly quasarDot: Layer;
   private readonly webNodes: Vec3[];
+  private readonly sky: Mesh<BufferGeometry, ShaderMaterial>;
   private readonly quasar = new Vector3();
   private readonly focus = new Vector3();
   private readonly scratch = new Vector3();
@@ -203,7 +248,8 @@ export class AtlasWorld {
   private readonly glow: { body: number; haze: number; dust: number };
   private glowGain = 1;
 
-  constructor(tier: ParticleTier, narrow: boolean) {
+  constructor(tier: ParticleTier, narrow: boolean, sky: Texture) {
+    this.sky = backdrop(sky);
     const data = buildAtlas(tier, narrow);
     const counts = COUNTS[tier];
     // On a wide screen the galaxy fills the frame, so a lower tier must not look thinner: fewer
@@ -245,7 +291,7 @@ export class AtlasWorld {
       this.discLayers.push(bulge);
       this.galaxy.add(bulge.object);
     }
-    this.root.add(this.webGlow.object, this.web.object, this.homeDot.object, this.quasarDot.object);
+    this.root.add(this.sky, this.webGlow.object, this.web.object, this.homeDot.object, this.quasarDot.object);
 
     this.galaxy.rotation.z = -0.2;
     this.root.add(this.wash.object, this.stars.object, this.galaxy);
@@ -320,6 +366,10 @@ export class AtlasWorld {
 
     const far = sstep(1.2, 1.7, zoom);
     const near = 1 - sstep(1.3, 1.7, zoom);
+    const sky = this.sky.material.uniforms;
+    (sky.uInvProj.value as Matrix4).copy(camera.projectionMatrixInverse);
+    (sky.uCamRot.value as Matrix3).setFromMatrix4(camera.matrixWorld);
+    sky.uRich.value = mix(1, 0.3, far);
     for (const layer of this.layers) layer.time = t;
     this.stars.alpha = mix(1, 0.12, far);
     this.wash.alpha = 0.05 * (1 - far);

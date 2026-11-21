@@ -12,6 +12,8 @@
  * Units: one unit is `uScale` CSS pixels; the cluster sits at the origin, y up.
  */
 
+import { SKY_CHUNK } from "../../shaders/sky.glsl";
+
 export const QUAD_VERTEX = /* glsl */ `
 void main(){ gl_Position = vec4(position.xy, 0.0, 1.0); }
 `;
@@ -47,12 +49,13 @@ uniform vec2 uCentre;      // the cluster on screen, CSS pixels from the top lef
 uniform float uScale;      // CSS pixels per unit
 uniform float uTime;
 uniform int uOctaves;
-uniform float uNorm;       // 1 / the sum of the octaves' weights, so every tier is as bright
+uniform float uNorm;
+uniform vec2 uSkyShift;   // the sky's share of a drag, CSS pixels: it moves less than the cloud       // 1 / the sum of the octaves' weights, so every tier is as bright
 
 const float TAU = 6.28318530718;
 const float CAVITY = 4.6;            // the cavity's mean radius, units
 const vec2 BODY = vec2(1.6, -4.6);   // the middle of the cloud
-const vec2 BODY_R = vec2(16.0, 10.0);
+const vec2 BODY_R = vec2(22.0, 13.0); // wide: the cloud fills the frame (D-101)
 
 const vec3 ROSE = vec3(0.98, 0.34, 0.62);
 const vec3 DEEP = vec3(0.42, 0.12, 0.34);
@@ -107,22 +110,13 @@ float column(vec2 p, vec2 foot, vec2 tip, float wide, float narrow){
 }
 
 
+${SKY_CHUNK}
+
+/* the deep sky behind the cloud: the screen read as a small patch of the sphere (D-101) */
 vec3 sky(vec2 css){
-  vec3 col = SPACE;
-  for (int layer = 0; layer < 2; layer++) {
-    float cell = layer == 0 ? 46.0 : 21.0;
-    vec2 g = css / cell + float(layer) * 7.3;
-    vec2 id = floor(g);
-    vec2 f = fract(g) - 0.5;
-    float h = hash21(id);
-    if (h > (layer == 0 ? 0.55 : 0.82)) {
-      vec2 at = (vec2(hash21(id + 3.1), hash21(id + 7.7)) - 0.5) * 0.7;
-      float size = mix(0.6, 1.5, hash21(id + 1.3)) / cell;
-      vec3 tint = mix(vec3(0.72, 0.8, 1.0), vec3(1.0, 0.9, 0.76), hash21(id + 5.5));
-      col += tint * smoothstep(size * 1.6, 0.0, length(f - at)) * mix(0.25, 0.9, hash21(id + 9.1));
-    }
-  }
-  return col;
+  vec2 size = uResolution / uDpr;
+  vec2 v = (css + uSkyShift - size * 0.5) / size.y;
+  return skyDeep(normalize(vec3(v * 1.4, -1.0)), 1.15);
 }
 
 void main(){
@@ -167,7 +161,9 @@ void main(){
   float lane = pow(ridge, 7.0) * cloud * smoothstep(0.5, 3.0, wall);
 
   float gas = cloud * (0.14 + 0.9 * n * n) * mix(1.0, 0.6, smoothstep(0.0, 10.0, wall));
-  vec3 light = mix(DEEP, ROSE, smoothstep(0.2, 0.75, n)) * gas * 1.15;
+  vec3 warm = mix(DEEP, ROSE, smoothstep(0.2, 0.75, n));
+  vec3 cool = mix(vec3(0.24, 0.16, 0.6), vec3(0.28, 0.52, 1.0), smoothstep(0.35, 0.85, n));
+  vec3 light = mix(cool, warm, smoothstep(-12.0, 4.0, p.x + (m - 0.5) * 16.0)) * gas * 1.25;
   light += TEAL * inside * (0.04 + 0.24 * smoothstep(-CAVITY, 0.0, wall)) * (0.3 + 1.0 * n) * (0.3 + cloud);
   light += mix(TEAL, ROSE, smoothstep(0.0, 1.5, wall)) * rim * 0.22;
   light += mix(ROSE, GOLD, 0.35 + 0.5 * n) * rim * (0.2 + 0.5 * n);
@@ -184,7 +180,9 @@ void main(){
     float size = s.z * 1.35;
     float core = smoothstep(size * 1.4, 0.0, d);
     float halo = size * size * 2.0 / (d * d + size * size * 2.5);
-    col += mix(HOT, GOLD, s.w) * (core * 1.8 + halo * 0.6);
+    vec2 o = q - s.xy * uScale;
+    float spikes = s.z > 1.9 ? (exp(-abs(o.y) * 1.2) * exp(-abs(o.x) / (size * 9.0)) + exp(-abs(o.x) * 1.2) * exp(-abs(o.y) / (size * 9.0))) * 0.5 : 0.0;
+    col += mix(HOT, GOLD, s.w) * (core * 1.8 + halo * 0.6 + spikes);
   }
   col += mix(TEAL, HOT, 0.4) * 0.08 * exp(-length(p) * 0.5);
 

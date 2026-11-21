@@ -280,3 +280,85 @@
     bottom: 22px;
   }
 }
+
+/* ---- saying the scene can be dragged (D-102) ---- */
+
+/* a grab hand over every scene, a closed one while dragging */
+.screen[data-live] {
+  cursor: grab;
+}
+
+.screen[data-live][data-dragging] {
+  cursor: grabbing;
+}
+
+.hint {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(28px, 7vh, 72px);
+  transform: translateX(-50%);
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-2);
+  min-height: var(--touch);
+  color: var(--ink-2);
+  font-size: var(--step--1);
+  white-space: nowrap;
+  pointer-events: none;
+  text-shadow: 0 0 12px oklch(0.13 0.04 275 / 0.95);
+  animation: hint-in 900ms var(--ease-out) 1.2s both;
+  transition: opacity 600ms ease-out;
+}
+
+/* the arrows sway, so the hint itself shows the movement */
+.hint svg {
+  animation: sway 2.4s ease-in-out infinite;
+}
+
+.hint[data-gone] {
+  opacity: 0;
+}
+
+@keyframes hint-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: translateX(-3px);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+}
+
+:global(html[data-motion="paused"]) .hint,
+:global(html[data-motion="paused"]) .hint svg {
+  animation: none;
+}
+
+/* the wheel on a mouse, the pinch on a touch screen */
+.coarse {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .fine {
+    display: none;
+  }
+
+  .coarse {
+    display: inline;
+  }
+}
+
+@media (max-width: 720px) {
+  .hint {
+    top: 76px;
+    bottom: auto;
+  }
+}

@@ -19,12 +19,6 @@ export interface Source {
   checked: string;
 }
 
-/** A real observation, linked and never embedded (imagery rule). */
-export interface Observation {
-  label: string;
-  publisher: string;
-  url: string;
-}
 
 /** The atlas's zoom stops: 0 close in, 1 the whole galaxy, 2 the cosmic web. */
 export type StopIndex = 0 | 1 | 2;
@@ -49,7 +43,6 @@ export interface Place {
   stop: StopIndex;
   /** The colour the screen passes through on the way in and out: the place's own darkness. */
   veil: string;
-  observations: readonly Observation[];
 }
 
 export const SOURCES: readonly Source[] = [
@@ -141,10 +134,6 @@ export const PLACES: readonly Place[] = [
     anchor: "core",
     stop: 1,
     veil: "#140b0a",
-    observations: [
-      { label: "The first image of a black hole, in the galaxy Messier 87 (2019)", publisher: "European Southern Observatory", url: "https://www.eso.org/public/news/eso1907/" },
-      { label: "The first image of the black hole at the centre of our own galaxy (2022)", publisher: "European Southern Observatory", url: "https://www.eso.org/public/news/eso2208-eht-mw/" },
-    ],
   },
   {
     id: "nebula",
@@ -154,11 +143,6 @@ export const PLACES: readonly Place[] = [
     anchor: "arm",
     stop: 1,
     veil: "#1c0b1a",
-    observations: [
-      { label: "Webb's infrared view of the Pillars of Creation (2022)", publisher: "NASA Science", url: "https://science.nasa.gov/missions/webb/nasas-webb-takes-star-filled-portrait-of-pillars-of-creation/" },
-      { label: "Webb's Cosmic Cliffs in NGC 3324 (2022)", publisher: "NASA Science", url: "https://science.nasa.gov/missions/webb/nasas-webb-reveals-cosmic-cliffs-glittering-landscape-of-star-birth" },
-      { label: "Webb's Ring Nebula (2023)", publisher: "ESA/Webb", url: "https://esawebb.org/images/weic2320a/" },
-    ],
   },
   {
     id: "quasar",
@@ -168,15 +152,6 @@ export const PLACES: readonly Place[] = [
     anchor: "quasar",
     stop: 2,
     veil: "#0a0e1e",
-    observations: [
-      { label: "Hubble's closest-ever look at the quasar 3C 273 (2024)", publisher: "NASA Science", url: "https://science.nasa.gov/missions/hubble/nasas-hubble-takes-the-closest-ever-look-at-a-quasar/" },
-      { label: "Webb's black hole that formed before its galaxy, Abell2744-QSO1 (2026)", publisher: "ESA/Webb", url: "https://esawebb.org/news/weic2609/" },
-    ],
   },
 ];
 
-/** Real galaxies and the cosmic web, for About. */
-export const ATLAS_OBSERVATIONS: readonly Observation[] = [
-  { label: "The Hubble Deep Field and Ultra Deep Field, thousands of galaxies in tiny patches of sky", publisher: "NASA Science", url: "https://science.nasa.gov/mission/hubble/science/universe-uncovered/hubble-deep-fields/" },
-  { label: "Webb's JADES deep field, more than 45,000 galaxies in one view", publisher: "NASA Science", url: "https://science.nasa.gov/asset/webb/jwst-advanced-deep-extragalactic-survey-nircam-compass-image/" },
-];

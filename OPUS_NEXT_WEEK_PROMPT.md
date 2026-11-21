@@ -1,6 +1,6 @@
 # Cosmic Archive: prompt for the next Opus session
 
-**Last updated:** 2026-11-20, after S1 (Strip to spectacle). Keep this file current: after every commit, update "What exists" and rewrite "Your session" for the next roadmap item.
+**Last updated:** 2026-11-21, after S1b (fuller, with sound). Keep this file current: after every commit, update "What exists" and rewrite "Your session" for the next roadmap item.
 
 You are Claude Opus 5.5, continuing Cosmic Archive. You have no memory of earlier sessions. Everything you need is in this file and the docs it names.
 
@@ -13,7 +13,8 @@ The universe to look at: a Next.js site of real-time WebGL scenes a visitor clic
 | Commit | Contents |
 |---|---|
 | `15e3478` to `43c7b2b` | F0 to O7: the educational atlas (history; much of it removed in S1) |
-| latest (`git log -1`) | S1: `content/places.ts` (three stops, three places, sourced one-liners); `/` with three zoom stops and hotspots, `/black-hole`, `/nebula`, `/quasar`, `/about`; ink, vessel, MDX, subject pages, journey and archive removed; the flow between scenes (`src/scene/host/flow.ts`, `src/components/screen/Veil.tsx`); shots (36), fallbacks (35, with the flow, keyboard and touch), a11y (10) |
+| `08a09ca` | S1: `content/places.ts` (three stops, three places, sourced one-liners); `/` with three zoom stops and hotspots, `/black-hole`, `/nebula`, `/quasar`, `/about`; ink, vessel, MDX, subject pages, journey and archive removed; the flow between scenes (`src/scene/host/flow.ts`, `src/components/screen/Veil.tsx`); shots (36), fallbacks (35, with the flow, keyboard and touch), a11y (10) |
+| latest (`git log -1`) | S1b: About and Pause motion removed (motion follows the device); sound (the owner's "Magical Space" and Web Audio whooshes, `src/lib/sound.ts`); the deep sky behind every scene, its clouds baked into a cube texture (`src/scene/sky.ts`, `src/scene/shaders/sky.glsl.ts`); Closer and Further, drag and pinch in places (into the quasar 14x); a grab cursor and a one-time drag hint (D-099 to D-102) |
 
 `prototype/look.html` still holds the approved palette and galaxy, with ink and a vessel that are no longer used. Read `src/scene/README.md` before touching a scene. Nothing has been pushed or deployed.
 
@@ -43,6 +44,7 @@ If one of these seems wrong, do not work around it. Say so in your report and le
 **Scope (atlas scene only, `src/scene/scenes/atlas/`):**
 
 - Richer colour from core to arms; pink star-forming knots and blue young clusters along the arms; layered dust that reads as depth.
+- The disc itself denser between the arms, as the owner's reference images are (`reference images/`, not in git: look at them, copy none of their ships, planets or lines).
 - A light bloom of our own (half resolution, no new dependency) only if the layers alone cannot reach the look; measure its cost.
 - A deeper, glowing cosmic web; the phone's web is thin on `low` (DESIGN_SPEC section 10).
 - The dive through the disc: stars near the camera grow into large soft discs; make the flight through them finer.

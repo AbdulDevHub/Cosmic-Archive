@@ -85,7 +85,7 @@ export default function SceneHost() {
     if (isRunning) governor.restart(rung, performance.now());
   }, [isRunning, governor, rung]);
 
-  // While the loop is stopped (reduced motion, Pause), a scroll or a drag still has to draw its frame.
+  // While the loop is stopped (reduced motion), a drag or a key still has to draw its frame.
   useEffect(() => onSceneInput(() => invalidateRef.current?.()), []);
 
   // Create the renderer root once per visit.
@@ -103,7 +103,7 @@ export default function SceneHost() {
     };
     const onRestored = () => {
       setStatus("ok");
-      invalidateRef.current?.(); // with no loop running (reduced motion, Pause) nothing else redraws the lost buffer
+      invalidateRef.current?.(); // with no loop running (reduced motion) nothing else redraws the lost buffer
     };
     canvas.addEventListener("webglcontextlost", onLost);
     canvas.addEventListener("webglcontextrestored", onRestored);
@@ -218,7 +218,7 @@ const easeInOut = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 
  *
  * While the loop runs the camera eases: a click's glide over its set time, eased in and out (D-097),
  * anything else (wheel, drag, keys) by closing part of the gap each frame. While it is stopped
- * (reduced motion, Pause, a still for a screenshot) there is no gliding: each view is one frame.
+ * (reduced motion, a still for a screenshot) there is no gliding: each view is one frame.
  */
 function Clock({ timeRef, viewRef, runningRef, fixedZoom, governor }: Omit<SceneTreeProps, "slot" | "rung">) {
   const started = useRef(false);

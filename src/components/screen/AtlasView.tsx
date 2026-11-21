@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { calm, diveInto, flowBusy, getFlow, useFlow } from "@/scene/host/flow";
+import { whoosh } from "@/lib/sound";
 import { SceneSlot } from "@/scene/host/SceneSlot";
 import {
   animateSceneInput,
@@ -16,7 +17,9 @@ import {
   ZOOM_MIN,
   type SceneFrame,
 } from "@/scene/host/store";
+import { DragHint } from "./DragHint";
 import styles from "./screen.module.css";
+import { useGestures } from "./useGestures";
 
 /*
   The universe (DESIGN_SPEC.md 7, D-092 and D-097): the atlas scene with three stops, 0 close in,
@@ -86,6 +89,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
 
   const glideTo = (zoom: number) => {
     if (flowBusy()) return;
+    if (Math.abs(zoom - getSceneInput().zoom) > 0.05) whoosh("glide", STEP_MS / 1000);
     if (calm()) setSceneInput({ zoom });
     else animateSceneInput({ zoom }, STEP_MS);
     sync();
@@ -147,58 +151,26 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
     };
   }, [live, spots]);
 
-  // Wheel, drag, pinch and keys, and a click on a place.
+  // Drag turns (and with a mouse, tilts); the wheel and a pinch zoom (useGestures).
+  useGestures(stage, live, {
+    turn: (dx, dy, touch) => {
+      const { yaw, pitch } = getSceneInput();
+      setSceneInput(touch ? { yaw: yaw - dx * DRAG_YAW } : { yaw: yaw - dx * DRAG_YAW, pitch: pitch + dy * DRAG_PITCH });
+    },
+    pinch: (steps) => {
+      setSceneInput({ zoom: getSceneInput().zoom + steps * PINCH_ZOOM });
+      sync();
+    },
+    wheel: (pixels) => {
+      setSceneInput({ zoom: getSceneInput().zoom + pixels * WHEEL_ZOOM });
+      sync();
+    },
+  });
+
+  // Keys, and a click on a place.
   useEffect(() => {
     const element = stage.current;
     if (!live || !element) return;
-
-    const onWheel = (event: WheelEvent) => {
-      if (event.ctrlKey || event.metaKey) return; // the browser's own zoom, and a trackpad pinch
-      event.preventDefault();
-      if (flowBusy()) return;
-      const pixels = event.deltaMode === 1 ? event.deltaY * 32 : event.deltaY;
-      setSceneInput({ zoom: getSceneInput().zoom + pixels * WHEEL_ZOOM });
-      sync();
-    };
-
-    // Pointers down on the screen, by id. One mouse, pen or finger: turn (and tilt, by mouse or
-    // pen). Two fingers: pinch to zoom.
-    const pointers = new Map<number, { x: number; y: number; touch: boolean }>();
-    const spread = () => {
-      const [a, b] = [...pointers.values()];
-      return Math.hypot(a.x - b.x, a.y - b.y);
-    };
-    const onDown = (event: PointerEvent) => {
-      if (event.button !== 0 || (event.target as Element).closest("a, button")) return;
-      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY, touch: event.pointerType === "touch" });
-      element.setPointerCapture(event.pointerId);
-      element.dataset.dragging = "";
-    };
-    const onMove = (event: PointerEvent) => {
-      const last = pointers.get(event.pointerId);
-      if (!last || flowBusy()) return;
-      const { zoom, yaw, pitch } = getSceneInput();
-      if (pointers.size >= 2) {
-        const before = spread();
-        last.x = event.clientX;
-        last.y = event.clientY;
-        const after = spread();
-        if (before > 0 && after > 0) {
-          setSceneInput({ zoom: zoom + Math.log2(before / after) * PINCH_ZOOM });
-          sync();
-        }
-        return;
-      }
-      const dx = event.clientX - last.x;
-      const dy = event.clientY - last.y;
-      last.x = event.clientX;
-      last.y = event.clientY;
-      setSceneInput(last.touch ? { yaw: yaw - dx * DRAG_YAW } : { yaw: yaw - dx * DRAG_YAW, pitch: pitch + dy * DRAG_PITCH });
-    };
-    const onUp = (event: PointerEvent) => {
-      if (!pointers.delete(event.pointerId)) return;
-      if (pointers.size === 0) delete element.dataset.dragging;
-    };
 
     const onKey = (event: KeyboardEvent) => {
       if (event.ctrlKey || event.metaKey || event.altKey || flowBusy()) return;
@@ -229,21 +201,10 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
     };
 
     element.addEventListener("click", onClick);
-    element.addEventListener("wheel", onWheel, { passive: false });
-    element.addEventListener("pointerdown", onDown);
-    element.addEventListener("pointermove", onMove);
-    element.addEventListener("pointerup", onUp);
-    element.addEventListener("pointercancel", onUp);
     document.addEventListener("keydown", onKey);
     return () => {
       element.removeEventListener("click", onClick);
-      element.removeEventListener("wheel", onWheel);
-      element.removeEventListener("pointerdown", onDown);
-      element.removeEventListener("pointermove", onMove);
-      element.removeEventListener("pointerup", onUp);
-      element.removeEventListener("pointercancel", onUp);
       document.removeEventListener("keydown", onKey);
-      delete element.dataset.dragging;
     };
     // `step`, `glideTo` and `sync` only read the store and set state
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -277,6 +238,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
         </ul>
       </div>
 
+      <DragHint live={live} />
       {live ? (
         <div className={styles.controls}>
           <button type="button" className={styles.control} onClick={() => limit !== "near" && step(-1)} aria-disabled={limit === "near"}>
