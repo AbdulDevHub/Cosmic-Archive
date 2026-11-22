@@ -271,6 +271,7 @@ uniform vec2 uHome;    // our web on screen, device pixels from the bottom left
 uniform float uUnit;   // device pixels per unit (half the window's height)
 uniform float uGrow;   // how much nearer than the supervoid stop the camera is
 uniform vec2 uDir;     // the bubble's centre from our web, in units
+uniform float uSwell;  // the visitor's drag: -1 shrinks the void, 1 swells it (D-122)
 uniform vec2 uPan;     // the drag's turn and tilt
 uniform float uTime;
 uniform float uAlpha;
@@ -326,15 +327,19 @@ vec3 webLayer(vec2 p, float scale, float width, float bright){
 void main(){
   // from our web, in units, scaled about it by the camera's distance
   vec2 w = (gl_FragCoord.xy - uHome) / uUnit / uGrow;
-  vec2 u = w - uDir;            // from the bubble's centre
+  // the void swells away from our web, which stays on its wall as the wall is pushed out
+  float swell = exp(uSwell * 0.45);
+  float R = VOID_R * swell;
+  vec2 u = w - uDir * swell;    // from the bubble's centre
   float r = length(u);
   float t = uTime;
 
   // the supervoid (owner, D-121): one enormous patch of nothing, near black, the sky itself blotted
   // out; the busy universe crowds only round its edge. Its outline wanders a little.
   float edge = r + 0.18 * (noise3(vec3(u * 1.6, 1.0)) - 0.5) + 0.06 * (noise3(vec3(u * 5.0, 2.0)) - 0.5);
-  float inside = 1.0 - smoothstep(VOID_R - 0.4, VOID_R + 0.04, edge);
-  float rim = exp(-pow((edge - VOID_R - 0.08) / 0.14, 2.0));
+  float inside = 1.0 - smoothstep(R - 0.4 * swell, R + 0.04, edge);
+  // the bigger the void, the harder its wall is crowded and the brighter it burns
+  float rim = exp(-pow((edge - R - 0.08 * swell) / 0.14, 2.0)) * mix(0.8, 1.5, smoothstep(0.7, 1.6, swell));
 
   // outside: a dense web of finer cells, galaxies crowding thickest along the void's wall; the far
   // layers drift and turn in a drag, the near one holds our web on that wall
@@ -370,6 +375,7 @@ function supervoid(): Mesh<BufferGeometry, ShaderMaterial> {
       uUnit: { value: 1 },
       uGrow: { value: 1 },
       uDir: { value: new Vector2() },
+      uSwell: { value: 0 },
       uPan: { value: new Vector2() },
       uTime: { value: 0 },
       uAlpha: { value: 0 },
@@ -644,6 +650,7 @@ export class AtlasWorld {
     const last = (isPhone(width, height) ? KEYS_PHONE : KEYS_DESK)[LAST_STOP].d;
     u.uGrow.value = last / Math.max(1, camera.position.length());
     (u.uPan.value as Vector2).set(view.yaw * 0.6, view.pitch * 0.6);
+    u.uSwell.value = view.grow;
     u.uTime.value = t;
     u.uAlpha.value = alpha;
   }
