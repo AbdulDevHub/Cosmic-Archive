@@ -245,6 +245,8 @@ function SceneTree({ slot, rung, timeRef, viewRef, runningRef, fixedZoom, govern
 }
 
 const EASE_PER_SECOND = 5; // the prototype's: the camera closes a fifth of the gap every 40 ms
+/** Per number, where it is not the camera's: the supervoid swells slowly, a silent darkness creeping (D-123). */
+const EASE_OF: Partial<Record<SceneNumber, number>> = { grow: 0.35 };
 const NUMBERS: readonly SceneNumber[] = ["zoom", "yaw", "pitch", "dive", "arrive", "intro", "grow"];
 const easeInOut = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 3 / 2);
 
@@ -280,7 +282,7 @@ function Clock({ timeRef, viewRef, runningRef, fixedZoom, governor }: Omit<Scene
         view[key] = tween.from + (tween.to - tween.from) * easeInOut(p);
         if (p >= 1) endSceneTween(key);
       } else {
-        view[key] += (target[key] - view[key]) * Math.min(1, dt * EASE_PER_SECOND);
+        view[key] += (target[key] - view[key]) * Math.min(1, dt * (EASE_OF[key] ?? EASE_PER_SECOND));
       }
     }
     if (fixedZoom !== null) view.zoom = fixedZoom;

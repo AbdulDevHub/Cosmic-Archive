@@ -65,8 +65,8 @@ const KEY_ZOOM = 0.25;
 const KEY_YAW = 0.15;
 const KEY_PITCH = 0.06;
 const PINCH_ZOOM = 1.1; // stops per halving of the distance between two fingers
-const DRAG_GROW = 0.004; // the supervoid's swell per pixel dragged (D-122): about 250 px from rest to full
-const KEY_GROW = 0.2;
+const DRAG_GROW = 0.0012; // the supervoid's swell per pixel dragged: heavy, about 800 px from rest to full (D-122, D-123)
+const KEY_GROW = 0.08;
 
 /** Past this zoom the visitor is out on the cosmic web; past the next, out in the supervoid (D-119). */
 const WEB_AT = 1.5;
