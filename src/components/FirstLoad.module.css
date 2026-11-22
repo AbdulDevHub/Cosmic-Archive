@@ -1,5 +1,5 @@
-/* The first-load screen (D-112): the emblem turning in a soft glow over deep space, the spaced
-   wordmark, and a thin light running under it. Lets every click through. */
+/* The first-load screen (D-112, D-123): the visitor's ship cruising at warp over deep space, the
+   spaced wordmark, and a thin light running under it. Lets every click through. */
 
 .cover {
   position: fixed;
@@ -21,26 +21,36 @@
   opacity: 0;
 }
 
-.mark {
+/* D-123: the visitor's ship, hovering at warp, its engines pulsing */
+.ship {
   position: relative;
-  display: grid;
-  place-items: center;
-  width: 120px;
-  height: 120px;
+  animation: hover 2.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 18px oklch(0.6 0.16 260 / 0.55));
 }
 
-.mark svg {
-  position: relative;
-  animation: turn 3.2s linear infinite;
-  filter: drop-shadow(0 0 14px oklch(0.7 0.18 285 / 0.8));
+.ship [data-engines] {
+  animation: pulse 0.9s ease-in-out infinite;
+  transform-origin: center;
 }
 
-.halo {
+.ship [data-trails] {
+  animation: flicker 0.18s steps(2) infinite;
+}
+
+/* stars streaking past, right to left */
+.warp {
   position: absolute;
   inset: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle, oklch(0.72 0.17 290 / 0.45), transparent 65%);
-  animation: breathe 2.4s ease-in-out infinite;
+  overflow: hidden;
+}
+
+.warp span {
+  position: absolute;
+  left: 100%;
+  height: 1px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, transparent, oklch(0.9 0.05 260 / 0.85));
+  animation: streak 1.3s linear infinite;
 }
 
 .word {
@@ -69,16 +79,27 @@
   animation: run 1.4s ease-in-out infinite;
 }
 
-@keyframes turn {
-  to {
-    transform: rotate(-360deg);
+@keyframes hover {
+  50% {
+    transform: translateY(-6px);
   }
 }
 
-@keyframes breathe {
+@keyframes pulse {
   50% {
-    transform: scale(1.15);
-    opacity: 0.6;
+    opacity: 0.65;
+  }
+}
+
+@keyframes flicker {
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes streak {
+  to {
+    transform: translateX(calc(-100vw - 200px));
   }
 }
 
@@ -92,8 +113,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mark svg,
-  .halo,
+  .ship,
+  .ship [data-engines],
+  .ship [data-trails],
+  .warp span,
   .line::after {
     animation: none;
   }
