@@ -1,6 +1,6 @@
 /**
  * The camera rig: one zoom scalar over four stops, 0 close in, 1 the whole galaxy, 2 the cosmic
- * web, 3 the supervoid around it (ARCHITECTURE.md 4, D-119). Keys, log-distance interpolation and lens shift ported from
+ * web, 3 the supervoid around it (ARCHITECTURE.md 4, D-119), 4 the observable universe (D-130). Keys, log-distance interpolation and lens shift ported from
  * prototype/look.html; the keys are centred now that no copy sits beside the galaxy (D-092).
  *
  * Free control adds a turn and a tilt on top of the key for the current zoom. A dive (D-096) then
@@ -26,6 +26,9 @@ export const KEYS_DESK: readonly Key[] = [
   // the supervoid (D-119): far enough that the whole web is a patch of one wall, shifted right so
   // the great empty bubble beside it fills the middle of the frame (world.ts places the bubble)
   { d: 11000, el: 62, az: 0.7, sx: 0.5, sy: 0.04 },
+  // the observable universe (D-130): further off still (inside the far plane), our web in the
+  // middle of the frame, for it is the middle of the sphere world.ts draws around it
+  { d: 24000, el: 66, az: 0.8, sx: 0.0, sy: 0.0 },
 ];
 
 export const KEYS_PHONE: readonly Key[] = [
@@ -34,9 +37,10 @@ export const KEYS_PHONE: readonly Key[] = [
   { d: 3000, el: 60, az: 0.55, sx: 0.0, sy: 0.2 },
   // on a phone the bubble sits below the web, which rises toward the top
   { d: 12500, el: 64, az: 0.7, sx: 0.0, sy: 0.5 },
+  { d: 26000, el: 66, az: 0.8, sx: 0.0, sy: 0.08 },
 ];
 
-/** The stop the zoom ends at: the supervoid. */
+/** The stop the zoom ends at: the observable universe (D-130). */
 export const LAST_STOP = KEYS_DESK.length - 1;
 
 /**

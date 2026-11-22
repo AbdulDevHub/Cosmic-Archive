@@ -20,8 +20,8 @@ export interface Source {
 }
 
 
-/** The atlas's views: the galaxy (close in or whole, one name since D-115), the cosmic web and the supervoid around it (D-119). */
-export type StopIndex = 0 | 1 | 2 | 3;
+/** The atlas's views: the galaxy (close in or whole, one name since D-115), the cosmic web, the supervoid around it (D-119) and the observable universe (D-130). */
+export type StopIndex = 0 | 1 | 2 | 3 | 4;
 
 export interface Stop {
   zoom: StopIndex;
@@ -51,7 +51,7 @@ export const SOURCES: readonly Source[] = [
     title: "Large Scale Structures",
     publisher: "NASA Science",
     url: "https://science.nasa.gov/universe/galaxies/large-scale-structures/",
-    checked: "2026-11-21",
+    checked: "2026-11-22",
   },
   {
     id: "chandra-quark-matter",
@@ -186,6 +186,14 @@ export const STOPS: readonly Stop[] = [
     name: "A Supervoid",
     // the source: "voids of space in between, as if the galaxies were resting on empty bubbles"; "clusters and walls"
     line: "Empty bubbles of space between the cosmic web's walls of galaxies.",
+    sources: ["nasa-large-scale-structures"],
+  },
+  {
+    // D-130: a zoom out of the supervoid, the last stop
+    zoom: 4,
+    name: "The Observable Universe",
+    // the source: "These walls are likely the largest-known superstructures within the observable universe."
+    line: "Its largest known structures are likely vast walls of galaxies.",
     sources: ["nasa-large-scale-structures"],
   },
 ];

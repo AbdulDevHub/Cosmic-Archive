@@ -5,7 +5,7 @@
 //
 // `home` and each place are the pages as a visitor gets them (the device picks the quality). The
 // `-still` shots are deterministic frames: `?shot=1&t=12` at the prototype's counts, with `&zoom=`
-// holding the atlas's stop (0 close in, 1 the galaxy, 2 the cosmic web, 3 the supervoid).
+// holding the atlas's stop (0 close in, 1 the galaxy, 2 the cosmic web, 3 the supervoid, 4 the observable universe).
 
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
@@ -18,6 +18,7 @@ const ROUTES = [
   { path: (view) => `/?shot=1&t=12&zoom=1&tier=${view.tier}`, name: "galaxy-still", scene: true, mustDraw: true, spots: 11, phoneSpots: 2 },
   { path: (view) => `/?shot=1&t=12&zoom=2&tier=${view.tier}`, name: "web-still", scene: true, mustDraw: true, spots: 2, phoneSpots: 2 },
   { path: (view) => `/?shot=1&t=12&zoom=3&tier=${view.tier}`, name: "void-still", scene: true, mustDraw: true, spots: 1, phoneSpots: 1 },
+  { path: (view) => `/?shot=1&t=12&zoom=4&tier=${view.tier}`, name: "universe-still", scene: true, mustDraw: true, spots: 1, phoneSpots: 1 },
   ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "quasi-star", "earth", "moon"].flatMap((id) => [
     { path: () => `/${id}`, name: id, scene: true },
     { path: (view) => `/${id}?shot=1&t=12&tier=${view.tier}`, name: `${id}-still`, scene: true, mustDraw: true },
