@@ -15,9 +15,9 @@ const ROUTES = [
   { path: () => "/", name: "home", scene: true },
   { path: (view) => `/?shot=1&t=12&tier=${view.tier}`, name: "start-still", scene: true, mustDraw: true },
   { path: (view) => `/?shot=1&t=12&zoom=0&tier=${view.tier}`, name: "close-still", scene: true, mustDraw: true },
-  { path: (view) => `/?shot=1&t=12&zoom=1&tier=${view.tier}`, name: "galaxy-still", scene: true, mustDraw: true, spots: 2 },
-  { path: (view) => `/?shot=1&t=12&zoom=2&tier=${view.tier}`, name: "web-still", scene: true, mustDraw: true, spots: 2 },
-  ...["black-hole", "nebula", "quasar"].flatMap((id) => [
+  { path: (view) => `/?shot=1&t=12&zoom=1&tier=${view.tier}`, name: "galaxy-still", scene: true, mustDraw: true, spots: 6, phoneSpots: 2 },
+  { path: (view) => `/?shot=1&t=12&zoom=2&tier=${view.tier}`, name: "web-still", scene: true, mustDraw: true, spots: 3, phoneSpots: 2 },
+  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "supervoid"].flatMap((id) => [
     { path: () => `/${id}`, name: id, scene: true },
     { path: (view) => `/${id}?shot=1&t=12&tier=${view.tier}`, name: `${id}-still`, scene: true, mustDraw: true },
   ]),
@@ -67,7 +67,9 @@ try {
             };
             return [...document.querySelectorAll("[data-anchor]")].filter(inView).length;
           });
-          if (placed !== route.spots) problems.push(`${placed} places on screen, expected ${route.spots}`);
+          // laptop first (D-110): a phone shows at least `phoneSpots` of them, the rest off its narrow screen
+          const want = name === "phone" && route.phoneSpots ? route.phoneSpots : route.spots;
+          if (name === "phone" && route.phoneSpots ? placed < want : placed !== want) problems.push(`${placed} places on screen, expected ${want}`);
         }
       }
 

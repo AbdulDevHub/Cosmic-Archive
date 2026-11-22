@@ -40,6 +40,9 @@ The owner approved the start page and asked for S2, and said phones no longer ma
 
 ### Owner's backlog (to do, not yet scheduled)
 
+- [ ] **A spaceship loader (owner, 2026-11-21):** the first-load screen should take a spaceship theme, since the visitor travels by ship. Do it **after** the owner has reviewed the fleet (D-118), so the loader matches the chosen ship.
+- [ ] **Music licensing before any public deploy:** the scene loops (Epic Mountain and others) and the Star Trek effects are copyrighted; they are fine for the owner's own use. Decide before deploying: licensed or free tracks, or the owner's own.
+
 - [ ] **Sound that rises with power (owner, 2026-11-21):** better whooshes, and the music should swell into something more powerful at the black hole and the quasar, to show their power. Needs the owner's own music for those parts (D-100: their music, browser-made effects), so ask what they have first.
 
 ### Earlier: polish the start page (S1e), then S2

@@ -31,6 +31,11 @@ export const PLACE_OG: Readonly<Record<string, { name: string; alt: string }>> =
   "black-hole": { name: "black-hole", alt: "Our own illustration of a black hole and its bent disc of gas." },
   nebula: { name: "nebula", alt: "Our own illustration of a star-forming cloud." },
   quasar: { name: "quasar", alt: "Our own illustration of a quasar: a bright core, its jets and its host galaxy." },
+  "neutron-star": { name: "neutron-star", alt: "Our own illustration of a neutron star sweeping its beams of light." },
+  star: { name: "star", alt: "Our own illustration of a yellow star, like the Sun." },
+  "strange-star": { name: "strange-star", alt: "Our own illustration of a strange star, which may be made of quarks." },
+  "dyson-sphere": { name: "dyson-sphere", alt: "Our own illustration of an imagined Dyson swarm around a star." },
+  supervoid: { name: "supervoid", alt: "Our own illustration of the inside of a supervoid in the cosmic web." },
 };
 
 /** A JSON-LD block, safe to put in a <script> (no closing tag can end it early). */

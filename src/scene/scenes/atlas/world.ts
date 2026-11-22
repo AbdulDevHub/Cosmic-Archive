@@ -63,12 +63,32 @@ const NEAR = 0.12;
  */
 const NEBULA_R = 0.74;
 const NEBULA_TH = armAngle(1, NEBULA_R);
-type Anchor = { local: Vec3; spin: boolean } | { web: "quasar" | "home" };
+// D-116: a neutron star between the arms, and a star like the Sun out in a minor arm
+const PULSAR_R = 0.46;
+const PULSAR_TH = armAngle(0, PULSAR_R) + 1.3;
+const SUN_R = 0.62;
+const SUN_TH = armAngle(2, SUN_R);
+// D-117: a strange star near the heart, between the arms; a Dyson sphere out on an arm's edge
+const STRANGE_R = 0.3;
+const STRANGE_TH = armAngle(1, STRANGE_R) + 1.4;
+const DYSON_R = 0.9;
+const DYSON_TH = armAngle(3, DYSON_R);
+type Anchor = { local: Vec3; spin: boolean } | { web: "quasar" | "home" | "void" };
 const ANCHORS: Record<string, Anchor> = {
   /** The heart of the galaxy. */
   core: { local: [0, 0, 0], spin: false },
   /** A place in one of the main arms; it turns with the disc. */
   arm: { local: [NEBULA_R * Math.cos(NEBULA_TH), 0, NEBULA_R * Math.sin(NEBULA_TH)], spin: true },
+  /** A neutron star in the disc, between the arms (D-116). */
+  pulsar: { local: [PULSAR_R * Math.cos(PULSAR_TH), 0, PULSAR_R * Math.sin(PULSAR_TH)], spin: true },
+  /** A star like the Sun, out in a minor arm (D-116). */
+  sun: { local: [SUN_R * Math.cos(SUN_TH), 0, SUN_R * Math.sin(SUN_TH)], spin: true },
+  /** A strange star near the heart (D-117). */
+  strange: { local: [STRANGE_R * Math.cos(STRANGE_TH), 0, STRANGE_R * Math.sin(STRANGE_TH)], spin: true },
+  /** A Dyson sphere around a star on an outer arm (D-117). */
+  dyson: { local: [DYSON_R * Math.cos(DYSON_TH), 0, DYSON_R * Math.sin(DYSON_TH)], spin: true },
+  /** A supervoid: an empty stretch of the web, placed where the zoomed-out composition wants it (D-117). */
+  void: { web: "void" },
   /** A far galaxy of the web, placed where the zoomed-out composition wants it. */
   quasar: { web: "quasar" },
   /** The galaxy the visitor came from. */
@@ -77,6 +97,8 @@ const ANCHORS: Record<string, Anchor> = {
 
 /** Where the quasar's hotspot should fall in the zoomed-out view, in NDC (the prototype's). */
 const QUASAR_WANT = { wide: [0.4, -0.38], narrow: [0.42, 0.55] } as const;
+/** And the supervoid's, in an empty part of the frame (D-117). */
+const VOID_WANT = { wide: [-0.3, 0.12], narrow: [-0.35, -0.2] } as const;
 
 export function makeFrame(): SceneFrame {
   const points: SceneFrame["points"] = {};
@@ -261,6 +283,7 @@ export class AtlasWorld {
   /** The start page's planet, moons, asteroids and ship (D-107); drawn only while `intro` is above 0. */
   private readonly start: StartProps;
   private readonly quasar = new Vector3();
+  private readonly voidPoint = new Vector3();
   private readonly focus = new Vector3();
   private readonly scratch = new Vector3();
   /** Strengths of the glow layers for this tier; see the constructor. */
@@ -390,13 +413,18 @@ export class AtlasWorld {
       this.quasar.copy(camera.position).addScaledVector(dir, -camera.position.y / dir.y);
     }
     this.quasarDot.object.position.copy(this.quasar);
+    // the supervoid: the point in the plane of the web under its spot on screen, among no knot
+    const [vx, vy] = isPhone(width, height) ? VOID_WANT.narrow : VOID_WANT.wide;
+    const pe = camera.projectionMatrix.elements;
+    const toVoid = v.set((vx + pe[8]) / pe[0], (vy + pe[9]) / pe[5], -1).transformDirection(camera.matrixWorld);
+    this.voidPoint.copy(camera.position).addScaledVector(toVoid, -camera.position.y / toVoid.y);
   }
 
   /** Where a named place is in the world at scene time `t`. */
   private anchorAt(name: string, t: number, out: Vector3): Vector3 {
     const anchor = ANCHORS[name];
     if (!anchor) return out.set(0, 0, 0);
-    if ("web" in anchor) return anchor.web === "quasar" ? out.copy(this.quasar) : out.set(0, 0, 0);
+    if ("web" in anchor) return anchor.web === "quasar" ? out.copy(this.quasar) : anchor.web === "void" ? out.copy(this.voidPoint) : out.set(0, 0, 0);
     const [x, y, z] = anchor.local;
     const ang = t * SPIN;
     const c = Math.cos(ang);

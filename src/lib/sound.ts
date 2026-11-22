@@ -16,6 +16,31 @@ import { useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "cosmic-archive:sound";
 const MUSIC_VOLUME = 0.32;
+
+/**
+ * Each scene's music (D-116): the owner's "Magical Space" for the start page and the galaxy, and a
+ * loop cut from the owner's chosen tracks for the web and each place (`public/music/`, kept out of
+ * git: copyrighted). A missing loop falls back to Magical Space.
+ */
+const TRACKS: Record<string, string> = {
+  galaxy: "/sounds/magical-space",
+  web: "/music/web",
+  "black-hole": "/music/black-hole",
+  quasar: "/music/quasar",
+  nebula: "/music/nebula",
+  "neutron-star": "/music/neutron-star",
+  star: "/music/star",
+  "strange-star": "/music/strange-star",
+  "dyson-sphere": "/music/dyson-sphere",
+  supervoid: "/music/web",
+};
+const SWAP_OUT = 0.9; // seconds: the old track fades out, then the new one fades in
+const SWAP_IN = 2.2;
+let track = "galaxy";
+/** True while one track fades out and the next fades in: the effects do not duck the music then. */
+let swapping = false;
+let canOgg = true;
+const srcOf = (name: string) => (TRACKS[name] ?? TRACKS.galaxy) + (canOgg ? ".ogg" : ".m4a");
 const FADE_IN = 2.5; // seconds
 const FADE_OUT = 0.6;
 
@@ -72,7 +97,19 @@ function graph(): AudioContext | null {
   music.loop = true;
   music.preload = "auto";
   // Vorbis where the browser plays it, AAC elsewhere (Safari)
-  music.src = music.canPlayType('audio/ogg; codecs="vorbis"') ? "/sounds/magical-space.ogg" : "/sounds/magical-space.m4a";
+  canOgg = music.canPlayType('audio/ogg; codecs="vorbis"') !== "";
+  music.src = srcOf(track);
+  // a scene's loop that is not there (a fresh clone: the loops are not in git) falls back to Magical Space
+  music.addEventListener("error", () => {
+    if (!music || music.src.endsWith(srcOf("galaxy"))) return;
+    music.src = srcOf("galaxy");
+    // the swap that failed had faded the music out: bring Magical Space back up
+    if (state.playing)
+      void music.play().then(
+        () => musicGain && fade(musicGain.gain, MUSIC_VOLUME, SWAP_IN),
+        () => undefined,
+      );
+  });
   musicGain = ctx.createGain();
   musicGain.gain.value = 0;
   ctx.createMediaElementSource(music).connect(musicGain).connect(master);
@@ -102,6 +139,35 @@ let held = false;
 
 export function holdMusic(on: boolean): void {
   held = on;
+}
+
+/**
+ * The scene on screen asks for its music (D-116). Before the music has started this only chooses
+ * what will play; while it plays, the old track fades out and the new one fades in.
+ */
+export function setMusic(name: string): void {
+  if (!(name in TRACKS) || name === track) return;
+  track = name;
+  if (!music || !musicGain || !ctx) return;
+  if (!state.playing) {
+    music.src = srcOf(track);
+    return;
+  }
+  swapping = true;
+  fade(musicGain.gain, 0, SWAP_OUT);
+  const wanted = track;
+  setTimeout(() => {
+    if (track !== wanted || !music || !musicGain || !state.playing) {
+      swapping = false;
+      return;
+    }
+    music.src = srcOf(wanted);
+    void music.play().then(
+      () => fade(musicGain!.gain, MUSIC_VOLUME, SWAP_IN),
+      () => undefined,
+    );
+    setTimeout(() => (swapping = false), SWAP_IN * 1000);
+  }, SWAP_OUT * 1000 + 50);
 }
 
 /** Begin: lets the music start, and starts it (its click is the gesture that allows sound). */
@@ -181,7 +247,8 @@ export function playSample(name: Sample): void {
     level.gain.value = gain;
     source.connect(level).connect(master);
     source.start();
-    if (duck < 1 && musicGain && state.playing) {
+    // no duck during a change of track: its own fades already carry the music (and would be cancelled)
+    if (duck < 1 && musicGain && state.playing && !swapping) {
       const now = ctx.currentTime;
       const g = musicGain.gain;
       g.cancelScheduledValues(now);

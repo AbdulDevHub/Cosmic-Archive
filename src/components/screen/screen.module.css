@@ -67,41 +67,49 @@
   gap: var(--gap-5);
 }
 
+/* Zoom Out (D-116): a real button, a glowing pill like the start page's, an icon and the word */
 .control {
   display: inline-flex;
   align-items: center;
-  gap: var(--gap-2);
-  min-height: var(--touch);
-  padding: 0 var(--gap-1);
-  border: 0;
-  background: none;
-  color: var(--ink);
-  font: 500 15px / 1 var(--font-text);
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 20px 0 14px;
+  border: 1px solid oklch(0.85 0.06 280 / 0.35);
+  border-radius: 999px;
+  background: linear-gradient(180deg, oklch(0.3 0.07 280 / 0.55), oklch(0.18 0.05 275 / 0.6));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 0 22px oklch(0.55 0.16 285 / 0.25);
+  color: oklch(0.96 0.01 270);
+  font: 500 15px / 1 var(--font-display);
   text-decoration: none;
   cursor: pointer;
-  text-shadow: 0 0 12px oklch(0.13 0.04 275 / 0.9);
+  transition:
+    box-shadow var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
+}
+
+.control:hover {
+  border-color: oklch(0.88 0.1 280 / 0.6);
+  box-shadow: 0 0 30px oklch(0.62 0.18 285 / 0.45);
+  transform: translateY(-1px);
 }
 
 .control[aria-disabled="true"] {
-  color: var(--ink-2);
   opacity: 0.45;
   cursor: default;
 }
 
-.control:hover:not([aria-disabled="true"]) span {
-  text-decoration: underline;
-  text-underline-offset: 5px;
-}
-
-/* the icon: a return arrow in a circle (D-115) */
 .icon {
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
-  border: 1.5px solid currentColor;
-  border-radius: 50%;
   flex: none;
+}
+
+.icon svg {
+  width: 20px;
+  height: 20px;
 }
 
 /* ---- the places you can click ---- */

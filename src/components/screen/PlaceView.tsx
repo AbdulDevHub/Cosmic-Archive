@@ -2,10 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { setMusic } from "@/lib/sound";
 import { flowBusy, pullOut } from "@/scene/host/flow";
 import { SceneSlot } from "@/scene/host/SceneSlot";
 import { getSceneInput, sceneIsLive, setSceneInput, useSceneState, type SceneId } from "@/scene/host/store";
-import { ReturnIcon } from "../icons";
+import { ZoomOutIcon } from "../icons";
 import { DragHint } from "./DragHint";
 import styles from "./screen.module.css";
 import { useGestures } from "./useGestures";
@@ -15,11 +16,11 @@ import { useGestures } from "./useGestures";
 
   It opens all the way in, the place as large as it gets (D-112). The wheel and a pinch zoom out to
   its own framing and back; a drag turns around it (the black hole and the quasar) or pans across
-  it (the nebula). Return, the one button (D-115), shrinks it away and returns to the atlas, dived into
+  it (the nebula). Zoom Out, the one button (D-115, D-116), shrinks it away and returns to the atlas, dived into
   the place's light, which then pulls back to where it was found (the flow, D-096). Escape does
   the same, and so does pulling the wheel on past the framing.
 
-  Without the scene it is the poster, the same words, and "Return" as a plain link home.
+  Without the scene it is the poster, the same words, and "Zoom Out" as a plain link home.
 */
 
 export interface PlaceWords {
@@ -64,6 +65,8 @@ export function PlaceView({ place }: { place: PlaceWords }) {
   };
   /** Further leaves the place at once (D-112): the button moves between scenes; the wheel zooms. */
   const further = leave;
+  // each place has its own music (D-116)
+  useEffect(() => setMusic(place.scene), [place.scene]);
   const actions = useRef({ zoomTo });
   useEffect(() => {
     actions.current = { zoomTo };
@@ -146,9 +149,9 @@ export function PlaceView({ place }: { place: PlaceWords }) {
           }}
         >
           <i className={styles.icon} aria-hidden="true">
-            <ReturnIcon />
+            <ZoomOutIcon />
           </i>
-          <span>Return</span>
+          <span>Zoom Out</span>
         </a>
       </div>
     </div>
