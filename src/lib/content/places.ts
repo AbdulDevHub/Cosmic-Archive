@@ -1,5 +1,5 @@
 /**
- * The places and the atlas's stops (content/places.ts), checked once at build time with the same
+ * The places and the atlas's stops (src/content/places.ts), checked once at build time with the same
  * rule as `npm run check`: a line without a fetched source fails the build.
  */
 
@@ -10,7 +10,7 @@ export { PLACES, SOURCES, STOPS } from "@content/places";
 export type { AtlasAnchor, Place, PlaceId, Source, Stop, StopIndex } from "@content/places";
 
 const problems = placeProblems(SOURCES, [...STOPS, ...PLACES]);
-if (problems.length > 0) throw new Error(`content/places.ts:\n  ${problems.join("\n  ")}`);
+if (problems.length > 0) throw new Error(`src/content/places.ts:\n  ${problems.join("\n  ")}`);
 
 export function getPlace(id: string): Place | undefined {
   return PLACES.find((place) => place.id === id);

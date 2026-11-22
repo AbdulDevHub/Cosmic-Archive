@@ -1,5 +1,5 @@
 /**
- * The atlas's particle data, ported from prototype/look.html as it is (ARCHITECTURE.md 4).
+ * The atlas's particle data, ported from the F1 prototype (removed in D-135; in git history) as it is (ARCHITECTURE.md 4).
  * Pure arrays, no three. The seeded generator is consumed in the prototype's order, so at the
  * same counts the galaxy is the same instance the owner approved.
  *

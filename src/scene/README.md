@@ -6,7 +6,7 @@ Everything WebGL lives here, and only here. Nothing outside this folder imports 
 |---|---|
 | `host/` | `SceneHostLoader` (in the root layout, no three), `SceneHost` (the one persistent canvas), `SceneSlot` (what pages render), the registry, the store, the flow between scenes (`flow.ts`, no three), the URL switches |
 | `quality/` | device tier detection and the frame-time governor (no three) |
-| `scenes/atlas/` | the galaxy and the cosmic web, ported from `prototype/look.html`: `model.ts` (particle data, no three), `world.ts` (three objects, the anchors hotspots stand on), `camera.ts` (the zoom rig and the dive) |
+| `scenes/atlas/` | the galaxy and the cosmic web, ported from the F1 prototype (removed in D-135; in git history): `model.ts` (particle data, no three), `world.ts` (three objects, the anchors hotspots stand on), `camera.ts` (the zoom rig and the dive) |
 | `scenes/black-hole/` | the black hole |
 | `scenes/quasar/` | the quasar: the black-hole shader with `QUASAR` defined, seen from far off, with jets and a host galaxy |
 | `scenes/nebula/` | the nebula: one shader, a star-forming cloud |

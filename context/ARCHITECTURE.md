@@ -17,7 +17,7 @@ Merged in from the former `TECHNICAL_DIRECTION.md` (v2, 2026-11-11; content row 
 | Package manager | npm | Already installed; nothing here needs more |
 | Styling | CSS Modules + CSS variables in `src/styles/tokens.css` (OKLCH) | Full art direction, no theme to fight. No Tailwind, no UI kit |
 | 3D | three + @react-three/fiber, WebGL2, GLSL | See below |
-| Content | One TypeScript file, `content/places.ts`, checked at build and by `npm run check` | A name and one sourced line per view; MDX and zod were removed with the long-form pages (D-095) |
+| Content | One TypeScript file, `src/content/places.ts`, checked at build and by `npm run check` | A name and one sourced line per view; MDX and zod were removed with the long-form pages (D-095) |
 | Lint | ESLint flat config, run as `eslint .` (`next lint` no longer exists in Next 16) | |
 | Fonts | `next/font`, self-hosted | No third-party requests at runtime |
 | Screenshots | Playwright (dev dependency) via `npm run shots` | The visual verify loop |
@@ -63,15 +63,14 @@ The original plan deferred all 3D to "Phase 6" and built a static page first. Th
 A statically generated Next.js site. Every screen is complete server-rendered HTML: the poster, a name, one line and real links. One WebGL canvas sits behind the page and shows whichever scene the current route asks for. Pages without a scene never download any 3D code.
 
 ```
-content/places.ts        the stops, the places, their lines and sources (facts only)
-prototype/               look.html and its screenshots: the approved palette and galaxy
+src/content/places.ts    the stops, the places, their lines and sources (facts only)
 public/posters/          stills rendered from our own scenes; public/og/ share images
 scripts/                 check-content, shots, posters, fallbacks, a11y
 src/
   app/                   routes and layouts (server components by default)
   components/screen/     the screen: AtlasView, PlaceView, the Veil, DragHint, useGestures, CSS Modules
   lib/sound.ts           the music and the whooshes (Web Audio, no dependency)
-  lib/content/           loads and checks content/places.ts
+  lib/content/           loads and checks src/content/places.ts
   scene/                 everything WebGL (the only place three is imported)
     host/                SceneHost, SceneSlot, store, flow, registry
     quality/             device tier, frame-time governor
@@ -126,7 +125,7 @@ All routes are static (`generateStaticParams` for `[place]`, `dynamicParams = fa
 Diving into a place from the atlas:
 
 1. `focus` is set to the hotspot's anchor and `dive` glides 0 to 1 over 1.4 s. The atlas camera (`placeCamera`) turns its look toward the anchor and closes the distance on it on a log scale.
-2. At 0.9 s the veil falls: a full-screen DOM layer fades (500 ms) to the place's own dark colour (`veil` in `content/places.ts`).
+2. At 0.9 s the veil falls: a full-screen DOM layer fades (500 ms) to the place's own dark colour (`veil` in `src/content/places.ts`).
 3. At 1.4 s the flow sets the next scene's opening (`arrive: 0`) and calls `router.push`. The new page's slot registers; its scene mounts under the veil.
 4. When the new scene's first frame is drawn (`markReady` for a token newer than the one left), `arrive` glides 0 to 1 over 1.7 s (the shader scenes scale their composition from about a third to full) and the veil lifts.
 5. If the veil has been down 400 ms, the loader shows. A page that draws no scene (no WebGL, the 404) lifts the veil after 350 ms; it gives up after 6 s whatever happens.
@@ -188,7 +187,7 @@ Scene routes carry their page code above the no-scene figure (D-047). Targets: 6
 
 ## 4. Atlas scene
 
-- **Ported from the prototype.** The seeded generator, the palette, every `build*` function in `model.ts`, the base strengths, the log-distance camera interpolation and lens shift, and the fade ranges are `prototype/look.html`'s. The camera keys are centred now that no copy sits beside the galaxy.
+- **Ported from the prototype.** The seeded generator, the palette, every `build*` function in `model.ts`, the base strengths, the log-distance camera interpolation and lens shift, and the fade ranges are the F1 prototype's (removed in D-135; in git history). The camera keys are centred now that no copy sits beside the galaxy.
 - **Layers, in draw order:** background wash and stars; body glow, arm haze, halo, companion; the disc points; dust (sprites that darken what is behind them); core glow; then the web's points and glow, and two of its lights a little brighter: our galaxy and the quasar. Everything is additive except dust. Nothing is drawn over the cosmos (D-094).
 - **One zoom scalar.** `zoom` in [0, 4]: 0 close in, 1 the whole galaxy, 2 the cosmic web, 3 the supervoid (D-119), 4 the observable universe (D-130). It drives the camera rig and the cross-fade between the galaxy and the web.
 - **The dive.** `placeCamera(..., focus, dive)`: the look turns toward the focused anchor (the first half of the dive) while the distance to it closes from wherever the camera is to inside its glow, on a log scale; the lens shift fades out so the place ends centred.
@@ -204,7 +203,7 @@ Scene routes carry their page code above the no-scene figure (D-047). Targets: 6
 
 ## 6. Content model
 
-`content/places.ts` is all the site's words (D-095):
+`src/content/places.ts` is all the site's words (D-095):
 
 - `STOPS`: the atlas's stops (the galaxy, the cosmic web, the supervoid since D-119, the observable universe since D-130), each `{ zoom, name, line, sources }`.
 - `PLACES`: each `{ id, name, line, sources, anchor, stop, veil, inside? }`. `id` is the route and the scene id. A place with `inside` (D-132) is found in that place's scene, not the atlas: its `anchor` is a body the parent's scene names (`bodies` in `scenes/shared/orb.tsx`), its hotspot stands there, a click dives into it, and its Zoom Out goes back to the parent, framed. A place with `through` and `throughAnchor` (D-133) is also reached from that place's body; arrived that way (the session remembers, `cosmic-archive:via:<id>`), its Zoom Out goes back through it.

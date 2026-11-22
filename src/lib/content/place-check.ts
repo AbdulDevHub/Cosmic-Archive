@@ -1,5 +1,5 @@
 /**
- * The sourcing rule for content/places.ts, shared by the build (places.ts) and `npm run check`
+ * The sourcing rule for src/content/places.ts, shared by the build (places.ts) and `npm run check`
  * (scripts/check-content.mjs). Plain TypeScript, no imports, so Node can run it directly.
  */
 

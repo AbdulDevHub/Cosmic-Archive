@@ -28,7 +28,7 @@ Verify-full: npm run build && npm run shots
 4. `context/BLUEPRINT.md`: scope and editorial rules, when touching content or scope.
 5. `context/DECISIONS.md`: before changing anything that looks deliberate. Its newest row wins over every other doc.
 
-The palette, type and galaxy come from `prototype/look.html`; its ink and vessel are gone (D-094).
+The palette and type live in `src/styles/tokens.css`, from the approved F1 prototype (removed in D-135; in git history).
 
 ## Rules That Do Not Change Without the Owner
 
@@ -37,7 +37,7 @@ The palette, type and galaxy come from `prototype/look.html`; its ink and vessel
 - **Boundaries:** only `src/scene/` imports three. Pages use `<SceneSlot>`. Content holds facts; components hold layout.
 - **Every screen works without the scene:** the poster comes first; the name, line and places are server-rendered HTML; places are real links.
 - **Budgets** in `context/ARCHITECTURE.md` section 3.9 are limits, not targets to revisit.
-- **Science:** every line is true. No fact, number or name from memory: fetch the source, name it in `content/places.ts` and record the checked date. `npm run check` enforces this.
+- **Science:** every line is true. No fact, number or name from memory: fetch the source, name it in `src/content/places.ts` and record the checked date. `npm run check` enforces this.
 - **Imagery:** our own illustrations only. Never embed or host telescope photos or third-party art.
 - **Sound:** the owner's own music, the effects the owner supplied in `public/sounds/` (D-114), and whooshes made in the browser. Nothing plays before the first gesture, and the Sound button always works (D-100).
 - **Scope:** the v1 table in `context/BLUEPRINT.md` section 4, in the order the tracker's "Next Steps" gives. Until it lists an order, ask the owner what comes first. Do one session at a time, then stop, unless the owner asks for several in a row.
@@ -55,7 +55,6 @@ The palette, type and galaxy come from `prototype/look.html`; its ink and vessel
 ## Boundaries
 
 - `owner/` (gitignored) holds the owner's private files: `reference-images/` (inspiration only, never in the site), `music-library/` (copyrighted loops; `public/music/` is cut from it) and `vision-docs/` (the original ChatGPT handoff, superseded by the decision log).
-- `prototype/` is the approved look. Read it; don't change it.
 
 ## More
 

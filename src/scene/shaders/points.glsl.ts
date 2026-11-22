@@ -1,6 +1,6 @@
 /**
  * Everything luminous is one soft disc: a colour, a size and a seed per particle.
- * Ported from the POINT_VS / POINT_FS of prototype/look.html.
+ * Ported from the POINT_VS / POINT_FS of the F1 prototype (removed in D-135; in git history).
  *
  * Two forms share the maths:
  * - points: gl.POINTS, for the many small particles (disc, halo, stars);

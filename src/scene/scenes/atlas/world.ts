@@ -62,7 +62,7 @@ const NUCLEUS = { glow: 1.6 };
 const NEAR = 0.12;
 
 /**
- * The places a hotspot can stand. `content/places.ts` names one per place; the scene
+ * The places a hotspot can stand. `src/content/places.ts` names one per place; the scene
  * owns where each one is, because that depends on the galaxy as generated and on the composition.
  */
 const NEBULA_R = 0.74;

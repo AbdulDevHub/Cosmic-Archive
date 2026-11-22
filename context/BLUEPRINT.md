@@ -1,6 +1,6 @@
 # Cosmic Archive: Project Blueprint
 
-> **What this file is:** what Cosmic Archive is, what is in scope and the editorial rules (sourcing, imagery). Read it before touching content in `content/places.ts` or changing scope. Update it only when the owner changes the scope, and record the change in `DECISIONS.md`.
+> **What this file is:** what Cosmic Archive is, what is in scope and the editorial rules (sourcing, imagery). Read it before touching content in `src/content/places.ts` or changing scope. Update it only when the owner changes the scope, and record the change in `DECISIONS.md`.
 
 **Status:** v3, 2026-11-20. Rewritten after the owner's read-through of v1: "way too wordy; I wanted a spectacle that showcases beauty, not an educational site" (D-092). Replaces v2 (2026-11-11, in git), which described a sourced, educational atlas.
 **This file answers:** what the product is, what is in scope, and the editorial rules. How it looks is in `DESIGN_SPEC.md`; how it is built is in `ARCHITECTURE.md`; the order of work is in `PROGRESS_TRACKER.md`.
@@ -58,7 +58,7 @@ A place belongs if it is real, is found where the atlas puts it (inside the gala
 
 ### 6.1 Sourcing (every line the site says)
 
-1. Each place and each stop has one line of at most twelve words. It is a claim, so it names the sources it came from in `content/places.ts`.
+1. Each place and each stop has one line of at most twelve words. It is a claim, so it names the sources it came from in `src/content/places.ts`.
 2. Each source is fetched and read before it is cited, and recorded with title, publisher, URL and the date it was checked.
 3. `npm run check` and the build fail if a line has no source, a source is not listed or has no checked date, a source backs no line, or a line is longer than twelve words.
 4. Never write a number, distance, date or name from memory. If no source was read for it, it does not go on the site.

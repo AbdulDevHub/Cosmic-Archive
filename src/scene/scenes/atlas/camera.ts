@@ -1,7 +1,7 @@
 /**
  * The camera rig: one zoom scalar over four stops, 0 close in, 1 the whole galaxy, 2 the cosmic
  * web, 3 the supervoid around it (ARCHITECTURE.md 4, D-119), 4 the observable universe (D-130). Keys, log-distance interpolation and lens shift ported from
- * prototype/look.html; the keys are centred now that no copy sits beside the galaxy (D-092).
+ * the F1 prototype (removed in D-135; in git history); the keys are centred now that no copy sits beside the galaxy (D-092).
  *
  * Free control adds a turn and a tilt on top of the key for the current zoom. A dive (D-096) then
  * carries the camera from wherever it is into one named place: the look turns toward it and the

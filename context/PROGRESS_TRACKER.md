@@ -9,9 +9,9 @@ Everything is committed and pushed to the private GitHub repo (`AbdulDevHub/Cosm
 - **Start page** (`/`, from the owner's `Home.png`, D-107): gradient headline, Begin, "Choose Your Vessel" with five ships (Sovereign, Predator, Celestial, Discovery, Colossus; D-120, brief in `SHIP_BRIEF.md`), and a spaceship loader (D-123). `/#atlas` skips it.
 - **Header:** wordmark, glass dock (Science, Explore, Learn, Discover: "coming soon"), search ("coming soon") and Sound (D-116).
 - **Atlas stops** (Zoom Out moves outward): A Spiral Galaxy → The Cosmic Web → A Supervoid (three voids growing, "Growing empty…", D-132, D-133) → The Observable Universe (turns like a globe, D-130 to D-132).
-- **Places** (one shader each; wheel zooms, drag turns, Zoom Out leaves): Black Hole, Nebula, Neutron Star, Strange Star, Wormhole, Gravastar and Quasi-Star in the galaxy. **A Solar System** holds the Yellow Star and A Blue World. A Blue World holds Its Moon, and Its Moon holds An Asteroid. **A Quasar Galaxy** (reached from the web and through the Wormhole) holds the Quasar and the Dyson Sphere. Places inside places: `inside` and `through` in `content/places.ts`, `bodies` in `src/scene/scenes/shared/orb.tsx`.
+- **Places** (one shader each; wheel zooms, drag turns, Zoom Out leaves): Black Hole, Nebula, Neutron Star, Strange Star, Wormhole, Gravastar and Quasi-Star in the galaxy. **A Solar System** holds the Yellow Star and A Blue World. A Blue World holds Its Moon, and Its Moon holds An Asteroid. **A Quasar Galaxy** (reached from the web and through the Wormhole) holds the Quasar and the Dyson Sphere. Places inside places: `inside` and `through` in `src/content/places.ts`, `bodies` in `src/scene/scenes/shared/orb.tsx`.
 - **Sound** (`src/lib/sound.ts`): a loop per scene in `public/music/` (gitignored, cut from `owner/music-library/`), Magical Space as the fallback, warp sounds on every move, nothing before Begin (D-100, D-114 to D-116).
-- **Content:** 4 stops and 15 places in `content/places.ts`, each line sourced and checked by `npm run check`.
+- **Content:** 4 stops and 15 places in `src/content/places.ts`, each line sourced and checked by `npm run check`.
 
 ## In Progress
 
@@ -25,7 +25,7 @@ Not yet ordered. The owner sets the order in the replan session. Open items, by 
 - **New places:** a starbase and more sci-fi places in the Quasar Galaxy (names from the owner); further levels beyond the universe (a "multiverse", owner's idea).
 - **Lines and voice:** rewrite the weakest lines in a vivid "what it is" voice, still sourced and true.
 - **Ships:** refine all five, closer to `SHIP_BRIEF.md` and the references. Use Blender `.glb` models when code-built hulls stop being enough. Sovereign looks egg-like from above.
-- **Sound:** swells that rise with power at the black hole and the quasar (optional).
+- **Sound:** swells that rise with power at the black hole and the quasar (optional). **Ask the owner in the replan** about the three music folders: `owner/music-library/` (15 source tracks plus `INDEX.json`), `public/music/` (the loops the site plays, gitignored, 55 MB) and `public/sounds/` (Magical Space and the 3 Star Trek effects, in git).
 - **Video button (idea, not decided):** a small round button right of Zoom Out that opens a YouTube video for the scene, mostly Kurzgesagt.
 - **Tests and health:** the tests are heavy and the machine runs out of memory. Run shots, a11y and fallbacks one at a time. The live `/black-hole` can take past the 30 s settle limit, so raise `sceneSettled` or trim routes. Known failures: the two fallbacks `touch` checks, and drag-hint contrast on `/star`.
 - **Owner checks:** look at each new scene on the laptop (`/solar-system`, `/blue-world`, `/moon`, `/asteroid`, `/quasar-galaxy`, `/#supervoid`, `/#universe`). Decide whether arXiv papers are acceptable sources (Wormhole, Gravastar, Quasi-Star). Never measured on real hardware: frame rate (an integrated-GPU laptop and a mid-range phone), and touch and pinch on a real phone.
@@ -56,7 +56,7 @@ Limits: draw calls on `low` under 30, scene chunks under 40 KB. Tests that need 
 
 The work ran in three tracks of numbered sessions in the old roadmap:
 
-- **F (Foundation), 2026-11-11 to 2026-11-17:** F0 replan; F1 `prototype/look.html` (Syne headline, palette); F2 Next 16 scaffold and scripts; F3a/b scene system, tiers, governor, fallbacks and the atlas; F4 the content check and Black Holes.
+- **F (Foundation), 2026-11-11 to 2026-11-17:** F0 replan; F1 the look prototype (Syne headline, palette; removed in D-135); F2 Next 16 scaffold and scripts; F3a/b scene system, tiers, governor, fallbacks and the atlas; F4 the content check and Black Holes.
 - **O (the reading site), 2026-11-17 to 2026-11-20:** subject pages (Galaxies, Nebulae, Quasars), a journey, Explore polish, and release prep (metadata, OG images, sitemap, a11y).
 - **The pivot:** the owner's read-through turned the site into a spectacle (D-092), and most of the O work was removed (D-093 to D-095).
 - **S (Spectacle), 2026-11-20 to 2026-11-21:** S1 strip to spectacle, then the owner's notes (sound, deep sky, drag and zoom, the start page); S2 galaxy and web; S3 black hole and quasar; S4 nebula. S5 (owner review, then deploy) is still open and is now part of the plan above.

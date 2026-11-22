@@ -3,7 +3,7 @@
 > **What this file is:** the look of the site: the bans, colour, type, hotspots, motion, each screen, and the screenshot checklist (section 11) that every visual change must pass. Read it before any visual change. Update it when the owner settles a look, and record why in `DECISIONS.md`.
 
 **Status:** v3, 2026-11-20; S1b changes 2026-11-21 (no About, no Pause, sound, the deep sky, zoom and drag in places: D-099 to D-102). Rewritten after the owner's read-through: the site is a spectacle to look at, not an atlas to read (D-092). Replaces v2 (2026-11-11, in git), whose ink layer, vessel and reading pages are gone.
-**Reference for the look:** the scenes themselves. The palette, type and the galaxy's look still come from `prototype/look.html`, without its ink and vessel.
+**Reference for the look:** the scenes themselves. The palette and type are in `src/styles/tokens.css`, copied from the approved F1 prototype (removed in D-135; in git history).
 
 ## 1. The idea: the universe, to look at
 
@@ -46,7 +46,7 @@ Rules:
 
 - One accent in the interface (`--beacon`). Everything else in the UI is ink on space.
 - Colour belongs to the scenery. Each place has a three-colour palette: black hole gold, ember, violet; galaxy azure, violet, gold; nebula rose, teal, gold; quasar azure, white, ember.
-- Each place also has a veil colour: its own darkness, which the screen passes through on the way in and out (`content/places.ts`).
+- Each place also has a veil colour: its own darkness, which the screen passes through on the way in and out (`src/content/places.ts`).
 - Text carries a soft dark halo in `--space`, so it reads over any frame.
 
 ## 4. Type
@@ -123,7 +123,7 @@ Going out is the same, reversed. The veil never stays down: a page that draws no
 
 ## 8. About
 
-Removed (D-099). The sources behind the site's few lines stay in `content/places.ts`, checked by the build.
+Removed (D-099). The sources behind the site's few lines stay in `src/content/places.ts`, checked by the build.
 
 ## 9. Responsive and accessibility
 
