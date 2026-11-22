@@ -34,6 +34,12 @@ Tick an item only when it is implemented and verified. Sessions are defined in `
 
 Folded in from the old `OPUS_NEXT_WEEK_PROMPT.md` (D-106). A fresh session has no memory: read `CLAUDE.md`, this section, `docs/DESIGN_SPEC.md` (2 bans and their start-page exception, 7.0 the start page, 7 the screens), `docs/ARCHITECTURE.md` (3 the scene system and the flow, 4 the atlas) and `docs/DECISIONS.md` from D-092 on. The original ChatGPT direction is in git commit `15e3478` (the owner also keeps a copy in `Vision_Docs/` (renamed from `Cosmic_Archive_Opus_Handoff/`, D-115), not in git). **The owner's newer decisions override it**: where the two disagree, the decision log wins.
 
+### Latest (2026-11-22, evening): start here
+
+Everything is committed and pushed (D-131 to D-133); nothing is deployed. Since the night run was merged: the supervoid stop is three voids growing in place with a "Growing empty…" note (D-132, D-133); the Observable Universe has one smaller supervoid and turns like a globe (D-131, D-132); **A Solar System** holds the Yellow Star and **A Blue World**, which holds **Its Moon**, which holds **An Asteroid**; **A Quasar Galaxy** (at the web and through the Wormhole) holds the Quasar and the Dyson Sphere. Places inside places: `inside` and `through` in `content/places.ts`, `bodies` in `scenes/shared/orb.tsx`.
+
+**Owner to review first:** each new scene on the laptop (`/solar-system`, `/blue-world`, `/moon`, `/asteroid`, `/quasar-galaxy`, `/#supervoid`, `/#universe`). **Then the backlog below:** sci-fi places for the quasar galaxy (a starbase and more the owner will name), the video button idea, vivid lines, and the look of the Moon, the Blue World and the Wormhole. Run the heavy test scripts one at a time with nothing else running: the machine runs low on memory.
+
 ### Where things stand (2026-11-22, end of a very long session)
 
 Last commit: `48c1cd5`. Everything is committed; nothing is pushed or deployed. The decision log runs to **D-118**; read D-107 onward for this session's arc.
