@@ -19,13 +19,9 @@ screenshots/
 next-env.d.ts
 *.tsbuildinfo
 
-# Inspiration from the owner, not our own art: never in the repo or the site (D-018, D-101)
-reference images/
-Reference_Images/
+# The owner's private files (D-134): reference images (inspiration, not our art; D-018, D-101),
+# the music library (copyrighted loops, D-116) and the original ChatGPT handoff (also in commit 15e3478)
+owner/
 
-# The owner's copy of the original ChatGPT handoff; the same files are in commit 15e3478
-Vision_Docs/
-
-# the owner's music loops (D-116): copyrighted tracks, kept out of git until the owner decides
-music-library/
+# scene loops cut from the owner's music library (D-116)
 public/music/
