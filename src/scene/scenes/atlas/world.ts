@@ -75,6 +75,9 @@ const STRANGE_R = 0.3;
 const STRANGE_TH = armAngle(1, STRANGE_R) + 1.4;
 const DYSON_R = 0.9;
 const DYSON_TH = armAngle(3, DYSON_R);
+// D-125: a wormhole and a gravastar, hypothetical, off the arms
+const WORM_R = 0.8;
+const WORM_TH = armAngle(0, WORM_R) + 0.9;
 type Anchor = { local: Vec3; spin: boolean } | { web: "quasar" | "home" };
 const ANCHORS: Record<string, Anchor> = {
   /** The heart of the galaxy. */
@@ -89,6 +92,8 @@ const ANCHORS: Record<string, Anchor> = {
   strange: { local: [STRANGE_R * Math.cos(STRANGE_TH), 0, STRANGE_R * Math.sin(STRANGE_TH)], spin: true },
   /** A Dyson sphere around a star on an outer arm (D-117). */
   dyson: { local: [DYSON_R * Math.cos(DYSON_TH), 0, DYSON_R * Math.sin(DYSON_TH)], spin: true },
+  /** A hypothetical wormhole in the disc (D-125). */
+  wormhole: { local: [WORM_R * Math.cos(WORM_TH), 0, WORM_R * Math.sin(WORM_TH)], spin: true },
   /** A far galaxy of the web, placed where the zoomed-out composition wants it. */
   quasar: { web: "quasar" },
   /** The galaxy the visitor came from. */

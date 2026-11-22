@@ -30,8 +30,8 @@ export interface Stop {
   sources: readonly string[];
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere";
-export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "dyson";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole";
+export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "dyson" | "wormhole";
 
 export interface Place {
   id: PlaceId;
@@ -130,6 +130,13 @@ export const SOURCES: readonly Source[] = [
     url: "https://science.nasa.gov/missions/webb/nasas-webb-will-use-quasars-to-unlock-the-secrets-of-the-early-universe/",
     checked: "2026-11-20",
   },
+  {
+    id: "arxiv-einstein-rosen-bridge",
+    title: "Einstein-Rosen \"Bridge\" Revisited and Lightlike Thin-Shell Wormholes",
+    publisher: "Guendelman, Nissimov, Pacheva and Stoilov (Ben-Gurion University and the Bulgarian Academy of Sciences), arXiv",
+    url: "https://arxiv.org/abs/1611.04336",
+    checked: "2026-11-22",
+  },
 ];
 
 export const STOPS: readonly Stop[] = [
@@ -222,6 +229,16 @@ export const PLACES: readonly Place[] = [
     anchor: "dyson",
     stop: 1,
     veil: "#120a04",
+  },
+  {
+    id: "wormhole",
+    name: "Wormhole",
+    // the source: "the original 1935 paper"; "the classical Einstein-Rosen bridge"; "the simplest example of a ... traversable lightlike thin-shell wormhole" (hypothetical: it needs "exotic" matter)
+    line: "A hypothetical bridge through spacetime, first described in 1935.",
+    sources: ["arxiv-einstein-rosen-bridge"],
+    anchor: "wormhole",
+    stop: 1,
+    veil: "#0a0a16",
   },
 ];
 
