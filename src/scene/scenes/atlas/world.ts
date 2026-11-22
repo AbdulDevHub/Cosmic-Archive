@@ -83,6 +83,9 @@ const GRAV_TH = armAngle(2, GRAV_R) + 0.9;
 // D-127: a quasi-star, far out at the disc's edge (the early universe, in spirit)
 const QUASI_R = 1.02;
 const QUASI_TH = armAngle(1, QUASI_R) + 0.6;
+// D-128: Earth and its Moon, out near the Yellow Star in the outer disc
+const EARTH_R = 0.7;
+const EARTH_TH = SUN_TH + 0.16;
 type Anchor = { local: Vec3; spin: boolean } | { web: "quasar" | "home" };
 const ANCHORS: Record<string, Anchor> = {
   /** The heart of the galaxy. */
@@ -103,6 +106,8 @@ const ANCHORS: Record<string, Anchor> = {
   gravastar: { local: [GRAV_R * Math.cos(GRAV_TH), 0, GRAV_R * Math.sin(GRAV_TH)], spin: true },
   /** A hypothetical quasi-star out at the edge of the disc (D-127). */
   quasi: { local: [QUASI_R * Math.cos(QUASI_TH), 0, QUASI_R * Math.sin(QUASI_TH)], spin: true },
+  /** Earth, near the Yellow Star (D-128). */
+  earth: { local: [EARTH_R * Math.cos(EARTH_TH), 0, EARTH_R * Math.sin(EARTH_TH)], spin: true },
   /** A far galaxy of the web, placed where the zoomed-out composition wants it. */
   quasar: { web: "quasar" },
   /** The galaxy the visitor came from. */

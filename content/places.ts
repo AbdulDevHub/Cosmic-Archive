@@ -30,8 +30,8 @@ export interface Stop {
   sources: readonly string[];
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "quasi-star";
-export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "dyson" | "wormhole" | "gravastar" | "quasi";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "quasi-star" | "earth";
+export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "dyson" | "wormhole" | "gravastar" | "quasi" | "earth";
 
 export interface Place {
   id: PlaceId;
@@ -149,6 +149,13 @@ export const SOURCES: readonly Source[] = [
     title: "Quasi-stars as a Means of Rapid Black Hole Growth in the Early Universe",
     publisher: "Eric R. Coughlin (Syracuse University) and Mitchell C. Begelman (University of Colorado Boulder), arXiv",
     url: "https://arxiv.org/abs/2405.00084",
+    checked: "2026-11-22",
+  },
+  {
+    id: "nasa-earth-facts",
+    title: "Facts About Earth",
+    publisher: "NASA Science",
+    url: "https://science.nasa.gov/earth/facts/",
     checked: "2026-11-22",
   },
 ];
@@ -273,6 +280,16 @@ export const PLACES: readonly Place[] = [
     anchor: "quasi",
     stop: 1,
     veil: "#160604",
+  },
+  {
+    id: "earth",
+    name: "Earth",
+    // the source: "Earth is special because it is an ocean planet"; "Earth's global ocean, which covers about 71% of the planet's surface"
+    line: "An ocean planet: its global ocean covers about 71% of its surface.",
+    sources: ["nasa-earth-facts"],
+    anchor: "earth",
+    stop: 1,
+    veil: "#020814",
   },
 ];
 
