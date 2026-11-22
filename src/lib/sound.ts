@@ -38,7 +38,7 @@ const TRACKS: Record<string, string> = {
   "earth": "/music/earth",
   "moon": "/music/moon",
   supervoid: "/music/web",
-  universe: "/music/web",
+  universe: "/music/universe",
 };
 const SWAP_OUT = 0.9; // seconds: the old track fades out, then the new one fades in
 const SWAP_IN = 2.2;

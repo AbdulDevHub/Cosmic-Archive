@@ -21,6 +21,7 @@ import {
   BufferAttribute,
   BufferGeometry,
   CustomBlending,
+  Euler,
   Group,
   InstancedBufferAttribute,
   InstancedBufferGeometry,
@@ -34,6 +35,7 @@ import {
   ShaderMaterial,
   Vector2,
   Vector3,
+  Vector4,
   ZeroFactor,
   type Material,
   type Object3D,
@@ -350,47 +352,83 @@ uniform vec2 uHome;    // our web on screen, device pixels from the bottom left:
 uniform float uUnit;   // device pixels per unit (half the window's height)
 uniform float uRadius; // the sphere's radius in units: vast as the zoom leaves the supervoid, whole at the stop
 uniform float uFrom;   // its radius as the zoom leaves the supervoid, where its foam matches the supervoid's
-uniform vec2 uPan;     // the drag's turn and tilt
+uniform mat3 uSpin;    // the drag turns the ball like a globe (owner, D-131)
+uniform vec4 uVoid;    // the supervoid on the ball: its direction (xyz) and radius (w)
 uniform float uTime;
 uniform float uAlpha;
 uniform int uDetail;
 ${FOAM_CHUNK}
 
+/* 0 inside a void of radius rad about dir, 1 out in the web */
+float voidMask(vec3 p, vec3 dir, float rad){
+  return smoothstep(rad * 0.7, rad * 1.12, length(p - dir));
+}
+/* the foam wrapped round the ball without stretching: three flat layers, each laid along the axis
+   it faces, blended by how squarely the surface faces each one */
+vec3 ballLayer(vec3 p, float off, float scale, float width, float bright){
+  vec3 k = pow(abs(p), vec3(4.0));
+  k /= k.x + k.y + k.z + 1e-4;
+  vec3 c = vec3(0.0);
+  if (k.z > 0.02) c += webLayer(p.xy * 1.3 + off, scale, width, bright) * k.z;
+  if (k.x > 0.02) c += webLayer(p.yz * 1.3 + off + 2.7, scale, width, bright) * k.x;
+  if (k.y > 0.02) c += webLayer(p.zx * 1.3 + off + 5.9, scale, width, bright) * k.y;
+  return c;
+}
+/* the walls crowding a void's edge */
+float voidWall(vec3 p, vec3 dir, float rad){
+  float d = (length(p - dir) - rad * 1.05) / (rad * 0.22);
+  return exp(-d * d);
+}
+
 void main(){
   vec2 w = (gl_FragCoord.xy - uHome) / uUnit;
-  vec2 pan = vec2(uPan.x, -uPan.y) * 0.15;
-  vec2 s = w / uRadius + pan;     // the sphere's radii, from its middle
+  vec2 s = w / uRadius;     // the sphere's radii, from its middle
   float r = length(s);
   float t = uTime;
   float edge = r + 0.012 * (noise3(vec3(s * 6.0, 3.0)) - 0.5);
   float inside = 1.0 - smoothstep(0.985, 1.0, edge);
 
-  // the foam, in three sizes of cell handed on as the sphere shrinks: at first the supervoid's own
-  // (it carries on), then finer, then the finest once the sphere is whole; a line of sight near the
-  // edge crosses more of the ball, so the cells bunch there
+  // a point on the ball's near face, turned with the drag
+  vec3 p = uSpin * vec3(s, sqrt(max(1.0 - r * r, 0.0)));
+
+  // the foam, handed on as the sphere shrinks: at first the supervoid's own cells (it carries on),
+  // then finer, then (owner, D-131) a dense glowing web, fine enough that its cells read as
+  // texture, not as a ball of empty bubbles
   float far1 = smoothstep(4.0, 8.0, uRadius);      // the supervoid's cells
   float far2 = smoothstep(1.4, 3.0, uRadius);      // the middle size
   float whole = 1.0 - smoothstep(1.5, 4.0, uRadius);
-  vec2 b = s * (1.0 + 0.55 * whole * pow(min(r, 1.0), 4.0));
   vec3 foam = vec3(0.0);
   if (far1 > 0.0) {
     vec2 c = s * uFrom;
     foam += (webLayer(c + 7.3, 3.4, 0.04, 0.75) + webLayer(c + 3.1, 6.0, 0.035, 0.5)) * far1;
   }
   if (far1 < 1.0) {
-    vec3 mid = far2 > 0.0 ? webLayer(b + 5.0, 26.0, 0.04, 0.8) : vec3(0.0);
+    vec3 mid = far2 > 0.0 ? ballLayer(p, 5.0, 26.0, 0.04, 0.8) : vec3(0.0);
     vec3 fine = vec3(0.0);
     if (far2 < 1.0) {
-      fine = webLayer(b + 7.3, 9.0, 0.045, 1.0);
-      if (uDetail > 0) fine += webLayer(b * 1.9 + 3.1 + vec2(t * 0.001, 0.0), 9.0, 0.04, 0.3);
+      fine = ballLayer(p, 7.3, 22.0, 0.075, 0.95);
+      if (uDetail > 0) fine += ballLayer(p * 1.7, 3.1 + t * 0.0008, 22.0, 0.07, 0.4);
+      // the light of countless galaxies between the threads
+      float n1 = noise3(p * 6.5 + 1.0);
+      float n2 = noise3(p * 18.0 + 4.0 + t * 0.01);
+      fine += mix(mix(VIOLET, AZURE, n1), ROSE, smoothstep(0.7, 0.95, n2) * 0.4) * (0.07 + 0.16 * n1 * n2);
     }
     foam += mix(fine, mid, far2) * (1.0 - far1);
   }
   float depth = 1.0 / sqrt(max(1.0 - min(r * r, 1.0), 0.04));
-  foam *= mix(1.0, 0.55 + 0.45 * depth, whole);
+  foam *= mix(1.0, 0.6 + 0.4 * depth, whole);
+
+  // the supervoid (the one the visitor came from) and only a few small voids besides
+  float hole = voidMask(p, uVoid.xyz, uVoid.w);
+  float wall = voidWall(p, uVoid.xyz, uVoid.w);
+  hole *= mix(1.0, voidMask(p, normalize(vec3(0.55, 0.4, 0.73)), 0.075), whole);
+  hole *= mix(1.0, voidMask(p, normalize(vec3(-0.35, -0.6, 0.72)), 0.06), whole);
+  hole *= mix(1.0, voidMask(p, normalize(vec3(0.2, -0.75, -0.63)), 0.07), whole);
+  foam = foam * (0.04 + 0.96 * hole) * (1.0 + 0.9 * wall * whole);
+
   vec3 col = foam * inside;
   // a faint haze of light filling the ball
-  col += mix(VIOLET, AZURE, 0.45) * 0.05 * inside * whole;
+  col += mix(VIOLET, AZURE, 0.45) * 0.06 * inside * whole * (0.25 + 0.75 * hole);
 
   // its edge: the farthest light there is, a faint warm glow
   float rim = exp(-pow((edge - 1.0) / 0.03, 2.0));
@@ -517,7 +555,8 @@ function universe(): Mesh<BufferGeometry, ShaderMaterial> {
       uUnit: { value: 1 },
       uRadius: { value: 1 },
       uFrom: { value: 1 },
-      uPan: { value: new Vector2() },
+      uSpin: { value: new Matrix3() },
+      uVoid: { value: new Vector4(0, 0, 1, 0.2) },
       uTime: { value: 0 },
       uAlpha: { value: 0 },
       uDetail: { value: 1 },
@@ -578,6 +617,12 @@ export class AtlasWorld {
   private readonly universeLayer = universe();
   /** Scene time the visitor came out to the supervoid, or null while they are not there. */
   private voidSince: number | null = null;
+  /** The universe's turn with the drag (D-131) and where its supervoid falls on screen (x, y, facing). */
+  private readonly spinEuler = new Euler();
+  private readonly spinM4 = new Matrix4();
+  private readonly spin = new Matrix3();
+  private readonly voidDir = new Vector3();
+  private readonly voidSpot = new Vector3(0, 0, -1);
   private bufferWidth = 1;
   private bufferHeight = 1;
   /** The start page's planet, moons, asteroids and ship (D-107); drawn only while `intro` is above 0. */
@@ -825,9 +870,25 @@ export class AtlasWorld {
     const out = sstep(3, LAST_STOP, view.zoom);
     u.uRadius.value = whole * Math.exp(mix(Math.log(UNIVERSE_FROM), 0, out));
     u.uFrom.value = whole * UNIVERSE_FROM;
-    (u.uPan.value as Vector2).set(view.yaw * 0.6, view.pitch * 0.6);
+    // the drag turns the ball like a globe (owner, D-131): its features follow the drag
+    this.spinEuler.set(-view.pitch * 0.5, -view.yaw * 0.5, 0, "XYZ");
+    this.spin.setFromMatrix4(this.spinM4.makeRotationFromEuler(this.spinEuler));
+    (u.uSpin.value as Matrix3).copy(this.spin).transpose();
+    // the supervoid: its true size while the zoom leaves it (at its wall, beside our web), swelling
+    // to the one great dark patch the owner asked for once the ball is whole (D-131)
+    const ball = u.uRadius.value as number;
+    const grown = 1 - sstep(1.5, 4.0, ball);
+    const rad = mix(1.15 / (whole * UNIVERSE_FROM), 0.2, grown);
+    const off = rad * 1.04;
+    this.voidDir.set(-off, 0.03, Math.sqrt(Math.max(0, 1 - off * off - 0.0009))).normalize();
+    (u.uVoid.value as Vector4).set(this.voidDir.x, this.voidDir.y, this.voidDir.z, rad);
     u.uTime.value = t;
     u.uAlpha.value = alpha;
+    // where the supervoid's hotspot falls on screen, in CSS pixels (report() reads it)
+    const seen = this.scratch.copy(this.voidDir).applyMatrix3(this.spin);
+    const home = u.uHome.value as Vector2;
+    const unit = (u.uUnit.value as number) * ball;
+    this.voidSpot.set((home.x + seen.x * unit) * (width / this.bufferWidth), height - (home.y + seen.y * unit) * (height / this.bufferHeight), seen.z);
   }
 
   /** Projects the anchors for the DOM (hotspots). */
@@ -843,6 +904,13 @@ export class AtlasWorld {
       point.on = v.z < 1;
       point.x = (v.x * 0.5 + 0.5) * width;
       point.y = (-v.y * 0.5 + 0.5) * height;
+    }
+    // the supervoid's hotspot rides on the turning ball (D-131), hidden while it faces away
+    if (this.universeLayer.visible) {
+      const spot = out.points.voidspot;
+      spot.x = this.voidSpot.x;
+      spot.y = this.voidSpot.y;
+      spot.on = spot.on && this.voidSpot.z > 0.2;
     }
     // half the width of the disc on screen
     let min = Infinity;
