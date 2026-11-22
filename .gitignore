@@ -21,6 +21,11 @@ next-env.d.ts
 
 # Inspiration from the owner, not our own art: never in the repo or the site (D-018, D-101)
 reference images/
+Reference_Images/
 
 # The owner's copy of the original ChatGPT handoff; the same files are in commit 15e3478
 Vision_Docs/
+
+# the owner's music loops (D-116): copyrighted tracks, kept out of git until the owner decides
+music-library/
+public/music/

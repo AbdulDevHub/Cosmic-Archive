@@ -17,4 +17,9 @@ export const SCENES: Record<SceneId, () => Promise<SceneModule>> = {
   "black-hole": () => import("../scenes/black-hole"),
   nebula: () => import("../scenes/nebula"),
   quasar: () => import("../scenes/quasar"),
+  "neutron-star": () => import("../scenes/neutron-star"),
+  star: () => import("../scenes/star"),
+  "strange-star": () => import("../scenes/strange-star"),
+  "dyson-sphere": () => import("../scenes/dyson-sphere"),
+  supervoid: () => import("../scenes/supervoid"),
 };

@@ -97,11 +97,11 @@ export const SparkIcon = () => (
   </Icon>
 );
 
-/** Return (D-115): an arrow turning back. */
-export const ReturnIcon = () => (
-  <Icon size={14}>
-    <path d="M9 14L4 9l5-5" />
-    <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />
+/** Zoom Out (D-116): a lens with a minus, and two corners opening outward. */
+export const ZoomOutIcon = () => (
+  <Icon size={20}>
+    <circle cx="10.5" cy="10.5" r="6" />
+    <path d="M7.8 10.5h5.4M15 15l5 5" />
   </Icon>
 );
 

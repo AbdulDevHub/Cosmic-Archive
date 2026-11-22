@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { calm, diveInto, flowBusy, getFlow, useFlow } from "@/scene/host/flow";
-import { playMusic, playSample } from "@/lib/sound";
+import { playMusic, playSample, setMusic } from "@/lib/sound";
 import { sceneParams } from "@/scene/host/params";
 import { SceneSlot } from "@/scene/host/SceneSlot";
 import {
@@ -15,10 +15,11 @@ import {
   setSceneInput,
   subscribeSceneFrame,
   useSceneState,
+  ZOOM_MAX,
   ZOOM_MIN,
   type SceneFrame,
 } from "@/scene/host/store";
-import { ReturnIcon } from "../icons";
+import { ZoomOutIcon } from "../icons";
 import { HOME_EVENT } from "../SiteHeader";
 import { DragHint } from "./DragHint";
 import styles from "./screen.module.css";
@@ -84,9 +85,11 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
   // one name for the galaxy, close in or whole (D-115); the web's beyond WEB_AT
   const [stop, setStop] = useState<1 | 2>(1);
   const words = stops.find((entry) => entry.zoom === stop) ?? stops[0];
-  // out on the web (Return glides back in from there; tests read it as `data-web`)
+  // out on the web (Zoom Out glides back in from there; tests read it as `data-web`)
   const [atWeb, setAtWeb] = useState(false);
   const sync = () => setAtWeb(getSceneInput().zoom > WEB_AT);
+  // the galaxy and the web have their own music (D-116)
+  useEffect(() => setMusic(atWeb ? "web" : "galaxy"), [atWeb]);
 
   const glideTo = (zoom: number) => {
     if (flowBusy()) return;
@@ -96,14 +99,13 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
     sync();
   };
   /**
-   * One button, Return (D-115): back one step. From the web it glides back in to the galaxy; from
-   * the galaxy it flies back out to the start page. Places are entered by clicking them; the wheel
-   * and a pinch zoom (out to the web, too).
+   * One button, Zoom Out (D-117): out one level, from the galaxy to the cosmic web. On the web it
+   * is dimmed until a wider view exists (the universe, later). Places, and the galaxy from the web,
+   * are entered by clicking them; the wheel and a pinch zoom both ways.
    */
   const back = () => {
-    if (flowBusy()) return;
-    if (getSceneInput().zoom > WEB_AT) glideTo(ZOOM_MIN);
-    else window.dispatchEvent(new Event(HOME_EVENT));
+    if (flowBusy() || getSceneInput().zoom > WEB_AT) return;
+    glideTo(ZOOM_MAX);
   };
 
   // The start page (D-107): shown on arriving at `/` fresh, or by Home; not when the flow brings the
@@ -315,11 +317,11 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
       <DragHint live={live} />
       {live ? (
         <div className={styles.controls}>
-          <button type="button" className={styles.control} onClick={back}>
+          <button type="button" className={styles.control} onClick={back} aria-disabled={atWeb}>
             <i className={styles.icon} aria-hidden="true">
-              <ReturnIcon />
+              <ZoomOutIcon />
             </i>
-            <span>Return</span>
+            <span>Zoom Out</span>
           </button>
         </div>
       ) : null}

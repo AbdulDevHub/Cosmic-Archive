@@ -2,32 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { MouseEvent, ReactNode } from "react";
+import type { MouseEvent } from "react";
 import { toggleSound, useSound } from "@/lib/sound";
-import { ArchiveIcon, AtlasIcon, ChevronIcon, Emblem, HomeIcon, MapIcon, OrbitIcon, SearchIcon } from "./icons";
+import { Dock } from "./Dock";
+import { Emblem, SearchIcon } from "./icons";
 import styles from "./SiteHeader.module.css";
 
 /*
-  The header (D-107), from the owner's Home.png: the emblem and the spaced wordmark on the left; a
-  glass bar of links in the middle; search and Sound on the right.
-
-  Home opens the start page and Atlas the galaxy. Explore, Journeys, Archive and search are pages
-  still to come: they are shown, marked "coming soon", and do nothing yet (the owner's call).
-  On a phone the bar and search fold away; the wordmark and Sound stay.
+  The header (D-107, D-116): the emblem and the spaced wordmark on the left (it leads home, to
+  the start page); in the middle the menu, the flared glass dock hanging from the top of the
+  window; search and Sound on the right. The menu's sections and search are pages still to come:
+  shown, marked "coming soon", doing nothing yet (the owner's call).
+  On a phone the menu and search fold away; the wordmark and Sound stay.
 */
 
 /** Asks the atlas to fly back out to its start page, when Home is pressed on `/` itself. */
 export const HOME_EVENT = "cosmic:home";
-
-function Soon({ icon, label, chevron = false }: { icon: ReactNode; label: string; chevron?: boolean }) {
-  return (
-    <span className={styles.link} aria-disabled="true" title={`${label}: coming soon`} tabIndex={0} role="link">
-      {icon}
-      <span>{label}</span>
-      {chevron ? <ChevronIcon /> : null}
-    </span>
-  );
-}
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -47,19 +37,9 @@ export function SiteHeader() {
         </span>
       </Link>
 
-      <nav className={styles.bar} aria-label="Main">
-        <Link className={styles.link} href="/" onClick={home} aria-current={pathname === "/" ? "page" : undefined}>
-          <HomeIcon />
-          <span>Home</span>
-        </Link>
-        <Soon icon={<OrbitIcon />} label="Explore" chevron />
-        <Link className={styles.link} href="/#atlas">
-          <AtlasIcon />
-          <span>Atlas</span>
-        </Link>
-        <Soon icon={<MapIcon />} label="Journeys" />
-        <Soon icon={<ArchiveIcon />} label="Archive" />
-      </nav>
+      <div className={styles.bar}>
+        <Dock />
+      </div>
 
       <div className={styles.tools}>
         <label className={styles.search} title="Search: coming soon">

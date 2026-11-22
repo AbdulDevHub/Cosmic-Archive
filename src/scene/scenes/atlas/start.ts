@@ -18,10 +18,7 @@ import {
   BackSide,
   BufferAttribute,
   BufferGeometry,
-  ConeGeometry,
-  CylinderGeometry,
   DynamicDrawUsage,
-  ExtrudeGeometry,
   Group,
   IcosahedronGeometry,
   InstancedMesh,
@@ -29,7 +26,6 @@ import {
   Mesh,
   Quaternion,
   ShaderMaterial,
-  Shape,
   SphereGeometry,
   Vector3,
   type Material,
@@ -37,8 +33,10 @@ import {
   type PerspectiveCamera,
   type ShaderMaterialParameters,
 } from "three";
-import { mergeGeometries, mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
+import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
+import { getShip, type ShipClass } from "@/lib/ship";
 import { mix, sstep } from "./model";
+import { buildShip, type Vec3 as ShipPoint } from "./ships";
 
 // ---------- shaders ----------
 
@@ -75,7 +73,8 @@ float n3(vec3 x){
 float fbm3(vec3 p){ float s = 0.0, w = 0.5; for (int i = 0; i < 5; i++){ s += w * n3(p); p = p * 2.07 + 1.7; w *= 0.5; } return s / 0.96875; }
 `;
 
-/* kind 0 the planet, 1 a moon, 2 a rock, 3 the ship (aPart: 0 hull, 1 canopy, 2 engines) */
+/* kind 0 the planet, 1 a moon, 2 a rock, 3 the ship (aPart: see ships.ts: 0 pale metal, 1 canopy, 2 engines,
+   3 gold, 4 gunmetal, 5 blue light, 6 red light, 7 pearl, 8 orange paint) */
 const BODY_FRAGMENT = /* glsl */ `
 uniform int uKind;
 uniform vec3 uLight;
@@ -127,17 +126,27 @@ void main(){
     vec3 stone = mix(vec3(0.18, 0.14, 0.12), vec3(0.42, 0.33, 0.27), grain);
     col = stone * (0.05 + 1.1 * diff) + fill * 0.8 + vec3(1.0, 0.7, 0.45) * pow(1.0 - max(dot(n, v), 0.0), 4.0) * wrap * 0.35;
   } else {
-    if (vPart < 0.5) {
-      // the hull: pale metal in panels, a cool rim of light from the galaxy
-      float panel = 0.86 + 0.14 * step(0.08, fract(vO.x * 9.0)) * step(0.06, fract(vO.z * 7.0 + 0.3));
-      vec3 metal = mix(vec3(0.62, 0.66, 0.74), vec3(0.86, 0.88, 0.94), wrap) * panel;
-      col = metal * (0.12 + 0.95 * diff) + fill * 1.2 + vec3(0.9) * spec * 0.7 + vec3(0.45, 0.7, 1.0) * fres * 0.6;
+    // panel lines over every hull surface
+    float panel = 0.86 + 0.14 * step(0.08, fract(vO.x * 9.0)) * step(0.06, fract(vO.z * 7.0 + 0.3));
+    if (vPart < 0.5 || (vPart > 2.5 && vPart < 4.5) || vPart > 6.5) {
+      // painted or bare metal: pale, gold, gunmetal, pearl or orange (D-118)
+      vec3 base = vPart < 0.5 ? vec3(0.74, 0.77, 0.84)
+        : vPart < 3.5 ? vec3(0.95, 0.72, 0.32)
+        : vPart < 4.5 ? vec3(0.24, 0.26, 0.31)
+        : vPart < 7.5 ? vec3(0.95, 0.93, 0.88)
+        : vec3(0.98, 0.55, 0.16);
+      float shine = vPart > 2.5 && vPart < 3.5 ? 1.6 : vPart > 3.5 && vPart < 4.5 ? 0.9 : 0.7;
+      vec3 metal = base * mix(0.84, 1.08, wrap) * panel;
+      col = metal * (0.12 + 0.95 * diff) + fill * 1.2 + mix(vec3(0.9), base, 0.5) * spec * shine + vec3(0.45, 0.7, 1.0) * fres * 0.5;
+    } else if (vPart > 4.5 && vPart < 6.5) {
+      // light strips: blue running lights, or a red seam
+      col = vPart < 5.5 ? vec3(0.45, 0.8, 1.0) * 2.2 : vec3(1.0, 0.25, 0.2) * 2.0;
     } else if (vPart < 1.5) {
       // the canopy: dark glass catching the light
       col = vec3(0.04, 0.08, 0.16) + vec3(0.5, 0.85, 1.0) * (spec * 1.6 + fres * 0.5);
     } else {
       // the engines: dark housings, their rear rims glowing blue
-      float rim = smoothstep(-0.58, -0.66, vO.x);
+      float rim = smoothstep(-0.4, -0.66, vO.x);
       col = vec3(0.16, 0.17, 0.22) * (0.15 + diff) + fill + vec3(0.3, 0.7, 1.0) * rim * 2.2;
     }
   }
@@ -203,56 +212,11 @@ function rand(seed: number): () => number {
   };
 }
 
-/** One part of the ship: plain positions and normals, and which part it is (for the shader). */
-function part(geometry: BufferGeometry, which: number, at: [number, number, number], rotate?: Matrix4): BufferGeometry {
-  let g = geometry.index ? geometry.toNonIndexed() : geometry;
-  g.deleteAttribute("uv");
-  if (rotate) g = g.applyMatrix4(rotate);
-  g.translate(at[0], at[1], at[2]);
-  g.setAttribute("aPart", new BufferAttribute(new Float32Array(g.getAttribute("position").count).fill(which), 1));
-  return g;
-}
+/** Engine glows and trails drawn at most: the fleet's largest has four (D-118). */
+const ENGINES = 4;
 
 /** How far the ship rolls about its heading: enough to show its top, wings spread (D-109). */
 const SHIP_BANK = 1.0;
-
-/** The ship, nose toward +x, about one unit long: a tapered body, swept wings, twin engines, a fin. */
-function shipGeometry(): BufferGeometry {
-  const alongX = new Matrix4().makeRotationZ(-Math.PI / 2); // cylinders and cones stand on y; lay them along x
-  const flat = new Matrix4().makeRotationX(Math.PI / 2); // extruded shapes lie in x-y; lay them in x-z
-  const wing = (side: 1 | -1) => {
-    const s = new Shape();
-    s.moveTo(0.12, 0);
-    s.lineTo(-0.3, side * 0.5);
-    s.lineTo(-0.44, side * 0.52);
-    s.lineTo(-0.36, side * 0.08);
-    s.lineTo(-0.36, 0);
-    return part(new ExtrudeGeometry(s, { depth: 0.018, bevelEnabled: false }), 0, [0, -0.012, 0], flat);
-  };
-  const fin = () => {
-    const s = new Shape();
-    s.moveTo(-0.22, 0);
-    s.lineTo(-0.46, 0.2);
-    s.lineTo(-0.55, 0.2);
-    s.lineTo(-0.5, 0);
-    return part(new ExtrudeGeometry(s, { depth: 0.012, bevelEnabled: false }), 0, [0, 0.04, -0.006]);
-  };
-  const parts = [
-    part(new CylinderGeometry(0.035, 0.085, 0.8, 14), 0, [0.08, 0, 0], alongX),
-    part(new ConeGeometry(0.035, 0.18, 14), 0, [0.57, 0, 0], alongX),
-    part(new CylinderGeometry(0.085, 0.07, 0.22, 14), 0, [-0.43, 0, 0], alongX),
-    part(new SphereGeometry(0.05, 16, 10).scale(2.2, 0.75, 0.9), 1, [0.26, 0.045, 0]),
-    wing(1),
-    wing(-1),
-    fin(),
-    part(new CylinderGeometry(0.05, 0.055, 0.36, 14), 2, [-0.42, -0.015, 0.2], alongX),
-    part(new CylinderGeometry(0.05, 0.055, 0.36, 14), 2, [-0.42, -0.015, -0.2], alongX),
-  ];
-  const ship = mergeGeometries(parts);
-  if (!ship) throw new Error("start: the ship's parts did not merge");
-  ship.computeBoundingSphere();
-  return ship;
-}
 
 /** A rock: an icosahedron pushed in and out by a few waves, so it is lumpy and faceted. */
 function rockGeometry(): BufferGeometry {
@@ -302,6 +266,10 @@ export class StartProps {
   private readonly moons: InstancedMesh;
   private readonly rocks: InstancedMesh;
   private readonly ship: Mesh;
+  /** The class on show and its engine nozzles (D-118): the visitor may switch it on the start page. */
+  private shipClass: ShipClass;
+  private nozzles: ShipPoint[];
+  private glow: number;
   private readonly engines: Mesh<BufferGeometry, ShaderMaterial>;
   private readonly rockList: Rock[] = [];
   private readonly m = new Matrix4();
@@ -341,7 +309,11 @@ export class StartProps {
     this.moons = new InstancedMesh(sphere(40), body(1), 2);
     this.rocks = new InstancedMesh(rockGeometry(), body(2), ROCKS);
     this.rocks.instanceMatrix.setUsage(DynamicDrawUsage);
-    this.ship = new Mesh(shipGeometry(), body(3));
+    this.shipClass = getShip();
+    const model = buildShip(this.shipClass);
+    this.nozzles = model.nozzles;
+    this.glow = model.glow;
+    this.ship = new Mesh(model.geometry, body(3));
 
     const engineMaterial = new ShaderMaterial({
       vertexShader: ENGINE_VERTEX,
@@ -354,13 +326,13 @@ export class StartProps {
     });
     this.materials.push(engineMaterial);
     const engineGeometry = new BufferGeometry();
-    // four quads: two trails, two nozzle glows; positions are written each frame
-    engineGeometry.setAttribute("position", new BufferAttribute(new Float32Array(4 * 6 * 3), 3).setUsage(DynamicDrawUsage));
+    // eight quads: up to four trails, then their four nozzle glows; positions are written each frame
+    engineGeometry.setAttribute("position", new BufferAttribute(new Float32Array(ENGINES * 2 * 6 * 3), 3).setUsage(DynamicDrawUsage));
     const uv: number[] = [];
     const kind: number[] = [];
-    for (let quad = 0; quad < 4; quad++) {
+    for (let quad = 0; quad < ENGINES * 2; quad++) {
       uv.push(0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1);
-      for (let i = 0; i < 6; i++) kind.push(quad < 2 ? 0 : 1);
+      for (let i = 0; i < 6; i++) kind.push(quad < ENGINES ? 0 : 1);
     }
     engineGeometry.setAttribute("aUv", new BufferAttribute(new Float32Array(uv), 2));
     engineGeometry.setAttribute("aKind", new BufferAttribute(new Float32Array(kind), 1));
@@ -412,6 +384,16 @@ export class StartProps {
     const visible = intro > 0.001;
     this.root.visible = visible;
     if (!visible) return;
+    // the visitor chose another class of ship on the start page (D-118): build it
+    const wanted = getShip();
+    if (wanted !== this.shipClass) {
+      const model = buildShip(wanted);
+      this.ship.geometry.dispose();
+      this.ship.geometry = model.geometry;
+      this.nozzles = model.nozzles;
+      this.glow = model.glow;
+      this.shipClass = wanted;
+    }
     this.root.position.copy(camera.position);
     this.root.quaternion.copy(camera.quaternion);
     this.root.updateMatrixWorld(true);
@@ -491,16 +473,21 @@ export class StartProps {
       const corners = [d, c, b, d, b, a];
       corners.forEach((corner, i) => positions.setXYZ(index * 6 + i, corner[0], corner[1], corner[2]));
     };
-    for (const [i, side] of [
-      [0, 1],
-      [1, -1],
-    ] as const) {
-      const nozzle = new Vector3(-0.62, -0.015, side * 0.2).applyMatrix4(this.ship.matrix);
+    for (let i = 0; i < ENGINES; i++) {
+      const at = this.nozzles[i];
+      if (!at) {
+        // a ship with fewer engines: this pair of quads folds to nothing
+        const none = new Vector3(0, 0, -1e3);
+        quad(i, none, none, 0, 0);
+        quad(i + ENGINES, none, none, 0, 0);
+        continue;
+      }
+      const nozzle = new Vector3(at[0], at[1], at[2]).applyMatrix4(this.ship.matrix);
       const end = nozzle.clone().addScaledVector(back, trail);
-      const w = 0.035 * this.ship.scale.x * (1 + go);
+      const w = 0.035 * this.glow * this.ship.scale.x * (1 + go);
       quad(i, nozzle, end, w * 1.4, w * 0.3);
-      const g = 0.09 * this.ship.scale.x * (1 + go * 0.5);
-      quad(i + 2, nozzle.clone().add(new Vector3(-g, 0, 0)), nozzle.clone().add(new Vector3(g, 0, 0)), g, g);
+      const g = 0.09 * this.glow * this.ship.scale.x * (1 + go * 0.5);
+      quad(i + ENGINES, nozzle.clone().add(new Vector3(-g, 0, 0)), nozzle.clone().add(new Vector3(g, 0, 0)), g, g);
     }
     positions.needsUpdate = true;
   }

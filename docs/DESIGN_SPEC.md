@@ -77,11 +77,11 @@ Every scene route is one screen: the scene fills the window and nothing scrolls.
 
 ### 7.0 The start page (D-107)
 
-`/` opens on the owner's `Home.png`, as our own live scene: the galaxy large on the right; a planet's horizon across the lower left with a thin blue limb; two moons; asteroids at the edges; a ship crossing toward the galaxy with blue engine trails. On the left: "Explore • Discover • Be inspired", "The Universe Awaits" (the last two words in a violet-to-blue gradient), one line, and **Begin Your Journey**, a glowing violet-to-blue pill. Bottom left "Scroll to explore"; bottom middle a glass dock of sections to come. Begin, the wheel or a swipe is the way in: the music starts, the ship speeds away, the planet and rocks sweep past, and the camera lands on the galaxy (3.8 s). Home flies back out. On a phone: the galaxy at the top, the words and Begin at the bottom over the planet; no dock.
+`/` opens on the owner's `Home.png`, as our own live scene: the galaxy large on the right; a planet's horizon across the lower left with a thin blue limb; two moons; asteroids at the edges; a ship crossing toward the galaxy with blue engine trails. On the left: "Explore • Discover • Be inspired", "The Universe Awaits" (the last two words in a violet-to-blue gradient), one line, and **Begin Your Journey**, a glowing violet-to-blue pill. Bottom left "Scroll to explore" (the dock of sections moved into the header, D-116). Begin, the wheel or a swipe is the way in: the music starts, the ship speeds away, the planet and rocks sweep past, and the camera lands on the galaxy (3.8 s). Home flies back out. On a phone: the galaxy at the top, the words and Begin at the bottom over the planet; no dock.
 
 ### 7.1 Header (replaced by D-107)
 
-The emblem and "COSMIC ARCHIVE" in widely spaced capitals; a glass bar of Home, Explore, Atlas, Journeys, Archive (the page you are on lit); search; a round Sound button. Explore, Journeys, Archive and search are marked "coming soon". On a phone only the wordmark and Sound. What follows is the header before D-107.
+The emblem and "COSMIC ARCHIVE" in widely spaced capitals (it leads home); in the middle the menu, the flared glass dock of Science, Explore, Learn and Discover, hanging from the window's top edge (D-116); search; a round Sound button. The menu's sections and search are marked "coming soon". On a phone only the wordmark and Sound. What follows is the header before D-107.
 
 
 Wordmark "Cosmic Archive" in the display face, left; it leads home to the universe. Right: **Sound**, a speaker with waves when on and a cross when off, with the word (its icon only on a phone). No background: every page is a scene, and the header's empty middle can be dragged through.
@@ -98,7 +98,7 @@ Every scene shows a grab cursor (a closed hand while dragging). Until the visito
 
 - Three stops of one scene: **2** the cosmic web, **1** the whole galaxy, centred, **0** close in over the disc.
 - Lower left: the stop's name and its line, changing softly as the stop changes.
-- Lower right (a phone: lower left, under the words): **Return**, an arrow turning back in a circle, with the word (D-115): from the web back in to the galaxy, from the galaxy back to the start page. Places, and the galaxy from the web, are entered by clicking them; the web is reached with the wheel or a pinch. The atlas opens close in; the wheel and a pinch zoom freely.
+- Lower right (a phone: lower left, under the words): **Zoom Out**, a glowing pill button with a lens icon (D-115, D-116): from the galaxy out to the cosmic web (D-117); on the web it is dimmed until a wider view exists. Places, and the galaxy from the web, are entered by clicking them; the web is reached with the wheel or a pinch. The atlas opens close in; the wheel and a pinch zoom freely.
 - Hotspots: at stops 0 and 1, **Black hole** (the core) and **Nebula** (in an arm); at stop 2, **Quasar** (a far, bright galaxy) and **The galaxy** (ours, which glides back in).
 - Drag turns the galaxy (and tilts it, with a mouse); the wheel and a pinch zoom.
 - Keys: + and − zoom, the arrows turn and tilt, Escape goes one stop further out.
@@ -107,7 +107,7 @@ Every scene shows a grab cursor (a closed hand while dragging). Until the visito
 ### 7.3 A place, `/black-hole`, `/nebula`, `/quasar`
 
 - The place, centred and as large as the window allows, in a full deep sky: the black hole at a galaxy's crowded heart, its glow bent into a ring by the hole; the quasar in the sparser sky between galaxies; the nebula wide, cool violet and azure on its far side, warm rose where it faces its cluster (D-101).
-- Lower left: its name and its line. Lower right: **Return** only (D-112, D-115). The place opens all the way in (the black hole 2.6 times its framing, the quasar 14 times, into its glare and disc); the wheel and a pinch zoom out to the framing and back. Return shrinks the place away and returns to the galaxy close in (or the web, for the quasar), dived into the place's light, then pulls back.
+- Lower left: its name and its line. Lower right: **Zoom Out** only (D-112, D-115, D-116). The place opens all the way in (the black hole 2.6 times its framing, the quasar 14 times, into its glare and disc); the wheel and a pinch zoom out to the framing and back. Zoom Out shrinks the place away and returns to the galaxy close in (or the web, for the quasar), dived into the place's light, then pulls back.
 - Drag turns around the black hole and the quasar (and lifts above or below the disc); on the nebula it pans, the stars behind moving less. The wheel and a pinch zoom; pulled on past the framing, the wheel leaves. Escape leaves; + and − zoom.
 
 ### 7.4 The flow between scenes (D-096)
@@ -129,7 +129,7 @@ Removed (D-099). The sources behind the site's few lines stay in `content/places
 - Every place is a real link; the scene is decoration, hidden from assistive technology. Without the scene the hotspots are a plain list of links under the words.
 - The device's reduced-motion setting stills everything (there is no Pause control, D-099). The Sound button is a real toggle (`aria-pressed`).
 - Visible focus rings in `--beacon`. Touch targets at least 44 px.
-- Every screen is complete with the scene replaced by its poster: name, line, places, Return.
+- Every screen is complete with the scene replaced by its poster: name, line, places, Zoom Out.
 
 ## 10. What the prototype settled, and what is still open
 

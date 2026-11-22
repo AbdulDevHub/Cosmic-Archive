@@ -11,7 +11,7 @@
 import { useSyncExternalStore } from "react";
 import { rememberQuality, type Quality } from "../quality/tiers";
 
-export type SceneId = "atlas" | "black-hole" | "nebula" | "quasar";
+export type SceneId = "atlas" | "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "supervoid";
 /** The atlas (`/`, free control and zoom stops) or one place (a page of its own). */
 export type SceneMode = "atlas" | "place";
 
