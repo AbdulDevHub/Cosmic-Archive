@@ -26,13 +26,14 @@ Last commit: `48c1cd5`. Everything is committed; nothing is pushed or deployed. 
 
 ### Next (in order; ask the owner which first if unsure)
 
-1. ~~Supervoid as a zoom level~~ **Done (D-119):** Zoom Out on the web glides out to the supervoid (stop 3); its hotspot The Cosmic Web glides back; `/supervoid` redirects to `/#supervoid`. Owner to look at it.
-2. **Redesign the fleet** (D-118, D-119): the owner's brief and the reference chosen for each ship are in `docs/SHIP_BRIEF.md` (section 0 first). The five ships are first versions from simple solids; rebuild each as richer procedural geometry (lathed and extruded hulls, panel lines and lights in a shader). The Sovereign follows its V1 sheet as closely as possible (owner's call); Discovery.jpg's orange becomes white, silver and blue. Blender models loaded as `.glb` are the future path, not this session.
+1. ~~Supervoid as a zoom level~~ **Done (D-119):** Zoom Out on the web glides out to the supervoid (stop 3); its hotspot The Cosmic Web glides back; `/supervoid` redirects to `/#supervoid`. Owner to look at it. Restyled (D-121) after the owner's note: a supervoid is a dark patch of nothingness between the busy parts of the universe, not a full universe; it is now one enormous near-black void with the web crowding only round its edge. Owner to look again.
+2. ~~Redesign the fleet~~ **First redesign done (D-120):** all five rebuilt after `docs/SHIP_BRIEF.md`. Owner to look at each on the start page (Choose Your Vessel) and say what to refine; Blender `.glb` models remain the future path.
 3. Then the **spaceship loader** (backlog below), matching the chosen ship.
 4. More places or levels the owner asks for (they plan to zoom out to the universe and "multiverse").
 
 ### Owner's backlog (to do, not yet scheduled)
 
+- [ ] **Refine the ships (owner, 2026-11-22):** the D-120 fleet is a first redesign; improve and refine each ship later (closer to `docs/SHIP_BRIEF.md` and its references; Blender `.glb` models are the path when code-built hulls stop being enough).
 - [ ] **A spaceship loader (owner, 2026-11-21):** the first-load screen should take a spaceship theme. Do it **after** the fleet redesign, so the loader matches.
 - [ ] **Music licensing before any public deploy:** the scene loops (Epic Mountain and others) and the Star Trek effects (`public/sounds/tng_*`, `padd_3`, already in git) are copyrighted; fine for the owner's own use. Decide before deploying.
 - [ ] **Sound that rises with power:** partly done by per-scene music (D-116); the owner may still want swells at the black hole and quasar.
