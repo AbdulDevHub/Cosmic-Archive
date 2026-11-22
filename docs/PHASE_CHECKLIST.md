@@ -4,6 +4,8 @@
 
 Branch `night/places-and-universe` (brief: `docs/NIGHT_RUN.md`). **Reviewed with the owner and merged into `main` on 2026-11-22** (fast-forward); the owner's follow-ups are D-131 and the backlog. Nothing deployed.
 
+**Since then (D-132):** Earth is now **A Blue World** (`/blue-world`), and it, the Moon and the Yellow Star are found inside **A Solar System** (`/solar-system`), so the galaxy shows nine hotspots; `nasa-earth-facts` was dropped. The Earth notes below are as the run left them.
+
 **Built (all six, each its own commit, pushed):**
 - **Wormhole** (D-125), **Gravastar** (D-126), **Quasi-Star** (D-127): three hypothetical places in the galaxy, each a one-shader scene; the Gravastar and Quasi-Star lines are hedged ("A possible…").
 - **Earth** (D-128) and **Moon** (D-129): two separate hotspots in a short row past the Yellow Star; the galaxy reads cleanly at 1440x900 with eleven hotspots, so they were not merged into one spot. The Wormhole was moved to the upper left of the disc because it crowded them.
@@ -64,13 +66,13 @@ Last commit: `48c1cd5`. Everything is committed; nothing is pushed or deployed. 
 - [ ] **Music licensing before any public deploy:** the scene loops (Epic Mountain and others) and the Star Trek effects (`public/sounds/tng_*`, `padd_3`, already in git) are copyrighted; fine for the owner's own use. Decide before deploying.
 - [ ] **Sound that rises with power:** partly done by per-scene music (D-116); the owner may still want swells at the black hole and quasar.
 - [ ] Phone polish pass, only at the end and only where it costs the laptop nothing (D-110).
-- [ ] **A solar system level (owner, 2026-11-22):** the galaxy -> a solar system -> its planet -> its moon, instead of Earth and Moon as hotspots in the galaxy. Our galaxy does not look like the Milky Way, so the planet may be an Earth-like world rather than Earth itself.
+- [x] **Done in D-132:** **A solar system level (owner, 2026-11-22):** the galaxy -> a solar system -> its planet -> its moon, instead of Earth and Moon as hotspots in the galaxy. Our galaxy does not look like the Milky Way, so the planet may be an Earth-like world rather than Earth itself.
 - [ ] **An asteroid (owner, 2026-11-22):** a new place (likely inside the solar system level).
 - [ ] **A sci-fi galaxy behind the wormhole (owner, 2026-11-22):** the Wormhole leads to a second galaxy, built later, for sci-fi places: a starbase, the Dyson Sphere (moved there from the spiral galaxy), and more the owner will name.
-- [ ] **Redesign the supervoid (owner, 2026-11-22):** the owner will describe the new look later; wait for it.
+- [x] **Redesign the supervoid (owner, 2026-11-22), done in D-132:** three voids growing in place until their walls are the cosmic web.
 - [ ] **A video button per scene (owner's idea, 2026-11-22, not decided):** a small round button right of Zoom Out that opens a YouTube video for that scene in a new tab, mostly Kurzgesagt (they explain things in a cool way, and they inspired the site).
 - [ ] **Lines in a cool voice (owner, 2026-11-22):** the owner prefers lines that say what a thing is in a vivid way over dry facts. Still sourced and true; rewrite the weakest when next touching content.
-- [ ] **Look of the night run's places (review, 2026-11-22):** the Moon's craters look stamped and its maria blocky; Earth's land is blobby with a blown-out highlight; the Wormhole reads as a ringed planet more than a tunnel.
+- [ ] **Look of the night run's places (review, 2026-11-22):** the Moon's craters look stamped and its maria blocky; the Blue World's land is blobby with a blown-out highlight; the Wormhole reads as a ringed planet more than a tunnel.
 
 ### Known issues
 
