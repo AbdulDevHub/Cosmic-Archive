@@ -77,7 +77,7 @@ const DYSON_R = 0.9;
 const DYSON_TH = armAngle(3, DYSON_R);
 // D-125: a wormhole and a gravastar, hypothetical, off the arms
 const WORM_R = 0.8;
-const WORM_TH = armAngle(0, WORM_R) + 0.9;
+const WORM_TH = armAngle(0, WORM_R) + 0.9 + Math.PI;
 const GRAV_R = 0.4;
 const GRAV_TH = armAngle(2, GRAV_R) + 0.9;
 // D-127: a quasi-star, far out at the disc's edge (the early universe, in spirit)
@@ -86,8 +86,8 @@ const QUASI_TH = armAngle(1, QUASI_R) + 0.6;
 // D-128: Earth and its Moon, out near the Yellow Star in the outer disc
 const EARTH_R = 0.7;
 const EARTH_TH = SUN_TH + 0.16;
-const MOON_R = 0.76;
-const MOON_TH = SUN_TH + 0.27;
+const MOON_R = 0.79;
+const MOON_TH = SUN_TH + 0.3;
 type Anchor = { local: Vec3; spin: boolean } | { web: "quasar" | "home" };
 const ANCHORS: Record<string, Anchor> = {
   /** The heart of the galaxy. */
