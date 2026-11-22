@@ -269,8 +269,8 @@ export const PLACES: readonly Place[] = [
   {
     id: "wormhole",
     name: "Wormhole",
-    // the source: "the original 1935 paper"; "the classical Einstein-Rosen bridge"; "the simplest example of a ... traversable lightlike thin-shell wormhole" (hypothetical: it needs "exotic" matter)
-    line: "A hypothetical bridge through spacetime, first described in 1935.",
+    // the source: "the classical Einstein-Rosen \"bridge\" as proposed in the original 1935 paper"; "the simplest example of a ... traversable lightlike thin-shell wormhole" (hypothetical). Not "first": Flamm described the shape in 1916 (D-131)
+    line: "A hypothetical tunnel through spacetime: the Einstein-Rosen bridge.",
     sources: ["arxiv-einstein-rosen-bridge"],
     anchor: "wormhole",
     stop: 1,
