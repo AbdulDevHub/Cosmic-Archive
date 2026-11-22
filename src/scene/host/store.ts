@@ -11,7 +11,7 @@
 import { useSyncExternalStore } from "react";
 import { rememberQuality, type Quality } from "../quality/tiers";
 
-export type SceneId = "atlas" | "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "supervoid";
+export type SceneId = "atlas" | "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere";
 /** The atlas (`/`, free control and zoom stops) or one place (a page of its own). */
 export type SceneMode = "atlas" | "place";
 
@@ -142,7 +142,7 @@ export interface SceneInput {
 export type SceneNumber = "zoom" | "yaw" | "pitch" | "dive" | "arrive" | "intro";
 
 export const ZOOM_MIN = 0;
-export const ZOOM_MAX = 2;
+export const ZOOM_MAX = 3;
 const PITCH_LIMIT = 0.3;
 
 const input: SceneInput = { zoom: 0, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1, intro: 0 };

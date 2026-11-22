@@ -111,7 +111,7 @@ const DESKTOP = { viewport: { width: 1440, height: 900 } };
 const SMALL = { viewport: { width: 900, height: 560 } };
 // `#atlas` skips the start page (D-107): these tests are about the atlas itself
 const PINNED = "/?tier=low#atlas";
-const PLACES = ["/black-hole", "/nebula", "/quasar", "/neutron-star", "/star", "/strange-star", "/dyson-sphere", "/supervoid"];
+const PLACES = ["/black-hole", "/nebula", "/quasar", "/neutron-star", "/star", "/strange-star", "/dyson-sphere"];
 
 let browser;
 const { base, stop } = await serveBuild("fallbacks");
@@ -358,15 +358,20 @@ try {
       }));
     }
     check("keyboard", "Tab reaches the controls, with a visible focus", reached && visible);
-    // Enter on Zoom Out glides out to the web (D-117), where it is dimmed; + zooms a quarter stop
-    // at a time, eight of them bring the galaxy back
+    // Enter on Zoom Out glides out to the web (D-117), again out to the supervoid (D-119), where it
+    // is dimmed; + zooms a quarter stop at a time, twelve of them bring the galaxy back
+    const zoomOut = page.getByRole("button", { name: "Zoom Out" });
+    const atVoid = () => page.evaluate(() => document.querySelector("[data-void]") !== null);
     await page.keyboard.press("Enter");
     await page.waitForTimeout(300);
-    const out = (await atWeb()) && (await page.getByRole("button", { name: "Zoom Out" }).getAttribute("aria-disabled")) === "true";
-    for (let i = 0; i < 8; i++) await page.keyboard.press("+");
+    const web = (await atWeb()) && !(await atVoid()) && (await zoomOut.getAttribute("aria-disabled")) === "false";
+    await page.keyboard.press("Enter");
+    await page.waitForTimeout(300);
+    const out = web && (await atVoid()) && (await zoomOut.getAttribute("aria-disabled")) === "true";
+    for (let i = 0; i < 12; i++) await page.keyboard.press("+");
     await page.waitForTimeout(300);
     const backIn = !(await atWeb());
-    check("keyboard", "Enter on Zoom Out glides out to the web, + zooms back in", out && backIn);
+    check("keyboard", "Zoom Out glides to the web, then the supervoid (dimmed there); + zooms back in", out && backIn);
     for (let i = 0; i < 8; i++) await page.keyboard.press("-"); // out to the web again
     await page.waitForTimeout(2500); // the camera eases out and the web's places appear
     let onPlace = false;

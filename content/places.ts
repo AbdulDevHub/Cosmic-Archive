@@ -20,8 +20,8 @@ export interface Source {
 }
 
 
-/** The atlas's views: the galaxy (close in or whole, one name since D-115) and the cosmic web. */
-export type StopIndex = 0 | 1 | 2;
+/** The atlas's views: the galaxy (close in or whole, one name since D-115), the cosmic web and the supervoid around it (D-119). */
+export type StopIndex = 0 | 1 | 2 | 3;
 
 export interface Stop {
   zoom: StopIndex;
@@ -30,8 +30,8 @@ export interface Stop {
   sources: readonly string[];
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "supervoid";
-export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "dyson" | "void";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere";
+export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "dyson";
 
 export interface Place {
   id: PlaceId;
@@ -145,6 +145,14 @@ export const STOPS: readonly Stop[] = [
     line: "Every point of light here is a galaxy.",
     sources: ["nasa-cosmic-web"],
   },
+  {
+    // D-119: a zoom out of the web, no longer a place of its own
+    zoom: 3,
+    name: "A Supervoid",
+    // the source: "voids of space in between, as if the galaxies were resting on empty bubbles"; "clusters and walls"
+    line: "Empty bubbles of space between the cosmic web's walls of galaxies.",
+    sources: ["nasa-large-scale-structures"],
+  },
 ];
 
 export const PLACES: readonly Place[] = [
@@ -214,16 +222,6 @@ export const PLACES: readonly Place[] = [
     anchor: "dyson",
     stop: 1,
     veil: "#120a04",
-  },
-  {
-    id: "supervoid",
-    name: "Supervoid",
-    // the source: "voids of space in between, as if the galaxies were resting on empty bubbles"; "clusters and walls"
-    line: "Empty bubbles of space between the cosmic web's walls of galaxies.",
-    sources: ["nasa-large-scale-structures"],
-    anchor: "void",
-    stop: 2,
-    veil: "#04050f",
   },
 ];
 

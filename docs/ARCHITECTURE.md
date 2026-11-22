@@ -148,7 +148,7 @@ Scene routes carry their page code above the no-scene figure (D-047). Targets: 6
 
 `content/places.ts` is all the site's words (D-095):
 
-- `STOPS`: the atlas's three stops, each `{ zoom, name, line, sources }`.
+- `STOPS`: the atlas's stops (the galaxy, the cosmic web, the supervoid since D-119), each `{ zoom, name, line, sources }`.
 - `PLACES`: each `{ id, name, line, sources, anchor, stop, veil }`. `id` is the route and the scene id.
 - `SOURCES`: `{ id, title, publisher, url, checked }`. Not shown on the site since About went (D-099); still checked by the build.
 
