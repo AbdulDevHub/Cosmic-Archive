@@ -28,6 +28,7 @@ import {
   Matrix4,
   Mesh,
   OneFactor,
+  OneMinusSrcAlphaFactor,
   OneMinusSrcColorFactor,
   Points,
   ShaderMaterial,
@@ -103,7 +104,7 @@ const QUASAR_WANT = { wide: [0.4, -0.38], narrow: [0.42, 0.55] } as const;
  * (y up). The web is on the bubble's wall (D-119); the camera's lens shift puts it right of centre
  * on a wide screen and above it on a phone, so the bubble fills the middle.
  */
-const VOID_FROM_WEB = { wide: [-0.8, -0.04], narrow: [0.0, -0.78] } as const;
+const VOID_FROM_WEB = { wide: [-1.2, -0.05], narrow: [0.0, -1.2] } as const;
 
 export function makeFrame(): SceneFrame {
   const points: SceneFrame["points"] = {};
@@ -279,6 +280,7 @@ const vec3 VIOLET = vec3(0.5, 0.32, 1.0);
 const vec3 AZURE = vec3(0.3, 0.6, 1.0);
 const vec3 ROSE = vec3(1.0, 0.4, 0.72);
 const vec3 GOLD = vec3(1.0, 0.82, 0.55);
+const float VOID_R = 1.15; // the void's radius, in units of half the window's height
 
 float hash3(vec3 p){
   p = fract(p * 0.3183099 + 0.1);
@@ -328,26 +330,32 @@ void main(){
   float r = length(u);
   float t = uTime;
 
-  // the bubble: empty inside; its wall, where the galaxies crowd, is the brightest part
-  float inside = 1.0 - smoothstep(0.55, 0.95, r + 0.12 * (noise3(vec3(u * 2.5, 1.0)) - 0.5));
-  float rim = exp(-pow((r - 0.85) / 0.22, 2.0));
+  // the supervoid (owner, D-121): one enormous patch of nothing, near black, the sky itself blotted
+  // out; the busy universe crowds only round its edge. Its outline wanders a little.
+  float edge = r + 0.18 * (noise3(vec3(u * 1.6, 1.0)) - 0.5) + 0.06 * (noise3(vec3(u * 5.0, 2.0)) - 0.5);
+  float inside = 1.0 - smoothstep(VOID_R - 0.4, VOID_R + 0.04, edge);
+  float rim = exp(-pow((edge - VOID_R - 0.08) / 0.14, 2.0));
 
-  // the far layers drift and turn in a drag; the near one holds our web on its wall
+  // outside: a dense web of finer cells, galaxies crowding thickest along the void's wall; the far
+  // layers drift and turn in a drag, the near one holds our web on that wall
   vec2 pan = vec2(uPan.x, -uPan.y);
+  float out1 = 1.0 - inside;
   vec3 col = vec3(0.0);
-  if (uDetail > 0) col += webLayer(u + pan * 0.35 + vec2(t * 0.003, 0.0), 5.5, 0.035, 0.28) * (1.0 - inside * 0.9);
-  col += webLayer(u + pan * 0.15 + 3.1, 3.2, 0.04, 0.5) * (1.0 - inside * 0.97) * (0.6 + 0.8 * rim);
-  col += webLayer(u + 7.3, 1.7, 0.045, 0.8) * (1.0 - inside) * (0.5 + 1.0 * rim);
-  // a soft glow of gas along the bubble's wall
-  col += mix(VIOLET, AZURE, 0.4) * rim * 0.12;
-  // a few lonely galaxies inside the bubble
-  vec2 lp = (u + pan * 0.2) * 14.0;
+  if (uDetail > 0) col += webLayer(u + pan * 0.35 + vec2(t * 0.003, 0.0), 10.0, 0.03, 0.3) * out1;
+  col += webLayer(u + pan * 0.15 + 3.1, 6.0, 0.035, 0.5) * out1 * (0.55 + 1.1 * rim);
+  col += webLayer(u + 7.3, 3.4, 0.04, 0.75) * out1 * (0.45 + 1.4 * rim);
+  // a soft glow of gas along the wall
+  col += mix(VIOLET, AZURE, 0.4) * rim * 0.16;
+  // a rare, faint, lonely galaxy deep in the dark
+  vec2 lp = (u + pan * 0.2) * 9.0;
   vec2 lid = floor(lp);
-  float lone = step(0.985, hash3(vec3(lid, 9.0))) * exp(-length(fract(lp) - 0.5) * 16.0) * inside;
-  col += GOLD * lone * 1.6;
+  float lone = step(0.993, hash3(vec3(lid, 9.0))) * exp(-length(fract(lp) - 0.5) * 18.0) * inside;
+  col += GOLD * lone * 0.7;
 
   col = col / (1.0 + max(col - 0.85, 0.0) * 0.9);
-  gl_FragColor = vec4(col * uAlpha, 1.0);
+  // premultiplied: inside, the void covers what is behind it (the sky's clouds) with near black
+  float cover = inside * 0.94 * uAlpha;
+  gl_FragColor = vec4(col * uAlpha, cover);
 }
 `;
 
@@ -370,7 +378,14 @@ function supervoid(): Mesh<BufferGeometry, ShaderMaterial> {
     transparent: true,
     depthTest: false,
     depthWrite: false,
-    blending: AdditiveBlending,
+    // premultiplied: result = colour + behind * (1 - cover), so the void can darken the sky (D-121)
+    blending: CustomBlending,
+    blendEquation: AddEquation,
+    blendSrc: OneFactor,
+    blendDst: OneMinusSrcAlphaFactor,
+    // leave the canvas alpha alone, as the dust does
+    blendSrcAlpha: ZeroFactor,
+    blendDstAlpha: OneFactor,
   });
   const mesh = new Mesh(geometry, material);
   mesh.frustumCulled = false;
