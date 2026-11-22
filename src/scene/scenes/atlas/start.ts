@@ -42,10 +42,13 @@ import { buildShip, type Vec3 as ShipPoint } from "./ships";
 
 const BODY_VERTEX = /* glsl */ `
 attribute float aPart;
+attribute float aLit;
 varying vec3 vN;
 varying vec3 vV;
 varying vec3 vO;
+varying vec3 vNo;
 varying float vPart;
+varying float vLit;
 void main(){
   vec4 local = vec4(position, 1.0);
   vec3 n = normal;
@@ -54,7 +57,9 @@ void main(){
   n = mat3(instanceMatrix) * n;
 #endif
   vO = position;
+  vNo = normal;
   vPart = aPart;
+  vLit = aLit;
   vec4 mv = modelViewMatrix * local;
   vN = normalize(normalMatrix * n);
   vV = -mv.xyz;
@@ -73,8 +78,7 @@ float n3(vec3 x){
 float fbm3(vec3 p){ float s = 0.0, w = 0.5; for (int i = 0; i < 5; i++){ s += w * n3(p); p = p * 2.07 + 1.7; w *= 0.5; } return s / 0.96875; }
 `;
 
-/* kind 0 the planet, 1 a moon, 2 a rock, 3 the ship (aPart: see ships.ts: 0 pale metal, 1 canopy, 2 engines,
-   3 gold, 4 gunmetal, 5 blue light, 6 red light, 7 pearl, 8 orange paint) */
+/* kind 0 the planet, 1 a moon, 2 a rock, 3 the ship (aPart and aLit: see ships.ts) */
 const BODY_FRAGMENT = /* glsl */ `
 uniform int uKind;
 uniform vec3 uLight;
@@ -83,7 +87,9 @@ uniform float uAlpha;
 varying vec3 vN;
 varying vec3 vV;
 varying vec3 vO;
+varying vec3 vNo;
 varying float vPart;
+varying float vLit;
 ${NOISE}
 void main(){
   vec3 n = normalize(vN), v = normalize(vV), L = normalize(uLight);
@@ -126,28 +132,52 @@ void main(){
     vec3 stone = mix(vec3(0.18, 0.14, 0.12), vec3(0.42, 0.33, 0.27), grain);
     col = stone * (0.05 + 1.1 * diff) + fill * 0.8 + vec3(1.0, 0.7, 0.45) * pow(1.0 - max(dot(n, v), 0.0), 4.0) * wrap * 0.35;
   } else {
-    // panel lines over every hull surface
-    float panel = 0.86 + 0.14 * step(0.08, fract(vO.x * 9.0)) * step(0.06, fract(vO.z * 7.0 + 0.3));
-    if (vPart < 0.5 || (vPart > 2.5 && vPart < 4.5) || vPart > 6.5) {
-      // painted or bare metal: pale, gold, gunmetal, pearl or orange (D-118)
-      vec3 base = vPart < 0.5 ? vec3(0.74, 0.77, 0.84)
-        : vPart < 3.5 ? vec3(0.95, 0.72, 0.32)
-        : vPart < 4.5 ? vec3(0.24, 0.26, 0.31)
-        : vPart < 7.5 ? vec3(0.95, 0.93, 0.88)
-        : vec3(0.98, 0.55, 0.16);
-      float shine = vPart > 2.5 && vPart < 3.5 ? 1.6 : vPart > 3.5 && vPart < 4.5 ? 0.9 : 0.7;
-      vec3 metal = base * mix(0.84, 1.08, wrap) * panel;
-      col = metal * (0.12 + 0.95 * diff) + fill * 1.2 + mix(vec3(0.9), base, 0.5) * spec * shine + vec3(0.45, 0.7, 1.0) * fres * 0.5;
-    } else if (vPart > 4.5 && vPart < 6.5) {
-      // light strips: blue running lights, or a red seam
-      col = vPart < 5.5 ? vec3(0.45, 0.8, 1.0) * 2.2 : vec3(1.0, 0.25, 0.2) * 2.0;
-    } else if (vPart < 1.5) {
-      // the canopy: dark glass catching the light
-      col = vec3(0.04, 0.08, 0.16) + vec3(0.5, 0.85, 1.0) * (spec * 1.6 + fres * 0.5);
-    } else {
-      // the engines: dark housings, their rear rims glowing blue
-      float rim = smoothstep(-0.4, -0.66, vO.x);
+    // the fleet (D-120): ids in ships.ts
+    float id = floor(vPart + 0.5);
+    if (id == 5.0 || id == 6.0 || id == 13.0) {
+      // lights: blue running strips, red wingtip lights, the soft blue glow of a deflector or a nacelle cap
+      col = id == 5.0 ? vec3(0.45, 0.8, 1.0) * 2.3 : id == 6.0 ? vec3(1.0, 0.25, 0.2) * 2.0 : vec3(0.35, 0.7, 1.0) * (1.6 + fres * 1.4);
+    } else if (id == 1.0) {
+      // glass: dark, catching the light and the sky
+      col = vec3(0.04, 0.08, 0.16) + vec3(0.5, 0.85, 1.0) * (spec * 1.6 + fres * 0.6);
+    } else if (id == 2.0) {
+      // engine housings: dark, the faces turned back glowing blue
+      float rim = smoothstep(0.2, 0.85, -normalize(vNo).x);
       col = vec3(0.16, 0.17, 0.22) * (0.15 + diff) + fill + vec3(0.3, 0.7, 1.0) * rim * 2.2;
+    } else {
+      // hull: silver, gold, gunmetal, pearl, blue paint, white paint, steel, deep navy or graphite
+      vec3 base = id == 0.0 ? vec3(0.76, 0.79, 0.86)
+        : id == 3.0 ? vec3(0.98, 0.74, 0.34)
+        : id == 4.0 ? vec3(0.27, 0.29, 0.34)
+        : id == 7.0 ? vec3(0.86, 0.84, 0.8)
+        : id == 8.0 ? vec3(0.22, 0.42, 0.86)
+        : id == 9.0 ? vec3(0.9, 0.92, 0.95)
+        : id == 10.0 ? vec3(0.58, 0.62, 0.7)
+        : id == 11.0 ? vec3(0.13, 0.17, 0.3)
+        : vec3(0.15, 0.16, 0.19);
+      // how mirror-like: gold and the metals reflect, paint and pearl are softer
+      float metalness = id == 3.0 ? 0.9 : id == 0.0 || id == 10.0 ? 0.55 : id == 4.0 || id == 12.0 || id == 11.0 ? 0.45 : 0.2;
+      float shine = id == 3.0 ? 1.6 : id == 7.0 || id == 9.0 ? 0.8 : 0.9;
+      // plating: panel seams, and each panel a shade of its own
+      vec3 cell = floor(vO * vec3(16.0, 22.0, 13.0));
+      float seams = step(0.06, fract(vO.x * 16.0)) * step(0.07, fract(vO.z * 13.0 + 0.3));
+      // pearl is poured, not plated: no seams, only the faintest shading
+      float panel = id == 7.0 ? 0.97 + 0.03 * h3(cell) : (0.9 + 0.1 * h3(cell)) * mix(0.88, 1.0, seams);
+      vec3 albedo = base * panel;
+      // what the hull mirrors: the violet and azure of the sky, and the galaxy's warm light
+      vec3 r = reflect(-v, n);
+      vec3 env = mix(vec3(0.05, 0.03, 0.12), vec3(0.2, 0.3, 0.6), r.y * 0.5 + 0.5) + vec3(1.0, 0.82, 0.62) * pow(max(dot(r, L), 0.0), 10.0) * 0.8;
+      col = albedo * (0.1 + 0.9 * diff) * (1.0 - metalness * 0.45) + fill * 1.2 + albedo * env * metalness * 1.4;
+      col += mix(vec3(0.9), base, id == 3.0 ? 0.8 : 0.4) * spec * shine + vec3(0.45, 0.7, 1.0) * fres * 0.45;
+      // pearl: a soft rose-to-azure sheen toward the edges
+      if (id == 7.0) col += mix(vec3(1.0, 0.7, 0.85), vec3(0.6, 0.8, 1.0), fres) * fres * 0.35;
+      // windows: rows of small lights on the windowed hull's sides, warm on pale hulls, blue on dark ones
+      if (vLit > 0.5 && abs(normalize(vNo).y) < 0.55) {
+        vec2 w = vec2(vO.x * 85.0, vO.y * 80.0);
+        float lit = step(0.5, fract(w.x)) * step(0.55, fract(w.y)) * step(0.45, h3(vec3(floor(w), floor(vO.z * 4.0))));
+        vec3 glow = dot(base, vec3(0.33)) > 0.4 ? vec3(1.0, 0.86, 0.62) : vec3(0.55, 0.8, 1.0);
+        col += glow * lit * 1.5;
+      }
     }
   }
   gl_FragColor = vec4(col, uAlpha);
@@ -270,6 +300,7 @@ export class StartProps {
   private shipClass: ShipClass;
   private nozzles: ShipPoint[];
   private glow: number;
+  private shipSize: number;
   private readonly engines: Mesh<BufferGeometry, ShaderMaterial>;
   private readonly rockList: Rock[] = [];
   private readonly m = new Matrix4();
@@ -313,6 +344,7 @@ export class StartProps {
     const model = buildShip(this.shipClass);
     this.nozzles = model.nozzles;
     this.glow = model.glow;
+    this.shipSize = model.size;
     this.ship = new Mesh(model.geometry, body(3));
 
     const engineMaterial = new ShaderMaterial({
@@ -392,6 +424,7 @@ export class StartProps {
       this.ship.geometry = model.geometry;
       this.nozzles = model.nozzles;
       this.glow = model.glow;
+      this.shipSize = model.size;
       this.shipClass = wanted;
     }
     this.root.position.copy(camera.position);
@@ -450,7 +483,7 @@ export class StartProps {
     this.ship.quaternion.setFromUnitVectors(this.s.set(1, 0, 0), this.w);
     this.q.setFromAxisAngle(this.w, SHIP_BANK + Math.sin(t * 0.4) * 0.05); // rolled so its top faces the viewer
     this.ship.quaternion.premultiply(this.q);
-    this.ship.scale.setScalar(narrow ? 0.5 : 0.68);
+    this.ship.scale.setScalar((narrow ? 0.62 : 0.92) * this.shipSize);
     this.ship.updateMatrixWorld();
 
     // its engines: a glow at each nozzle and a trail behind, longer and brighter in flight
