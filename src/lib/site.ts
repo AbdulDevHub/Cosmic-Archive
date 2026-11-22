@@ -40,6 +40,8 @@ export const PLACE_OG: Readonly<Record<string, { name: string; alt: string }>> =
   "quasi-star": { name: "quasi-star", alt: "Our own illustration of a hypothetical quasi-star: a vast red star with a black hole feeding at its heart." },
   "solar-system": { name: "solar-system", alt: "Our own illustration of a solar system: a yellow star, four planets, a ringed giant and a belt of asteroids." },
   "blue-world": { name: "blue-world", alt: "Our own illustration of an Earthlike world: blue oceans, clouds, city lights on its night side, and its moon." },
+  "asteroid": { name: "asteroid", alt: "Our own illustration of an asteroid: a lumpy, cratered rock lit hard from one side, a blue planet far behind it." },
+  "quasar-galaxy": { name: "quasar-galaxy", alt: "Our own illustration of a quasar galaxy: a tilted spiral with a blinding heart and two jets along its axis." },
   "moon": { name: "moon", alt: "Our own illustration of a moon: grey, cratered, with dark lava plains, lit hard from one side." },
 };
 

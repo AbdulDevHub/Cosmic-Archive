@@ -29,6 +29,13 @@ export default async function PlacePage({ params }: Props) {
   // inside another place (D-132), Zoom Out goes back to that place, framed, dived into this one
   const parent = place.inside ? getPlace(place.inside) : undefined;
   const out = parent ? { outTo: `/${parent.id}`, outZoom: 1, outVeil: parent.veil } : { outTo: "/", outZoom: place.stop === 2 ? 2 : 0, outVeil: ATLAS_VEIL };
-  const inner = PLACES.filter((entry) => entry.inside === place.id).map((entry) => ({ id: entry.id, name: entry.name, href: `/${entry.id}`, anchor: entry.anchor, veil: entry.veil }));
-  return <PlaceView place={{ name: place.name, line: place.line, scene: place.id, anchor: place.anchor, ...out }} inner={inner} />;
+  const inner = [
+    ...PLACES.filter((entry) => entry.inside === place.id).map((entry) => ({ id: entry.id, name: entry.name, href: `/${entry.id}`, anchor: entry.anchor, veil: entry.veil })),
+    // places this one also leads to (D-133: the wormhole's throat to the quasar galaxy)
+    ...PLACES.filter((entry) => entry.through === place.id && entry.throughAnchor).map((entry) => ({ id: entry.id, name: entry.name, href: `/${entry.id}`, anchor: entry.throughAnchor as string, veil: entry.veil })),
+  ];
+  // arrived through another place (D-133), Zoom Out goes back through it
+  const via = place.through ? getPlace(place.through) : undefined;
+  const through = via && place.throughAnchor ? { from: via.id, outTo: `/${via.id}`, outZoom: 1, outVeil: via.veil, anchor: place.throughAnchor } : undefined;
+  return <PlaceView place={{ name: place.name, line: place.line, scene: place.id, anchor: place.anchor, ...out, through }} inner={inner} />;
 }

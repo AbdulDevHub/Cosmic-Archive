@@ -85,6 +85,9 @@ void main(){
 const CONFIG: OrbConfig = {
   fragment: FRAGMENT,
   framing: (width, height) => Math.min(height * 0.2, width * 0.13),
+  // its throat (D-133): a hotspot that dives through it into the quasar galaxy
+  bodies: () => [{ name: "throat", x: 0, y: 0, z: 0 }],
+  diveScale: 10,
   close: 1.7,
   arriveFrom: 0.3,
   detail: { low: 0, medium: 1, high: 2 },

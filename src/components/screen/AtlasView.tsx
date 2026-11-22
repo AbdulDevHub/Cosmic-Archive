@@ -22,6 +22,7 @@ import {
 import { ZoomOutIcon } from "../icons";
 import { HOME_EVENT } from "../SiteHeader";
 import { DragHint } from "./DragHint";
+import { setVia } from "./PlaceView";
 import styles from "./screen.module.css";
 import { StartScreen, type StartPhase } from "./StartScreen";
 import { useGestures } from "./useGestures";
@@ -96,6 +97,19 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
   const words = stops.find((entry) => entry.zoom === stop) ?? stops[0];
   // the level the camera is headed for (tests read it as `data-web`, `data-void` and `data-universe`); Zoom Out is dimmed at the last
   const [level, setLevel] = useState<Level>(1);
+  // "Growing empty…" (owner, D-133): while the supervoids swell on their own, so the visitor knows
+  // why they grow; it fades once they have nearly filled (the growth is 95% done by about 27 s)
+  const [growing, setGrowing] = useState(false);
+  useEffect(() => {
+    if (level !== 3 || !live || calm()) return;
+    const start = setTimeout(() => setGrowing(true), 900);
+    const end = setTimeout(() => setGrowing(false), 26000);
+    return () => {
+      clearTimeout(start);
+      clearTimeout(end);
+      setGrowing(false);
+    };
+  }, [level, live]);
   const sync = () => setLevel(levelAt(getSceneInput().zoom));
   // the galaxy, the web, the supervoid and the universe have their own music (D-116)
   useEffect(() => setMusic(level === 4 ? "universe" : level === 3 ? "supervoid" : level === 2 ? "web" : "galaxy"), [level]);
@@ -291,7 +305,10 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
       if (!spot) return;
       event.preventDefault();
       if (flowBusy()) return;
-      if (spot.href) diveInto((href) => routerRef.current.push(href), spot.href, spot.anchor, spot.veil);
+      if (spot.href) {
+        setVia(spot.id, null); // found from the atlas: its Zoom Out comes back here (D-133)
+        diveInto((href) => routerRef.current.push(href), spot.href, spot.anchor, spot.veil);
+      }
       else if (spot.stop === 4) glideTo(VOID_STOP); // the supervoid, seen from the universe: back to it (D-130)
       else if (spot.stop === 3) glideTo(2); // the web, seen from the supervoid: back to the web (D-119)
       else glideTo(ZOOM_MIN); // the galaxy, seen from the web: back in close (D-112)
@@ -316,6 +333,11 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
         <div key={words.zoom} className={live ? styles.words : undefined}>
           <h1>{words.name}</h1>
           <p>{words.line}</p>
+          {words.zoom === 3 ? (
+            <p className={styles.growing} data-on={growing ? "" : undefined} aria-hidden={!growing}>
+              Growing empty…
+            </p>
+          ) : null}
         </div>
         <ul ref={list} className={styles.spots} data-live={live ? "" : undefined} aria-label="Places">
           {spots.map((spot) => (

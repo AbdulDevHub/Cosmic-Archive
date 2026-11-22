@@ -30,10 +30,10 @@ export interface Stop {
   sources: readonly string[];
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "quasi-star" | "solar-system" | "blue-world" | "moon";
-export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "dyson" | "wormhole" | "gravastar" | "quasi";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
+export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "quasi";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
-export type InnerAnchor = "star" | "planet" | "moon";
+export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat";
 
 export interface Place {
   id: PlaceId;
@@ -49,6 +49,12 @@ export interface Place {
   stop: StopIndex;
   /** The place whose scene this one is found in (D-132): Zoom Out goes back there. */
   inside?: PlaceId;
+  /**
+   * Another place whose scene also leads here (D-133: the wormhole's throat leads to the quasar
+   * galaxy), on its body `throughAnchor`; arrived that way, Zoom Out goes back through it.
+   */
+  through?: PlaceId;
+  throughAnchor?: InnerAnchor;
   /** The colour the screen passes through on the way in and out: the place's own darkness. */
   veil: string;
 }
@@ -167,6 +173,13 @@ export const SOURCES: readonly Source[] = [
     checked: "2026-11-22",
   },
   {
+    id: "nasa-asteroid-facts",
+    title: "Asteroid Facts",
+    publisher: "NASA Science",
+    url: "https://science.nasa.gov/solar-system/asteroids/facts/",
+    checked: "2026-11-22",
+  },
+  {
     id: "nasa-habitable-zone",
     title: "The Habitable Zone",
     publisher: "NASA Science",
@@ -233,13 +246,29 @@ export const PLACES: readonly Place[] = [
     veil: "#1c0b1a",
   },
   {
+    // D-133: the quasar galaxy's heart, close up
     id: "quasar",
     name: "Quasar",
     line: "Some of the brightest beacons in the distant universe.",
     sources: ["nasa-webb-quasars", "nasa-hubble-quasars"],
+    anchor: "core",
+    stop: 2,
+    inside: "quasar-galaxy",
+    veil: "#0a0e1e",
+  },
+  {
+    // D-133: the galaxy round the quasar, found at the web and through the wormhole; it holds the
+    // quasar and the sci-fi places (owner)
+    id: "quasar-galaxy",
+    name: "A Quasar Galaxy",
+    // the source (Webb): "a quasar's light outshines that of all the stars in its host galaxy combined"
+    line: "Its heart outshines all the stars in its galaxy combined.",
+    sources: ["nasa-webb-quasars"],
     anchor: "quasar",
     stop: 2,
-    veil: "#0a0e1e",
+    through: "wormhole",
+    throughAnchor: "throat",
+    veil: "#070a18",
   },
   {
     id: "neutron-star",
@@ -279,8 +308,10 @@ export const PLACES: readonly Place[] = [
     // the source: "In 1960 ... Freeman J. Dyson"; "a megastructure that could theoretically harvest all the energy of a star"
     line: "Imagined in 1960: a swarm harvesting all of a star's energy.",
     sources: ["earthsky-dyson-sphere"],
+    // D-133: moved from the spiral galaxy into the quasar galaxy, with the sci-fi places
     anchor: "dyson",
-    stop: 1,
+    stop: 2,
+    inside: "quasar-galaxy",
     veil: "#120a04",
   },
   {
@@ -346,6 +377,18 @@ export const PLACES: readonly Place[] = [
     stop: 1,
     inside: "blue-world",
     veil: "#0a0a0e",
+  },
+  {
+    // D-133: inside the moon's scene, tumbling past it
+    id: "asteroid",
+    name: "An Asteroid",
+    // the source: Chicxulub, "causing the extinction of more than 70% of the living species on the planet, including the dinosaurs"
+    line: "One struck Earth and ended over 70% of its species, dinosaurs included.",
+    sources: ["nasa-asteroid-facts"],
+    anchor: "asteroid",
+    stop: 1,
+    inside: "moon",
+    veil: "#0a0908",
   },
 ];
 

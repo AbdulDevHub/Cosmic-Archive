@@ -38,7 +38,27 @@ export interface PlaceWords {
   outZoom: number;
   /** The darkness of the scene Zoom Out goes back to. */
   outVeil: string;
+  /** Another place that leads here (D-133): arrived through it, Zoom Out goes back through it. */
+  through?: { from: string; outTo: string; outZoom: number; outVeil: string; anchor: string };
 }
+
+/** Which place a visitor last dived into each place from (D-133), for the session. */
+const viaKey = (scene: string) => `cosmic-archive:via:${scene}`;
+const readVia = (scene: string) => {
+  try {
+    return sessionStorage.getItem(viaKey(scene));
+  } catch {
+    return null;
+  }
+};
+export const setVia = (scene: string, from: string | null) => {
+  try {
+    if (from) sessionStorage.setItem(viaKey(scene), from);
+    else sessionStorage.removeItem(viaKey(scene));
+  } catch {
+    // no storage: Zoom Out goes the usual way
+  }
+};
 
 /** A place inside this one (D-132): its hotspot stands on the scene's body `anchor`. */
 export interface InnerSpot {
@@ -72,8 +92,9 @@ export function PlaceView({ place, inner = [] }: { place: PlaceWords; inner?: re
   const leave = () => {
     if (flowBusy()) return;
     // back to the view the place is seen from: the web for the quasar, close in for the rest (D-112),
-    // or the place it is inside, framed (D-132)
-    pullOut((href) => routerRef.current.push(href), place.outTo, place.anchor, place.outZoom, place.outVeil);
+    // or the place it is inside, framed (D-132), or back through the place it came by (D-133)
+    const back = place.through && readVia(place.scene) === place.through.from ? place.through : { ...place, anchor: place.anchor };
+    pullOut((href) => routerRef.current.push(href), back.outTo, back.anchor, back.outZoom, back.outVeil);
   };
   const zoomTo = (zoom: number) => {
     if (flowBusy()) return;
@@ -152,6 +173,7 @@ export function PlaceView({ place, inner = [] }: { place: PlaceWords; inner?: re
       if (!spot) return;
       event.preventDefault();
       if (flowBusy()) return;
+      setVia(spot.id, place.scene);
       diveInto((href) => routerRef.current.push(href), spot.href, spot.anchor, spot.veil);
     };
     const list = spotList.current;
@@ -165,6 +187,8 @@ export function PlaceView({ place, inner = [] }: { place: PlaceWords; inner?: re
         item.removeAttribute("tabindex");
       }
     };
+    // `place.scene` is fixed for the page
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [live, inner]);
 
   // Keys: + and − zoom (− at the framing leaves), the arrows turn, Escape leaves.

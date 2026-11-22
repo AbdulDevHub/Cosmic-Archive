@@ -119,7 +119,7 @@ void main(){
   float rs = length(u);
   col += STAR * 0.5 * exp(-rs / 0.05) + HOT * 0.22 * exp(-rs / 0.16) + vec3(0.9, 0.55, 0.4) * 0.05 * exp(-rs / 0.5);
   // long faint spikes of glare
-  float spike = exp(-abs(u.y) * 300.0) * exp(-abs(u.x) * 3.0) + exp(-abs(u.x) * 300.0) * exp(-abs(u.y) * 6.0);
+  float spike = exp(-abs(u.y) * 300.0) * exp(-abs(u.x) * 8.0) + exp(-abs(u.x) * 300.0) * exp(-abs(u.y) * 10.0);
   col += STAR * spike * 0.25;
 
   // ---- the bodies, nearest wins ----

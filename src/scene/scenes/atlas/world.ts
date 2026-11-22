@@ -75,8 +75,6 @@ const SUN_TH = armAngle(2, SUN_R);
 // D-117: a strange star near the heart, between the arms; a Dyson sphere out on an arm's edge
 const STRANGE_R = 0.3;
 const STRANGE_TH = armAngle(1, STRANGE_R) + 1.4;
-const DYSON_R = 0.9;
-const DYSON_TH = armAngle(3, DYSON_R);
 // D-125: a wormhole and a gravastar, hypothetical, off the arms
 const WORM_R = 0.8;
 const WORM_TH = armAngle(0, WORM_R) + 0.9 + Math.PI;
@@ -97,8 +95,6 @@ const ANCHORS: Record<string, Anchor> = {
   sun: { local: [SUN_R * Math.cos(SUN_TH), 0, SUN_R * Math.sin(SUN_TH)], spin: true },
   /** A strange star near the heart (D-117). */
   strange: { local: [STRANGE_R * Math.cos(STRANGE_TH), 0, STRANGE_R * Math.sin(STRANGE_TH)], spin: true },
-  /** A Dyson sphere around a star on an outer arm (D-117). */
-  dyson: { local: [DYSON_R * Math.cos(DYSON_TH), 0, DYSON_R * Math.sin(DYSON_TH)], spin: true },
   /** A hypothetical wormhole in the disc (D-125). */
   wormhole: { local: [WORM_R * Math.cos(WORM_TH), 0, WORM_R * Math.sin(WORM_TH)], spin: true },
   /** A hypothetical gravastar in the disc (D-126). */
@@ -116,7 +112,7 @@ const ANCHORS: Record<string, Anchor> = {
 };
 
 /** Where the quasar's hotspot should fall in the zoomed-out view, in NDC (the prototype's). */
-const QUASAR_WANT = { wide: [0.4, -0.38], narrow: [0.42, 0.55] } as const;
+const QUASAR_WANT = { wide: [0.4, -0.38], narrow: [0.02, 0.55] } as const; // narrow: room for "A Quasar Galaxy" (D-133)
 /**
  * Where the supervoid's great bubble sits, from our web, in units of half the window's height
  * (y up). The web is on the bubble's wall (D-119); the camera's lens shift puts it right of centre

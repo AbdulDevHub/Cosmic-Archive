@@ -37,6 +37,8 @@ const TRACKS: Record<string, string> = {
   "quasi-star": "/music/quasi-star",
   "solar-system": "/music/solar-system",
   "blue-world": "/music/blue-world",
+  asteroid: "/music/asteroid",
+  "quasar-galaxy": "/music/quasar-galaxy",
   "moon": "/music/moon",
   supervoid: "/music/web",
   universe: "/music/universe",

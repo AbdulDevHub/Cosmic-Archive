@@ -379,3 +379,28 @@
     opacity 300ms ease-out,
     visibility 0s 300ms;
 }
+
+/* "Growing empty…" (D-133): under the supervoid's line while its voids swell, then gone */
+.caption p.growing {
+  margin-top: var(--gap-2);
+  color: var(--ink-2);
+  font-size: var(--step--1);
+  font-style: italic;
+  opacity: 0;
+  transition: opacity 900ms ease-out;
+}
+
+.caption p.growing[data-on] {
+  opacity: 1;
+  animation: breathe 2.8s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
