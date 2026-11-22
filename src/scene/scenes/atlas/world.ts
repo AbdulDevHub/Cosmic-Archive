@@ -80,6 +80,9 @@ const WORM_R = 0.8;
 const WORM_TH = armAngle(0, WORM_R) + 0.9;
 const GRAV_R = 0.4;
 const GRAV_TH = armAngle(2, GRAV_R) + 0.9;
+// D-127: a quasi-star, far out at the disc's edge (the early universe, in spirit)
+const QUASI_R = 1.02;
+const QUASI_TH = armAngle(1, QUASI_R) + 0.6;
 type Anchor = { local: Vec3; spin: boolean } | { web: "quasar" | "home" };
 const ANCHORS: Record<string, Anchor> = {
   /** The heart of the galaxy. */
@@ -98,6 +101,8 @@ const ANCHORS: Record<string, Anchor> = {
   wormhole: { local: [WORM_R * Math.cos(WORM_TH), 0, WORM_R * Math.sin(WORM_TH)], spin: true },
   /** A hypothetical gravastar in the disc (D-126). */
   gravastar: { local: [GRAV_R * Math.cos(GRAV_TH), 0, GRAV_R * Math.sin(GRAV_TH)], spin: true },
+  /** A hypothetical quasi-star out at the edge of the disc (D-127). */
+  quasi: { local: [QUASI_R * Math.cos(QUASI_TH), 0, QUASI_R * Math.sin(QUASI_TH)], spin: true },
   /** A far galaxy of the web, placed where the zoomed-out composition wants it. */
   quasar: { web: "quasar" },
   /** The galaxy the visitor came from. */
