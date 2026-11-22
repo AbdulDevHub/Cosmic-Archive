@@ -26,8 +26,8 @@ Last commit: `48c1cd5`. Everything is committed; nothing is pushed or deployed. 
 
 ### Next (in order; ask the owner which first if unsure)
 
-1. **Supervoid as a zoom level, not a place (owner, 2026-11-22):** "the supervoid should be a zoom out of the cosmic web". Make Zoom Out on the web glide (or dive) out to a supervoid-scale view (many filaments around great empty bubbles; the current `/supervoid` look is the starting point), with Zoom Out dimmed there until the universe level exists. Decide with the owner whether `/supervoid` stays as a page or the view moves into the atlas scene (a fourth stop); remove its web hotspot either way, and keep its sourced line.
-2. **Redesign the fleet** (D-118): the five ships are first versions from simple solids. Refine each toward its role (owner's `Reference_Images/V1 Spaceship.png`, `V2 Spaceship.png`, `Celestial.jpg`, `Discovery.jpg`), as our own designs (the reference Sovereign and Predator are famous studio ships: keep roles, not shapes). Consider loading real modelled geometry only if the owner agrees (a new dependency needs a D- line).
+1. ~~Supervoid as a zoom level~~ **Done (D-119):** Zoom Out on the web glides out to the supervoid (stop 3); its hotspot The Cosmic Web glides back; `/supervoid` redirects to `/#supervoid`. Owner to look at it.
+2. **Redesign the fleet** (D-118, D-119): the owner's brief and the reference chosen for each ship are in `docs/SHIP_BRIEF.md` (section 0 first). The five ships are first versions from simple solids; rebuild each as richer procedural geometry (lathed and extruded hulls, panel lines and lights in a shader). The Sovereign follows its V1 sheet as closely as possible (owner's call); Discovery.jpg's orange becomes white, silver and blue. Blender models loaded as `.glb` are the future path, not this session.
 3. Then the **spaceship loader** (backlog below), matching the chosen ship.
 4. More places or levels the owner asks for (they plan to zoom out to the universe and "multiverse").
 

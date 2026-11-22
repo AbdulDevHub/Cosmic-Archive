@@ -1,6 +1,6 @@
 /**
- * The camera rig: one zoom scalar over three stops, 0 close in, 1 the whole galaxy, 2 the cosmic
- * web (ARCHITECTURE.md 4). Keys, log-distance interpolation and lens shift ported from
+ * The camera rig: one zoom scalar over four stops, 0 close in, 1 the whole galaxy, 2 the cosmic
+ * web, 3 the supervoid around it (ARCHITECTURE.md 4, D-119). Keys, log-distance interpolation and lens shift ported from
  * prototype/look.html; the keys are centred now that no copy sits beside the galaxy (D-092).
  *
  * Free control adds a turn and a tilt on top of the key for the current zoom. A dive (D-096) then
@@ -23,13 +23,21 @@ export const KEYS_DESK: readonly Key[] = [
   { d: 1.95, el: 31, az: 0.1, sx: 0.06, sy: 0.16 },
   { d: 3.55, el: 44, az: 0.22, sx: 0.0, sy: 0.04 },
   { d: 2600, el: 55, az: 0.55, sx: 0.0, sy: 0.1 },
+  // the supervoid (D-119): far enough that the whole web is a patch of one wall, shifted right so
+  // the great empty bubble beside it fills the middle of the frame (world.ts places the bubble)
+  { d: 11000, el: 62, az: 0.7, sx: 0.5, sy: 0.04 },
 ];
 
 export const KEYS_PHONE: readonly Key[] = [
   { d: 3.0, el: 36, az: 0.0, sx: 0.0, sy: 0.22 },
   { d: 8.3, el: 52, az: 0.22, sx: 0.0, sy: 0.1 },
   { d: 3000, el: 60, az: 0.55, sx: 0.0, sy: 0.2 },
+  // on a phone the bubble sits below the web, which rises toward the top
+  { d: 12500, el: 64, az: 0.7, sx: 0.0, sy: 0.5 },
 ];
+
+/** The stop the zoom ends at: the supervoid. */
+export const LAST_STOP = KEYS_DESK.length - 1;
 
 /**
  * The start page (D-107): the galaxy large on the right, seen lower and from further off, with the
@@ -63,7 +71,7 @@ export function placeCamera(
 ): void {
   const phone = isPhone(width, height);
   const K = phone ? KEYS_PHONE : KEYS_DESK;
-  const i = Math.min(1, Math.floor(zoom));
+  const i = Math.min(LAST_STOP - 1, Math.floor(zoom));
   const f = sstep(0, 1, zoom - i);
   const a = K[i];
   const b = K[i + 1];

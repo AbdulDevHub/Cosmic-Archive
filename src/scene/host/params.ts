@@ -3,7 +3,7 @@
  *
  *   ?shot=1        render one frame, no loop, no fade (screenshots and posters)
  *   ?t=12          scene time for that frame (only with shot)
- *   ?zoom=1        hold the atlas at a stop whatever the page asks: 0 close in, 1 the galaxy, 2 the web (only with shot)
+ *   ?zoom=1        hold the atlas at a stop whatever the page asks: 0 close in, 1 the galaxy, 2 the web, 3 the supervoid (only with shot)
  *   ?tier=low|medium|high|static   force a quality and keep it: the governor is off (tests and posters)
  *   ?dive=0.7&focus=core   hold a dive part of the way into a named place (only with shot): stills of the flight
  */
@@ -34,7 +34,7 @@ export function sceneParams(): SceneParams {
   cached = {
     shot,
     time: shot ? (Number.isFinite(t) ? t : 12) : null,
-    zoom: shot && Number.isFinite(zoom) ? Math.min(2, Math.max(0, zoom)) : null,
+    zoom: shot && Number.isFinite(zoom) ? Math.min(3, Math.max(0, zoom)) : null,
     tier: tier && TIERS.has(tier) ? (tier as SceneParams["tier"]) : null,
     dive: shot && Number.isFinite(dive) ? Math.min(1, Math.max(0, dive)) : null,
     focus: shot ? q.get("focus") : null,

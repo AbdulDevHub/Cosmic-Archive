@@ -1,5 +1,5 @@
 /**
- * The atlas scene: the galaxy (stops 0 and 1) and the cosmic web (stop 2), on one zoom scalar.
+ * The atlas scene: the galaxy (stops 0 and 1), the cosmic web (stop 2) and the supervoid (stop 3, D-119), on one zoom scalar.
  * Mounted by the host through the registry; never imported by a page.
  */
 
@@ -16,7 +16,8 @@ import { AtlasWorld, makeFrame } from "./world";
 export const budget: SceneBudget = {
   // The most drawn in one frame: on the start page, the sky, 11 galaxy layers and 6 for the
   // planet, its air, the moons, the rocks, the ship and its engines (limit 30); mid-way between
-  // the levels 16; at the web itself 7.
+  // the levels 16; at the web itself 7; out in the supervoid 8 (its foam is one full-screen
+  // triangle over the sky, D-119).
   drawCalls: 18,
   particles: {
     low: COUNTS.low.disc + COUNTS.low.web,

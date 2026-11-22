@@ -1,6 +1,7 @@
 /**
  * The atlas's three.js objects, built from `model.ts` (ARCHITECTURE.md 4): Level 1, the galaxy,
- * and Level 2, the cosmic web, cross-faded by the one zoom scalar.
+ * Level 2, the cosmic web, and Level 3, the supervoid around it (D-119), cross-faded by the one
+ * zoom scalar.
  *
  * Layers in draw order: wash and stars; body, haze, halo, companion, and the web; the disc (and
  * the bulge on `low`); dust; core. All additive except dust, so only dust depends on order. A
@@ -42,7 +43,7 @@ import type { SceneFrame, SceneInput } from "../../host/store";
 import type { ParticleTier } from "../../quality/tiers";
 import { POINT_FRAGMENT, POINT_VERTEX, SPRITE_FRAGMENT, SPRITE_VERTEX } from "../../shaders/points.glsl";
 import { SKY_CHUNK } from "../../shaders/sky.glsl";
-import { isPhone, placeCamera } from "./camera";
+import { isPhone, KEYS_DESK, KEYS_PHONE, LAST_STOP, placeCamera } from "./camera";
 import { StartProps } from "./start";
 import { armAngle, buildAtlas, COUNTS, joinClouds, mix, OUTER, SPIN, sstep, TAU, type Cloud, type Vec3 } from "./model";
 
@@ -73,7 +74,7 @@ const STRANGE_R = 0.3;
 const STRANGE_TH = armAngle(1, STRANGE_R) + 1.4;
 const DYSON_R = 0.9;
 const DYSON_TH = armAngle(3, DYSON_R);
-type Anchor = { local: Vec3; spin: boolean } | { web: "quasar" | "home" | "void" };
+type Anchor = { local: Vec3; spin: boolean } | { web: "quasar" | "home" };
 const ANCHORS: Record<string, Anchor> = {
   /** The heart of the galaxy. */
   core: { local: [0, 0, 0], spin: false },
@@ -87,18 +88,22 @@ const ANCHORS: Record<string, Anchor> = {
   strange: { local: [STRANGE_R * Math.cos(STRANGE_TH), 0, STRANGE_R * Math.sin(STRANGE_TH)], spin: true },
   /** A Dyson sphere around a star on an outer arm (D-117). */
   dyson: { local: [DYSON_R * Math.cos(DYSON_TH), 0, DYSON_R * Math.sin(DYSON_TH)], spin: true },
-  /** A supervoid: an empty stretch of the web, placed where the zoomed-out composition wants it (D-117). */
-  void: { web: "void" },
   /** A far galaxy of the web, placed where the zoomed-out composition wants it. */
   quasar: { web: "quasar" },
   /** The galaxy the visitor came from. */
   home: { web: "home" },
+  /** The web the visitor came from, seen from the supervoid: a patch of one wall (D-119). */
+  patch: { web: "home" },
 };
 
 /** Where the quasar's hotspot should fall in the zoomed-out view, in NDC (the prototype's). */
 const QUASAR_WANT = { wide: [0.4, -0.38], narrow: [0.42, 0.55] } as const;
-/** And the supervoid's, in an empty part of the frame (D-117). */
-const VOID_WANT = { wide: [-0.3, 0.12], narrow: [-0.35, -0.2] } as const;
+/**
+ * Where the supervoid's great bubble sits, from our web, in units of half the window's height
+ * (y up). The web is on the bubble's wall (D-119); the camera's lens shift puts it right of centre
+ * on a wide screen and above it on a phone, so the bubble fills the middle.
+ */
+const VOID_FROM_WEB = { wide: [-0.8, -0.04], narrow: [0.0, -0.78] } as const;
 
 export function makeFrame(): SceneFrame {
   const points: SceneFrame["points"] = {};
@@ -249,6 +254,131 @@ function backdrop(sky: Texture): Mesh<BufferGeometry, ShaderMaterial> {
   return mesh;
 }
 
+/**
+ * Level 3, the supervoid (D-119; the look is D-117's place, now a zoom out of the web): the cosmic
+ * web seen so far off that it is a foam of walls and threads of galaxies around great empty
+ * bubbles, one bubble filling the frame with a few lonely galaxies in it. Our own illustration:
+ * one full-screen triangle added over the sky, three layers of cells (2D Voronoi edges) far to
+ * near; never a drawn line (D-094): the threads are beads and clumps of galaxies.
+ *
+ * It is pinned to our web: the pattern grows and shrinks about the web's place on screen with the
+ * camera's distance, so zooming out the walls close in around the web, a patch of the bubble's wall.
+ */
+const VOID_FRAGMENT = /* glsl */ `
+precision highp float;
+uniform vec2 uHome;    // our web on screen, device pixels from the bottom left
+uniform float uUnit;   // device pixels per unit (half the window's height)
+uniform float uGrow;   // how much nearer than the supervoid stop the camera is
+uniform vec2 uDir;     // the bubble's centre from our web, in units
+uniform vec2 uPan;     // the drag's turn and tilt
+uniform float uTime;
+uniform float uAlpha;
+uniform int uDetail;
+
+const vec3 VIOLET = vec3(0.5, 0.32, 1.0);
+const vec3 AZURE = vec3(0.3, 0.6, 1.0);
+const vec3 ROSE = vec3(1.0, 0.4, 0.72);
+const vec3 GOLD = vec3(1.0, 0.82, 0.55);
+
+float hash3(vec3 p){
+  p = fract(p * 0.3183099 + 0.1);
+  p *= 17.0;
+  return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+}
+float noise3(vec3 x){
+  vec3 i = floor(x), f = fract(x);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(
+    mix(mix(hash3(i), hash3(i + vec3(1.0, 0.0, 0.0)), f.x), mix(hash3(i + vec3(0.0, 1.0, 0.0)), hash3(i + vec3(1.0, 1.0, 0.0)), f.x), f.y),
+    mix(mix(hash3(i + vec3(0.0, 0.0, 1.0)), hash3(i + vec3(1.0, 0.0, 1.0)), f.x), mix(hash3(i + vec3(0.0, 1.0, 1.0)), hash3(i + vec3(1.0, 1.0, 1.0)), f.x), f.y),
+    f.z);
+}
+
+/* the cells, seen flat: distance to the nearest cell edge (F2 - F1) and the cell's id */
+vec2 cellEdge(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  float f1 = 9.0, f2 = 9.0, id = 0.0;
+  for (int y = -1; y <= 1; y++)
+  for (int x = -1; x <= 1; x++) {
+    vec2 g = vec2(float(x), float(y));
+    vec2 o = vec2(hash3(vec3(i + g, 1.0)), hash3(vec3(i + g, 7.0)));
+    float d = length(g + o - f);
+    if (d < f1) { f2 = f1; f1 = d; id = hash3(vec3(i + g, 3.0)); } else if (d < f2) { f2 = d; }
+  }
+  return vec2(f2 - f1, id);
+}
+
+/* one layer of the foam: threads of galaxies along the cell edges, knots where they meet */
+vec3 webLayer(vec2 p, float scale, float width, float bright){
+  vec2 c = cellEdge(p * scale);
+  float grain = noise3(vec3(p * scale * 11.0, c.y * 7.0));
+  float clumps = noise3(vec3(p * scale * 2.5, c.y * 3.0 + 4.0));
+  float core = exp(-c.x * c.x / (width * width)) * pow(grain, 2.5) * (0.4 + 1.2 * clumps);
+  float haze = exp(-c.x * c.x / (width * width * 9.0)) * (0.25 + 0.5 * clumps);
+  float knot = smoothstep(0.78, 1.0, grain) * exp(-c.x * c.x / (width * width * 0.5));
+  vec3 tint = mix(VIOLET, AZURE, c.y);
+  tint = mix(tint, ROSE, smoothstep(0.8, 0.95, c.y));
+  return (tint * core * 1.3 + tint * haze * 0.25 + mix(GOLD, vec3(1.0), 0.4) * knot * 1.8) * bright;
+}
+
+void main(){
+  // from our web, in units, scaled about it by the camera's distance
+  vec2 w = (gl_FragCoord.xy - uHome) / uUnit / uGrow;
+  vec2 u = w - uDir;            // from the bubble's centre
+  float r = length(u);
+  float t = uTime;
+
+  // the bubble: empty inside; its wall, where the galaxies crowd, is the brightest part
+  float inside = 1.0 - smoothstep(0.55, 0.95, r + 0.12 * (noise3(vec3(u * 2.5, 1.0)) - 0.5));
+  float rim = exp(-pow((r - 0.85) / 0.22, 2.0));
+
+  // the far layers drift and turn in a drag; the near one holds our web on its wall
+  vec2 pan = vec2(uPan.x, -uPan.y);
+  vec3 col = vec3(0.0);
+  if (uDetail > 0) col += webLayer(u + pan * 0.35 + vec2(t * 0.003, 0.0), 5.5, 0.035, 0.28) * (1.0 - inside * 0.9);
+  col += webLayer(u + pan * 0.15 + 3.1, 3.2, 0.04, 0.5) * (1.0 - inside * 0.97) * (0.6 + 0.8 * rim);
+  col += webLayer(u + 7.3, 1.7, 0.045, 0.8) * (1.0 - inside) * (0.5 + 1.0 * rim);
+  // a soft glow of gas along the bubble's wall
+  col += mix(VIOLET, AZURE, 0.4) * rim * 0.12;
+  // a few lonely galaxies inside the bubble
+  vec2 lp = (u + pan * 0.2) * 14.0;
+  vec2 lid = floor(lp);
+  float lone = step(0.985, hash3(vec3(lid, 9.0))) * exp(-length(fract(lp) - 0.5) * 16.0) * inside;
+  col += GOLD * lone * 1.6;
+
+  col = col / (1.0 + max(col - 0.85, 0.0) * 0.9);
+  gl_FragColor = vec4(col * uAlpha, 1.0);
+}
+`;
+
+function supervoid(): Mesh<BufferGeometry, ShaderMaterial> {
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new BufferAttribute(new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]), 3));
+  const material = new ShaderMaterial({
+    vertexShader: BACKDROP_VERTEX,
+    fragmentShader: VOID_FRAGMENT,
+    uniforms: {
+      uHome: { value: new Vector2() },
+      uUnit: { value: 1 },
+      uGrow: { value: 1 },
+      uDir: { value: new Vector2() },
+      uPan: { value: new Vector2() },
+      uTime: { value: 0 },
+      uAlpha: { value: 0 },
+      uDetail: { value: 1 },
+    },
+    transparent: true,
+    depthTest: false,
+    depthWrite: false,
+    blending: AdditiveBlending,
+  });
+  const mesh = new Mesh(geometry, material);
+  mesh.frustumCulled = false;
+  mesh.renderOrder = 0;
+  mesh.visible = false;
+  return mesh;
+}
+
 function single(color: readonly [number, number, number], size: number): Cloud {
   return { pos: new Float32Array(3), col: new Float32Array(color), size: new Float32Array([size]), seed: new Float32Array(1), n: 1 };
 }
@@ -280,10 +410,13 @@ export class AtlasWorld {
   private readonly quasarDot: Layer;
   private readonly webNodes: Vec3[];
   private readonly sky: Mesh<BufferGeometry, ShaderMaterial>;
+  /** Level 3, the supervoid (D-119). */
+  private readonly voidLayer = supervoid();
+  private bufferWidth = 1;
+  private bufferHeight = 1;
   /** The start page's planet, moons, asteroids and ship (D-107); drawn only while `intro` is above 0. */
   private readonly start: StartProps;
   private readonly quasar = new Vector3();
-  private readonly voidPoint = new Vector3();
   private readonly focus = new Vector3();
   private readonly scratch = new Vector3();
   /** Strengths of the glow layers for this tier; see the constructor. */
@@ -360,7 +493,9 @@ export class AtlasWorld {
       this.galaxy.add(bulge.object);
     }
     this.root.add(this.start.root);
-    this.root.add(this.sky, this.webGlow.object, this.webStrands.object, this.web.object, this.homeDot.object, this.quasarDot.object);
+    // the supervoid's foam: its far layer is dropped on the lowest tier (its cost is per pixel)
+    this.voidLayer.material.uniforms.uDetail.value = tier === "low" ? 0 : 1;
+    this.root.add(this.sky, this.voidLayer, this.webGlow.object, this.webStrands.object, this.web.object, this.homeDot.object, this.quasarDot.object);
 
     this.galaxy.rotation.z = -0.2;
     this.root.add(this.wash.object, this.stars.object, this.galaxy);
@@ -382,6 +517,8 @@ export class AtlasWorld {
     const bw = width * dpr;
     const bh = height * dpr;
     const px = (6 * dpr * height) / 1000;
+    this.bufferWidth = bw;
+    this.bufferHeight = bh;
     for (const layer of this.layers) layer.resize(px, dpr, bw, bh);
     this.layoutQuasar(camera, width, height);
   }
@@ -413,18 +550,15 @@ export class AtlasWorld {
       this.quasar.copy(camera.position).addScaledVector(dir, -camera.position.y / dir.y);
     }
     this.quasarDot.object.position.copy(this.quasar);
-    // the supervoid: the point in the plane of the web under its spot on screen, among no knot
-    const [vx, vy] = isPhone(width, height) ? VOID_WANT.narrow : VOID_WANT.wide;
-    const pe = camera.projectionMatrix.elements;
-    const toVoid = v.set((vx + pe[8]) / pe[0], (vy + pe[9]) / pe[5], -1).transformDirection(camera.matrixWorld);
-    this.voidPoint.copy(camera.position).addScaledVector(toVoid, -camera.position.y / toVoid.y);
+    const [dx, dy] = isPhone(width, height) ? VOID_FROM_WEB.narrow : VOID_FROM_WEB.wide;
+    (this.voidLayer.material.uniforms.uDir.value as Vector2).set(dx, dy);
   }
 
   /** Where a named place is in the world at scene time `t`. */
   private anchorAt(name: string, t: number, out: Vector3): Vector3 {
     const anchor = ANCHORS[name];
     if (!anchor) return out.set(0, 0, 0);
-    if ("web" in anchor) return anchor.web === "quasar" ? out.copy(this.quasar) : anchor.web === "void" ? out.copy(this.voidPoint) : out.set(0, 0, 0);
+    if ("web" in anchor) return anchor.web === "quasar" ? out.copy(this.quasar) : out.set(0, 0, 0);
     const [x, y, z] = anchor.local;
     const ang = t * SPIN;
     const c = Math.cos(ang);
@@ -469,14 +603,34 @@ export class AtlasWorld {
     // From the web the whole disc is under a pixel and the home light stands for it.
     for (const layer of this.discLayers) layer.object.visible = zoom < 1.97 && layer.material.uniforms.uAlpha.value > 0.0005;
 
-    const landmarks = sstep(1.6, 1.95, zoom);
-    this.web.alpha = sstep(1.35, 1.9, zoom);
-    this.webGlow.alpha = S2.webGlow * landmarks;
-    this.webStrands.alpha = S2.webStrands * landmarks * this.glowGain;
-    this.homeDot.alpha = landmarks;
-    this.quasarDot.alpha = landmarks;
+    // out to the supervoid (D-119) the web shrinks into a patch of one wall: its galaxies hand over
+    // to the foam of walls around great bubbles, which comes up around it (else they spill into the bubble)
+    const shown = sstep(1.6, 1.95, zoom);
+    const stays = 1 - sstep(2.25, 2.85, zoom);
+    this.web.alpha = sstep(1.35, 1.9, zoom) * stays;
+    this.webGlow.alpha = S2.webGlow * shown * stays;
+    this.webStrands.alpha = S2.webStrands * shown * stays * this.glowGain;
+    this.homeDot.alpha = shown * stays;
+    this.quasarDot.alpha = shown * stays;
+    this.frameVoid(camera, t, view, width, height, sstep(2.05, 2.75, zoom));
 
     this.report(camera, t, zoom, width, height, out);
+  }
+
+  /** The supervoid's foam, pinned to our web's place on screen and scaled by the camera's distance. */
+  private frameVoid(camera: PerspectiveCamera, t: number, view: SceneInput, width: number, height: number, alpha: number): void {
+    const mesh = this.voidLayer;
+    mesh.visible = alpha > 0.0005;
+    if (!mesh.visible) return;
+    const u = mesh.material.uniforms;
+    const v = this.scratch.set(0, 0, 0).project(camera);
+    (u.uHome.value as Vector2).set((v.x * 0.5 + 0.5) * this.bufferWidth, (v.y * 0.5 + 0.5) * this.bufferHeight);
+    u.uUnit.value = this.bufferHeight / 2;
+    const last = (isPhone(width, height) ? KEYS_PHONE : KEYS_DESK)[LAST_STOP].d;
+    u.uGrow.value = last / Math.max(1, camera.position.length());
+    (u.uPan.value as Vector2).set(view.yaw * 0.6, view.pitch * 0.6);
+    u.uTime.value = t;
+    u.uAlpha.value = alpha;
   }
 
   /** Projects the anchors for the DOM (hotspots). */

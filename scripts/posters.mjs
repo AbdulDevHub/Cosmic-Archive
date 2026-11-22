@@ -21,7 +21,7 @@ const POSTERS = [
   { file: "atlas-start-wide.webp", path: "/?shot=1&t=12&tier=high", ...WIDE, quality: 0.8 },
   { file: "atlas-start-narrow.webp", path: "/?shot=1&t=12&tier=low", ...NARROW, quality: 0.8 },
   // Places: `<scene id>-wide` and `<scene id>-narrow`, the names the place page asks for.
-  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "supervoid"].flatMap((id) => [
+  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere"].flatMap((id) => [
     { file: `${id}-wide.webp`, path: `/${id}?shot=1&t=12&tier=high`, ...WIDE, quality: 0.8 },
     { file: `${id}-narrow.webp`, path: `/${id}?shot=1&t=12&tier=low`, ...NARROW, quality: 0.8 },
   ]),
@@ -35,7 +35,6 @@ const POSTERS = [
     ["star", "/star?shot=1&t=12&tier=high"],
     ["strange-star", "/strange-star?shot=1&t=12&tier=high"],
     ["dyson-sphere", "/dyson-sphere?shot=1&t=12&tier=high"],
-    ["supervoid", "/supervoid?shot=1&t=12&tier=high"],
   ].map(([name, path]) => ({ file: `${name}.jpg`, dir: join("public", "og"), path, viewport: { width: 1440, height: 900 }, crop: { x: 0, y: 72, w: 1440, h: 756 }, out: 1200, quality: 0.82, type: "image/jpeg" })),
 ];
 

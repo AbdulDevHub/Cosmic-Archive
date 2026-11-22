@@ -30,7 +30,7 @@ Anyone who likes looking at space. Half are on phones. They come to be amazed, n
 
 | Area | Contents |
 |---|---|
-| The universe, `/` | One scene, three stops: the cosmic web, the whole galaxy, close in over the disc |
+| The universe, `/` | One scene, four stops: the supervoid around the web (D-119), the cosmic web, the whole galaxy, close in over the disc |
 | Places | Three, each its own scene: black hole, nebula, quasar |
 | Sound | The owner's own music under the scenes, a whoosh for each flight; on by default after the first gesture (D-100) |
 

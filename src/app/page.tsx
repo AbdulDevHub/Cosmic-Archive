@@ -21,9 +21,11 @@ const SPOTS: Spot[] = [
   ...PLACES.map((place) => ({ id: place.id, name: place.name, href: `/${place.id}`, anchor: place.anchor, stop: place.stop === 2 ? 2 : 1, veil: place.veil }) satisfies Spot),
   // seen from the web, the galaxy is one light among many: it glides back in, it opens no page
   { id: "galaxy", name: "The Galaxy", href: null, anchor: "home", stop: 2, veil: "" },
+  // and from the supervoid, the web around it is one patch of a wall: it glides back in (D-119)
+  { id: "web", name: "The Cosmic Web", href: null, anchor: "patch", stop: 3, veil: "" },
 ];
 
-/* The universe (DESIGN_SPEC.md 7): one scene, three stops, the places you can click. */
+/* The universe (DESIGN_SPEC.md 7): one scene, four stops, the places you can click. */
 export default function Home() {
   return (
     <>
