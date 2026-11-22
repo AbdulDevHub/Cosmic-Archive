@@ -23,4 +23,5 @@ export const SCENES: Record<SceneId, () => Promise<SceneModule>> = {
   "dyson-sphere": () => import("../scenes/dyson-sphere"),
   "wormhole": () => import("../scenes/wormhole"),
   "gravastar": () => import("../scenes/gravastar"),
+  "quasi-star": () => import("../scenes/quasi-star"),
 };

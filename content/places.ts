@@ -30,8 +30,8 @@ export interface Stop {
   sources: readonly string[];
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar";
-export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "dyson" | "wormhole" | "gravastar";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "quasi-star";
+export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "dyson" | "wormhole" | "gravastar" | "quasi";
 
 export interface Place {
   id: PlaceId;
@@ -142,6 +142,13 @@ export const SOURCES: readonly Source[] = [
     title: "Gravitational Vacuum Condensate Stars",
     publisher: "Pawel O. Mazur (University of South Carolina) and Emil Mottola (Los Alamos National Laboratory), arXiv",
     url: "https://arxiv.org/abs/gr-qc/0109035",
+    checked: "2026-11-22",
+  },
+  {
+    id: "arxiv-quasi-stars",
+    title: "Quasi-stars as a Means of Rapid Black Hole Growth in the Early Universe",
+    publisher: "Eric R. Coughlin (Syracuse University) and Mitchell C. Begelman (University of Colorado Boulder), arXiv",
+    url: "https://arxiv.org/abs/2405.00084",
     checked: "2026-11-22",
   },
 ];
@@ -256,6 +263,16 @@ export const PLACES: readonly Place[] = [
     anchor: "gravastar",
     stop: 1,
     veil: "#080614",
+  },
+  {
+    id: "quasi-star",
+    name: "Quasi-Star",
+    // the source: "the intermediate quasi-star phase that accompanies some direct collapse models, during which a natal BH accretes mass from and energetically sustains (through accretion) an overlying gaseous envelope"; early: SMBH seeds by "redshifts z ≳ 10"; only some models, so the line says "possible"
+    line: "A possible early giant: a black hole feeding inside a gas envelope.",
+    sources: ["arxiv-quasi-stars"],
+    anchor: "quasi",
+    stop: 1,
+    veil: "#160604",
   },
 ];
 

@@ -34,6 +34,7 @@ const TRACKS: Record<string, string> = {
   "dyson-sphere": "/music/dyson-sphere",
   "wormhole": "/music/wormhole",
   "gravastar": "/music/gravastar",
+  "quasi-star": "/music/quasi-star",
   supervoid: "/music/web",
 };
 const SWAP_OUT = 0.9; // seconds: the old track fades out, then the new one fades in

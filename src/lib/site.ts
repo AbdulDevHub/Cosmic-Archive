@@ -37,6 +37,7 @@ export const PLACE_OG: Readonly<Record<string, { name: string; alt: string }>> =
   "dyson-sphere": { name: "dyson-sphere", alt: "Our own illustration of an imagined Dyson swarm around a star." },
   "wormhole": { name: "wormhole", alt: "Our own illustration of a hypothetical wormhole: a ring of lensed light round a throat that shows another sky." },
   "gravastar": { name: "gravastar", alt: "Our own illustration of a hypothetical gravastar: a dark bubble inside a thin, shining shell." },
+  "quasi-star": { name: "quasi-star", alt: "Our own illustration of a hypothetical quasi-star: a vast red star with a black hole feeding at its heart." },
 };
 
 /** A JSON-LD block, safe to put in a <script> (no closing tag can end it early). */
