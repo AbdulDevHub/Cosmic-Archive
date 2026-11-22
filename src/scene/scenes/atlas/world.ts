@@ -118,6 +118,8 @@ const ANCHORS: Record<string, Anchor> = {
   home: { web: "home" },
   /** The web the visitor came from, seen from the supervoid: a patch of one wall (D-119). */
   patch: { web: "home" },
+  /** The supervoid, seen from the observable universe: our web at its middle (D-130). */
+  voidspot: { web: "home" },
 };
 
 /** Where the quasar's hotspot should fall in the zoomed-out view, in NDC (the prototype's). */
@@ -127,6 +129,10 @@ const QUASAR_WANT = { wide: [0.4, -0.38], narrow: [0.42, 0.55] } as const;
  * (y up). The web is on the bubble's wall (D-119); the camera's lens shift puts it right of centre
  * on a wide screen and above it on a phone, so the bubble fills the middle.
  */
+/** The supervoid's stop, whose camera distance scales its foam (D-119). */
+const VOID_STOP = 3;
+/** How many times larger than whole the universe's sphere is as the zoom leaves the supervoid (D-130). */
+const UNIVERSE_FROM = 28;
 const VOID_FROM_WEB = { wide: [-1.2, -0.05], narrow: [0.0, -1.2] } as const;
 
 export function makeFrame(): SceneFrame {
@@ -279,32 +285,14 @@ function backdrop(sky: Texture): Mesh<BufferGeometry, ShaderMaterial> {
 }
 
 /**
- * Level 3, the supervoid (D-119; the look is D-117's place, now a zoom out of the web): the cosmic
- * web seen so far off that it is a foam of walls and threads of galaxies around great empty
- * bubbles, one bubble filling the frame with a few lonely galaxies in it. Our own illustration:
- * one full-screen triangle added over the sky, three layers of cells (2D Voronoi edges) far to
- * near; never a drawn line (D-094): the threads are beads and clumps of galaxies.
- *
- * It is pinned to our web: the pattern grows and shrinks about the web's place on screen with the
- * camera's distance, so zooming out the walls close in around the web, a patch of the bubble's wall.
+ * The foam of the universe seen from very far off (D-119, D-130): cells of walls and threads of
+ * galaxies around empty bubbles, shared by the supervoid and the observable universe.
  */
-const VOID_FRAGMENT = /* glsl */ `
-precision highp float;
-uniform vec2 uHome;    // our web on screen, device pixels from the bottom left
-uniform float uUnit;   // device pixels per unit (half the window's height)
-uniform float uGrow;   // how much nearer than the supervoid stop the camera is
-uniform vec2 uDir;     // the bubble's centre from our web, in units
-uniform float uSwell;  // how far the void has grown since the visitor arrived: -0.35 to 1 (D-124)
-uniform vec2 uPan;     // the drag's turn and tilt
-uniform float uTime;
-uniform float uAlpha;
-uniform int uDetail;
-
+const FOAM_CHUNK = /* glsl */ `
 const vec3 VIOLET = vec3(0.5, 0.32, 1.0);
 const vec3 AZURE = vec3(0.3, 0.6, 1.0);
 const vec3 ROSE = vec3(1.0, 0.4, 0.72);
 const vec3 GOLD = vec3(1.0, 0.82, 0.55);
-const float VOID_R = 1.15; // the void's radius, in units of half the window's height
 
 float hash3(vec3 p){
   p = fract(p * 0.3183099 + 0.1);
@@ -347,6 +335,101 @@ vec3 webLayer(vec2 p, float scale, float width, float bright){
   return (tint * core * 1.3 + tint * haze * 0.25 + mix(GOLD, vec3(1.0), 0.4) * knot * 1.8) * bright;
 }
 
+`;
+
+/**
+ * Level 4, the observable universe (D-130): out past the supervoid the foam of walls and voids
+ * shrinks into one vast sphere, the whole of what can be seen, with us at its middle (our web is
+ * pinned there). The foam crowds toward the sphere's edge, where a line of sight crosses more of
+ * it, and the edge itself glows faintly warm. Outside it, nothing: the sky is blotted out. Our own
+ * illustration: one full-screen triangle, never a drawn line (D-094).
+ */
+const UNIVERSE_FRAGMENT = /* glsl */ `
+precision highp float;
+uniform vec2 uHome;    // our web on screen, device pixels from the bottom left: the sphere's middle
+uniform float uUnit;   // device pixels per unit (half the window's height)
+uniform float uRadius; // the sphere's radius in units: vast as the zoom leaves the supervoid, whole at the stop
+uniform float uFrom;   // its radius as the zoom leaves the supervoid, where its foam matches the supervoid's
+uniform vec2 uPan;     // the drag's turn and tilt
+uniform float uTime;
+uniform float uAlpha;
+uniform int uDetail;
+${FOAM_CHUNK}
+
+void main(){
+  vec2 w = (gl_FragCoord.xy - uHome) / uUnit;
+  vec2 pan = vec2(uPan.x, -uPan.y) * 0.15;
+  vec2 s = w / uRadius + pan;     // the sphere's radii, from its middle
+  float r = length(s);
+  float t = uTime;
+  float edge = r + 0.012 * (noise3(vec3(s * 6.0, 3.0)) - 0.5);
+  float inside = 1.0 - smoothstep(0.985, 1.0, edge);
+
+  // the foam, in three sizes of cell handed on as the sphere shrinks: at first the supervoid's own
+  // (it carries on), then finer, then the finest once the sphere is whole; a line of sight near the
+  // edge crosses more of the ball, so the cells bunch there
+  float far1 = smoothstep(4.0, 8.0, uRadius);      // the supervoid's cells
+  float far2 = smoothstep(1.4, 3.0, uRadius);      // the middle size
+  float whole = 1.0 - smoothstep(1.5, 4.0, uRadius);
+  vec2 b = s * (1.0 + 0.55 * whole * pow(min(r, 1.0), 4.0));
+  vec3 foam = vec3(0.0);
+  if (far1 > 0.0) {
+    vec2 c = s * uFrom;
+    foam += (webLayer(c + 7.3, 3.4, 0.04, 0.75) + webLayer(c + 3.1, 6.0, 0.035, 0.5)) * far1;
+  }
+  if (far1 < 1.0) {
+    vec3 mid = far2 > 0.0 ? webLayer(b + 5.0, 26.0, 0.04, 0.8) : vec3(0.0);
+    vec3 fine = vec3(0.0);
+    if (far2 < 1.0) {
+      fine = webLayer(b + 7.3, 9.0, 0.045, 1.0);
+      if (uDetail > 0) fine += webLayer(b * 1.9 + 3.1 + vec2(t * 0.001, 0.0), 9.0, 0.04, 0.3);
+    }
+    foam += mix(fine, mid, far2) * (1.0 - far1);
+  }
+  float depth = 1.0 / sqrt(max(1.0 - min(r * r, 1.0), 0.04));
+  foam *= mix(1.0, 0.55 + 0.45 * depth, whole);
+  vec3 col = foam * inside;
+  // a faint haze of light filling the ball
+  col += mix(VIOLET, AZURE, 0.45) * 0.05 * inside * whole;
+
+  // its edge: the farthest light there is, a faint warm glow
+  float rim = exp(-pow((edge - 1.0) / 0.03, 2.0));
+  float glow = exp(-max(edge - 1.0, 0.0) * 9.0) * step(1.0, edge);
+  float flick = 0.8 + 0.4 * noise3(vec3(s * 5.0, t * 0.05));
+  col += mix(ROSE, GOLD, 0.55) * (rim * 0.6 + glow * 0.16) * flick * whole;
+  col += mix(ROSE, VIOLET, 0.4) * 0.12 * exp(-pow((edge - 0.96) / 0.06, 2.0)) * whole;
+
+  col = col / (1.0 + max(col - 0.85, 0.0) * 0.9);
+  // premultiplied: the ball covers what is behind it; outside it the sky fades to nothing
+  float cover = mix(0.92, 0.8 * whole, 1.0 - inside) * uAlpha;
+  gl_FragColor = vec4(col * uAlpha, cover);
+}
+`;
+
+/**
+ * Level 3, the supervoid (D-119; the look is D-117's place, now a zoom out of the web): the cosmic
+ * web seen so far off that it is a foam of walls and threads of galaxies around great empty
+ * bubbles, one bubble filling the frame with a few lonely galaxies in it. Our own illustration:
+ * one full-screen triangle added over the sky, three layers of cells (2D Voronoi edges) far to
+ * near; never a drawn line (D-094): the threads are beads and clumps of galaxies.
+ *
+ * It is pinned to our web: the pattern grows and shrinks about the web's place on screen with the
+ * camera's distance, so zooming out the walls close in around the web, a patch of the bubble's wall.
+ */
+const VOID_FRAGMENT = /* glsl */ `
+precision highp float;
+uniform vec2 uHome;    // our web on screen, device pixels from the bottom left
+uniform float uUnit;   // device pixels per unit (half the window's height)
+uniform float uGrow;   // how much nearer than the supervoid stop the camera is
+uniform vec2 uDir;     // the bubble's centre from our web, in units
+uniform float uSwell;  // how far the void has grown since the visitor arrived: -0.35 to 1 (D-124)
+uniform vec2 uPan;     // the drag's turn and tilt
+uniform float uTime;
+uniform float uAlpha;
+uniform int uDetail;
+
+const float VOID_R = 1.15; // the void's radius, in units of half the window's height
+${FOAM_CHUNK}
 void main(){
   // from our web, in units, scaled about it by the camera's distance
   vec2 w = (gl_FragCoord.xy - uHome) / uUnit / uGrow;
@@ -423,6 +506,41 @@ function supervoid(): Mesh<BufferGeometry, ShaderMaterial> {
   return mesh;
 }
 
+function universe(): Mesh<BufferGeometry, ShaderMaterial> {
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new BufferAttribute(new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]), 3));
+  const material = new ShaderMaterial({
+    vertexShader: BACKDROP_VERTEX,
+    fragmentShader: UNIVERSE_FRAGMENT,
+    uniforms: {
+      uHome: { value: new Vector2() },
+      uUnit: { value: 1 },
+      uRadius: { value: 1 },
+      uFrom: { value: 1 },
+      uPan: { value: new Vector2() },
+      uTime: { value: 0 },
+      uAlpha: { value: 0 },
+      uDetail: { value: 1 },
+    },
+    transparent: true,
+    depthTest: false,
+    depthWrite: false,
+    // premultiplied: result = colour + behind * (1 - cover), so the void can darken the sky (D-121)
+    blending: CustomBlending,
+    blendEquation: AddEquation,
+    blendSrc: OneFactor,
+    blendDst: OneMinusSrcAlphaFactor,
+    // leave the canvas alpha alone, as the dust does
+    blendSrcAlpha: ZeroFactor,
+    blendDstAlpha: OneFactor,
+  });
+  const mesh = new Mesh(geometry, material);
+  mesh.frustumCulled = false;
+  mesh.renderOrder = 1;
+  mesh.visible = false;
+  return mesh;
+}
+
 function single(color: readonly [number, number, number], size: number): Cloud {
   return { pos: new Float32Array(3), col: new Float32Array(color), size: new Float32Array([size]), seed: new Float32Array(1), n: 1 };
 }
@@ -456,6 +574,8 @@ export class AtlasWorld {
   private readonly sky: Mesh<BufferGeometry, ShaderMaterial>;
   /** Level 3, the supervoid (D-119). */
   private readonly voidLayer = supervoid();
+  /** Level 4, the observable universe (D-130). */
+  private readonly universeLayer = universe();
   /** Scene time the visitor came out to the supervoid, or null while they are not there. */
   private voidSince: number | null = null;
   private bufferWidth = 1;
@@ -541,7 +661,8 @@ export class AtlasWorld {
     this.root.add(this.start.root);
     // the supervoid's foam: its far layer is dropped on the lowest tier (its cost is per pixel)
     this.voidLayer.material.uniforms.uDetail.value = tier === "low" ? 0 : 1;
-    this.root.add(this.sky, this.voidLayer, this.webGlow.object, this.webStrands.object, this.web.object, this.homeDot.object, this.quasarDot.object);
+    this.universeLayer.material.uniforms.uDetail.value = tier === "low" ? 0 : 1;
+    this.root.add(this.sky, this.voidLayer, this.universeLayer, this.webGlow.object, this.webStrands.object, this.web.object, this.homeDot.object, this.quasarDot.object);
 
     this.galaxy.rotation.z = -0.2;
     this.root.add(this.wash.object, this.stars.object, this.galaxy);
@@ -658,7 +779,8 @@ export class AtlasWorld {
     this.webStrands.alpha = S2.webStrands * shown * stays * this.glowGain;
     this.homeDot.alpha = shown * stays;
     this.quasarDot.alpha = shown * stays;
-    this.frameVoid(camera, t, view, width, height, sstep(2.05, 2.75, zoom));
+    this.frameVoid(camera, t, view, width, height, sstep(2.05, 2.75, zoom) * (1 - sstep(3.15, 3.7, zoom)));
+    this.frameUniverse(camera, t, view, width, height, sstep(3.0, 3.35, zoom));
 
     this.report(camera, t, zoom, width, height, out);
   }
@@ -677,10 +799,33 @@ export class AtlasWorld {
     const v = this.scratch.set(0, 0, 0).project(camera);
     (u.uHome.value as Vector2).set((v.x * 0.5 + 0.5) * this.bufferWidth, (v.y * 0.5 + 0.5) * this.bufferHeight);
     u.uUnit.value = this.bufferHeight / 2;
-    const last = (isPhone(width, height) ? KEYS_PHONE : KEYS_DESK)[LAST_STOP].d;
+    const last = (isPhone(width, height) ? KEYS_PHONE : KEYS_DESK)[VOID_STOP].d;
     u.uGrow.value = last / Math.max(1, camera.position.length());
     (u.uPan.value as Vector2).set(view.yaw * 0.6, view.pitch * 0.6);
     u.uSwell.value = mix(-0.35, 1, 1 - Math.exp(-out / 9));
+    u.uTime.value = t;
+    u.uAlpha.value = alpha;
+  }
+
+  /**
+   * The observable universe (D-130), pinned to our web at its middle. Its radius follows the zoom,
+   * not the camera's distance (the camera stays inside its far plane): vast as the zoom leaves the
+   * supervoid, so the foam carries on, then shrinking to the whole sphere at the stop.
+   */
+  private frameUniverse(camera: PerspectiveCamera, t: number, view: SceneInput, width: number, height: number, alpha: number): void {
+    const mesh = this.universeLayer;
+    mesh.visible = alpha > 0.0005;
+    if (!mesh.visible) return;
+    const u = mesh.material.uniforms;
+    const v = this.scratch.set(0, 0, 0).project(camera);
+    (u.uHome.value as Vector2).set((v.x * 0.5 + 0.5) * this.bufferWidth, (v.y * 0.5 + 0.5) * this.bufferHeight);
+    u.uUnit.value = this.bufferHeight / 2;
+    // whole, it fits the window's height on a laptop and its width on a phone
+    const whole = isPhone(width, height) ? (width / height) * 0.88 : 0.68;
+    const out = sstep(3, LAST_STOP, view.zoom);
+    u.uRadius.value = whole * Math.exp(mix(Math.log(UNIVERSE_FROM), 0, out));
+    u.uFrom.value = whole * UNIVERSE_FROM;
+    (u.uPan.value as Vector2).set(view.yaw * 0.6, view.pitch * 0.6);
     u.uTime.value = t;
     u.uAlpha.value = alpha;
   }

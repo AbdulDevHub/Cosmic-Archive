@@ -23,9 +23,11 @@ const SPOTS: Spot[] = [
   { id: "galaxy", name: "The Galaxy", href: null, anchor: "home", stop: 2, veil: "" },
   // and from the supervoid, the web around it is one patch of a wall: it glides back in (D-119)
   { id: "web", name: "The Cosmic Web", href: null, anchor: "patch", stop: 3, veil: "" },
+  // and from the observable universe, the supervoid is lost at its middle, where we are: it glides back (D-130)
+  { id: "supervoid", name: "The Supervoid", href: null, anchor: "voidspot", stop: 4, veil: "" },
 ];
 
-/* The universe (DESIGN_SPEC.md 7): one scene, four stops, the places you can click. */
+/* The universe (DESIGN_SPEC.md 7): one scene, five stops, the places you can click. */
 export default function Home() {
   return (
     <>
