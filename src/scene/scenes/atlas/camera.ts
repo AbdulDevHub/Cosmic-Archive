@@ -23,9 +23,9 @@ export const KEYS_DESK: readonly Key[] = [
   { d: 1.95, el: 31, az: 0.1, sx: 0.06, sy: 0.16 },
   { d: 3.55, el: 44, az: 0.22, sx: 0.0, sy: 0.04 },
   { d: 2600, el: 55, az: 0.55, sx: 0.0, sy: 0.1 },
-  // the supervoid (D-119): far enough that the whole web is a patch of one wall, shifted right so
-  // the great empty bubble beside it fills the middle of the frame (world.ts places the bubble)
-  { d: 11000, el: 62, az: 0.7, sx: 0.5, sy: 0.04 },
+  // the supervoids (D-119, D-132): far enough that the whole web is a patch of wall, centred where
+  // the walls of three voids meet (world.ts places the voids)
+  { d: 11000, el: 62, az: 0.7, sx: 0.0, sy: 0.04 },
   // the observable universe (D-130): further off still (inside the far plane), our web in the
   // middle of the frame, for it is the middle of the sphere world.ts draws around it
   { d: 24000, el: 66, az: 0.8, sx: 0.0, sy: 0.0 },
@@ -35,8 +35,8 @@ export const KEYS_PHONE: readonly Key[] = [
   { d: 3.0, el: 36, az: 0.0, sx: 0.0, sy: 0.22 },
   { d: 8.3, el: 52, az: 0.22, sx: 0.0, sy: 0.1 },
   { d: 3000, el: 60, az: 0.55, sx: 0.0, sy: 0.2 },
-  // on a phone the bubble sits below the web, which rises toward the top
-  { d: 12500, el: 64, az: 0.7, sx: 0.0, sy: 0.5 },
+  // on a phone too the web sits where the three walls meet
+  { d: 12500, el: 64, az: 0.7, sx: 0.0, sy: 0.0 },
   { d: 26000, el: 66, az: 0.8, sx: 0.0, sy: 0.08 },
 ];
 

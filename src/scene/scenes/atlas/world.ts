@@ -85,11 +85,6 @@ const GRAV_TH = armAngle(2, GRAV_R) + 0.9;
 // D-127: a quasi-star, far out at the disc's edge (the early universe, in spirit)
 const QUASI_R = 1.02;
 const QUASI_TH = armAngle(1, QUASI_R) + 0.6;
-// D-128: Earth and its Moon, out near the Yellow Star in the outer disc
-const EARTH_R = 0.7;
-const EARTH_TH = SUN_TH + 0.16;
-const MOON_R = 0.79;
-const MOON_TH = SUN_TH + 0.3;
 type Anchor = { local: Vec3; spin: boolean } | { web: "quasar" | "home" };
 const ANCHORS: Record<string, Anchor> = {
   /** The heart of the galaxy. */
@@ -110,10 +105,6 @@ const ANCHORS: Record<string, Anchor> = {
   gravastar: { local: [GRAV_R * Math.cos(GRAV_TH), 0, GRAV_R * Math.sin(GRAV_TH)], spin: true },
   /** A hypothetical quasi-star out at the edge of the disc (D-127). */
   quasi: { local: [QUASI_R * Math.cos(QUASI_TH), 0, QUASI_R * Math.sin(QUASI_TH)], spin: true },
-  /** Earth, near the Yellow Star (D-128). */
-  earth: { local: [EARTH_R * Math.cos(EARTH_TH), 0, EARTH_R * Math.sin(EARTH_TH)], spin: true },
-  /** The Moon, beside Earth (D-129). */
-  moon: { local: [MOON_R * Math.cos(MOON_TH), 0, MOON_R * Math.sin(MOON_TH)], spin: true },
   /** A far galaxy of the web, placed where the zoomed-out composition wants it. */
   quasar: { web: "quasar" },
   /** The galaxy the visitor came from. */
@@ -135,7 +126,6 @@ const QUASAR_WANT = { wide: [0.4, -0.38], narrow: [0.42, 0.55] } as const;
 const VOID_STOP = 3;
 /** How many times larger than whole the universe's sphere is as the zoom leaves the supervoid (D-130). */
 const UNIVERSE_FROM = 28;
-const VOID_FROM_WEB = { wide: [-1.2, -0.05], narrow: [0.0, -1.2] } as const;
 
 export function makeFrame(): SceneFrame {
   const points: SceneFrame["points"] = {};
@@ -459,50 +449,58 @@ precision highp float;
 uniform vec2 uHome;    // our web on screen, device pixels from the bottom left
 uniform float uUnit;   // device pixels per unit (half the window's height)
 uniform float uGrow;   // how much nearer than the supervoid stop the camera is
-uniform vec2 uDir;     // the bubble's centre from our web, in units
-uniform float uSwell;  // how far the void has grown since the visitor arrived: -0.35 to 1 (D-124)
+uniform float uSwell;  // how far the voids have grown since the visitor arrived: -0.35 to 1 (D-124)
 uniform vec2 uPan;     // the drag's turn and tilt
 uniform float uTime;
 uniform float uAlpha;
 uniform int uDetail;
 
-const float VOID_R = 1.15; // the void's radius, in units of half the window's height
 ${FOAM_CHUNK}
+// three supervoids round our web (owner, D-132), each the same distance from it, so the walls left
+// between them meet exactly at our web
+const vec2 C0 = vec2(-0.985, 0.174);
+const vec2 C1 = vec2(0.643, 0.766);
+const vec2 C2 = vec2(0.342, -0.94);
+const float WALL = 0.05; // half the width of the wall left between two grown voids, in units
+
 void main(){
   // from our web, in units, scaled about it by the camera's distance
   vec2 w = (gl_FragCoord.xy - uHome) / uUnit / uGrow;
-  // the void swells away from our web, which stays on its wall as the wall is pushed out
-  float swell = exp(uSwell * 0.45);
-  float R = VOID_R * swell;
-  vec2 u = w - uDir * swell;    // from the bubble's centre
-  float r = length(u);
   float t = uTime;
+  // each void grows in place, from a dark hole in the foam until it presses on its neighbours
+  float grow = clamp((uSwell + 0.35) / 1.35, 0.0, 1.0);
+  float R = mix(0.42, 1.55, grow);
+  float jit = 0.16 * (noise3(vec3(w * 1.6, 1.0)) - 0.5) + 0.06 * (noise3(vec3(w * 5.0, 2.0)) - 0.5);
+  float d0 = length(w - C0);
+  float d1 = length(w - C1);
+  float d2 = length(w - C2);
+  float r1 = min(d0, min(d1, d2));
+  float r2 = max(min(d0, d1), min(max(d0, d1), d2));
+  // the wall between the two nearest voids: what survives once they meet is the cosmic web
+  float gap = (r2 - r1) * 0.5;
+  float sd = max(r1 + jit - R, WALL - gap + 0.3 * jit);
+  float inside = 1.0 - smoothstep(-0.12, 0.02, sd);
+  // the bigger the voids, the harder their walls are crowded and the brighter they burn
+  float rim = exp(-pow((sd - 0.06) / 0.12, 2.0)) * mix(0.8, 1.5, grow);
 
-  // the supervoid (owner, D-121): one enormous patch of nothing, near black, the sky itself blotted
-  // out; the busy universe crowds only round its edge. Its outline wanders a little.
-  float edge = r + 0.18 * (noise3(vec3(u * 1.6, 1.0)) - 0.5) + 0.06 * (noise3(vec3(u * 5.0, 2.0)) - 0.5);
-  float inside = 1.0 - smoothstep(R - 0.4 * swell, R + 0.04, edge);
-  // the bigger the void, the harder its wall is crowded and the brighter it burns
-  float rim = exp(-pow((edge - R - 0.08 * swell) / 0.14, 2.0)) * mix(0.8, 1.5, smoothstep(0.7, 1.6, swell));
-
-  // outside: a dense web of finer cells, galaxies crowding thickest along the void's wall; the far
-  // layers drift and turn in a drag, the near one holds our web on that wall
+  // outside: a dense web of finer cells, galaxies crowding thickest along the walls; the far
+  // layers drift and turn in a drag, the near one holds our web where the walls meet
   vec2 pan = vec2(uPan.x, -uPan.y);
   float out1 = 1.0 - inside;
   vec3 col = vec3(0.0);
-  if (uDetail > 0) col += webLayer(u + pan * 0.35 + vec2(t * 0.003, 0.0), 10.0, 0.03, 0.3) * out1;
-  col += webLayer(u + pan * 0.15 + 3.1, 6.0, 0.035, 0.5) * out1 * (0.55 + 1.1 * rim);
-  col += webLayer(u + 7.3, 3.4, 0.04, 0.75) * out1 * (0.45 + 1.4 * rim);
-  // a soft glow of gas along the wall
+  if (uDetail > 0) col += webLayer(w + pan * 0.35 + vec2(t * 0.003, 0.0), 10.0, 0.03, 0.3) * out1;
+  col += webLayer(w + pan * 0.15 + 3.1, 6.0, 0.035, 0.5) * out1 * (0.55 + 1.1 * rim);
+  col += webLayer(w + 7.3, 3.4, 0.04, 0.75) * out1 * (0.45 + 1.4 * rim);
+  // a soft glow of gas along the walls
   col += mix(VIOLET, AZURE, 0.4) * rim * 0.16;
   // a rare, faint, lonely galaxy deep in the dark
-  vec2 lp = (u + pan * 0.2) * 9.0;
+  vec2 lp = (w + pan * 0.2) * 9.0;
   vec2 lid = floor(lp);
   float lone = step(0.993, hash3(vec3(lid, 9.0))) * exp(-length(fract(lp) - 0.5) * 18.0) * inside;
   col += GOLD * lone * 0.7;
 
   col = col / (1.0 + max(col - 0.85, 0.0) * 0.9);
-  // premultiplied: inside, the void covers what is behind it (the sky's clouds) with near black
+  // premultiplied: inside, the voids cover what is behind them (the sky's clouds) with near black
   float cover = inside * 0.94 * uAlpha;
   gl_FragColor = vec4(col * uAlpha, cover);
 }
@@ -518,7 +516,6 @@ function supervoid(): Mesh<BufferGeometry, ShaderMaterial> {
       uHome: { value: new Vector2() },
       uUnit: { value: 1 },
       uGrow: { value: 1 },
-      uDir: { value: new Vector2() },
       uSwell: { value: 0 },
       uPan: { value: new Vector2() },
       uTime: { value: 0 },
@@ -762,8 +759,6 @@ export class AtlasWorld {
       this.quasar.copy(camera.position).addScaledVector(dir, -camera.position.y / dir.y);
     }
     this.quasarDot.object.position.copy(this.quasar);
-    const [dx, dy] = isPhone(width, height) ? VOID_FROM_WEB.narrow : VOID_FROM_WEB.wide;
-    (this.voidLayer.material.uniforms.uDir.value as Vector2).set(dx, dy);
   }
 
   /** Where a named place is in the world at scene time `t`. */
@@ -874,13 +869,15 @@ export class AtlasWorld {
     this.spinEuler.set(-view.pitch * 0.5, -view.yaw * 0.5, 0, "XYZ");
     this.spin.setFromMatrix4(this.spinM4.makeRotationFromEuler(this.spinEuler));
     (u.uSpin.value as Matrix3).copy(this.spin).transpose();
-    // the supervoid: its true size while the zoom leaves it (at its wall, beside our web), swelling
-    // to the one great dark patch the owner asked for once the ball is whole (D-131)
+    // the supervoid: as the zoom leaves the supervoids it is the left one at its true size (D-132),
+    // then it settles to a modest dark patch beside our web once the ball is whole (D-131: one main
+    // void; the owner asked for it smaller, D-132)
     const ball = u.uRadius.value as number;
     const grown = 1 - sstep(1.5, 4.0, ball);
-    const rad = mix(1.15 / (whole * UNIVERSE_FROM), 0.2, grown);
-    const off = rad * 1.04;
-    this.voidDir.set(-off, 0.03, Math.sqrt(Math.max(0, 1 - off * off - 0.0009))).normalize();
+    const scale = whole * UNIVERSE_FROM;
+    const rad = mix(1.55 / scale, 0.11, grown);
+    const off = mix(1.0 / scale, 0.115, grown);
+    this.voidDir.set(-0.985 * off, 0.174 * off, Math.sqrt(Math.max(0, 1 - off * off))).normalize();
     (u.uVoid.value as Vector4).set(this.voidDir.x, this.voidDir.y, this.voidDir.z, rad);
     u.uTime.value = t;
     u.uAlpha.value = alpha;
