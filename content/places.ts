@@ -30,8 +30,8 @@ export interface Stop {
   sources: readonly string[];
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole";
-export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "dyson" | "wormhole";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar";
+export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "dyson" | "wormhole" | "gravastar";
 
 export interface Place {
   id: PlaceId;
@@ -137,6 +137,13 @@ export const SOURCES: readonly Source[] = [
     url: "https://arxiv.org/abs/1611.04336",
     checked: "2026-11-22",
   },
+  {
+    id: "arxiv-gravastar",
+    title: "Gravitational Vacuum Condensate Stars",
+    publisher: "Pawel O. Mazur (University of South Carolina) and Emil Mottola (Los Alamos National Laboratory), arXiv",
+    url: "https://arxiv.org/abs/gr-qc/0109035",
+    checked: "2026-11-22",
+  },
 ];
 
 export const STOPS: readonly Stop[] = [
@@ -239,6 +246,16 @@ export const PLACES: readonly Place[] = [
     anchor: "wormhole",
     stop: 1,
     veil: "#0a0a16",
+  },
+  {
+    id: "gravastar",
+    name: "Gravastar",
+    // the source (Mazur and Mottola): "a cold, compact object with an interior de Sitter condensate phase", "separated by a phase boundary with a small but finite thickness of fluid", with "no singularities, no event horizons"; a proposal, so the line says "possible"
+    line: "A possible black hole alternative: a vacuum bubble inside a thin shell.",
+    sources: ["arxiv-gravastar"],
+    anchor: "gravastar",
+    stop: 1,
+    veil: "#080614",
   },
 ];
 
