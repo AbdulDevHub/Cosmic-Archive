@@ -1,4 +1,4 @@
-/* The menu (D-116): the flared glass dock from Home.png, flipped to hang from the top of the window. */
+/* The menu (D-116): the flared glass dock from Home.png, flipped; since D-123 a little smaller and set off the top edge. */
 
 .dock {
   position: relative;
@@ -8,7 +8,10 @@
   width: 540px;
   height: 98px;
   padding: 0 34px 4px;
-  margin-top: -22px; /* the header's own top padding: the dock meets the window's edge */
+  /* D-123: a little smaller, and off the window's edge (it no longer hangs from it) */
+  margin-top: -8px;
+  scale: 0.84;
+  transform-origin: top center;
   isolation: isolate;
 }
 
