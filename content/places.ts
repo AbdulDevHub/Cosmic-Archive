@@ -30,8 +30,8 @@ export interface Stop {
   sources: readonly string[];
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "quasi-star" | "earth";
-export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "dyson" | "wormhole" | "gravastar" | "quasi" | "earth";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "quasi-star" | "earth" | "moon";
+export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "dyson" | "wormhole" | "gravastar" | "quasi" | "earth" | "moon";
 
 export interface Place {
   id: PlaceId;
@@ -156,6 +156,13 @@ export const SOURCES: readonly Source[] = [
     title: "Facts About Earth",
     publisher: "NASA Science",
     url: "https://science.nasa.gov/earth/facts/",
+    checked: "2026-11-22",
+  },
+  {
+    id: "nasa-moon-facts",
+    title: "Moon Facts",
+    publisher: "NASA Science",
+    url: "https://science.nasa.gov/moon/facts/",
     checked: "2026-11-22",
   },
 ];
@@ -290,6 +297,16 @@ export const PLACES: readonly Place[] = [
     anchor: "earth",
     stop: 1,
     veil: "#020814",
+  },
+  {
+    id: "moon",
+    name: "Moon",
+    // the source: "The dark features, called maria (Latin for seas), are impact basins that were filled with lava between 4.2 and 1.2 billion years ago."
+    line: "Its dark seas are impact basins once flooded with lava.",
+    sources: ["nasa-moon-facts"],
+    anchor: "moon",
+    stop: 1,
+    veil: "#0a0a0e",
   },
 ];
 

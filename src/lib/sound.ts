@@ -36,6 +36,7 @@ const TRACKS: Record<string, string> = {
   "gravastar": "/music/gravastar",
   "quasi-star": "/music/quasi-star",
   "earth": "/music/earth",
+  "moon": "/music/moon",
   supervoid: "/music/web",
 };
 const SWAP_OUT = 0.9; // seconds: the old track fades out, then the new one fades in
