@@ -39,6 +39,7 @@ export const PLACE_OG: Readonly<Record<string, { name: string; alt: string }>> =
   "gravastar": { name: "gravastar", alt: "Our own illustration of a hypothetical gravastar: a dark bubble inside a thin, shining shell." },
   "quasi-star": { name: "quasi-star", alt: "Our own illustration of a hypothetical quasi-star: a vast red star with a black hole feeding at its heart." },
   "earth": { name: "earth", alt: "Our own illustration of Earth: blue oceans, clouds, city lights on its night side and a thin bright atmosphere." },
+  "moon": { name: "moon", alt: "Our own illustration of the Moon: grey, cratered, with dark maria, lit hard from one side." },
 };
 
 /** A JSON-LD block, safe to put in a <script> (no closing tag can end it early). */
