@@ -65,8 +65,6 @@ const KEY_ZOOM = 0.25;
 const KEY_YAW = 0.15;
 const KEY_PITCH = 0.06;
 const PINCH_ZOOM = 1.1; // stops per halving of the distance between two fingers
-const DRAG_GROW = 0.0012; // the supervoid's swell per pixel dragged: heavy, about 800 px from rest to full (D-122, D-123)
-const KEY_GROW = 0.08;
 
 /** Past this zoom the visitor is out on the cosmic web; past the next, out in the supervoid (D-119). */
 const WEB_AT = 1.5;
@@ -241,9 +239,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
         if (touch && swipe.current > 60) beginRef.current();
         return;
       }
-      const { yaw, pitch, zoom, grow } = getSceneInput();
-      // out in the supervoid a drag does not turn the view: right or up swells the void, left or down shrinks it (D-122)
-      if (levelAt(zoom) === 3) return setSceneInput({ grow: grow + (dx - dy) * DRAG_GROW });
+      const { yaw, pitch } = getSceneInput();
       setSceneInput(touch ? { yaw: yaw - dx * DRAG_YAW } : { yaw: yaw - dx * DRAG_YAW, pitch: pitch + dy * DRAG_PITCH });
     },
     pinch: (steps) => {
@@ -269,10 +265,8 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
     const onKey = (event: KeyboardEvent) => {
       if (event.ctrlKey || event.metaKey || event.altKey || flowBusy() || phaseRef.current !== "atlas") return;
       if ((event.target as HTMLElement).closest("input, textarea, select, [contenteditable]")) return;
-      const { zoom, yaw, pitch, grow } = getSceneInput();
-      const swell = levelAt(zoom) === 3 ? { ArrowRight: KEY_GROW, ArrowUp: KEY_GROW, ArrowLeft: -KEY_GROW, ArrowDown: -KEY_GROW }[event.key] : undefined;
-      if (swell !== undefined) setSceneInput({ grow: grow + swell });
-      else if (event.key === "+" || event.key === "=") setSceneInput({ zoom: zoom - KEY_ZOOM });
+      const { zoom, yaw, pitch } = getSceneInput();
+      if (event.key === "+" || event.key === "=") setSceneInput({ zoom: zoom - KEY_ZOOM });
       else if (event.key === "-" || event.key === "_") setSceneInput({ zoom: zoom + KEY_ZOOM });
       else if (event.key === "Escape") back();
       else if (event.key === "ArrowLeft") setSceneInput({ yaw: yaw - KEY_YAW });

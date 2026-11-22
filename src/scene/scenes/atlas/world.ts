@@ -271,7 +271,7 @@ uniform vec2 uHome;    // our web on screen, device pixels from the bottom left
 uniform float uUnit;   // device pixels per unit (half the window's height)
 uniform float uGrow;   // how much nearer than the supervoid stop the camera is
 uniform vec2 uDir;     // the bubble's centre from our web, in units
-uniform float uSwell;  // the visitor's drag: -1 shrinks the void, 1 swells it (D-122)
+uniform float uSwell;  // how far the void has grown since the visitor arrived: -0.35 to 1 (D-124)
 uniform vec2 uPan;     // the drag's turn and tilt
 uniform float uTime;
 uniform float uAlpha;
@@ -433,6 +433,8 @@ export class AtlasWorld {
   private readonly sky: Mesh<BufferGeometry, ShaderMaterial>;
   /** Level 3, the supervoid (D-119). */
   private readonly voidLayer = supervoid();
+  /** Scene time the visitor came out to the supervoid, or null while they are not there. */
+  private voidSince: number | null = null;
   private bufferWidth = 1;
   private bufferHeight = 1;
   /** The start page's planet, moons, asteroids and ship (D-107); drawn only while `intro` is above 0. */
@@ -640,6 +642,11 @@ export class AtlasWorld {
 
   /** The supervoid's foam, pinned to our web's place on screen and scaled by the camera's distance. */
   private frameVoid(camera: PerspectiveCamera, t: number, view: SceneInput, width: number, height: number, alpha: number): void {
+    // D-124: the void grows on its own while the visitor is out there, quickly at first so it is
+    // seen, then ever more slowly, a darkness creeping; it starts again on the next visit out
+    if (view.zoom < 2.3) this.voidSince = null;
+    else this.voidSince ??= t;
+    const out = this.voidSince === null ? 0 : t - this.voidSince;
     const mesh = this.voidLayer;
     mesh.visible = alpha > 0.0005;
     if (!mesh.visible) return;
@@ -650,7 +657,7 @@ export class AtlasWorld {
     const last = (isPhone(width, height) ? KEYS_PHONE : KEYS_DESK)[LAST_STOP].d;
     u.uGrow.value = last / Math.max(1, camera.position.length());
     (u.uPan.value as Vector2).set(view.yaw * 0.6, view.pitch * 0.6);
-    u.uSwell.value = view.grow;
+    u.uSwell.value = mix(-0.35, 1, 1 - Math.exp(-out / 9));
     u.uTime.value = t;
     u.uAlpha.value = alpha;
   }
