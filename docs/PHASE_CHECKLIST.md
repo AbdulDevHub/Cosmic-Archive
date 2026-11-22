@@ -67,8 +67,8 @@ Last commit: `48c1cd5`. Everything is committed; nothing is pushed or deployed. 
 - [ ] **Sound that rises with power:** partly done by per-scene music (D-116); the owner may still want swells at the black hole and quasar.
 - [ ] Phone polish pass, only at the end and only where it costs the laptop nothing (D-110).
 - [x] **Done in D-132:** **A solar system level (owner, 2026-11-22):** the galaxy -> a solar system -> its planet -> its moon, instead of Earth and Moon as hotspots in the galaxy. Our galaxy does not look like the Milky Way, so the planet may be an Earth-like world rather than Earth itself.
-- [ ] **An asteroid (owner, 2026-11-22):** a new place (likely inside the solar system level).
-- [ ] **A sci-fi galaxy behind the wormhole (owner, 2026-11-22):** the Wormhole leads to a second galaxy, built later, for sci-fi places: a starbase, the Dyson Sphere (moved there from the spiral galaxy), and more the owner will name.
+- [x] **An asteroid (owner, 2026-11-22), done in D-133:** tumbling past the Blue World's moon.
+- [ ] **A sci-fi galaxy behind the wormhole (owner, 2026-11-22):** started in D-133: the Wormhole leads to **A Quasar Galaxy**, which holds the Quasar and the Dyson Sphere. Still to come: a starbase and more sci-fi places the owner will name.
 - [x] **Redesign the supervoid (owner, 2026-11-22), done in D-132:** three voids growing in place until their walls are the cosmic web.
 - [ ] **A video button per scene (owner's idea, 2026-11-22, not decided):** a small round button right of Zoom Out that opens a YouTube video for that scene in a new tab, mostly Kurzgesagt (they explain things in a cool way, and they inspired the site).
 - [ ] **Lines in a cool voice (owner, 2026-11-22):** the owner prefers lines that say what a thing is in a vivid way over dry facts. Still sourced and true; rewrite the weakest when next touching content.

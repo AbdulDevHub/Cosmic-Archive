@@ -42,7 +42,8 @@ src/
 | `/black-hole` | `black-hole` | `place` |
 | `/nebula` | `nebula` | `place` |
 | `/quasar` | `quasar` (the black-hole shader seen from far off) | `place` |
-| `/solar-system` | `solar-system`: holds `/star` and `/blue-world`, which holds `/moon` (D-132) | `place` |
+| `/solar-system` | `solar-system`: holds `/star` and `/blue-world`, which holds `/moon`, which holds `/asteroid` (D-132, D-133) | `place` |
+| `/quasar-galaxy` | `quasar-galaxy`: found at the web and through `/wormhole`; holds `/quasar` and `/dyson-sphere` (D-133) | `place` |
 
 All routes are static (`generateStaticParams` for `[place]`, `dynamicParams = false`). No server runtime, no API routes. The routes of v1 (`/explore`, `/subjects/*`, `/journeys/*`, `/archive`) and then `/about` were removed before anything was deployed, so they have no redirects (D-093, D-095, D-099). The 404 page is the one page without a scene.
 
@@ -150,7 +151,7 @@ Scene routes carry their page code above the no-scene figure (D-047). Targets: 6
 `content/places.ts` is all the site's words (D-095):
 
 - `STOPS`: the atlas's stops (the galaxy, the cosmic web, the supervoid since D-119, the observable universe since D-130), each `{ zoom, name, line, sources }`.
-- `PLACES`: each `{ id, name, line, sources, anchor, stop, veil, inside? }`. `id` is the route and the scene id. A place with `inside` (D-132) is found in that place's scene, not the atlas: its `anchor` is a body the parent's scene names (`bodies` in `scenes/shared/orb.tsx`), its hotspot stands there, a click dives into it, and its Zoom Out goes back to the parent, framed.
+- `PLACES`: each `{ id, name, line, sources, anchor, stop, veil, inside? }`. `id` is the route and the scene id. A place with `inside` (D-132) is found in that place's scene, not the atlas: its `anchor` is a body the parent's scene names (`bodies` in `scenes/shared/orb.tsx`), its hotspot stands there, a click dives into it, and its Zoom Out goes back to the parent, framed. A place with `through` and `throughAnchor` (D-133) is also reached from that place's body; arrived that way (the session remembers, `cosmic-archive:via:<id>`), its Zoom Out goes back through it.
 - `SOURCES`: `{ id, title, publisher, url, checked }`. Not shown on the site since About went (D-099); still checked by the build.
 
 `src/lib/content/place-check.ts` holds the rule; the build (`src/lib/content/places.ts`) and `npm run check` (`scripts/check-content.mjs`) both run it. It fails when a line is longer than twelve words, names no source or one that is not listed, a source has no checked date or is listed twice, or a source backs no line.
