@@ -3,9 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { setMusic } from "@/lib/sound";
-import { flowBusy, pullOut } from "@/scene/host/flow";
+import { diveInto, flowBusy, pullOut } from "@/scene/host/flow";
 import { SceneSlot } from "@/scene/host/SceneSlot";
-import { getSceneInput, sceneIsLive, setSceneInput, useSceneState, type SceneId } from "@/scene/host/store";
+import { getSceneFrame, getSceneInput, sceneIsLive, setSceneInput, subscribeSceneFrame, useSceneState, type SceneFrame, type SceneId } from "@/scene/host/store";
 import { ZoomOutIcon } from "../icons";
 import { DragHint } from "./DragHint";
 import styles from "./screen.module.css";
@@ -21,6 +21,10 @@ import { useGestures } from "./useGestures";
   the same, and so does pulling the wheel on past the framing.
 
   Without the scene it is the poster, the same words, and "Zoom Out" as a plain link home.
+
+  Places inside places (D-132): a place may hold others (the solar system its star and planet, the
+  planet its moon). Their hotspots stand on the bodies the scene names; a click dives into the body
+  and opens its page, and that page's Zoom Out comes back here, as the atlas's places do.
 */
 
 export interface PlaceWords {
@@ -28,12 +32,23 @@ export interface PlaceWords {
   line: string;
   scene: SceneId;
   anchor: string;
-  stop: number;
-  /** Where "Further" goes at the framing: the atlas. */
+  /** Where Zoom Out goes: the atlas, or the place this one is inside (D-132). */
   outTo: string;
+  /** The zoom it opens there at: the atlas stop it was found at, or that place's framing. */
+  outZoom: number;
+  /** The darkness of the scene Zoom Out goes back to. */
+  outVeil: string;
 }
 
-const ATLAS_VEIL = "#090a1c"; // --space: the atlas's own darkness
+/** A place inside this one (D-132): its hotspot stands on the scene's body `anchor`. */
+export interface InnerSpot {
+  id: string;
+  name: string;
+  href: string;
+  anchor: string;
+  veil: string;
+}
+
 const WHEEL_ZOOM = 0.0012; // as on the atlas: one notch is about an eighth of the way
 const WHEEL_OUT = 260; // pixels of wheel pulled on past the framing before the place is left
 const WHEEL_GAP = 350; // ms of no wheel after zooming out to the framing before a pull can leave
@@ -44,7 +59,7 @@ const KEY_TURN = 0.15;
 /** Zoom on a place: 0 all the way closer, 1 its own framing. */
 const FRAMED = 1;
 
-export function PlaceView({ place }: { place: PlaceWords }) {
+export function PlaceView({ place, inner = [] }: { place: PlaceWords; inner?: readonly InnerSpot[] }) {
   const stage = useRef<HTMLDivElement>(null);
   const live = useSceneState(sceneIsLive);
   const router = useRouter();
@@ -56,8 +71,9 @@ export function PlaceView({ place }: { place: PlaceWords }) {
 
   const leave = () => {
     if (flowBusy()) return;
-    // back to the view the place is seen from: the web for the quasar, close in for the rest (D-112)
-    pullOut((href) => routerRef.current.push(href), place.outTo, place.anchor, place.stop === 2 ? 2 : 0, ATLAS_VEIL);
+    // back to the view the place is seen from: the web for the quasar, close in for the rest (D-112),
+    // or the place it is inside, framed (D-132)
+    pullOut((href) => routerRef.current.push(href), place.outTo, place.anchor, place.outZoom, place.outVeil);
   };
   const zoomTo = (zoom: number) => {
     if (flowBusy()) return;
@@ -106,6 +122,51 @@ export function PlaceView({ place }: { place: PlaceWords }) {
     },
   });
 
+  // The places inside this one: each frame, stood on its body; a click dives into it (D-132).
+  const spotList = useRef<HTMLUListElement>(null);
+  useEffect(() => {
+    if (!live || inner.length === 0) return;
+    const items = [...(spotList.current?.querySelectorAll<HTMLElement>("[data-anchor]") ?? [])];
+    const apply = (frame: SceneFrame) => {
+      const busy = flowBusy();
+      for (const item of items) {
+        const point = frame.points[item.dataset.anchor ?? ""];
+        const inside = point && point.on && point.x > 8 && point.y > 8 && point.x < frame.width - 8 && point.y < frame.height - 8;
+        if (!busy && inside) {
+          delete item.dataset.hidden;
+          item.tabIndex = 0;
+          item.style.transform = `translate(${point.x.toFixed(1)}px, ${point.y.toFixed(1)}px)`;
+        } else {
+          item.dataset.hidden = "";
+          item.tabIndex = -1;
+        }
+      }
+    };
+    const frame = getSceneFrame();
+    if (frame) apply(frame);
+    const unsubscribe = subscribeSceneFrame(apply);
+    const onClick = (event: MouseEvent) => {
+      const item = (event.target as Element).closest<HTMLElement>("[data-anchor]");
+      if (!item || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      const spot = inner.find((entry) => entry.anchor === item.dataset.anchor);
+      if (!spot) return;
+      event.preventDefault();
+      if (flowBusy()) return;
+      diveInto((href) => routerRef.current.push(href), spot.href, spot.anchor, spot.veil);
+    };
+    const list = spotList.current;
+    list?.addEventListener("click", onClick);
+    return () => {
+      unsubscribe();
+      list?.removeEventListener("click", onClick);
+      for (const item of items) {
+        delete item.dataset.hidden;
+        item.style.transform = "";
+        item.removeAttribute("tabindex");
+      }
+    };
+  }, [live, inner]);
+
   // Keys: + and − zoom (− at the framing leaves), the arrows turn, Escape leaves.
   useEffect(() => {
     if (!live) return;
@@ -136,6 +197,18 @@ export function PlaceView({ place }: { place: PlaceWords }) {
       <div className={styles.caption}>
         <h1>{place.name}</h1>
         <p>{place.line}</p>
+        {inner.length > 0 ? (
+          <ul ref={spotList} className={styles.spots} data-live={live ? "" : undefined} aria-label="Places">
+            {inner.map((spot) => (
+              <li key={spot.id}>
+                <a className={styles.spot} href={spot.href} data-anchor={spot.anchor}>
+                  <i className={styles.mark} aria-hidden="true" />
+                  <span className={styles.name}>{spot.name}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </div>
       <DragHint live={live} />
       <div className={styles.controls}>

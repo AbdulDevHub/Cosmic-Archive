@@ -38,8 +38,9 @@ export const PLACE_OG: Readonly<Record<string, { name: string; alt: string }>> =
   "wormhole": { name: "wormhole", alt: "Our own illustration of a hypothetical wormhole: a ring of lensed light round a throat that shows another sky." },
   "gravastar": { name: "gravastar", alt: "Our own illustration of a hypothetical gravastar: a dark bubble inside a thin, shining shell." },
   "quasi-star": { name: "quasi-star", alt: "Our own illustration of a hypothetical quasi-star: a vast red star with a black hole feeding at its heart." },
-  "earth": { name: "earth", alt: "Our own illustration of Earth: blue oceans, clouds, city lights on its night side and a thin bright atmosphere." },
-  "moon": { name: "moon", alt: "Our own illustration of the Moon: grey, cratered, with dark maria, lit hard from one side." },
+  "solar-system": { name: "solar-system", alt: "Our own illustration of a solar system: a yellow star, four planets, a ringed giant and a belt of asteroids." },
+  "blue-world": { name: "blue-world", alt: "Our own illustration of an Earthlike world: blue oceans, clouds, city lights on its night side, and its moon." },
+  "moon": { name: "moon", alt: "Our own illustration of a moon: grey, cratered, with dark lava plains, lit hard from one side." },
 };
 
 /** A JSON-LD block, safe to put in a <script> (no closing tag can end it early). */

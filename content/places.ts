@@ -30,17 +30,25 @@ export interface Stop {
   sources: readonly string[];
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "quasi-star" | "earth" | "moon";
-export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "dyson" | "wormhole" | "gravastar" | "quasi" | "earth" | "moon";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "quasi-star" | "solar-system" | "blue-world" | "moon";
+export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "dyson" | "wormhole" | "gravastar" | "quasi";
+/** Bodies a place's own scene names, where the places inside it stand (D-132). */
+export type InnerAnchor = "star" | "planet" | "moon";
 
 export interface Place {
   id: PlaceId;
   name: string;
   line: string;
   sources: readonly string[];
-  /** Where its hotspot stands in the atlas, and at which stop it shows. */
-  anchor: AtlasAnchor;
+  /**
+   * Where its hotspot stands: in the atlas (and at which stop it shows), or, for a place inside
+   * another (`inside`, D-132), on a body of that place's scene. `stop` is then the stop its
+   * outermost parent is found at.
+   */
+  anchor: AtlasAnchor | InnerAnchor;
   stop: StopIndex;
+  /** The place whose scene this one is found in (D-132): Zoom Out goes back there. */
+  inside?: PlaceId;
   /** The colour the screen passes through on the way in and out: the place's own darkness. */
   veil: string;
 }
@@ -152,10 +160,17 @@ export const SOURCES: readonly Source[] = [
     checked: "2026-11-22",
   },
   {
-    id: "nasa-earth-facts",
-    title: "Facts About Earth",
+    id: "nasa-solar-system-facts",
+    title: "Solar System Facts",
     publisher: "NASA Science",
-    url: "https://science.nasa.gov/earth/facts/",
+    url: "https://science.nasa.gov/solar-system/solar-system-facts/",
+    checked: "2026-11-22",
+  },
+  {
+    id: "nasa-habitable-zone",
+    title: "The Habitable Zone",
+    publisher: "NASA Science",
+    url: "https://science.nasa.gov/exoplanets/habitable-zone/",
     checked: "2026-11-22",
   },
   {
@@ -242,8 +257,10 @@ export const PLACES: readonly Place[] = [
     // the source: "hydrogen is fused to form helium – power the Sun's heat and light"
     line: "Like our Sun: fusing hydrogen into helium to make its light.",
     sources: ["nasa-sun-facts"],
-    anchor: "sun",
+    // the solar system's star (D-132)
+    anchor: "star",
     stop: 1,
+    inside: "solar-system",
     veil: "#160b04",
   },
   {
@@ -297,23 +314,37 @@ export const PLACES: readonly Place[] = [
     veil: "#160604",
   },
   {
-    id: "earth",
-    name: "Earth",
-    // the source: "Earth is special because it is an ocean planet"; "Earth's global ocean, which covers about 71% of the planet's surface"
-    line: "An ocean planet: its global ocean covers about 71% of its surface.",
-    sources: ["nasa-earth-facts"],
-    anchor: "earth",
+    // D-132: the galaxy's Yellow Star, Earth and Moon became one place with places inside it
+    id: "solar-system",
+    name: "A Solar System",
+    // the source: "Our solar system has one star, eight planets, five dwarf planets, hundreds of moons and thousands of comets and asteroids."
+    line: "One star ruling its planets, moons, comets and asteroids.",
+    sources: ["nasa-solar-system-facts"],
+    anchor: "sun",
     stop: 1,
+    veil: "#0a0810",
+  },
+  {
+    // D-132: an Earthlike world, not Earth: our galaxy is not drawn as the Milky Way (owner)
+    id: "blue-world",
+    name: "A Blue World",
+    // the source: "the distance from a star at which liquid water could exist on orbiting planets' surfaces"
+    line: "A world in its star's habitable zone, where seas can stay liquid.",
+    sources: ["nasa-habitable-zone"],
+    anchor: "planet",
+    stop: 1,
+    inside: "solar-system",
     veil: "#020814",
   },
   {
     id: "moon",
-    name: "Moon",
-    // the source: "The dark features, called maria (Latin for seas), are impact basins that were filled with lava between 4.2 and 1.2 billion years ago."
-    line: "Its dark seas are impact basins once flooded with lava.",
+    name: "Its Moon",
+    // the source: "The Moon has a solid, rocky surface cratered and pitted from impacts by asteroids, meteorites, and comets."
+    line: "Its rocky face is cratered and pitted by asteroids and comets.",
     sources: ["nasa-moon-facts"],
     anchor: "moon",
     stop: 1,
+    inside: "blue-world",
     veil: "#0a0a0e",
   },
 ];

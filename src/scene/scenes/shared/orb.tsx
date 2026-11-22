@@ -6,11 +6,16 @@
  * drag turns it (`uYaw`, `uPitch`), dragging down tipping its top toward the visitor (D-113).
  *
  * Each scene gives only its fragment shader and its composition; this file is the rest.
+ *
+ * Places inside places (D-132): a scene may name bodies (`bodies`), handed to its shader as
+ * `uMark[i]` (x, y in radii with y up, z toward the visitor) and, when named, stood on as hotspots.
+ * A dive (`view.focus`, `view.dive`) swells the composition about the focused body and brings it
+ * to the middle of the window, as the atlas camera dives into an anchor.
  */
 
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
-import { BufferAttribute, BufferGeometry, Mesh, ShaderMaterial, Vector2, type Texture } from "three";
+import { BufferAttribute, BufferGeometry, Mesh, ShaderMaterial, Vector2, Vector3, type Texture } from "three";
 import type { SceneFrame, SceneInput } from "../../host/store";
 import type { SceneProps } from "../../host/types";
 import { RUNGS, type ParticleTier } from "../../quality/tiers";
@@ -31,7 +36,24 @@ export interface OrbConfig {
   arriveFrom: number;
   /** Detail per tier, handed to the shader as `uDetail` (0 low, 1 medium, 2 high). */
   detail?: Record<ParticleTier, number>;
+  /** Up to six bodies at scene time `t` and the drag's turn and tilt; named ones are hotspots. */
+  bodies?: (t: number, yaw: number, pitch: number) => readonly OrbBody[];
+  /** How many times larger the composition is at the end of a dive into a body. */
+  diveScale?: number;
 }
+
+export interface OrbBody {
+  name?: string;
+  x: number;
+  y: number;
+  z: number;
+}
+
+const MARKS = 6;
+const smooth = (x: number) => {
+  const c = Math.min(1, Math.max(0, x));
+  return c * c * (3 - 2 * c);
+};
 
 const isPhone = (width: number, height: number) => width / height < 0.8;
 const PITCH_LIMIT = 1.35;
@@ -40,6 +62,8 @@ class OrbWorld {
   readonly root: Mesh;
   private readonly material: ShaderMaterial;
   private scale = 1;
+  private readonly centre = new Vector2();
+  private readonly window = new Vector2(1, 1);
 
   constructor(
     sky: Texture,
@@ -62,6 +86,7 @@ class OrbWorld {
         uPitch: { value: 0 },
         uDetail: { value: 2 },
         uSky: { value: sky },
+        uMark: { value: Array.from({ length: MARKS }, () => new Vector3()) },
       },
     });
     this.root = new Mesh(geometry, this.material);
@@ -72,7 +97,9 @@ class OrbWorld {
     const u = this.material.uniforms;
     u.uResolution.value.set(Math.round(width * dpr), Math.round(height * dpr));
     u.uDpr.value = dpr;
-    u.uCentre.value.set(width * 0.5, height * (isPhone(width, height) ? 0.42 : 0.5));
+    this.centre.set(width * 0.5, height * (isPhone(width, height) ? 0.42 : 0.5));
+    this.window.set(width, height);
+    u.uCentre.value.copy(this.centre);
     u.uDetail.value = this.config.detail?.[tier] ?? 2;
     this.scale = this.config.framing(width, height);
     frame.width = width;
@@ -81,11 +108,38 @@ class OrbWorld {
     frame.radius = this.scale;
   }
 
-  setView(view: SceneInput): void {
+  setView(view: SceneInput, t: number, frame: SceneFrame): void {
     const u = this.material.uniforms;
-    u.uScale.value = this.scale * placeScale(view.arrive, view.zoom, this.config.arriveFrom, this.config.close);
+    let scale = this.scale * placeScale(view.arrive, view.zoom, this.config.arriveFrom, this.config.close);
+    const pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, view.pitch));
     u.uYaw.value = view.yaw;
-    u.uPitch.value = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, view.pitch));
+    u.uPitch.value = pitch;
+    const centre = u.uCentre.value as Vector2;
+    centre.copy(this.centre);
+    const bodies = this.config.bodies?.(t, view.yaw, pitch) ?? [];
+    const marks = u.uMark.value as Vector3[];
+    bodies.slice(0, MARKS).forEach((body, i) => marks[i].set(body.x, body.y, body.z));
+    // a dive (D-132): the focused body swells and comes to the middle of the window
+    const focus = view.focus && view.dive > 0 ? bodies.find((body) => body.name === view.focus) : undefined;
+    if (focus) {
+      const grown = scale * Math.exp(view.dive * Math.log(this.config.diveScale ?? 12));
+      const k = smooth(view.dive / 0.6);
+      const x = this.centre.x + focus.x * scale;
+      const y = this.centre.y - focus.y * scale;
+      const toX = x + (this.window.x * 0.5 - x) * k;
+      const toY = y + (this.centre.y - y) * k;
+      centre.set(toX - focus.x * grown, toY + focus.y * grown);
+      scale = grown;
+    }
+    u.uScale.value = scale;
+    for (const body of bodies) {
+      if (!body.name) continue;
+      const point = (frame.points[body.name] ??= { x: 0, y: 0, on: false });
+      point.x = centre.x + body.x * scale;
+      point.y = centre.y - body.y * scale;
+      point.on = true;
+    }
+    frame.zoom = view.zoom;
   }
 
   setTime(seconds: number): void {
@@ -124,7 +178,7 @@ export function useOrbScene(config: OrbConfig, { rung, time, view, publish, onRe
   const drawn = useRef(false);
   useFrame(() => {
     world.setTime(time.current);
-    world.setView(view.current as SceneInput);
+    world.setView(view.current as SceneInput, time.current, frame);
     publish(frame);
     if (!drawn.current) {
       drawn.current = true;
@@ -145,6 +199,7 @@ uniform float uScale;      // CSS pixels per radius
 uniform float uTime;
 uniform float uYaw, uPitch;
 uniform int uDetail;
+uniform vec3 uMark[6];     // the scene's bodies (D-132): x, y in radii with y up, z toward the visitor
 
 const float TAU = 6.28318530718;
 

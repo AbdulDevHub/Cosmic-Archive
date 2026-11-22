@@ -1,5 +1,6 @@
 /**
- * Earth (D-128): our own illustration of the blue planet, close up, after the start page's planet
+ * A Blue World (D-128, D-132: once Earth, now an Earthlike world of our own solar system, with its
+ * moon hanging beside it, a hotspot): our own illustration of a blue planet, close up, after the start page's planet
  * (`atlas/start.ts`) but much finer. Deep blue oceans with the Sun's glint on them, continents in
  * greens and tans under white polar ice, two layers of drifting cloud casting faint shadows, the
  * night side's cities in warm points of light, and a thin bright line of atmosphere along the
@@ -29,6 +30,7 @@ const vec3 DESERT = vec3(0.62, 0.48, 0.3);
 const vec3 ICE = vec3(0.9, 0.94, 0.98);
 const vec3 AIR = vec3(0.3, 0.6, 1.0);
 const vec3 CITY = vec3(1.0, 0.72, 0.36);
+const float MOON_R = 0.13; // the moon's radius, in the planet's radii (D-132)
 
 vec3 sky(vec2 css){
   vec2 size = uResolution / uDpr;
@@ -50,6 +52,20 @@ void main(){
   vec3 L = normalize(vec3(-0.78, 0.32, 0.5));   // the Sun, to the upper left and in front
 
   vec3 col = sky(css);
+
+  // ---- its moon (D-132), off to the upper right, lit by the same sun: grey, pitted, sharp-edged ----
+  vec2 mu2 = (u - uMark[0].xy) / MOON_R;
+  float mr = length(mu2);
+  if (mr < 1.0) {
+    vec3 mn = vec3(mu2, sqrt(1.0 - mr * mr));
+    vec3 mp = turnY(t * 0.01 + 1.0) * mn;
+    float seas = smoothstep(0.5, 0.62, fbm3(mp * 1.6 + 7.0));
+    float pits = smoothstep(0.62, 0.8, noise3(mp * 9.0)) * 0.5 + smoothstep(0.7, 0.85, noise3(mp * 22.0 + 3.0)) * 0.35;
+    vec3 rock = mix(vec3(0.62, 0.6, 0.57), vec3(0.3, 0.3, 0.31), seas) * (1.0 - pits * 0.45);
+    float mlit = max(dot(mn, L), 0.0);
+    vec3 mcol = rock * (0.015 + 1.05 * pow(mlit, 0.85));
+    col = mix(col, mcol, smoothstep(1.0, 0.97, mr));
+  }
 
   if (r < 1.0) {
     vec3 n = vec3(u, sqrt(1.0 - r * r));
@@ -133,11 +149,14 @@ const CONFIG: OrbConfig = {
   fragment: FRAGMENT,
   // at its framing a whole globe; all the way in it fills most of the window
   framing: (width, height) => Math.min(height * 0.25, width * 0.17),
+  // its moon (D-132), drifting slowly on a short arc; a hotspot that dives into the Moon's page
+  bodies: (t) => [{ name: "moon", x: 1.55 + 0.05 * Math.sin(t * 0.03), y: 0.62 + 0.04 * Math.cos(t * 0.03), z: -0.4 }],
+  diveScale: 8,
   close: 1.45,
   arriveFrom: 0.3,
   detail: { low: 0, medium: 1, high: 2 },
 };
 
-export default function EarthScene(props: SceneProps) {
+export default function BlueWorldScene(props: SceneProps) {
   return <primitive object={useOrbScene(CONFIG, props)} />;
 }
