@@ -1,5 +1,31 @@
 # Cosmic Archive: Phase Checklist
 
+## Night run report (2026-11-23)
+
+Branch `night/places-and-universe` (brief: `docs/NIGHT_RUN.md`). Nothing merged, nothing deployed; `main` untouched.
+
+**Built (all six, each its own commit, pushed):**
+- **Wormhole** (D-125), **Gravastar** (D-126), **Quasi-Star** (D-127): three hypothetical places in the galaxy, each a one-shader scene; the Gravastar and Quasi-Star lines are hedged ("A possible…").
+- **Earth** (D-128) and **Moon** (D-129): two separate hotspots in a short row past the Yellow Star; the galaxy reads cleanly at 1440x900 with eleven hotspots, so they were not merged into one spot. The Wormhole was moved to the upper left of the disc because it crowded them.
+- **The Observable Universe** (D-130): a fifth atlas stop (zoom 4). Zoom Out on the supervoid glides out; the foam shrinks into a vast sphere with a faint warm edge; Zoom Out is dimmed there; one hotspot, The Supervoid, glides back. `/#universe` opens out there.
+- Posters and share images for the five places (`public/posters/`, `public/og/`).
+- **Skipped:** nothing.
+
+**Sources (fetched 2026-11-22, quoted in `content/places.ts`):** NASA Science "Facts About Earth", "Moon Facts" and "Large Scale Structures" (re-read). No NASA, ESA or Caltech page explains wormholes, gravastars or quasi-stars, so those three cite papers on arXiv by university authors (Guendelman et al. 2016; Mazur and Mottola 2001; Coughlin and Begelman 2024), not Wikipedia. **Owner to confirm arXiv is acceptable as a source.**
+
+**Network:** the environment started with no access to source sites. With the owner's permission (2026-11-22), the Default environment's network was set to unrestricted. The repo's pinned Playwright needed its own Chromium: `npx playwright install --with-deps chromium`.
+
+**Commands run and results (after the last code change):**
+- `npm run check`: passed (4 stops, 12 places, 17 sources).
+- `npm run build`: passed (18 static pages).
+- `npm run posters -- <place>` for each of the five: 15 of 15 written.
+- `npm run shots`: 93 of 93 passed (new: universe stills, five new places, live and still, desktop, phone and reduced motion).
+- `npm run a11y`: 25 of 26 passed. One finding: drag-hint contrast on `/star` (desktop), over the bright star; the star scene was not changed tonight.
+- `npm run fallbacks`: 64 passed, 4 failed. The two `touch` checks are the known ones. The other two ("a quick there-and-back shows the scene", "Zoom Out shrinks the place away …") fail on a console 404 for `/music/nebula.ogg`: the music loops are not in git or in this container, only on the owner's machine.
+- Not checked: the new scenes' frame rate on real GPUs (software WebGL here). The Moon is the heaviest shader (bump-mapped craters; its finest crater layer is on the high tier only).
+
+**Look at first:** the Observable Universe (`/#universe`, or Zoom Out three times from the galaxy) and the glide into it from the supervoid; then Earth and the Moon; then the Wormhole. Each new still is in `screenshots/` (for example `universe-still-desktop.png`, `earth-still-desktop.png`).
+
 Tick an item only when it is implemented and verified. Sessions are defined in `PHASED_ROADMAP.md`.
 
 ## Next session (read this first)
