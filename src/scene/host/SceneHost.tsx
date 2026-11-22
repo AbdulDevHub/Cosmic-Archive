@@ -53,6 +53,37 @@ interface Size {
   height: number;
 }
 
+/**
+ * One renderer root per canvas, and its unmount put off a moment. React's Strict Mode (dev only)
+ * mounts, unmounts and mounts again at once; R3F tears an unmounted root down 500 ms later and
+ * hands the dying root back to a second createRoot on the same canvas, so the scene never drew in
+ * `next dev`. The second mount now cancels the unmount and reuses the root.
+ */
+const roots = new WeakMap<HTMLCanvasElement, ReconcilerRoot<HTMLCanvasElement>>();
+const unmounting = new WeakMap<HTMLCanvasElement, ReturnType<typeof setTimeout>>();
+
+function rootFor(canvas: HTMLCanvasElement): ReconcilerRoot<HTMLCanvasElement> {
+  clearTimeout(unmounting.get(canvas));
+  unmounting.delete(canvas);
+  let root = roots.get(canvas);
+  if (!root) {
+    root = createRoot(canvas);
+    roots.set(canvas, root);
+  }
+  return root;
+}
+
+function releaseRoot(canvas: HTMLCanvasElement): void {
+  unmounting.set(
+    canvas,
+    setTimeout(() => {
+      unmounting.delete(canvas);
+      roots.get(canvas)?.unmount();
+      roots.delete(canvas);
+    }, 0),
+  );
+}
+
 export default function SceneHost() {
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -93,7 +124,7 @@ export default function SceneHost() {
     const stage = stageRef.current;
     const canvas = canvasRef.current;
     if (!stage || !canvas) return;
-    const created = createRoot(canvas);
+    const created = rootFor(canvas);
     let losses = 0;
     const onLost = (event: Event) => {
       event.preventDefault();
@@ -118,7 +149,7 @@ export default function SceneHost() {
       observer.disconnect();
       canvas.removeEventListener("webglcontextlost", onLost);
       canvas.removeEventListener("webglcontextrestored", onRestored);
-      created.unmount();
+      releaseRoot(canvas);
     };
   }, []);
 
@@ -155,7 +186,12 @@ export default function SceneHost() {
         />
       ) : null,
     );
-    invalidateRef.current = () => store.getState().invalidate();
+    // `configure` is async: until it has made the renderer (or after the root is gone) there is
+    // nothing to redraw, and R3F's invalidate would read `gl.xr` off null. The first frame draws anyway.
+    invalidateRef.current = () => {
+      const state = store.getState();
+      if (state.gl) state.invalidate();
+    };
   }, [root, size, dpr, isRunning, mounted, rung, governor, params.shot, params.tier, params.zoom]);
 
   // Once a scene is on screen, fetch the others while the browser is idle: the next one is then
