@@ -1,4 +1,4 @@
-// Renders scene stills into public/posters/ (docs/ARCHITECTURE.md section 3.3).
+// Renders scene stills into public/posters/ (context/ARCHITECTURE.md section 3.3).
 // Usage: npm run build && npm run posters, then build again so the new stills are served.
 //
 // Each poster is the scene's own canvas at `?shot=1&t=12` (one deterministic frame, the same

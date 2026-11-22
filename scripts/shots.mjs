@@ -1,4 +1,4 @@
-// Screenshots of the built app for the design checklist (docs/DESIGN_SPEC.md section 11).
+// Screenshots of the built app for the design checklist (context/DESIGN_SPEC.md section 11).
 // Usage: npm run build && npm run shots
 // Starts `next start` on a free port, captures each route at desktop, phone and desktop with
 // reduced motion, writes PNGs to screenshots/, and fails on any console error or failed request.

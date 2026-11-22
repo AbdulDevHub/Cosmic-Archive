@@ -1,5 +1,7 @@
 # Cosmic Archive: Design Spec
 
+> **What this file is:** the look of the site: the bans, colour, type, hotspots, motion, each screen, and the screenshot checklist (section 11) that every visual change must pass. Read it before any visual change. Update it when the owner settles a look, and record why in `DECISIONS.md`.
+
 **Status:** v3, 2026-11-20; S1b changes 2026-11-21 (no About, no Pause, sound, the deep sky, zoom and drag in places: D-099 to D-102). Rewritten after the owner's read-through: the site is a spectacle to look at, not an atlas to read (D-092). Replaces v2 (2026-11-11, in git), whose ink layer, vessel and reading pages are gone.
 **Reference for the look:** the scenes themselves. The palette, type and the galaxy's look still come from `prototype/look.html`, without its ink and vessel.
 
@@ -135,7 +137,7 @@ Removed (D-099). The sources behind the site's few lines stay in `content/places
 
 Settled and kept: the galaxy's colour sweep (gold heart, ember, rose, violet, azure, a teal rim); fullness from layers (body glow, arm haze, dust sprites that darken what is behind them, a halo, a companion); large glow sprites as instanced quads.
 
-Open, for the beauty sessions (S2 to S4 in `PHASED_ROADMAP.md`):
+Open, for the beauty sessions (S2 to S4, now done; see `PROGRESS_TRACKER.md`):
 
 - ~~Diving into the core passes through disc stars, which grow into large soft discs.~~ Done in S2 (D-111): near stars are capped and sharpened.
 - The cosmic web is thin on a phone at the `low` particle budget (phone polish waits, D-110).

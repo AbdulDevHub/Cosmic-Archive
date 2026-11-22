@@ -1,10 +1,12 @@
 # Cosmic Archive — Spaceship Class Design Brief
 
-The owner's brief for the five ship classes (from their ChatGPT brainstorm and image generation, 2026-11-22). Reference images live in the owner's `Reference_Images/` (kept out of git). Where this brief and `docs/DECISIONS.md` disagree, the decision log wins.
+> **What this file is:** the owner's design brief for the five ships on the start page, and which reference each one follows. Read it before touching `src/scene/scenes/atlas/ships.ts`. Update the table in section 0 only when the owner changes a reference.
+
+The owner's brief for the five ship classes (from their ChatGPT brainstorm and image generation, 2026-11-22). Reference images live in the owner's `owner/reference-images/` (kept out of git). Where this brief and `DECISIONS.md` disagree, the decision log wins.
 
 ## 0. Owner's Choices (2026-11-22, overrides the brief where they differ)
 
-Which reference each ship follows (files in `Reference_Images/`):
+Which reference each ship follows (files in `owner/reference-images/`):
 
 | Ship | Reference | Notes |
 |---|---|---|

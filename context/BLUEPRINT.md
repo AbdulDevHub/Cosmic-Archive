@@ -1,7 +1,9 @@
 # Cosmic Archive: Project Blueprint
 
+> **What this file is:** what Cosmic Archive is, what is in scope and the editorial rules (sourcing, imagery). Read it before touching content in `content/places.ts` or changing scope. Update it only when the owner changes the scope, and record the change in `DECISIONS.md`.
+
 **Status:** v3, 2026-11-20. Rewritten after the owner's read-through of v1: "way too wordy; I wanted a spectacle that showcases beauty, not an educational site" (D-092). Replaces v2 (2026-11-11, in git), which described a sourced, educational atlas.
-**This file answers:** what the product is, what is in scope, and the editorial rules. How it looks is in `DESIGN_SPEC.md`; how it is built is in `ARCHITECTURE.md`; the order of work is in `PHASED_ROADMAP.md`.
+**This file answers:** what the product is, what is in scope, and the editorial rules. How it looks is in `DESIGN_SPEC.md`; how it is built is in `ARCHITECTURE.md`; the order of work is in `PROGRESS_TRACKER.md`.
 
 ## 1. Vision
 
@@ -34,7 +36,7 @@ Anyone who likes looking at space. Half are on phones. They come to be amazed, n
 | Places | Three, each its own scene: black hole, nebula, quasar |
 | Sound | The owner's own music under the scenes, a whoosh for each flight; on by default after the first gesture (D-100) |
 
-### Next (each its own session, in `PHASED_ROADMAP.md`)
+### Next (ordered in `PROGRESS_TRACKER.md`)
 
 Make the four scenes richer before adding anything: S2 galaxy and cosmic web, S3 black hole and quasar, S4 nebula.
 
@@ -50,7 +52,7 @@ Accounts, payments, analytics, a CMS or database, sound before the visitor's fir
 
 ## 5. Inclusion rule
 
-A place belongs if it is real, is found where the atlas puts it (inside the galaxy, or among the galaxies of the web), and is beautiful enough to fly into. `CONTENT_CATALOGUE.md` is an idea bank, not a to-do list.
+A place belongs if it is real, is found where the atlas puts it (inside the galaxy, or among the galaxies of the web), and is beautiful enough to fly into. `IDEAS.md` is an idea bank, not a to-do list.
 
 ## 6. Editorial standards
 
@@ -86,7 +88,7 @@ Routes: `/` (the universe), `/black-hole`, `/nebula`, `/quasar`. The header has 
 | Site drifts into a sci-fi HUD | Design bans in `DESIGN_SPEC.md`; nothing drawn over the scenery. |
 | Words creep back | Twelve words a line, checked by the build. |
 | Misinformation | The process in 6.1 and the build check. |
-| Later sessions redo or undo decisions | `DECISIONS.md` is append-only; `CLAUDE.md` lists what must not change. |
+| Later sessions redo or undo decisions | `DECISIONS.md` is append-only; `AGENTS.md` lists what must not change. |
 
 ## 9. Standing owner decisions
 

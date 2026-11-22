@@ -1,4 +1,4 @@
-// Fallback and flow tests for the scene system (docs/ARCHITECTURE.md section 8): tested, not assumed.
+// Fallback and flow tests for the scene system (context/ARCHITECTURE.md section 8): tested, not assumed.
 // Usage: npm run build && npm run fallbacks
 //
 //   1. live          the loop runs and stays under the draw-call limit

@@ -1,5 +1,5 @@
 /**
- * The fleet (D-118, redesigned in D-120 after the owner's brief, `docs/SHIP_BRIEF.md`): five
+ * The fleet (D-118, redesigned in D-120 after the owner's brief, `context/SHIP_BRIEF.md`): five
  * ships, one per class, each with its own silhouette, read from above as the start page shows
  * them. Built in code from lathed hulls, extruded plates with curved outlines, struts and tubes;
  * nose toward +x, y up, z to the side. Each lists its engine nozzles for the glows and trails

@@ -1,6 +1,8 @@
-# Cosmic Archive: Content Catalogue
+# Cosmic Archive: Ideas
 
-**Purpose:** An idea bank of places that could become scenes to fly into (D-092). The owner's original topic list comes first, then topics added during brainstorming. Nothing here is a commitment. The v1 scope is the table in `PROJECT_BLUEPRINT.md` section 4; the inclusion rule and evidence statuses are in sections 5 and 6 of the same file. Apply both before any term becomes a page.
+> **What this file is:** an idea bank of places and topics that could become scenes. Nothing here is a commitment. Pick from it when the owner asks for new places, after checking the inclusion rule in `BLUEPRINT.md` section 5. Add ideas as they come up.
+
+**Purpose:** An idea bank of places that could become scenes to fly into (D-092). The owner's original topic list comes first, then topics added during brainstorming. Nothing here is a commitment. The v1 scope is the table in `BLUEPRINT.md` section 4; the inclusion rule and evidence statuses are in sections 5 and 6 of the same file. Apply both before any term becomes a page.
 
 ## Term dump: the owner's list first, then additional ideas
 

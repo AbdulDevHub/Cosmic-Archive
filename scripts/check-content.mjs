@@ -1,4 +1,4 @@
-// The content check (PROJECT_BLUEPRINT.md 6). Part of `npm run check`.
+// The content check (context/BLUEPRINT.md section 6). Part of `npm run check`.
 // Fails when a line in content/places.ts breaks the sourcing rule: no source, a source that is not
 // listed, a source without a checked date, a source that backs nothing, or more than twelve words.
 //

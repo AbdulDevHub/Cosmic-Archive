@@ -1,6 +1,6 @@
 # src/scene
 
-Everything WebGL lives here, and only here. Nothing outside this folder imports `three` or `@react-three/*` (`docs/ARCHITECTURE.md` section 1).
+Everything WebGL lives here, and only here. Nothing outside this folder imports `three` or `@react-three/*` (`context/ARCHITECTURE.md` section 1).
 
 | Folder | Holds |
 |---|---|

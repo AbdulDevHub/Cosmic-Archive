@@ -1,18 +1,24 @@
 # Cosmic Archive: The Universe to Look At
 
-A spectacle of the cosmos you click through. Real-time scenes of the cosmic web, a spiral galaxy, a black hole, a nebula and a quasar, with a smooth flight from each one into the next.
+A spectacle of the cosmos you click through: real-time scenes from a spiral galaxy out to the observable universe, and down into the strange places inside them, each move a smooth flight.
 
-**Status:** being polished; not deployed yet. The universe (`/`, three zoom stops) and three places (`/black-hole`, `/nebula`, `/quasar`) are built with the flow between them, a deep sky behind every scene, and sound. Next: making each scene richer. The plan is in `docs/`.
+## Project Overview
 
-## Ideas that shape it
+Cosmic Archive is a website for looking at the universe rather than reading about it. You pick a spaceship on the start page, press Begin, and fly into a galaxy. From there you click a glowing point to dive into what it marks (a black hole, a nebula, a neutron star, a solar system with its own planet, moon and asteroid) or press Zoom Out to pull back through the cosmic web, the empty supervoids and finally the whole observable universe. A wormhole leads to a second, stranger galaxy with a quasar and a Dyson sphere.
+
+Every scene is drawn live in the browser with WebGL shaders, with no photos or downloaded images, so it stays original and small. Each view has only a name and one short line, and every line is checked against a real source. Each scene has its own music. If 3D can't run, every page still shows a still image and works as plain HTML.
+
+**Status:** being polished; not deployed yet. 4 zoom levels and 15 places are built. What's next is in `context/PROGRESS_TRACKER.md`.
+
+## Ideas That Shape It
 
 - **Cosmos alone.** The scenery fills the screen, with nothing drawn over it. Each view has a name and one line.
 - **Click to travel.** Pull back from the galaxy to the cosmic web, or click a light to fall into it: the camera dives in, the screen passes through the place's own colour, and the place grows into view.
 - **Honest in its few words.** Every line is tied to a checked source; every picture is an illustration.
-- **Look around and listen.** Drag to turn around a black hole or pan across a nebula, zoom right into a quasar, with music and a whoosh for every flight.
+- **Look around and listen.** Drag to turn a scene, use the wheel to zoom, and hear music and a whoosh on every flight.
 - **Works without 3D.** Every screen is complete HTML with a still of its scene; the live scenes adapt to the device.
 
-## Tech stack
+## Tech Stack
 
 Next.js 16 (App Router), React 19, TypeScript, CSS Modules, three with React Three Fiber. Built with Claude Code.
 
@@ -20,14 +26,16 @@ Next.js 16 (App Router), React 19, TypeScript, CSS Modules, three with React Thr
 
 | File | What it covers |
 |---|---|
-| `docs/PROJECT_BLUEPRINT.md` | Vision, scope, editorial and sourcing rules |
-| `docs/DESIGN_SPEC.md` | Visual language, the screen, the flow, screenshot checklist |
-| `docs/ARCHITECTURE.md` | Structure, scene system, the flow between scenes, performance budgets |
-| `docs/PHASED_ROADMAP.md` | Order of work, one session per item |
-| `docs/DECISIONS.md` | Why things are the way they are |
-| `docs/CONTENT_CATALOGUE.md` | Idea bank of future topics |
+| `AGENTS.md` | Rules for AI coding agents (`CLAUDE.md` imports it) |
+| `context/PROGRESS_TRACKER.md` | Where the work stands, the plan, the session log |
+| `context/BLUEPRINT.md` | Vision, scope, editorial and sourcing rules |
+| `context/DESIGN_SPEC.md` | Visual language, each screen, the flow, the screenshot checklist |
+| `context/ARCHITECTURE.md` | Stack, structure, scene system, performance budgets |
+| `context/DECISIONS.md` | Why things are the way they are |
+| `context/SHIP_BRIEF.md` | The design brief for the five ships |
+| `context/IDEAS.md` | Idea bank of future places |
 
-## Running it
+## Running It
 
 Needs Node 20.9 or newer. `npm run dev` serves the site at http://localhost:3000.
 
