@@ -6,60 +6,46 @@ Tick an item only when it is implemented and verified. Sessions are defined in `
 
 Folded in from the old `OPUS_NEXT_WEEK_PROMPT.md` (D-106). A fresh session has no memory: read `CLAUDE.md`, this section, `docs/DESIGN_SPEC.md` (2 bans and their start-page exception, 7.0 the start page, 7 the screens), `docs/ARCHITECTURE.md` (3 the scene system and the flow, 4 the atlas) and `docs/DECISIONS.md` from D-092 on. The original ChatGPT direction is in git commit `15e3478` (the owner also keeps a copy in `Vision_Docs/` (renamed from `Cosmic_Archive_Opus_Handoff/`, D-115), not in git). **The owner's newer decisions override it**: where the two disagree, the decision log wins.
 
-### Where things stand (2026-11-21, end of a long session)
+### Where things stand (2026-11-22, end of a very long session)
 
-Last commit: `2499543` (start page). Everything is committed; nothing is pushed or deployed. Sessions this day, in order: S1 spectacle (D-092 to D-098), S1b fuller with sound (D-099 to D-102), S1c nebula, jets, gentle sound (D-103 to D-105), S1d start page and file tidy (D-106, D-107).
+Last commit: `48c1cd5`. Everything is committed; nothing is pushed or deployed. The decision log runs to **D-118**; read D-107 onward for this session's arc.
 
-The site now: `/` opens on the start page (Home.png); Begin flies into the galaxy (stops 0 close in, 1 galaxy, 2 cosmic web, hotspots); from there dive into `/black-hole`, `/nebula`, `/quasar` (Closer, Further, drag, pinch); Further or Escape flies back. No About page, no Pause button (reduced motion still respected). Sound: the owner's "Magical Space" plus Web Audio whooshes, started by Begin or any first gesture, Sound button in the header.
+**The site now** (laptop first, D-110; judge on the 1440x900 desktop):
+- `/` opens on the start page (Home.png look): gradient headline, Begin, "Scroll to explore", and at the bottom **"Choose Your Vessel"**, five switchable ships (Sovereign, Predator, Celestial, Discovery, Colossus; D-118, `src/scene/scenes/atlas/ships.ts`, choice in `src/lib/ship.ts`). A first-load screen covers the first paint (D-112).
+- The **header** on every page: wordmark (home), the flipped glass **dock** hanging from the top edge (Science, Explore, Learn, Discover: "coming soon"), search ("coming soon"), Sound (D-116).
+- Begin flies into **A Spiral Galaxy** (opens close in, D-112; one name close in or whole, D-115), a bright heart of in-falling light (D-113). Its hotspots: Black Hole, Nebula, Neutron Star, Yellow Star, Strange Star, Dyson Sphere. **Zoom Out** (a pill button, D-116) glides out to **The Cosmic Web** (D-117): hotspots Quasar, Supervoid, and the galaxy (click to return). On the web Zoom Out is dimmed.
+- **Places** (each its own one-shader scene, opens all the way in, wheel zooms, drag turns, Zoom Out leaves): `/black-hole`, `/quasar`, `/nebula`, `/neutron-star`, `/star` (Yellow Star), `/strange-star`, `/dyson-sphere`, `/supervoid`. The orb scenes share `src/scene/scenes/shared/orb.tsx`.
+- **Sound** (`src/lib/sound.ts`): the owner's Magical Space on the start page and galaxy; a looped track per scene (`public/music/`, gitignored, cut from the owner's chosen tracks with StreamForge's yt-dlp/FFmpeg; nine more loops wait in `music-library/`, also gitignored; a missing loop falls back to Magical Space); warp jump on Begin, warp-out on every move, a beep only for menu clicks (D-114, D-115). Music starts only on Begin.
 
 ### What the owner wants (their words, so nothing is misread again)
 
-- "A spectacle site that showcases beauty, not an educational site." Almost no text: a name and one line per view.
-- Click to travel, smooth flow between scenes; wheel and pinch as extras; nothing scrolls.
-- No drawn lines over the scenery ("the universe doesn't have them"). Dust must never look like lines.
-- "Fill it", "it feels empty": full, colourful frames, as in `reference images/` (not in git; look at them).
-- They love the black hole effect ("really cool"). They wanted quasar jets that show power. The new nebula replaced one they found ugly.
-- The start page follows `reference images/Home.png`: they asked for it "like the image", including the gradient text, glass bar and dock, pill button, menus and search kept as "coming soon" decoration for pages they may build later, and the ship ("make it as cool as possible; if it looks bad or fake we can remove it").
-- On S1d, their verdict: **"It's a good start, definitely needs some polish."** They did not yet say what to polish.
+- "A spectacle site that showcases beauty, not an educational site." A name and one line (at most twelve words, sourced) per view. Names in **Title Case** (global rule).
+- Click to travel; wheel and pinch to zoom; one button to zoom out. No drawn lines over the scenery.
+- **Laptop first**: phones only have to work until a final pass (D-110).
+- Latest verdict (2026-11-22): **"the ships definitely need to be redesigned/refined, but the celestial stuff and its effect and soundscape is coming along nicely."**
 
-### S1e, part 1 (2026-11-21): the start page's UI closer to Home.png (D-108)
+### Next (in order; ask the owner which first if unsure)
 
-Owner asked for the UI, font, menu and buttons to match Home.png, "not so much the models". Done: Google Sans Flex, plain header links with a lit Home pill, restyled headline, button and dock. Second pass (D-109): Featured Topics removed, arrow cursor, music waits for Begin, flared dock, tighter links, ship shows its top, galaxy rolled to face it. Checked again: check, build, shots (33, screenshot timeout raised to 90 s for software WebGL), a11y (8), a Playwright test that start-page clicks do not play music and Begin does. Checked: `npm run check`, `npm run build`, `npm run shots` (33; one run timed out on a heavy frame under software WebGL, the rerun passed), `npm run a11y` (8), and a Playwright click of each topic landing on its page. Still open from the list below: the ship and planet models.
-
-### S2 done (2026-11-21, D-111); laptop first from now on (D-110)
-
-The owner approved the start page and asked for S2, and said phones no longer matter until a final pass. Next: **S3, black hole and quasar polish** (ask the owner first whether anything in S2 needs another pass). Judge everything on the 1440x900 desktop shots.
-
-### Owner's round after S2 (2026-11-21, D-112)
-
-- [x] First-load screen; black hole at the galaxy's heart; scenes open all the way in; buttons move between scenes only; Title Case names. Checked: check, build, posters, shots 33, a11y 8, fallbacks (see the commit), and a Playwright run: Closer on the galaxy lands on `/black-hole`, a place has only Further, no loader without JavaScript.
-
-### S4 done (2026-11-21, D-114), with the owner's sounds and Closer removed. Next: S5, the owner's review, then deploy only when they say (and decide about the Star Trek sound files first)
-
-### S3 done (2026-11-21, D-113)
+1. **Supervoid as a zoom level, not a place (owner, 2026-11-22):** "the supervoid should be a zoom out of the cosmic web". Make Zoom Out on the web glide (or dive) out to a supervoid-scale view (many filaments around great empty bubbles; the current `/supervoid` look is the starting point), with Zoom Out dimmed there until the universe level exists. Decide with the owner whether `/supervoid` stays as a page or the view moves into the atlas scene (a fourth stop); remove its web hotspot either way, and keep its sourced line.
+2. **Redesign the fleet** (D-118): the five ships are first versions from simple solids. Refine each toward its role (owner's `Reference_Images/V1 Spaceship.png`, `V2 Spaceship.png`, `Celestial.jpg`, `Discovery.jpg`), as our own designs (the reference Sovereign and Predator are famous studio ships: keep roles, not shapes). Consider loading real modelled geometry only if the owner agrees (a new dependency needs a D- line).
+3. Then the **spaceship loader** (backlog below), matching the chosen ship.
+4. More places or levels the owner asks for (they plan to zoom out to the universe and "multiverse").
 
 ### Owner's backlog (to do, not yet scheduled)
 
-- [ ] **A spaceship loader (owner, 2026-11-21):** the first-load screen should take a spaceship theme, since the visitor travels by ship. Do it **after** the owner has reviewed the fleet (D-118), so the loader matches the chosen ship.
-- [ ] **Music licensing before any public deploy:** the scene loops (Epic Mountain and others) and the Star Trek effects are copyrighted; they are fine for the owner's own use. Decide before deploying: licensed or free tracks, or the owner's own.
+- [ ] **A spaceship loader (owner, 2026-11-21):** the first-load screen should take a spaceship theme. Do it **after** the fleet redesign, so the loader matches.
+- [ ] **Music licensing before any public deploy:** the scene loops (Epic Mountain and others) and the Star Trek effects (`public/sounds/tng_*`, `padd_3`, already in git) are copyrighted; fine for the owner's own use. Decide before deploying.
+- [ ] **Sound that rises with power:** partly done by per-scene music (D-116); the owner may still want swells at the black hole and quasar.
+- [ ] Phone polish pass, only at the end and only where it costs the laptop nothing (D-110).
 
-- [ ] **Sound that rises with power (owner, 2026-11-21):** better whooshes, and the music should swell into something more powerful at the black hole and the quasar, to show their power. Needs the owner's own music for those parts (D-100: their music, browser-made effects), so ask what they have first.
+### Known issues
 
-### Earlier: polish the start page (S1e), then S2
-
-1. **Ask the owner first what to polish** on the start page; do not guess at large changes. Offer the known candidates below.
-2. Known candidates, from our own look at the screenshots (`npm run shots`, `screenshots/start-still-*`, and a filmed flight):
-   - the ship: simple primitives, reads a little like a paper plane; more detail (panel lines, lights, a more sculpted hull) or remove, as the owner says;
-   - the planet: seen almost edge-on its continents stretch; the city lights and clouds could be richer; compare with Home.png's planet;
-   - phone: asteroids sit close to the words at the bottom;
-   - the flight in (3.8 s): check it at real speed on a GPU, not only software WebGL;
-   - the galaxy on the start page and in the atlas is thinner between its arms than the references (this is S2's work).
-3. Then **S2, galaxy and cosmic web** (atlas scene only): richer colour from core to arms; pink star-forming knots and blue young clusters; the disc denser between the arms; a deeper, glowing web (thin on a phone at `low`); a finer dive through the disc; posters re-rendered.
-4. Later: S3 black hole and quasar polish, S4 nebula (phone composition), S5 owner review then deploy (Vercel, only when the owner says so; they set `NEXT_PUBLIC_SITE_URL`).
+- Tests are heavy now (51 screenshots, 18 a11y checks, 40+ fallbacks) and this machine runs out of memory under software WebGL: run them one at a time (`npm run shots`, then `npm run a11y`, then `npm run fallbacks`), each in the background, and never with the dev/production server or a build running at the same time. On the last run shots passed 50 of 51 (the live `/black-hole` took 54 s to draw, past the 30 s settle limit; the scene did draw) and fallbacks never completed. Consider raising `sceneSettled`'s limit or trimming the routes.
+- The start page's ships are lit by the same shader as before; Colossus and Discovery read best, Sovereign looks egg-like from above.
 
 ### How to check (all must pass before reporting)
 
-`npm run check`; `npm run build`; `npm run posters` then build again if a scene changed; `npm run shots` (33, look at the stills against DESIGN_SPEC 11); `npm run fallbacks` (41; slow under software WebGL, run it in the background); `npm run a11y` (8). Draw calls on `low` under 30; scene chunks under 40 KB. Tests that need the atlas itself use `/#atlas` (skips the start page). Under software WebGL some frames take seconds: click heavy scenes from inside the page (`locator.evaluate(el => el.click())`), as test 12 does.
+`npm run check`; `npm run build`; `npm run posters` then build again if a scene changed; `npm run shots` (51, look at the stills against DESIGN_SPEC 11); `npm run fallbacks` (40+; slow under software WebGL, run it in the background); `npm run a11y` (18). One at a time: this machine runs short of memory (see Known issues). Stop the server before a build. Draw calls on `low` under 30; scene chunks under 40 KB. Tests that need the atlas itself use `/#atlas` (skips the start page). Under software WebGL some frames take seconds: click heavy scenes from inside the page (`locator.evaluate(el => el.click())`), as test 12 does.
 
 ### Working habits the owner expects
 
