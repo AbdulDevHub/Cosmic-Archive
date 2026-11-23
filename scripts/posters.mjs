@@ -21,7 +21,7 @@ const POSTERS = [
   { file: "atlas-start-wide.webp", path: "/?shot=1&t=12&tier=high", ...WIDE, quality: 0.8 },
   { file: "atlas-start-narrow.webp", path: "/?shot=1&t=12&tier=low", ...NARROW, quality: 0.8 },
   // Places: `<scene id>-wide` and `<scene id>-narrow`, the names the place page asks for.
-  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter", "molecular-cloud", "red-giant", "planetary-nebula", "white-dwarf", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy", "starbase", "warp-drive", "programmable-matter"].flatMap((id) => [
+  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter", "molecular-cloud", "red-giant", "planetary-nebula", "white-dwarf", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy", "starbase", "warp-drive", "programmable-matter", "higher-dimensions", "quantum-foam", "quarks", "vacuum-decay", "bubble-universes"].flatMap((id) => [
     { file: `${id}-wide.webp`, path: `/${id}?shot=1&t=12&tier=high`, ...WIDE, quality: 0.8 },
     { file: `${id}-narrow.webp`, path: `/${id}?shot=1&t=12&tier=low`, ...NARROW, quality: 0.8 },
   ]),
@@ -56,6 +56,11 @@ const POSTERS = [
     ["starbase", "/starbase?shot=1&t=12&tier=high"],
     ["warp-drive", "/warp-drive?shot=1&t=12&tier=high"],
     ["programmable-matter", "/programmable-matter?shot=1&t=12&tier=high"],
+    ["higher-dimensions", "/higher-dimensions?shot=1&t=12&tier=high"],
+    ["quantum-foam", "/quantum-foam?shot=1&t=12&tier=high"],
+    ["quarks", "/quarks?shot=1&t=12&tier=high"],
+    ["vacuum-decay", "/vacuum-decay?shot=1&t=12&tier=high"],
+    ["bubble-universes", "/bubble-universes?shot=1&t=12&tier=high"],
   ].map(([name, path]) => ({ file: `${name}.jpg`, dir: join("public", "og"), path, viewport: { width: 1440, height: 900 }, crop: { x: 0, y: 72, w: 1440, h: 756 }, out: 1200, quality: 0.82, type: "image/jpeg" })),
 ];
 

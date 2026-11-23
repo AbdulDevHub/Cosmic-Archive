@@ -32,7 +32,7 @@ export interface Stop {
   video?: string;
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy" | "starbase" | "warp-drive" | "programmable-matter";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy" | "starbase" | "warp-drive" | "programmable-matter" | "higher-dimensions" | "quantum-foam" | "vacuum-decay" | "bubble-universes" | "quarks";
 export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi" | "dark" | "cloud" | "redgiant" | "planetary";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
 export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant" | "dwarf" | "starbase" | "warp" | "matter" | "dims" | "pocket" | "omniverse" | "bubbles" | "vacuum" | "foam" | "strings" | "quarks" | "stringtheory";
@@ -279,6 +279,48 @@ export const SOURCES: readonly Source[] = [
     title: "Claytronics",
     publisher: "Carnegie Mellon University, School of Computer Science",
     url: "https://www.cs.cmu.edu/~claytronics/",
+    checked: "2026-11-23",
+  },
+  {
+    id: "cern-extra-dimensions",
+    title: "Extra dimensions, gravitons, and tiny black holes",
+    publisher: "CERN",
+    url: "https://home.cern/science/physics/extra-dimensions-gravitons-and-tiny-black-holes",
+    checked: "2026-11-23",
+  },
+  {
+    id: "chandra-quantum-foam",
+    title: "NASA Telescopes Set Limits on Space-time Quantum \"Foam\"",
+    publisher: "NASA Chandra X-ray Center (Smithsonian Astrophysical Observatory)",
+    url: "https://chandra.harvard.edu/press/15_releases/press_052815.html",
+    checked: "2026-11-23",
+  },
+  {
+    id: "cern-standard-model",
+    title: "The Standard Model",
+    publisher: "CERN",
+    url: "https://home.cern/science/physics/standard-model",
+    checked: "2026-11-23",
+  },
+  {
+    id: "cern-early-universe",
+    title: "The early universe",
+    publisher: "CERN",
+    url: "https://home.cern/science/physics/early-universe",
+    checked: "2026-11-23",
+  },
+  {
+    id: "sciam-vacuum-decay",
+    title: "The Quantum Bubble That Could Destroy the Universe",
+    publisher: "Scientific American",
+    url: "https://www.scientificamerican.com/article/the-end-of-the-universe-could-begin-with-a-quantum-bubble/",
+    checked: "2026-11-23",
+  },
+  {
+    id: "unlv-eternal-inflation",
+    title: "Eternal inflation (cosmology notes)",
+    publisher: "University of Nevada, Las Vegas, Physics (David Jeffery)",
+    url: "https://www.physics.unlv.edu/~jeffery/astro/cosmol/inflation_eternal.html",
     checked: "2026-11-23",
   },
 ];
@@ -659,6 +701,72 @@ export const PLACES: readonly Place[] = [
     stop: 2,
     inside: "starbase",
     veil: "#060a0e",
+  },
+  {
+    // D-155: an idea in the Starbase
+    id: "higher-dimensions",
+    name: "Higher Dimensions",
+    // the source: "we experience three spatial dimensions, and a fourth dimension of time"; "if one dimension were to
+    // contract to a size smaller than an atom, it would be hidden from our view" (a possibility, so "possible")
+    line: "Possible extra dimensions, shrunk smaller than an atom and hidden from view.",
+    sources: ["cern-extra-dimensions"],
+    anchor: "dims",
+    stop: 2,
+    inside: "starbase",
+    veil: "#0b0618",
+  },
+  {
+    // D-156: an idea in the Starbase
+    id: "quantum-foam",
+    name: "Quantum Foam",
+    // the source: at the smallest scales space-time "would have a foamy, jittery nature and would consist of many
+    // small, ever-changing, regions"; predicted, not detected ("it cannot be detected directly"), so "may"
+    line: "Space-time at its tiniest scales may be a jittery, ever-changing foam.",
+    sources: ["chandra-quantum-foam"],
+    anchor: "foam",
+    stop: 2,
+    inside: "starbase",
+    veil: "#03100f",
+  },
+  {
+    // D-157: an idea in the Starbase
+    id: "quarks",
+    name: "Quarks",
+    // the sources: "quarks aggregated to produce protons and neutrons"; "the strong force is carried by the \"gluon\"";
+    // "Quarks also come in three different \"colours\" and only mix in such ways as to form colourless objects"
+    line: "Quarks build protons and neutrons, bound by gluons; their colours always cancel.",
+    sources: ["cern-early-universe", "cern-standard-model"],
+    anchor: "quarks",
+    stop: 2,
+    inside: "starbase",
+    veil: "#100410",
+  },
+
+  {
+    // D-158: an idea in the Starbase
+    id: "vacuum-decay",
+    name: "Vacuum Decay",
+    // the source: "creating a bubble that would expand at almost the speed of light, transforming all in its path";
+    // "Inside that bubble the laws of physics we take for granted would change"; "vacuum decay is extremely unlikely"
+    line: "An unlikely bubble of changed physics, transforming all at nearly light speed.",
+    sources: ["sciam-vacuum-decay"],
+    anchor: "vacuum",
+    stop: 2,
+    inside: "starbase",
+    veil: "#0e0204",
+  },
+  {
+    // D-159: an idea in the Starbase
+    id: "bubble-universes",
+    name: "Bubble Universes",
+    // the source: "Eternal inflation posits that the whole universe consists of pocket universes embedded in a
+    // background universe"; "We, of course, are one of those observers"; called "highly speculative", so "Perhaps"
+    line: "Perhaps our universe is one bubble among many, in endlessly inflating space.",
+    sources: ["unlv-eternal-inflation"],
+    anchor: "bubbles",
+    stop: 2,
+    inside: "starbase",
+    veil: "#0d0510",
   },
 ];
 
