@@ -32,8 +32,8 @@ export interface Stop {
   video?: string;
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
-export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "quasi";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
+export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
 export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart";
 
@@ -218,6 +218,13 @@ export const SOURCES: readonly Source[] = [
     url: "https://www.nasa.gov/missions/ixpe/nasas-ixpe-obtains-first-x-ray-polarization-measurement-of-magnetar-outburst/",
     checked: "2026-11-22",
   },
+  {
+    id: "nas-spacetime-simulations",
+    title: "Spacetime Simulations and the Discovery of Gravitational Waves",
+    publisher: "NASA Advanced Supercomputing Division, NASA Ames Research Center",
+    url: "https://www.nas.nasa.gov/pubs/stories/2019/feature_gravitational_waves_Centrella.html",
+    checked: "2026-11-22",
+  },
 ];
 
 // Videos (D-141): Kurzgesagt, checked through YouTube oEmbed on 2026-11-22; the nebula has none yet.
@@ -397,6 +404,18 @@ export const PLACES: readonly Place[] = [
     stop: 1,
     inside: "supernova-remnant",
     veil: "#12041a",
+  },
+  {
+    // D-144: no video yet (owner to pick)
+    id: "black-hole-merger",
+    name: "A Black Hole Merger",
+    // the source: "Two black holes spiral together and merge in this simulation"; mergers "would cause distortions in
+    // spacetime that ripple across the universe"
+    line: "Two black holes spiral together and merge, rippling space and time.",
+    sources: ["nas-spacetime-simulations"],
+    anchor: "merger",
+    stop: 1,
+    veil: "#07061a",
   },
   {
     id: "quasi-star",

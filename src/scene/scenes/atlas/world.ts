@@ -86,6 +86,9 @@ const QUASI_TH = armAngle(1, QUASI_R) + 0.6;
 // D-142: a supernova remnant, out in the disc between the arms
 const REMNANT_R = 0.58;
 const REMNANT_TH = armAngle(1, REMNANT_R) + 0.75;
+// D-144: a black hole merger, in the outer disc
+const MERGER_R = 0.86;
+const MERGER_TH = armAngle(2, MERGER_R) + 4.2;
 type Anchor = { local: Vec3; spin: boolean } | { web: "quasar" | "home" };
 const ANCHORS: Record<string, Anchor> = {
   /** The heart of the galaxy. */
@@ -106,6 +109,8 @@ const ANCHORS: Record<string, Anchor> = {
   quasi: { local: [QUASI_R * Math.cos(QUASI_TH), 0, QUASI_R * Math.sin(QUASI_TH)], spin: true },
   /** A supernova remnant in the disc (D-142). */
   remnant: { local: [REMNANT_R * Math.cos(REMNANT_TH), 0, REMNANT_R * Math.sin(REMNANT_TH)], spin: true },
+  /** A black hole merger in the outer disc (D-144). */
+  merger: { local: [MERGER_R * Math.cos(MERGER_TH), 0, MERGER_R * Math.sin(MERGER_TH)], spin: true },
   /** A far galaxy of the web, placed where the zoomed-out composition wants it. */
   quasar: { web: "quasar" },
   /** The galaxy the visitor came from. */
