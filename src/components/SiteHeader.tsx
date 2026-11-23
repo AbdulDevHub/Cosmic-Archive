@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useMemo, useState, type KeyboardEvent, type MouseEvent } from "react";
-import type { MenuGroup, MenuPlace } from "@/lib/content/menu";
+import type { MenuFlight, MenuGroup, MenuPlace } from "@/lib/content/menu";
 import { setMusicMode, toggleSound, useSound } from "@/lib/sound";
 import { flowBusy, jumpTo } from "@/scene/host/flow";
 import { Dock } from "./Dock";
@@ -24,7 +24,7 @@ export const HOME_EVENT = "cosmic:home";
 /** A place's name without "A", "An", "The" or "Its" in front, for matching. */
 const bare = (name: string) => name.toLowerCase().replace(/^(a|an|the|its)\s+/, "");
 
-export function SiteHeader({ groups }: { groups: MenuGroup[] }) {
+export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: MenuFlight[] }) {
   const pathname = usePathname();
   const router = useRouter();
   const on = useSound((s) => s.enabled);
@@ -65,7 +65,7 @@ export function SiteHeader({ groups }: { groups: MenuGroup[] }) {
       </Link>
 
       <div className={styles.bar}>
-        <Dock groups={groups} />
+        <Dock groups={groups} flights={flights} />
       </div>
 
       <div className={styles.tools}>

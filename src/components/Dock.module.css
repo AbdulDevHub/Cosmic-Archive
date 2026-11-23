@@ -193,3 +193,8 @@
   padding: 0;
   list-style: none;
 }
+
+/* the flights (D-151): two groups side by side */
+.flights {
+  grid-template-columns: repeat(2, max-content);
+}

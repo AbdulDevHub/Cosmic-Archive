@@ -7,7 +7,8 @@
 Everything is committed and pushed to the private GitHub repo (`AbdulDevHub/Cosmic-Archive`). Nothing is deployed. Judge on the 1440x900 laptop first (D-110).
 
 - **Start page** (`/`, from the owner's `Home.png`, D-107): gradient headline, Begin, "Choose Your Vessel" with five ships (Sovereign, Predator, Celestial, Discovery, Colossus; D-120, brief in `SHIP_BRIEF.md`), and a spaceship loader (D-123). `/#atlas` skips it.
-- **Header:** wordmark, glass dock (Science, Explore, Learn, Discover: "coming soon"), search ("coming soon") and Sound (D-116).
+- **Header:** wordmark, glass dock (Places, Flights, Ship; D-139, D-151), search that flies to a place, and Sound.
+- **Flights** (D-151, `src/content/flights.ts`): A Star's Life and Black Hole to Quasar (guided, Next and End Flight) and The Grand Tour (hands-off, Skip Tour), from the dock's Flights.
 - **Atlas stops** (Zoom Out moves outward): A Spiral Galaxy → The Cosmic Web → A Supervoid (three voids growing, dark energy in the line, no turning there; D-132, D-137) → The Observable Universe (turns like a globe, D-130 to D-132).
 - **Places** (one shader each; wheel zooms, drag turns, Zoom Out leaves): Black Hole, Nebula, Neutron Star, Strange Star, Wormhole, Gravastar and Quasi-Star in the galaxy. **A Solar System** holds the Yellow Star and A Blue World. A Blue World holds Its Moon, and Its Moon holds An Asteroid. **A Quasar Galaxy** (reached from the web and through the Wormhole) holds the Quasar and the Dyson Sphere. Places inside places: `inside` and `through` in `src/content/places.ts`, `bodies` in `src/scene/scenes/shared/orb.tsx`.
 - **Sound** (`src/lib/sound.ts`): a loop per scene in `public/audio/music/` (in git since D-140, cut from `owner/music-library/`), effects in `public/audio/effects/`, Magical Space as the fallback, warp sounds on every move, nothing before Begin (D-100, D-114 to D-116).
@@ -15,7 +16,7 @@ Everything is committed and pushed to the private GitHub repo (`AbdulDevHub/Cosm
 
 ## In Progress
 
-- Item 6 below: the real places (Supernova, Pulsar, Black Hole Merger, Comet, Ringed Planet, Dark Matter reveal).
+- Item 8 below: the Starbase hub in A Quasar Galaxy.
 
 ## Next Steps
 
@@ -44,10 +45,10 @@ Agreed with the owner on 2026-11-22 (D-136). Work down the list and commit after
    - In the galaxy: Supernova and Its Remnant (done 2026-11-22, D-142: A Supernova Remnant; video and music loop to come), Pulsar or Magnetar (done 2026-11-22, D-143: A Magnetar, inside the remnant), Black Hole Merger (done 2026-11-22, D-144).
    - In the Solar System: a Comet (done 2026-11-22, D-145) and a Ringed Planet (done 2026-11-22, D-146: A Ringed Giant).
    - At the web: the Dark Matter reveal (the halo and filaments glow) (done 2026-11-23, D-147: The Dark Matter Web).
-7. [ ] **A Star's Life and flights:**
+7. [x] **A Star's Life and flights** (done 2026-11-23, D-148 to D-151):
    - Add the stages as places: molecular cloud (done 2026-11-23, D-148), red giant (done 2026-11-23, D-149), planetary nebula and white dwarf inside it (done 2026-11-23, D-150).
-   - Add guided flights: A Star's Life, and black hole to quasar.
-   - Add a cinematic hands-off tour with Skip, from the dock's Flights.
+   - Add guided flights: A Star's Life, and black hole to quasar (done 2026-11-23, D-151: Next and End Flight above Zoom Out).
+   - Add a cinematic hands-off tour with Skip, from the dock's Flights (done 2026-11-23, D-151: The Grand Tour, 13 places).
 8. [ ] **The Starbase hub** (in the Quasar Galaxy): Warp Drive, Programmable Matter, Higher Dimensions, Pocket Dimensions, Omniverse, Bubble Universes, Vacuum Decay, Quantum Foam, Cosmic Strings, Quarks, String Theory.
 9. [ ] **Megastructures** (in the Quasar Galaxy): Dyson Swarm, Ringworld, O'Neill Cylinder, Matrioshka Brain, Generation Ship, Stellar Engine, Von Neumann Probes, Space Elevator, Star Lifter.
 10. [ ] **The Seven Heavens:** one stop after the Observable Universe, seven nested layers each bigger than the last, drawn as abstract light. The line on the site has no Quran quote. Its source (the Quran, fetched) goes in `places.ts`.

@@ -55,7 +55,9 @@ export async function serveBuild(label) {
 
 /** Headless Chromium with software WebGL allowed, so scenes draw on machines and CI without a GPU. */
 export function launchBrowser(extraArgs = []) {
-  return chromium.launch({ args: ["--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", ...extraArgs] });
+  // PW_CHROMIUM: a Chromium already on the machine (a cloud container whose browser does not match this Playwright)
+  const executablePath = process.env.PW_CHROMIUM || undefined;
+  return chromium.launch({ executablePath, args: ["--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", ...extraArgs] });
 }
 
 /** Resolves once the scene has drawn its first frame, or the page has settled on the poster. */

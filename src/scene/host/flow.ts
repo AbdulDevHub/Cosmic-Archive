@@ -151,6 +151,15 @@ export function pullOut(push: (href: string) => void, href: string, anchor: stri
   leave(push, href, veil, { glide: { arrive: 0 }, ms: SHRINK_MS, veilAt: SHRINK_VEIL_AT, undo: { arrive: 1 } }, { zoom, focus: anchor, dive: 1 }, { dive: 0 }, { dive: 0 });
 }
 
+/**
+ * From one place on to another that is not inside it (D-151, the flights): the place shrinks away
+ * as for Zoom Out, the screen passes through the next place's darkness, and the next arrives.
+ */
+export function flyOn(push: (href: string) => void, href: string, veil: string): void {
+  if (location.pathname === href) return;
+  leave(push, href, veil, { glide: { arrive: 0 }, ms: SHRINK_MS, veilAt: SHRINK_VEIL_AT, undo: { arrive: 1 } }, { arrive: 0 }, { arrive: 1 }, { arrive: 1 });
+}
+
 /** The veil lifts; the flow is idle once it has faded. The next scene's opening has been used. */
 function lift(): void {
   onArrive = null;

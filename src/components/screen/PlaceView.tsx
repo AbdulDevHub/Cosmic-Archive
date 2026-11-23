@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { setMusic } from "@/lib/sound";
+import { readVia, setVia } from "@/lib/via";
 import { diveInto, flowBusy, pullOut } from "@/scene/host/flow";
 import { SceneSlot } from "@/scene/host/SceneSlot";
 import { getSceneFrame, getSceneInput, sceneIsLive, setSceneInput, subscribeSceneFrame, useSceneState, type SceneFrame, type SceneId } from "@/scene/host/store";
@@ -44,24 +45,6 @@ export interface PlaceWords {
   /** Another place that leads here (D-133): arrived through it, Zoom Out goes back through it. */
   through?: { from: string; outTo: string; outZoom: number; outVeil: string; anchor: string };
 }
-
-/** Which place a visitor last dived into each place from (D-133), for the session. */
-const viaKey = (scene: string) => `cosmic-archive:via:${scene}`;
-const readVia = (scene: string) => {
-  try {
-    return sessionStorage.getItem(viaKey(scene));
-  } catch {
-    return null;
-  }
-};
-export const setVia = (scene: string, from: string | null) => {
-  try {
-    if (from) sessionStorage.setItem(viaKey(scene), from);
-    else sessionStorage.removeItem(viaKey(scene));
-  } catch {
-    // no storage: Zoom Out goes the usual way
-  }
-};
 
 /** A place inside this one (D-132): its hotspot stands on the scene's body `anchor`. */
 export interface InnerSpot {

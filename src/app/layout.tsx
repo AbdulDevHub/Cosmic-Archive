@@ -2,9 +2,10 @@ import type { Metadata, Viewport } from "next";
 import { Google_Sans_Flex, Hanken_Grotesk } from "next/font/google";
 import type { ReactNode } from "react";
 import { FirstLoad } from "@/components/FirstLoad";
+import { FlightBar } from "@/components/screen/FlightBar";
 import { Veil } from "@/components/screen/Veil";
 import { SiteHeader } from "@/components/SiteHeader";
-import { menuGroups } from "@/lib/content/menu";
+import { menuFlights, menuGroups } from "@/lib/content/menu";
 import { motionInitScript } from "@/lib/motion";
 import { DEFAULT_OG, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import { SceneHostLoader } from "@/scene/host/SceneHostLoader";
@@ -54,9 +55,10 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
           Skip to content
         </a>
         <SceneHostLoader />
-        <SiteHeader groups={menuGroups()} />
+        <SiteHeader groups={menuGroups()} flights={menuFlights()} />
         <main id="content">{children}</main>
         <Veil />
+        <FlightBar />
         <FirstLoad />
       </body>
     </html>

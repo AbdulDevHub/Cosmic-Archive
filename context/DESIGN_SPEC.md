@@ -85,7 +85,7 @@ Every scene route is one screen: the scene fills the window and nothing scrolls.
 
 ### 7.1 Header (replaced by D-107)
 
-The emblem and "COSMIC ARCHIVE" in widely spaced capitals (it leads home); in the middle the menu, the flared glass dock (D-116), now **Places**, **Flights** and **Ship** (D-139): Places opens a glass panel of every place grouped by where it is found, and a choice flies there; Ship holds the fleet, moved off the start page; Flights is "coming soon" until the guided flights exist. **Search** finds a place by name and flies there (Enter takes the first); typed in full, "Music" shows a round music switch beside it (hidden Music mode). A round Sound button. On a phone only the wordmark and Sound. What follows is the header before D-107.
+The emblem and "COSMIC ARCHIVE" in widely spaced capitals (it leads home); in the middle the menu, the flared glass dock (D-116), now **Places**, **Flights** and **Ship** (D-139): Places opens a glass panel of every place grouped by where it is found, and a choice flies there; Ship holds the fleet, moved off the start page; Flights (D-151) lists the guided flights and the tour; a choice starts one (see 7.5). **Search** finds a place by name and flies there (Enter takes the first); typed in full, "Music" shows a round music switch beside it (hidden Music mode). A round Sound button. On a phone only the wordmark and Sound. What follows is the header before D-107.
 
 
 Wordmark "Cosmic Archive" in the display face, left; it leads home to the universe. Right: **Sound**, a speaker with waves when on and a cross when off, with the word (its icon only on a phone). No background: every page is a scene, and the header's empty middle can be dragged through.
@@ -122,6 +122,14 @@ Every scene shows a grab cursor (a closed hand while dragging). Until the visito
 4. The place's first frame is drawn small and far off; the veil lifts as it grows to full size (1.7 s).
 
 Going out is the same, reversed. The veil never stays down: a page that draws no scene lifts it at once, and it gives up after six seconds.
+
+### 7.5 Flights (D-151)
+
+A flight is a route through places, started from the dock's Flights: **A Star's Life** (A Molecular Cloud, Nebula, Yellow Star, A Red Giant, A Planetary Nebula, A White Dwarf), **Black Hole to Quasar** (Black Hole, A Black Hole Merger, A Quasar Galaxy, Quasar) and **The Grand Tour** (13 places, from A Blue World out to The Dark Matter Web). Each stop is the place's own screen, with its own name and line. Each step is the site's own flight: a place inside the one before is dived into through its body; any other is reached as the last place shrinks away, through the veil, and the next arrives.
+
+- Above Zoom Out on the right (a phone: under the header) stand the flight's name and "3 of 6", and its buttons, in Zoom Out's own style: a guided flight has **Next: (the next place)** and **End Flight**; the tour has **Skip Tour**. They sit over the veil, so Skip works mid-move. The drag hint stays away while a flight is on.
+- The tour moves on by itself after about nine seconds at each place, its camera easing slowly back and round while it waits. With reduced motion there is no drift: each place is a still for ten seconds, and each move is the short cross-fade.
+- Anything that takes the visitor elsewhere (Zoom Out, a hotspot, search, Back) ends the flight. A reload ends it too. A flight starts only from a click, so it never sounds before the first gesture (D-100).
 
 ## 8. About
 

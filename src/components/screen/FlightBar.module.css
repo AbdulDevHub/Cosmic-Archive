@@ -1,0 +1,74 @@
+/*
+  A flight under way (D-151): above Zoom Out on the right, over the veil (z-index 20), so Skip
+  works mid-move. The words are ink on space with the caption's dark halo; the buttons are
+  Zoom Out's own.
+*/
+
+.bar {
+  position: fixed;
+  z-index: 21;
+  right: var(--gutter);
+  bottom: calc(clamp(28px, 7vh, 72px) + 46px + 18px);
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+  animation: bar-in var(--dur-base, 250ms) var(--ease-out) both;
+}
+
+.where {
+  margin: 0;
+  display: flex;
+  gap: 10px;
+  font-size: var(--step--1);
+  color: var(--ink-2);
+  text-shadow:
+    0 0 14px oklch(0.13 0.04 275 / 0.95),
+    0 0 4px oklch(0.13 0.04 275 / 0.8);
+}
+
+.name {
+  font: 500 1em / 1.2 var(--font-display);
+  color: var(--ink);
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.buttons button[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: default;
+}
+
+@keyframes bar-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    animation: none;
+  }
+}
+
+:global(html[data-motion="paused"]) .bar {
+  animation: none;
+}
+
+/* a phone: under the header, across the top */
+@media (max-width: 720px) {
+  .bar {
+    top: 76px;
+    bottom: auto;
+    left: var(--gutter);
+    right: var(--gutter);
+    justify-items: start;
+  }
+
+  .buttons {
+    flex-wrap: wrap;
+  }
+}

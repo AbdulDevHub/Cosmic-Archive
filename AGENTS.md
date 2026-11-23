@@ -15,6 +15,7 @@ Next.js 16 (App Router, static), React 19, TypeScript strict, CSS Modules with O
 
 - `npm install`, then `npm run dev` (http://localhost:3000).
 - Run `npm run shots`, `npm run a11y`, `npm run fallbacks` and `npm run posters` one at a time, with no server or build running: the machine runs short of memory.
+- In a cloud container whose Chromium does not match the pinned Playwright, set `PW_CHROMIUM` to the browser on the machine (e.g. `/opt/pw-browsers/chromium`) (D-151).
 
 Verify: npm run check
 

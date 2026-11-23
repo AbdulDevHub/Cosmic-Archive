@@ -70,6 +70,7 @@ src/
   app/                   routes and layouts (server components by default)
   components/screen/     the screen: AtlasView, PlaceView, the Veil, DragHint, useGestures, CSS Modules
   lib/sound.ts           the music and the whooshes (Web Audio, no dependency)
+  lib/flight.ts          the flights and the tour (D-151): which stop, Next, the tour's timer; moves through flow.ts
   lib/content/           loads and checks src/content/places.ts
   scene/                 everything WebGL (the only place three is imported)
     host/                SceneHost, SceneSlot, store, flow, registry
@@ -129,6 +130,8 @@ Diving into a place from the atlas:
 3. At 1.4 s the flow sets the next scene's opening (`arrive: 0`) and calls `router.push`. The new page's slot registers; its scene mounts under the veil.
 4. When the new scene's first frame is drawn (`markReady` for a token newer than the one left), `arrive` glides 0 to 1 over 1.7 s (the shader scenes scale their composition from about a third to full) and the veil lifts.
 5. If the veil has been down 400 ms, the loader shows. A page that draws no scene (no WebGL, the 404) lifts the veil after 350 ms; it gives up after 6 s whatever happens.
+
+**Flights (D-151):** `flyOn` moves from one place on to another that is not inside it: the place shrinks away as for Zoom Out (`arrive` to 0), the veil falls in the next place's colour, and the next arrives. A place inside the current one is reached with `diveInto`. `src/lib/flight.ts` chooses between them, keeps the stop, and ends the flight when the page goes anywhere it did not ask for.
 
 Pulling out is the same in reverse: `arrive` glides to 0 (0.9 s), the veil falls in the atlas's `--space`, and the atlas opens at the place's stop with `focus` on its anchor and `dive` at 1, then glides `dive` to 0.
 

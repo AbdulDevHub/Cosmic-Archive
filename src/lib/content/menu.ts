@@ -4,6 +4,7 @@
  * so the facts and sources in `src/content/places.ts` never reach the browser for it.
  */
 
+import { FLIGHTS, type Flight } from "@content/flights";
 import { PLACES, type Place, type PlaceId } from "./places";
 
 export interface MenuPlace {
@@ -48,4 +49,35 @@ export function menuGroups(): MenuGroup[] {
   return [...groups.entries()]
     .sort(([a], [b]) => ORDER.indexOf(a) - ORDER.indexOf(b))
     .map(([name, places]) => ({ name, places }));
+}
+
+// ---- the flights (D-151): each stop with what a move to it needs, built on the server too ----
+
+export interface FlightStep {
+  id: PlaceId;
+  name: string;
+  veil: string;
+  /** The body it is found at, when it is inside the place before it: the flight dives into it. */
+  anchor: string;
+  inside?: PlaceId;
+}
+
+export interface MenuFlight {
+  id: Flight["id"];
+  name: string;
+  kind: Flight["kind"];
+  steps: FlightStep[];
+}
+
+export function menuFlights(): MenuFlight[] {
+  return FLIGHTS.map((flight) => ({
+    id: flight.id,
+    name: flight.name,
+    kind: flight.kind,
+    steps: flight.places.map((id) => {
+      const place = byId.get(id);
+      if (!place) throw new Error(`flights: ${flight.id} names no place ${id}`);
+      return { id, name: place.name, veil: place.veil, anchor: place.anchor, ...(place.inside ? { inside: place.inside } : {}) };
+    }),
+  }));
 }

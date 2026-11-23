@@ -23,7 +23,7 @@ import { ZoomOutIcon } from "../icons";
 import { VideoButton } from "./VideoButton";
 import { HOME_EVENT } from "../SiteHeader";
 import { DragHint } from "./DragHint";
-import { setVia } from "./PlaceView";
+import { setVia } from "@/lib/via";
 import styles from "./screen.module.css";
 import { StartScreen, type StartPhase } from "./StartScreen";
 import { useGestures } from "./useGestures";
