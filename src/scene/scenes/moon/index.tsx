@@ -33,6 +33,9 @@ vec3 sky(vec2 css){
 /*
  * Craters on the sphere: cells of a 3D grid, each holding at most one crater (a random size, or
  * none). Returns the height change at p and adds the fresh craters' rays to ray.
+ * D-138: no two craters alike, so none looks stamped. Sizes follow a steep power law (a few large,
+ * many small); each has its own age: fresh ones are deep with a crisp rim, old ones are worn
+ * almost flat; the rim is a gentle lip, not a ring; each crater is a little out of round.
  */
 float craters(vec3 p, float scale, float keep, inout float ray){
   vec3 g = p * scale;
@@ -46,18 +49,25 @@ float craters(vec3 p, float scale, float keep, inout float ray){
     float pick = hash3(cell + 0.37);
     if (pick > keep) continue;
     vec3 c = o + vec3(hash3(cell + 1.1), hash3(cell + 2.3), hash3(cell + 3.7)) * 0.8 + 0.1 - f;
-    float rad = 0.18 + 0.32 * hash3(cell + 5.9);
-    float d = length(c) / rad;
-    if (d > 2.6) continue;
-    // a bowl inside, a raised rim, a soft apron outside
-    float bowl = (d * d - 1.0) * 0.55 * smoothstep(1.05, 0.9, d);
-    float rim = exp(-pow((d - 1.0) / 0.14, 2.0)) * 0.35;
-    float apron = exp(-pow((d - 1.2) / 0.4, 2.0)) * 0.08;
-    h += (bowl + rim + apron) * rad;
-    // a young crater throws pale rays across the ground round it
-    if (hash3(cell + 8.1) > 0.85) {
-      float a = atan(c.y, c.x) * 7.0 + hash3(cell) * 6.0;
-      ray += smoothstep(0.5, 1.0, abs(sin(a)) * abs(sin(a * 1.7))) * smoothstep(2.6, 1.0, d) * step(1.0, d) * 0.5;
+    float rad = 0.17 + 0.36 * pow(hash3(cell + 5.9), 2.2);
+    float a = atan(c.y, c.x);
+    float wobble = 1.0 + 0.07 * sin(a * 3.0 + hash3(cell + 4.4) * 6.3) + 0.04 * sin(a * 5.0 + hash3(cell + 6.6) * 6.3);
+    float d = length(c) / (rad * wobble);
+    if (d > 2.4) continue;
+    float age = hash3(cell + 7.3);                     // 0 fresh, 1 worn
+    float fresh = mix(1.0, 0.3, age * age);
+    float sharp = mix(0.13, 0.32, age);                // old rims are rounded off
+    // a bowl inside (flat-floored when large), a raised lip, a soft apron of ejecta outside
+    float bowl = (min(d * d, 1.0) - 1.0) * 0.5 * smoothstep(1.08, 0.82, d) * mix(1.0, 0.6, smoothstep(0.25, 0.45, rad) * smoothstep(0.55, 0.2, d));
+    float rq = (d - 1.0) / sharp;
+    float rim = exp(-rq * rq) * 0.2;
+    float aq = (d - 1.3) / 0.5;
+    float apron = exp(-aq * aq) * 0.05;
+    h += (bowl + rim + apron) * rad * fresh;
+    // only a few fresh craters throw pale rays across the ground round them
+    if (age < 0.25 && hash3(cell + 8.1) > 0.6) {
+      float ra = a * 9.0 + hash3(cell) * 6.0;
+      ray += smoothstep(0.55, 1.0, abs(sin(ra)) * abs(sin(ra * 1.7 + 1.3))) * smoothstep(2.4, 1.0, d) * step(1.0, d) * 0.45;
     }
   }
   return h;
@@ -65,13 +75,21 @@ float craters(vec3 p, float scale, float keep, inout float ray){
 
 float ground(vec3 p, out float mare, out float rays){
   rays = 0.0;
-  // the maria: broad, smooth, dark plains in a few great basins
-  float basins = fbm3(p * 1.9 + 4.0);
-  mare = smoothstep(0.54, 0.59, basins + 0.08 * (fbm3(p * 6.0) - 0.5));
-  float h = (1.0 - mare) * fbm3(p * 5.0 + 2.0) * 0.06;       // rugged highlands
-  h += craters(p, 3.0, 0.5, rays) * 0.12 * (1.0 - 0.5 * mare);
-  h += craters(p, 8.0, 0.6, rays) * 0.05 * (1.0 - 0.6 * mare);
-  if (uDetail > 0) h += craters(p, 20.0, 0.7, rays) * 0.02 * (1.0 - 0.6 * mare);
+  // the maria (D-138): broad dark plains whose shores wander (a warped field) and fade over a
+  // wide band, flooded smooth and set only slightly lower, so no cliff or block marks their edge
+  vec3 warp = vec3(noise3(p * 2.3 + 1.0), noise3(p * 2.3 + 5.0), noise3(p * 2.3 + 9.0)) - 0.5;
+  float basins = fbm3(p * 1.5 + warp * 0.9 + 4.0);
+  mare = smoothstep(0.5, 0.63, basins + 0.07 * (noise3(p * 7.0) - 0.5));
+  float high = 1.0 - mare;
+  float h = high * fbm3(p * 5.0 + 2.0) * 0.05 - mare * 0.004;  // rugged highlands, plains a touch lower
+  // the highlands are saturated with craters; the younger plains hold far fewer
+  h += craters(p, 2.6, 0.32, rays) * 0.14 * (1.0 - 0.55 * mare);
+  h += craters(p, 6.5, 0.62, rays) * 0.07 * (1.0 - 0.7 * mare);
+  // the finest layers only on the high tier: each layer is 27 cells, three times a pixel (bump map)
+  if (uDetail > 0) {
+    h += craters(p, 15.0, 0.7, rays) * 0.032 * (1.0 - 0.75 * mare);
+    h += craters(p, 34.0, 0.75, rays) * 0.014 * (1.0 - 0.8 * mare);
+  }
   return h;
 }
 
@@ -116,16 +134,20 @@ void main(){
     float m2, r2;
     float hx = ground(normalize(p + tx * e), m2, r2);
     float hy = ground(normalize(p + ty * e), m2, r2);
-    vec3 bump = normalize(p - (tx * (hx - h) + ty * (hy - h)) / e * 0.9);
+    vec3 bump = normalize(p - (tx * (hx - h) + ty * (hy - h)) / e * 0.75);
     vec3 nb = view * bump;
 
-    float ndl = dot(nb, L);
-    float lambert = max(ndl, 0.0);
-    // hard light, no air: almost nothing in the shadows, a sharp terminator
-    float lit = smoothstep(-0.02, 0.06, dot(n, L)) * lambert;
-    vec3 albedo = mix(HIGHLAND, MARE, mare) * (0.85 + 0.3 * fbm3(p * 12.0));
-    albedo = mix(albedo, WARM * 0.95, clamp(rays, 0.0, 1.0) * (1.0 - mare * 0.5) * 0.45);
-    vec3 body = albedo * WARM * lit * 1.45 + albedo * 0.012;
+    // hard light, no air: almost nothing in the shadows, a sharp terminator. Dust on an airless
+    // world scatters light back (Lommel-Seeliger), so the full disc reads evenly bright, not
+    // shaded like a ball; the slopes still catch it (D-138)
+    float mu0 = max(dot(nb, L), 0.0);
+    float mu = max(n.z, 0.05);
+    float lit = smoothstep(-0.02, 0.06, dot(n, L)) * min(2.0 * mu0 / (mu0 + mu), 1.35) * mix(0.55, 1.0, mu0);
+    float tone = fbm3(p * 9.0 + 3.0);
+    vec3 maria = MARE * mix(vec3(0.94, 0.96, 1.06), vec3(1.08, 1.0, 0.9), tone);  // bluer and browner flows
+    vec3 albedo = mix(HIGHLAND * (0.88 + 0.24 * tone), maria * (0.85 + 0.3 * tone), mare);
+    albedo = mix(albedo, WARM * 0.95, clamp(rays, 0.0, 1.0) * (1.0 - mare * 0.5) * 0.4);
+    vec3 body = albedo * WARM * lit * 1.05 + albedo * 0.012;
     // earthshine: the faintest blue on the night side
     body += vec3(0.2, 0.3, 0.5) * albedo * 0.025 * smoothstep(0.1, -0.3, dot(n, L));
     col = mix(col, body, smoothstep(1.0, 0.995, r));

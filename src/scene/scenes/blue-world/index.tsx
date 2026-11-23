@@ -26,7 +26,7 @@ const vec3 SEA = vec3(0.02, 0.13, 0.34);
 const vec3 SHELF = vec3(0.05, 0.32, 0.5);
 const vec3 FOREST = vec3(0.09, 0.24, 0.09);
 const vec3 GRASS = vec3(0.3, 0.38, 0.16);
-const vec3 DESERT = vec3(0.62, 0.48, 0.3);
+const vec3 DESERT = vec3(0.5, 0.42, 0.31);
 const vec3 ICE = vec3(0.9, 0.94, 0.98);
 const vec3 AIR = vec3(0.3, 0.6, 1.0);
 const vec3 CITY = vec3(1.0, 0.72, 0.36);
@@ -74,20 +74,37 @@ void main(){
     float day = smoothstep(-0.08, 0.2, ndl);
     float mu = n.z;
 
-    // the land: continents from warped noise, mountains and deserts inside them
-    vec3 warp = vec3(fbm3(p * 1.8 + 3.0), fbm3(p * 1.8 + 9.0), fbm3(p * 1.8 + 15.0)) - 0.5;
-    float h = fbm3(p * 2.4 + warp * 1.4 + 1.3);
+    // the land (D-138): continents from warped noise, their coasts made ragged by finer noise
+    // (bays, capes, island chains) instead of smooth blobs; ridged mountain chains inside them
+    vec3 warp = vec3(fbm3(p * 1.6 + 3.0), fbm3(p * 1.6 + 9.0), fbm3(p * 1.6 + 15.0)) - 0.5;
+    float h = fbm3(p * 2.1 + warp * 1.7 + 1.3);
+    h += 0.11 * (fbm3(p * 8.0 + warp * 2.5 + 20.0) - 0.5);
+    if (uDetail > 0) h += 0.04 * (noise3(p * 26.0 + 4.0) - 0.5);
     float coast = 0.565;
-    float land = smoothstep(coast, coast + 0.012, h);
-    float shelf = smoothstep(coast - 0.07, coast, h) * (1.0 - land);
-    float dry = smoothstep(0.45, 0.7, fbm3(p * 3.2 + 5.0)) * (1.0 - smoothstep(0.55, 0.85, abs(p.y)));
+    float land = smoothstep(coast, coast + 0.005, h);
+    float shelf = smoothstep(coast - 0.035, coast, h) * (1.0 - land);
+    float inland = smoothstep(coast, coast + 0.12, h);
+    float ridge = 1.0 - abs(2.0 * noise3(p * 5.5 + warp * 2.0 + 30.0) - 1.0);
+    float peaks = pow(ridge, 7.0) * smoothstep(0.03, 0.14, h - coast);
     float detail = fbm3(p * 14.0);
+    // climate bands: wet tropics, dry belts near 25 degrees, temperate forest, cold tundra
+    float lat = abs(p.y) + 0.06 * (detail - 0.5);
+    float dq = (lat - 0.42) / 0.13;
+    float dryBelt = exp(-dq * dq) * smoothstep(0.35, 0.65, fbm3(p * 3.2 + 5.0));
+    float tundra = smoothstep(0.68, 0.8, lat);
     vec3 ground = mix(FOREST, GRASS, smoothstep(0.35, 0.7, detail));
-    ground = mix(ground, DESERT, dry * 0.85);
-    ground *= 0.8 + 0.4 * detail;
-    float polar = smoothstep(0.87, 0.93, abs(p.y) + 0.04 * (detail - 0.5));
-    vec3 ocean = mix(DEEP, SEA, smoothstep(0.25, 0.5, h));
-    ocean = mix(ocean, SHELF, shelf * 0.7);
+    ground = mix(ground, vec3(0.05, 0.18, 0.06), smoothstep(0.3, 0.0, lat) * 0.6);   // rainforest
+    ground = mix(ground, DESERT * mix(vec3(1.0), vec3(1.08, 0.92, 0.8), detail), clamp(dryBelt * 1.2, 0.0, 0.85) * (1.0 - peaks));
+    ground = mix(ground, vec3(0.32, 0.31, 0.26), tundra);
+    ground = mix(ground, vec3(0.3, 0.28, 0.25), peaks * 0.7);                         // bare rock
+    ground = mix(ground, ICE * 0.85, smoothstep(0.6, 0.9, peaks + tundra * 0.25) * 0.6);     // snow on the heights
+    ground *= 0.82 + 0.36 * detail;
+    // relief: slopes facing the Sun a touch brighter, the far sides a touch darker
+    float ridgeSun = 1.0 - abs(2.0 * noise3((p + transpose(view) * L * 0.008) * 5.5 + warp * 2.0 + 30.0) - 1.0);
+    ground *= 1.0 + clamp((pow(ridgeSun, 7.0) - pow(ridge, 7.0)) * 3.0, -0.2, 0.2) * inland;
+    float polar = smoothstep(0.88, 0.93, abs(p.y) + 0.05 * (detail - 0.5));
+    vec3 ocean = mix(DEEP, SEA, smoothstep(0.2, 0.52, h));
+    ocean = mix(ocean, SHELF, shelf * shelf * 0.65);
     vec3 surface = mix(ocean, ground, land);
     surface = mix(surface, ICE, polar);
 
@@ -102,13 +119,15 @@ void main(){
     float shade = smoothstep(0.5, 0.78, fbm3((cp + L * 0.02) * 3.0 + cw * 2.2 + 40.0));
 
     vec3 lit = surface * (1.0 - 0.35 * shade * (1.0 - cloud));
-    lit = mix(lit, vec3(0.95, 0.97, 1.0), cloud * 0.9);
-    vec3 dayCol = lit * (0.04 + 1.05 * max(ndl, 0.0));
-    // the Sun's glint on the open sea
+    lit = mix(lit, vec3(0.9, 0.93, 0.97), cloud * 0.85);
+    vec3 dayCol = lit * (0.04 + 0.98 * max(ndl, 0.0));
+    // the Sun's glint on the open sea (D-138): a small soft sheen, broken up by the waves, never a
+    // white blot; clouds and land hide it
     vec3 h2 = normalize(L + vec3(0.0, 0.0, 1.0));
-    float glint = pow(max(dot(n, h2), 0.0), 60.0) * (1.0 - land) * (1.0 - cloud);
-    dayCol += vec3(1.0, 0.92, 0.8) * glint * 1.4;
-    dayCol += vec3(1.0, 0.85, 0.7) * pow(max(dot(n, h2), 0.0), 8.0) * (1.0 - land) * (1.0 - cloud) * 0.12;
+    float waves = 0.75 + 0.5 * noise3(p * 60.0 + t * 0.2);
+    float glint = pow(max(dot(n, h2), 0.0), 240.0) * (1.0 - land) * (1.0 - cloud) * waves;
+    dayCol += vec3(1.0, 0.9, 0.75) * glint * 0.55;
+    dayCol += vec3(0.9, 0.85, 0.75) * pow(max(dot(n, h2), 0.0), 24.0) * (1.0 - land) * (1.0 - cloud) * 0.07;
 
     // the night side: cities in warm points, along coasts and in clusters, dimmed under cloud
     vec2 cell = vec2(atan(p.z, p.x) * 90.0, asin(clamp(p.y, -1.0, 1.0)) * 90.0);

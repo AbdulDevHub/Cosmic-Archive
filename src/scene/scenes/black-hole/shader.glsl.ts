@@ -119,9 +119,12 @@ vec4 disc(vec3 hit, vec3 travel){
 
   float heat = pow(R_IN / r, 1.25) * doppler * lift * 1.25;
 #ifdef QUASAR
-  vec3 colour = mix(EMBER * 0.7, EMBER, smoothstep(0.1, 0.35, heat));
-  colour = mix(colour, vec3(1.0, 0.86, 0.74), smoothstep(0.4, 0.8, heat));
-  colour = mix(colour, WHITE, smoothstep(0.8, 1.4, heat));
+  // the quasar's colour family (D-138): electric blue to white hot, a warm accent only at its
+  // coolest outskirts, so it no longer reads as the black hole's gold seen from far off
+  vec3 colour = mix(EMBER * 0.55, vec3(0.32, 0.36, 0.95) * 0.8, smoothstep(0.06, 0.2, heat));
+  colour = mix(colour, AZURE, smoothstep(0.2, 0.45, heat));
+  colour = mix(colour, vec3(0.78, 0.9, 1.0), smoothstep(0.45, 0.85, heat));
+  colour = mix(colour, WHITE, smoothstep(0.85, 1.4, heat));
 #else
   vec3 colour = mix(VIOLET, ROSE, smoothstep(0.1, 0.3, heat));
   colour = mix(colour, EMBER, smoothstep(0.26, 0.5, heat));

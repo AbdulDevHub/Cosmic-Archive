@@ -68,7 +68,7 @@ try {
     page.on("pageerror", (err) => problems.push(`page error: ${err.message}`));
 
     await page.goto(base + poster.path, { waitUntil: "load" });
-    await sceneSettled(page);
+    await sceneSettled(page, 180000); // the heaviest scenes take minutes under software WebGL
     const result = await page.evaluate(({ quality, crop, out, type }) => {
       if (document.documentElement.dataset.scene !== "ready") return { error: "the scene did not draw (static fallback)" };
       let canvas = document.querySelector("canvas");

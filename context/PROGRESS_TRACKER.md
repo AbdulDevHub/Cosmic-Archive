@@ -15,7 +15,7 @@ Everything is committed and pushed to the private GitHub repo (`AbdulDevHub/Cosm
 
 ## In Progress
 
-- Item 3 below: polish the places.
+- Item 4 below: the dock and search, with hidden Music mode.
 
 ## Next Steps
 
@@ -30,7 +30,7 @@ Agreed with the owner on 2026-11-22 (D-136). Work down the list and commit after
    - Fix the BLUEPRINT scope: zones, laptop first, and the v1 table becomes this plan.
    - To-do for later: delete `owner/music-library/` once every loop is cut.
 2. [x] **Supervoid fixes** (done 2026-11-22, D-137): remove the separate "Growing empty…" note and put "growing" plus dark energy into the line itself; make the growth slower; turn off panning in the supervoid scene.
-3. [ ] **Polish the places:**
+3. [x] **Polish the places** (done 2026-11-22, D-138):
    - The Moon's craters look stamped and its maria blocky.
    - The Blue World's land is blobby, with a blown-out highlight.
    - The Wormhole reads as a ringed planet, not a tunnel.
