@@ -46,6 +46,7 @@ Rules:
 
 - One accent in the interface (`--beacon`). Everything else in the UI is ink on space.
 - Colour belongs to the scenery. Each place has a three-colour palette: black hole gold, ember, violet; galaxy azure, violet, gold; nebula rose, teal, gold; quasar azure, white, ember.
+- **Colour families** (from the vision docs, D-136): black holes deep indigo, black, warm gold, amber and violet; galaxies blues, violets, golds and some pinks; nebulae pink, magenta, blue and violet with warm highlights; quasars electric blue and white with warm accents. Each new place takes a family of its own, and colour never carries scientific meaning alone.
 - Each place also has a veil colour: its own darkness, which the screen passes through on the way in and out (`src/content/places.ts`).
 - Text carries a soft dark halo in `--space`, so it reads over any frame.
 
@@ -72,6 +73,7 @@ Scale: 1.25 ratio from a 17 px base; a place's name `clamp(2rem, 4.2vw, 3.6rem)`
 - A click's move is a timed glide, eased in and out: about 1.9 s between stops, 1.4 s for a dive, 1.7 s for an arrival (D-097). The wheel, a pinch, a drag and the keys ease by closing part of the gap each frame.
 - DOM transitions 150 to 300 ms, ease-out, opacity and transform only. The veil fades in 500 ms.
 - There is no Pause control (D-099): the device's own reduced-motion setting decides. With it there is no glide, dive or growth: each view is one still frame, and a move between scenes is a 220 ms cross-fade through the veil.
+- **Avoid** (from the vision docs): constant rapid movement, bright flashing, needless camera spins, scroll hijacking, and long forced intros. Any intro, flight or cinematic tour can be skipped at any moment.
 
 ## 7. The screen
 

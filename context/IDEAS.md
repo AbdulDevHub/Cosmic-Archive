@@ -1,176 +1,41 @@
 # Cosmic Archive: Ideas
 
-> **What this file is:** an idea bank of places and topics that could become scenes. Nothing here is a commitment. Pick from it when the owner asks for new places, after checking the inclusion rule in `BLUEPRINT.md` section 5. Add ideas as they come up.
+> **What this file is:** the idea bank: every topic from the owner's original list and the brainstorm, sorted into built, planned and not planned. The order of work is in `PROGRESS_TRACKER.md` "Next Steps", and that file wins. Before any idea becomes a scene, check the inclusion rule in `BLUEPRINT.md` section 5. Add new ideas under "Not Planned (Yet)" and move them up only when the owner says so.
 
-**Purpose:** An idea bank of places that could become scenes to fly into (D-092). The owner's original topic list comes first, then topics added during brainstorming. Nothing here is a commitment. The v1 scope is the table in `BLUEPRINT.md` section 4; the inclusion rule and evidence statuses are in sections 5 and 6 of the same file. Apply both before any term becomes a page.
+Sorted on 2026-11-22 (D-136), from `owner/vision-docs/` (the original ChatGPT handoff, also in commit `15e3478`). Topics the owner named are marked ★.
 
-## Term dump: the owner's list first, then additional ideas
+## Built
 
-### 1. Terms explicitly mentioned by the project owner
+- **Stops:** A Spiral Galaxy (★ galaxies), The Cosmic Web, A Supervoid (★), The Observable Universe.
+- **Real places:** Black Hole ★, Nebula ★, Quasar ★, Neutron Star ★, Yellow Star (★ Sun, stars), A Solar System ★, A Blue World (★ Earth), Its Moon ★, An Asteroid ★.
+- **Hypothetical places:** Wormhole ★, Gravastar ★, Quasi-Star (★ "black hole star"), Strange Star ★.
+- **Fiction:** Dyson Sphere ★, in A Quasar Galaxy.
+- **Ships** (★ Star Trek starships): the five-ship fleet on the start page.
 
-These are listed first and preserve the topics the project owner brought to the conversation. Minor spelling normalization is applied (for example, “neutro stars” is recorded as **neutron stars**).
+## Planned (in the Tracker)
 
-**Astronomy and cosmic subjects**
+- **Real places:** Supernova and Its Remnant; Pulsar or Magnetar; Black Hole Merger (gravitational waves); a Comet and a Ringed Planet in the Solar System; the Dark Matter reveal at the web ★ (halo and filaments); dark energy in the supervoid's line.
+- **A Star's Life** (a guided flight, and stages as places): molecular cloud or stellar nursery → star → red giant → planetary nebula → white dwarf; or, for heavy stars, supernova → neutron star or black hole.
+- **Other flights:** black hole to quasar; a cinematic hands-off tour with Skip.
+- **The Starbase hub** (★ starbases), in A Quasar Galaxy: Warp Drive, Programmable Matter ★, Higher Dimensions ★ (tesseract), Pocket Dimensions ★, Omniverse ★, Bubble Universes, Vacuum Decay, Quantum Foam, Cosmic Strings, Quarks, String Theory.
+- **Megastructures** in A Quasar Galaxy: Dyson Swarm, Ringworld, O'Neill Cylinder, Matrioshka Brain, Generation Ship, Stellar Engine, Von Neumann Probes, Space Elevator, Star Lifter.
+- **The Seven Heavens** (in place of the ★ multiverse): the outermost stop.
+- **Interface:** a dock with Places, Flights and Ship; search that flies you to a place; the video button (★ Kurzgesagt, the inspiration); hidden Music mode.
 
-- Galaxy / galaxies
-- Black holes
-- Sun
-- Earth
-- Moon
-- Asteroids
-- Solar system
-- Stars
-- Nebulae
-- Quasars
-- Neutron stars
-- Gravastars
-- Dyson spheres
-- Wormholes
-- “Black hole star” (the video concept discussed below; commonly referred to as a **quasi-star**)
-- Strange stars
-- Supervoids
-- Dark matter
+## Not Planned (Yet)
 
-**Cosmology, dimensions, and speculative reality**
+Dropped on 2026-11-22 or never picked. Revive them only with the owner.
 
-- Higher dimensions
-- Multiverse
-- Pocket dimension / pocket dimensions
-- Omniverse
+- **Structure:** galaxy groups and clusters, the Local Group, Virgo Supercluster, superclusters, galactic walls, galaxy collisions and mergers, intergalactic space, the interstellar medium, the solar neighbourhood, galaxy types (spiral, elliptical, irregular), the Milky Way by name.
+- **Stars and planets:** exoplanets, dwarf planets, brown dwarfs, red and blue supergiants, Wolf–Rayet stars, Population III (first) stars, binary stars, stellar winds; emission, reflection and dark nebulae as subtypes.
+- **High energy:** gamma-ray bursts, fast radio bursts, kilonovae, tidal disruption events, gravitational lensing, cosmic rays, solar flares, coronal mass ejections, cosmic dust, MoM-BH*-1 (check the research first), black star and dark star (not the same as a quasi-star).
+- **Cosmology:** the cosmic microwave background, cosmic inflation, antimatter, neutrinos, false vacuum and metastability, spacetime curvature, branes and brane cosmology, compactified dimensions, parallel universes, alternate timelines, quantum interpretations, where elements come from.
+- **Engineering:** worldships, artificial habitats, shape-changing robots and modular matter (these may fold into Programmable Matter).
+- **Other flights from the vision docs:** galaxy to cosmic web, light to the observable universe, ordinary matter to dark matter, a stellar explosion to the elements it scatters.
+- **Interface ideas:** a tiny ship in every scene for scale, a hypothetical tag, share images per place, a suggestion or error form, photo mode, auroras on the Blue World.
+- **Clashes with the spectacle direction (D-092):** subject pages, expandable depth, an archive with filters, About and method pages, evidence labels, telescope imagery, a scrolling homepage.
 
-**Technology and science-fiction interests**
+## Notes Kept From the Vision Docs
 
-- Programmable matter
-- Starbase / starbases
-- Star Trek starship / starships
-
-**Creative reference and catch-all**
-
-- Kurzgesagt (visual-storytelling inspiration)
-- Star Trek (aesthetic / exploration-vessel inspiration)
-- “Everything else” (the owner's intentional catch-all for future discoveries)
-
-### 2. Additional terms introduced during brainstorming
-
-These were suggested or named by the assistant as possible subjects, subtopics, examples, or future directions. They are grouped for easier searching. They are not commitments to include them in the core archive.
-
-**Large-scale cosmic structure and galactic environments**
-
-- Galaxy groups
-- Galaxy clusters
-- Galaxy superclusters / superclusters
-- Local Group
-- Virgo Supercluster (and the Virgo-region context mentioned in the scale-explorer example)
-- Cosmic web
-- Cosmic filaments
-- Cosmic voids
-- Galactic walls
-- Dark matter halos
-- Intergalactic space
-- Interstellar medium
-- Solar neighbourhood
-- Observable universe
-- Galactic core
-- Galaxy collisions and galaxy mergers
-- Galaxy types: spiral, elliptical, and irregular galaxies
-
-**Planets, star formation, and stellar evolution**
-
-- Exoplanets
-- Dwarf planets
-- Comets
-- Planetary rings
-- Molecular clouds
-- Stellar nurseries
-- Stellar evolution / stellar life cycle
-- Red giants
-- Red supergiants
-- Blue supergiants
-- White dwarfs
-- Brown dwarfs
-- Wolf–Rayet stars
-- Population III stars (proposed first-generation stars)
-- Binary stars
-- Stellar winds
-- Stellar remnants
-- Planetary nebulae
-- Supernovae
-- Supernova remnants
-
-**Compact objects, black-hole structures, and high-energy phenomena**
-
-- Pulsars
-- Magnetars
-- Quark stars
-- Quasi-stars (the likely term for the “black hole star” concept from the linked video)
-- Stellar-mass black holes
-- Supermassive black holes
-- Active galactic nuclei (AGN) / active galactic nucleus
-- Accretion disks
-- Event horizons
-- Singularity / singularities
-- Relativistic jets
-- Gamma-ray bursts
-- Fast radio bursts
-- Kilonovae
-- Tidal disruption events
-- Gravitational lensing
-- Gravitational waves
-- Cosmic rays
-- Solar flares
-- Coronal mass ejections
-- Cosmic dust
-- MoM-BH*-1 (a named early-universe object mentioned in the discussion; verify the latest research and interpretation before using it in site content)
-
-**Cosmology and fundamental physics**
-
-- Dark energy
-- Antimatter
-- Neutrinos
-- Cosmic microwave background (CMB)
-- Cosmic inflation
-- Quantum foam
-- Cosmic strings
-- False vacuum
-- Vacuum metastability
-- Vacuum decay
-- Spacetime curvature
-- Branes
-- Brane cosmology
-- Compactified dimensions
-- Tesseract / 4D hypercube
-- Higher-dimensional projections
-
-**Multiverse-adjacent and speculative concepts**
-
-- Bubble universes
-- Pocket universes
-- Parallel universes
-- Alternate timelines
-- Quantum interpretations (including interpretations sometimes discussed alongside multiverse ideas)
-- Black star / dark star (names floated while clarifying the linked-video concept; do not assume they mean the same thing as a quasi-star)
-
-**Megastructures, advanced engineering, and future civilizations**
-
-- Dyson swarms
-- Matrioshka brains
-- Ringworlds
-- O'Neill cylinders
-- Generation ships
-- Worldships
-- Stellar engines
-- Von Neumann probes
-- Warp drives / warp-drive concepts
-- Space elevators
-- Artificial habitats and artificial worlds
-- Computational materials
-- Shape-changing robots
-- Modular matter
-
-### 3. Handling this inventory
-
-- Keep the owner-mentioned list intact at the top of the dump when adding future ideas.
-- Add new suggestions to the assistant-introduced list rather than silently blending them into the original list. If the owner later adopts one, it can be moved into the owner-approved list with their permission.
-- Keep duplicate or closely related terms searchable, but consolidate them when creating the actual site taxonomy.
-- Verify terminology and current scientific status before writing explanatory content. Some terms are broad labels, some are subtypes, some are hypothetical proposals, and some are fictional or philosophical concepts.
-- Use the inventory as a future idea bank, not as a first-release checklist.
+- **Blender:** use it only when code can't reach the look (ships, the Starbase). Export optimized `.glb` files for the web, keep the editable `.blend` sources out of the site, prove it with a small test first, and always keep a still fallback.
+- **Lines to reuse after sourcing:** "Where gravity reshapes our view of space and time." (black holes) and "Some of the brightest beacons in the distant universe." (quasars).

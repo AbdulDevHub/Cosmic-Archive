@@ -10,12 +10,12 @@ Everything is committed and pushed to the private GitHub repo (`AbdulDevHub/Cosm
 - **Header:** wordmark, glass dock (Science, Explore, Learn, Discover: "coming soon"), search ("coming soon") and Sound (D-116).
 - **Atlas stops** (Zoom Out moves outward): A Spiral Galaxy → The Cosmic Web → A Supervoid (three voids growing, "Growing empty…", D-132, D-133) → The Observable Universe (turns like a globe, D-130 to D-132).
 - **Places** (one shader each; wheel zooms, drag turns, Zoom Out leaves): Black Hole, Nebula, Neutron Star, Strange Star, Wormhole, Gravastar and Quasi-Star in the galaxy. **A Solar System** holds the Yellow Star and A Blue World. A Blue World holds Its Moon, and Its Moon holds An Asteroid. **A Quasar Galaxy** (reached from the web and through the Wormhole) holds the Quasar and the Dyson Sphere. Places inside places: `inside` and `through` in `src/content/places.ts`, `bodies` in `src/scene/scenes/shared/orb.tsx`.
-- **Sound** (`src/lib/sound.ts`): a loop per scene in `public/music/` (gitignored, cut from `owner/music-library/`), Magical Space as the fallback, warp sounds on every move, nothing before Begin (D-100, D-114 to D-116).
+- **Sound** (`src/lib/sound.ts`): a loop per scene in `public/audio/music/` (gitignored for now, cut from `owner/music-library/`), effects in `public/audio/effects/`, Magical Space as the fallback, warp sounds on every move, nothing before Begin (D-100, D-114 to D-116).
 - **Content:** 4 stops and 15 places in `src/content/places.ts`, each line sourced and checked by `npm run check`.
 
 ## In Progress
 
-- Item 1 below: finish the cleanup.
+- Item 2 below: the supervoid fixes.
 
 ## Next Steps
 
@@ -23,7 +23,7 @@ Agreed with the owner on 2026-11-22 (D-136). Work down the list and commit after
 
 **Where things live:** real places are in real space. The megastructures are in A Quasar Galaxy. The Starbase (a place inside the Quasar Galaxy) is the hub for ideas space scenes can't show. The Seven Heavens is the outermost stop. Hypothetical and fiction lines are hedged ("A possible…", "An imagined…") and still sourced.
 
-1. [ ] **Finish the cleanup:**
+1. [x] **Finish the cleanup** (done 2026-11-22):
    - Move the audio to `public/audio/music/` (loops and Magical Space) and `public/audio/effects/` (warp sounds and beep).
    - Fold the unique vision-doc notes into `IDEAS.md` and `DESIGN_SPEC.md`, then delete `owner/vision-docs/`.
    - Rewrite `IDEAS.md` as built / planned / not planned.

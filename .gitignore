@@ -19,9 +19,10 @@ screenshots/
 next-env.d.ts
 *.tsbuildinfo
 
-# The owner's private files (D-134): reference images (inspiration, not our art; D-018, D-101),
-# the music library (copyrighted loops, D-116) and the original ChatGPT handoff (also in commit 15e3478)
+# The owner's private files (D-134): reference images (inspiration, not our art; D-018, D-101)
+# and the music library (copyrighted source tracks, D-116)
 owner/
 
-# scene loops cut from the owner's music library (D-116)
-public/music/
+# scene loops cut from the owner's music library (D-116); Magical Space is the owner's own and stays in git
+public/audio/music/*
+!public/audio/music/magical-space.*

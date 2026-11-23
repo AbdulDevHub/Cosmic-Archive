@@ -39,7 +39,7 @@ The palette and type live in `src/styles/tokens.css`, from the approved F1 proto
 - **Budgets** in `context/ARCHITECTURE.md` section 3.9 are limits, not targets to revisit.
 - **Science:** every line is true. No fact, number or name from memory: fetch the source, name it in `src/content/places.ts` and record the checked date. `npm run check` enforces this.
 - **Imagery:** our own illustrations only. Never embed or host telescope photos or third-party art.
-- **Sound:** the owner's own music, the effects the owner supplied in `public/sounds/` (D-114), and whooshes made in the browser. Nothing plays before the first gesture, and the Sound button always works (D-100).
+- **Sound:** the owner's own music, the effects the owner supplied in `public/audio/effects/` (D-114), and whooshes made in the browser. Nothing plays before the first gesture, and the Sound button always works (D-100).
 - **Scope:** the plan in `context/PROGRESS_TRACKER.md` "Next Steps" (D-136). Work down it in order and commit after each item; keep going until the owner stops for the day.
 
 ## Working Rules
@@ -54,7 +54,7 @@ The palette and type live in `src/styles/tokens.css`, from the approved F1 proto
 
 ## Boundaries
 
-- `owner/` (gitignored) holds the owner's private files: `reference-images/` (inspiration only, never in the site), `music-library/` (copyrighted loops; `public/music/` is cut from it) and `vision-docs/` (the original ChatGPT handoff, superseded by the decision log).
+- `owner/` (gitignored) holds the owner's private files: `reference-images/` (inspiration only, never in the site), `music-library/` (copyrighted source tracks; the loops in `public/audio/music/` are cut from it; delete it once every loop is cut). The original ChatGPT handoff was folded into `context/IDEAS.md` and deleted (D-136); it is in commit `15e3478`.
 
 ## More
 

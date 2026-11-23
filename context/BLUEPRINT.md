@@ -2,7 +2,7 @@
 
 > **What this file is:** what Cosmic Archive is, what is in scope and the editorial rules (sourcing, imagery). Read it before touching content in `src/content/places.ts` or changing scope. Update it only when the owner changes the scope, and record the change in `DECISIONS.md`.
 
-**Status:** v3, 2026-11-20. Rewritten after the owner's read-through of v1: "way too wordy; I wanted a spectacle that showcases beauty, not an educational site" (D-092). Replaces v2 (2026-11-11, in git), which described a sourced, educational atlas.
+**Status:** v4, 2026-11-22: scope, audience and inclusion rule updated for the replan (D-136). v3, 2026-11-20. Rewritten after the owner's read-through of v1: "way too wordy; I wanted a spectacle that showcases beauty, not an educational site" (D-092). Replaces v2 (2026-11-11, in git), which described a sourced, educational atlas.
 **This file answers:** what the product is, what is in scope, and the editorial rules. How it looks is in `DESIGN_SPEC.md`; how it is built is in `ARCHITECTURE.md`; the order of work is in `PROGRESS_TRACKER.md`.
 
 ## 1. Vision
@@ -24,27 +24,21 @@ Non-goals: a textbook, an encyclopedia, a game, a planetarium simulator, a sci-f
 
 ## 3. Audience
 
-Anyone who likes looking at space. Half are on phones. They come to be amazed, not to read.
+Anyone who likes looking at space. They come to be amazed, not to read. The laptop comes first (D-110); phones only have to work until a final pass.
 
 ## 4. Scope
 
-### v1
+### Now and next
+
+The built site and the ordered plan are in `PROGRESS_TRACKER.md` ("Current State" and "Next Steps", D-136). In short:
 
 | Area | Contents |
 |---|---|
-| The universe, `/` | One scene, four stops: the supervoid around the web (D-119), the cosmic web, the whole galaxy, close in over the disc |
-| Places | Three, each its own scene: black hole, nebula, quasar |
-| Sound | The owner's own music under the scenes, a whoosh for each flight; on by default after the first gesture (D-100) |
-
-### Next (ordered in `PROGRESS_TRACKER.md`)
-
-Make the four scenes richer before adding anything: S2 galaxy and cosmic web, S3 black hole and quasar, S4 nebula.
-
-### After that (do not start without the owner)
-
-- More places: a supernova, a planet, the Solar System, a star-forming region seen up close.
-- More atlas stops (the Local Group, the observable universe).
-- Optional sound (user-initiated, off by default).
+| Stops | A Spiral Galaxy, The Cosmic Web, A Supervoid, The Observable Universe; the Seven Heavens planned as the outermost |
+| Real places | Found where the atlas puts them: in the galaxy, in A Solar System and its worlds, or at the web |
+| A Quasar Galaxy | Reached from the web and through the Wormhole; holds the megastructures (Dyson Sphere and more) and the Starbase |
+| The Starbase | A hub for ideas that space scenes can't show: warp drive, programmable matter, higher dimensions and more |
+| Sound | The owner's music (hidden behind Music mode once online) and effects; nothing before the first gesture (D-100, D-136) |
 
 ### Never
 
@@ -52,7 +46,7 @@ Accounts, payments, analytics, a CMS or database, sound before the visitor's fir
 
 ## 5. Inclusion rule
 
-A place belongs if it is real, is found where the atlas puts it (inside the galaxy, or among the galaxies of the web), and is beautiful enough to fly into. `IDEAS.md` is an idea bank, not a to-do list.
+A place belongs if it is beautiful enough to fly into and sits in the right zone (D-136). **Real** places are found where the atlas puts them. **Hypothetical** places (a wormhole, a gravastar) can sit in real space, with lines that say "A possible…". **Fiction** and big ideas go in A Quasar Galaxy (megastructures) or the Starbase (concepts), with lines that say so. The Seven Heavens is framed for general visitors and sourced to the Quran. `IDEAS.md` is an idea bank, not a to-do list.
 
 ## 6. Editorial standards
 

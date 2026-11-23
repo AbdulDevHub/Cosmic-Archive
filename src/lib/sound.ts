@@ -19,29 +19,29 @@ const MUSIC_VOLUME = 0.32;
 
 /**
  * Each scene's music (D-116): the owner's "Magical Space" for the start page and the galaxy, and a
- * loop cut from the owner's chosen tracks for the web and each place (`public/music/`, kept out of
+ * loop cut from the owner's chosen tracks for the web and each place (`public/audio/music/`, kept out of
  * git: copyrighted). A missing loop falls back to Magical Space.
  */
 const TRACKS: Record<string, string> = {
-  galaxy: "/sounds/magical-space",
-  web: "/music/web",
-  "black-hole": "/music/black-hole",
-  quasar: "/music/quasar",
-  nebula: "/music/nebula",
-  "neutron-star": "/music/neutron-star",
-  star: "/music/star",
-  "strange-star": "/music/strange-star",
-  "dyson-sphere": "/music/dyson-sphere",
-  "wormhole": "/music/wormhole",
-  "gravastar": "/music/gravastar",
-  "quasi-star": "/music/quasi-star",
-  "solar-system": "/music/solar-system",
-  "blue-world": "/music/blue-world",
-  asteroid: "/music/asteroid",
-  "quasar-galaxy": "/music/quasar-galaxy",
-  "moon": "/music/moon",
-  supervoid: "/music/web",
-  universe: "/music/universe",
+  galaxy: "/audio/music/magical-space",
+  web: "/audio/music/web",
+  "black-hole": "/audio/music/black-hole",
+  quasar: "/audio/music/quasar",
+  nebula: "/audio/music/nebula",
+  "neutron-star": "/audio/music/neutron-star",
+  star: "/audio/music/star",
+  "strange-star": "/audio/music/strange-star",
+  "dyson-sphere": "/audio/music/dyson-sphere",
+  "wormhole": "/audio/music/wormhole",
+  "gravastar": "/audio/music/gravastar",
+  "quasi-star": "/audio/music/quasi-star",
+  "solar-system": "/audio/music/solar-system",
+  "blue-world": "/audio/music/blue-world",
+  asteroid: "/audio/music/asteroid",
+  "quasar-galaxy": "/audio/music/quasar-galaxy",
+  "moon": "/audio/music/moon",
+  supervoid: "/audio/music/web",
+  universe: "/audio/music/universe",
 };
 const SWAP_OUT = 0.9; // seconds: the old track fades out, then the new one fades in
 const SWAP_IN = 2.2;
@@ -71,9 +71,9 @@ let musicGain: GainNode | null = null;
 /** The owner's effects (D-114), decoded once the audio graph exists. */
 export type Sample = "journey" | "travel" | "click";
 const SAMPLES: Record<Sample, { url: string; gain: number; duck: number }> = {
-  journey: { url: "/sounds/tng_warp6_clean.mp3", gain: 0.6, duck: 0.45 },
-  travel: { url: "/sounds/tng_warp_out1.mp3", gain: 0.55, duck: 0.55 },
-  click: { url: "/sounds/padd_3.mp3", gain: 0.35, duck: 1 },
+  journey: { url: "/audio/effects/tng_warp6_clean.mp3", gain: 0.6, duck: 0.45 },
+  travel: { url: "/audio/effects/tng_warp_out1.mp3", gain: 0.55, duck: 0.55 },
+  click: { url: "/audio/effects/padd_3.mp3", gain: 0.35, duck: 1 },
 };
 const decoded: Partial<Record<Sample, Promise<AudioBuffer | null>>> = {};
 
