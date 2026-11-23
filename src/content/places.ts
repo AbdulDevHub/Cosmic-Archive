@@ -481,7 +481,9 @@ export const PLACES: readonly Place[] = [
   {
     id: "black-hole",
     name: "Black Hole",
-    line: "Where gravity reshapes space and time.",
+    // D-175: the source (Anatomy): "We can think of the event horizon as the black hole’s surface."; "whatever passes
+    // into the event horizon is doomed to stay inside it – even light."
+    line: "Its surface is the event horizon: past it, not even light escapes.",
     sources: ["nasa-anatomy", "nasa-too-close"],
     anchor: "core",
     stop: 1,
@@ -491,7 +493,8 @@ export const PLACES: readonly Place[] = [
   {
     id: "nebula",
     name: "Nebula",
-    line: "Clouds where stars are born, and where stars leave their mark.",
+    // D-175: the source: "A nebula is a giant cloud of dust and gas in space."; it is where stars are born
+    line: "A giant cloud of dust and gas, where stars are born.",
     sources: ["nasa-spaceplace-nebula"],
     anchor: "arm",
     stop: 1,
@@ -501,7 +504,9 @@ export const PLACES: readonly Place[] = [
     // D-133: the quasar galaxy's heart, close up
     id: "quasar",
     name: "Quasar",
-    line: "Some of the brightest beacons in the distant universe.",
+    // D-175: the sources: "distant galaxies whose incredibly bright cores are powered by supermassive black holes"
+    // (Hubble); "they feed on infalling matter" (Webb)
+    line: "A galaxy's bright core: a supermassive black hole feeding on infalling matter.",
     sources: ["nasa-webb-quasars", "nasa-hubble-quasars"],
     anchor: "core",
     stop: 2,

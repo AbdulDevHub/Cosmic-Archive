@@ -16,7 +16,7 @@ Everything is committed and pushed to the private GitHub repo (`AbdulDevHub/Cosm
 
 ## In Progress
 
-- Item 11 below: the vivid lines pass.
+- Item 12 below: ship refinement.
 
 ## Next Steps
 
@@ -53,7 +53,7 @@ Agreed with the owner on 2026-11-22 (D-136). Work down the list and commit after
    - The Starbase itself, with a bay for each idea (done 2026-11-23, D-152); Warp Drive (done 2026-11-23, D-153); Programmable Matter (done 2026-11-23, D-154); Higher Dimensions, Quantum Foam, Quarks, Vacuum Decay and Bubble Universes (done 2026-11-23, D-155 to D-159); Pocket Dimensions, Omniverse, Cosmic Strings and String Theory (done 2026-11-23, D-160 to D-163).
 9. [x] **Megastructures** (in the Quasar Galaxy; done 2026-11-23, D-164 to D-173; each still needs a video and a music loop): Dyson Swarm, Ringworld, O'Neill Cylinder, Matrioshka Brain, Generation Ship, Stellar Engine, Von Neumann Probes, Space Elevator, Star Lifter.
 10. [x] **The Seven Heavens** (done 2026-11-23, D-174): one stop after the Observable Universe, seven nested layers each bigger than the last, drawn as abstract light. The line on the site has no Quran quote. Its source (the Quran, fetched) goes in `places.ts`.
-11. [ ] **Vivid lines pass:** rewrite the weakest lines to say what a thing is, still sourced and true.
+11. [x] **Vivid lines pass** (done 2026-11-23, D-175: Black Hole, Nebula and Quasar; owner to judge the rest): rewrite the weakest lines to say what a thing is, still sourced and true.
 12. [ ] **Ship refinement:** better code-built hulls first (Sovereign looks egg-like from above); Blender only if they still fall short.
 13. [ ] **Before deploy:**
     - Test health: raise `sceneSettled` (the live `/black-hole` passes 30 s), fix the two fallbacks `touch` checks and the `/star` drag-hint contrast.
