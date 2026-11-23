@@ -19,7 +19,7 @@ const ROUTES = [
   { path: (view) => `/?shot=1&t=12&zoom=2&tier=${view.tier}`, name: "web-still", scene: true, mustDraw: true, spots: 2, phoneSpots: 2 },
   { path: (view) => `/?shot=1&t=12&zoom=3&tier=${view.tier}`, name: "void-still", scene: true, mustDraw: true, spots: 1, phoneSpots: 1 },
   { path: (view) => `/?shot=1&t=12&zoom=4&tier=${view.tier}`, name: "universe-still", scene: true, mustDraw: true, spots: 1, phoneSpots: 1 },
-  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy"].flatMap((id) => [
+  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy"].flatMap((id) => [
     { path: () => `/${id}`, name: id, scene: true },
     { path: (view) => `/${id}?shot=1&t=12&tier=${view.tier}`, name: `${id}-still`, scene: true, mustDraw: true },
   ]),

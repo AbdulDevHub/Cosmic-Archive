@@ -32,10 +32,10 @@ export interface Stop {
   video?: string;
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
 export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
-export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet";
+export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant";
 
 export interface Place {
   id: PlaceId;
@@ -230,6 +230,13 @@ export const SOURCES: readonly Source[] = [
     title: "Comet Facts",
     publisher: "NASA Science",
     url: "https://science.nasa.gov/solar-system/comets/facts/",
+    checked: "2026-11-22",
+  },
+  {
+    id: "nasa-saturn-facts",
+    title: "Saturn: Facts",
+    publisher: "NASA Science",
+    url: "https://science.nasa.gov/saturn/facts/",
     checked: "2026-11-22",
   },
 ];
@@ -436,6 +443,19 @@ export const PLACES: readonly Place[] = [
     stop: 1,
     inside: "solar-system",
     veil: "#040a14",
+  },
+  {
+    // D-146: the solar system's ringed giant, close up; not Saturn by name (as the blue world is not Earth), so the
+    // line compares it; no video yet (owner to pick)
+    id: "ringed-giant",
+    name: "A Ringed Giant",
+    // the source (Saturn): rings "made of billions of small chunks of ice and rock"; "chunks as big as a house"
+    line: "Rings like Saturn's: billions of icy chunks, some as big as houses.",
+    sources: ["nasa-saturn-facts"],
+    anchor: "giant",
+    stop: 1,
+    inside: "solar-system",
+    veil: "#0e0a06",
   },
   {
     id: "quasi-star",

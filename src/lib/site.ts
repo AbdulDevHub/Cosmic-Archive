@@ -41,6 +41,7 @@ export const PLACE_OG: Readonly<Record<string, { name: string; alt: string }>> =
   "magnetar": { name: "magnetar", alt: "Our own illustration of a magnetar: a small white star with magenta plasma looping through its field." },
   "black-hole-merger": { name: "black-hole-merger", alt: "Our own illustration of two black holes spiralling together, the starlight behind them bent and rippling." },
   "comet": { name: "comet", alt: "Our own illustration of a comet: a dark nucleus in a glowing head, with a blue gas tail and a curving dust tail." },
+  "ringed-giant": { name: "ringed-giant", alt: "Our own illustration of a ringed giant planet: a banded globe inside broad, grooved rings." },
   "quasi-star": { name: "quasi-star", alt: "Our own illustration of a hypothetical quasi-star: a vast red star with a black hole feeding at its heart." },
   "solar-system": { name: "solar-system", alt: "Our own illustration of a solar system: a yellow star, four planets, a ringed giant and a belt of asteroids." },
   "blue-world": { name: "blue-world", alt: "Our own illustration of an Earthlike world: blue oceans, clouds, city lights on its night side, and its moon." },

@@ -21,7 +21,7 @@ const POSTERS = [
   { file: "atlas-start-wide.webp", path: "/?shot=1&t=12&tier=high", ...WIDE, quality: 0.8 },
   { file: "atlas-start-narrow.webp", path: "/?shot=1&t=12&tier=low", ...NARROW, quality: 0.8 },
   // Places: `<scene id>-wide` and `<scene id>-narrow`, the names the place page asks for.
-  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy"].flatMap((id) => [
+  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy"].flatMap((id) => [
     { file: `${id}-wide.webp`, path: `/${id}?shot=1&t=12&tier=high`, ...WIDE, quality: 0.8 },
     { file: `${id}-narrow.webp`, path: `/${id}?shot=1&t=12&tier=low`, ...NARROW, quality: 0.8 },
   ]),
@@ -41,6 +41,7 @@ const POSTERS = [
     ["magnetar", "/magnetar?shot=1&t=12&tier=high"],
     ["black-hole-merger", "/black-hole-merger?shot=1&t=12&tier=high"],
     ["comet", "/comet?shot=1&t=12&tier=high"],
+    ["ringed-giant", "/ringed-giant?shot=1&t=12&tier=high"],
     ["quasi-star", "/quasi-star?shot=1&t=12&tier=high"],
     ["solar-system", "/solar-system?shot=1&t=12&tier=high"],
     ["blue-world", "/blue-world?shot=1&t=12&tier=high"],

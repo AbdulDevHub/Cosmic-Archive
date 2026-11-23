@@ -2,7 +2,7 @@
  * A Solar System (D-132): our own illustration of a yellow star and the worlds it rules, seen from
  * above its plane: a hot little rock, the blue world (a hotspot), a belt of asteroids, a ringed
  * giant, an ice giant far out and a comet (D-145). Nothing is drawn but the bodies and their light: no orbit lines
- * (D-094). One full-screen shader, no particles. The star, the blue world and the comet are places of their
+ * (D-094). One full-screen shader, no particles. The star, the blue world, the ringed giant and the comet are places of their
  * own; a click dives into any of them (the orb's dive, D-132).
  *
  * The bodies are placed here, in TypeScript, and handed to the shader (`uMark`), so the hotspots
@@ -49,6 +49,7 @@ function bodies(t: number, yaw: number, pitch: number): OrbBody[] {
     const th = o.from + o.w * t;
     const body = seen(o.a * Math.cos(th), o.a * Math.sin(th), yaw, tilt);
     if (i === 1) body.name = "planet";
+    if (i === 2) body.name = "giant"; // D-146
     out.push(body);
   }
   // the blue world's moon, round it in the same plane

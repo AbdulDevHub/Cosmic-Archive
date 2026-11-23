@@ -27,6 +27,7 @@ export const SCENES: Record<SceneId, () => Promise<SceneModule>> = {
   "magnetar": () => import("../scenes/magnetar"),
   "black-hole-merger": () => import("../scenes/black-hole-merger"),
   "comet": () => import("../scenes/comet"),
+  "ringed-giant": () => import("../scenes/ringed-giant"),
   "quasi-star": () => import("../scenes/quasi-star"),
   "solar-system": () => import("../scenes/solar-system"),
   "blue-world": () => import("../scenes/blue-world"),
