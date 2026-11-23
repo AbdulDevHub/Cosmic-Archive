@@ -32,10 +32,10 @@ export interface Stop {
   video?: string;
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
-export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi" | "dark" | "cloud" | "redgiant";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
+export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi" | "dark" | "cloud" | "redgiant" | "planetary";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
-export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant";
+export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant" | "dwarf";
 
 export interface Place {
   id: PlaceId;
@@ -513,6 +513,31 @@ export const PLACES: readonly Place[] = [
     anchor: "redgiant",
     stop: 1,
     veil: "#140504",
+  },
+  {
+    // D-150: A Star's Life, after the red giant; the white dwarf is at its heart; no video yet (owner to pick)
+    id: "planetary-nebula",
+    name: "A Planetary Nebula",
+    // the source: at the end of a star's life, "all the star's outer layers blow away, creating an expanding cloud
+    // of dust and gas called a planetary nebula"
+    line: "A dying star's outer layers, blown away into an expanding cloud.",
+    sources: ["nasa-star-basics"],
+    anchor: "planetary",
+    stop: 1,
+    veil: "#040a10",
+  },
+  {
+    // D-150: the planetary nebula's core, close up; the last stage of A Star's Life for a star like the Sun
+    id: "white-dwarf",
+    name: "A White Dwarf",
+    // the source: "All that's left of the star is its core, now called a white dwarf,"; "a roughly Earth-sized
+    // stellar cinder that gradually cools over billions of years"
+    line: "All that's left of the star: an Earth-sized cinder, slowly cooling.",
+    sources: ["nasa-star-basics"],
+    anchor: "dwarf",
+    stop: 1,
+    inside: "planetary-nebula",
+    veil: "#060810",
   },
   {
     id: "quasi-star",

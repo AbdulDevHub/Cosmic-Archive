@@ -45,6 +45,8 @@ export const PLACE_OG: Readonly<Record<string, { name: string; alt: string }>> =
   "dark-matter": { name: "dark-matter", alt: "Our own illustration of the cosmic web's dark matter made visible: glowing filaments and halos strung with galaxies." },
   "molecular-cloud": { name: "molecular-cloud", alt: "Our own illustration of a molecular cloud: dark pillars of dust with baby stars burning through their tips." },
   "red-giant": { name: "red-giant", alt: "Our own illustration of a red giant: a vast, boiling garnet star in a haze of the gas it is losing." },
+  "planetary-nebula": { name: "planetary-nebula", alt: "Our own illustration of a planetary nebula: a glowing violet and coral shell round a tiny white star." },
+  "white-dwarf": { name: "white-dwarf", alt: "Our own illustration of a white dwarf: a small blue-white star in the last wisps of its nebula." },
   "quasi-star": { name: "quasi-star", alt: "Our own illustration of a hypothetical quasi-star: a vast red star with a black hole feeding at its heart." },
   "solar-system": { name: "solar-system", alt: "Our own illustration of a solar system: a yellow star, four planets, a ringed giant and a belt of asteroids." },
   "blue-world": { name: "blue-world", alt: "Our own illustration of an Earthlike world: blue oceans, clouds, city lights on its night side, and its moon." },

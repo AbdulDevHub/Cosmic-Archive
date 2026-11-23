@@ -31,6 +31,8 @@ export const SCENES: Record<SceneId, () => Promise<SceneModule>> = {
   "dark-matter": () => import("../scenes/dark-matter"),
   "molecular-cloud": () => import("../scenes/molecular-cloud"),
   "red-giant": () => import("../scenes/red-giant"),
+  "planetary-nebula": () => import("../scenes/planetary-nebula"),
+  "white-dwarf": () => import("../scenes/white-dwarf"),
   "quasi-star": () => import("../scenes/quasi-star"),
   "solar-system": () => import("../scenes/solar-system"),
   "blue-world": () => import("../scenes/blue-world"),
