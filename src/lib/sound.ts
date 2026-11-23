@@ -9,12 +9,20 @@
  * (`holdMusic`, `playMusic`): the owner wants Begin to be what starts it. The header's Sound button turns it all off
  * and on; the choice is remembered. Nothing plays while the tab is hidden.
  *
+ * Hidden Music mode (D-139): the owner's music is theirs alone. By default the scenes play a soft
+ * noise made here in the browser (filtered, like the hush of deep space) under the same effects;
+ * typing "Music" in search shows a switch that turns the real music on, remembered in this browser.
+ * This hides the music, it does not protect it: the files are still served.
+ *
  * Client only. Imports nothing.
  */
 
 import { useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "cosmic-archive:sound";
+const MUSIC_KEY = "cosmic-archive:music";
+/** The noise bed's level inside the music's gain: softer than the music. */
+const NOISE_LEVEL = 0.55;
 const MUSIC_VOLUME = 0.32;
 
 /**
@@ -56,17 +64,20 @@ const FADE_OUT = 0.6;
 interface SoundState {
   /** The visitor's choice. */
   enabled: boolean;
-  /** True once the music is actually playing (after the first gesture). */
+  /** True once the music (or the noise bed) is actually playing (after the first gesture). */
   playing: boolean;
+  /** The owner's music instead of the noise bed (D-139). */
+  music: boolean;
 }
 
-let state: SoundState = { enabled: true, playing: false };
+let state: SoundState = { enabled: true, playing: false, music: false };
 const listeners = new Set<() => void>();
 
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let music: HTMLAudioElement | null = null;
 let musicGain: GainNode | null = null;
+let noiseGate: GainNode | null = null;
 
 /** The owner's effects (D-114), decoded once the audio graph exists. */
 export type Sample = "journey" | "travel" | "click";
@@ -89,7 +100,7 @@ export function useSound<T>(select: (s: SoundState) => T): T {
       return () => listeners.delete(listener);
     },
     () => select(state),
-    () => select({ enabled: true, playing: false }),
+    () => select({ enabled: true, playing: false, music: false }),
   );
 }
 
@@ -113,7 +124,7 @@ function graph(): AudioContext | null {
     if (!music || music.src.endsWith(srcOf("galaxy"))) return;
     music.src = srcOf("galaxy");
     // the swap that failed had faded the music out: bring Magical Space back up
-    if (state.playing)
+    if (state.playing && state.music)
       void music.play().then(
         () => musicGain && fade(musicGain.gain, MUSIC_VOLUME, SWAP_IN),
         () => undefined,
@@ -122,6 +133,30 @@ function graph(): AudioContext | null {
   musicGain = ctx.createGain();
   musicGain.gain.value = 0;
   ctx.createMediaElementSource(music).connect(musicGain).connect(master);
+
+  // the noise bed (D-139): a few seconds of pink noise, looped, softened by a low-pass filter,
+  // through the same gain as the music, so its fades and the effects' dips work the same
+  const seconds = 4;
+  const buffer = ctx.createBuffer(1, ctx.sampleRate * seconds, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  let b0 = 0, b1 = 0, b2 = 0;
+  for (let i = 0; i < data.length; i++) {
+    const white = Math.random() * 2 - 1;
+    b0 = 0.99765 * b0 + white * 0.099046;
+    b1 = 0.963 * b1 + white * 0.2965164;
+    b2 = 0.57 * b2 + white * 1.0526913;
+    data[i] = (b0 + b1 + b2 + white * 0.1848) * 0.11;
+  }
+  const noise = ctx.createBufferSource();
+  noise.buffer = buffer;
+  noise.loop = true;
+  const soft = ctx.createBiquadFilter();
+  soft.type = "lowpass";
+  soft.frequency.value = 700;
+  noiseGate = ctx.createGain();
+  noiseGate.gain.value = state.music ? 0 : NOISE_LEVEL;
+  noise.connect(soft).connect(noiseGate).connect(musicGain);
+  noise.start();
 
   // the effects: fetched and decoded now, so they are ready by the time they are asked for
   for (const name of Object.keys(SAMPLES) as Sample[]) {
@@ -158,7 +193,7 @@ export function setMusic(name: string): void {
   if (!(name in TRACKS) || name === track) return;
   track = name;
   if (!music || !musicGain || !ctx) return;
-  if (!state.playing) {
+  if (!state.playing || !state.music) {
     music.src = srcOf(track);
     return;
   }
@@ -198,7 +233,12 @@ async function start(): Promise<void> {
   starting = true;
   try {
     await audio.resume();
-    await music.play();
+    // the bed is set here from the mode every time, so a switch made while silent always holds;
+    // music that will not play (missing, blocked) falls back to the noise bed for this visit
+    let musicPlays = false;
+    if (state.music) musicPlays = await music.play().then(() => true, () => false);
+    else music.pause();
+    if (noiseGate) noiseGate.gain.value = musicPlays ? 0 : NOISE_LEVEL;
     if (audio.state !== "running" || !state.enabled) {
       music.pause();
       return;
@@ -233,6 +273,48 @@ export function toggleSound(): void {
   }
   if (enabled) void start();
   else stop();
+}
+
+/**
+ * Hidden Music mode (D-139): the owner's music on or off, remembered. While sound plays, the old
+ * bed fades out and the new one fades in.
+ */
+export function setMusicMode(on: boolean): void {
+  if (on === state.music) return;
+  set({ music: on });
+  try {
+    localStorage.setItem(MUSIC_KEY, on ? "on" : "off");
+  } catch {
+    // storage blocked: the choice holds for this page view
+  }
+  if (!music || !musicGain || !noiseGate || !ctx) return;
+  const gate = noiseGate.gain;
+  if (!state.playing) {
+    gate.value = on ? 0 : NOISE_LEVEL;
+    if (!on) music.pause();
+    return;
+  }
+  swapping = true;
+  fade(musicGain.gain, 0, SWAP_OUT);
+  setTimeout(() => {
+    gate.value = state.music ? 0 : NOISE_LEVEL;
+    if (!music || !musicGain || !state.playing) {
+      if (!state.music) music?.pause();
+      swapping = false;
+      return;
+    }
+    if (state.music) {
+      music.src = srcOf(track);
+      void music.play().then(
+        () => fade(musicGain!.gain, MUSIC_VOLUME, SWAP_IN),
+        () => undefined,
+      );
+    } else {
+      music.pause();
+      fade(musicGain.gain, MUSIC_VOLUME, SWAP_IN);
+    }
+    setTimeout(() => (swapping = false), SWAP_IN * 1000);
+  }, SWAP_OUT * 1000 + 50);
 }
 
 /**
@@ -272,7 +354,7 @@ export function playSample(name: Sample): void {
 
 if (typeof window !== "undefined") {
   try {
-    state = { ...state, enabled: localStorage.getItem(STORAGE_KEY) !== "off" };
+    state = { ...state, enabled: localStorage.getItem(STORAGE_KEY) !== "off", music: localStorage.getItem(MUSIC_KEY) === "on" };
   } catch {
     // storage blocked: on by default
   }
@@ -289,7 +371,7 @@ if (typeof window !== "undefined") {
     "click",
     (event) => {
       const target = (event.target as Element | null)?.closest?.("[data-menu] a, [data-menu] button, [data-menu] label, [data-menu] [role='link'], [data-menu] [aria-disabled]");
-      if (target) playSample("click");
+      if (target && !target.closest("[data-travel]")) playSample("click"); // a link that flies plays the warp instead (D-139)
     },
     { capture: true, passive: true },
   );

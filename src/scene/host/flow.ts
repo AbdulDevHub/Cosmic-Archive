@@ -136,6 +136,16 @@ export function diveInto(push: (href: string) => void, href: string, anchor: str
   leave(push, href, veil, { glide: { dive: 1 }, ms: DIVE_MS, veilAt: VEIL_AT, undo: { dive: 0 } }, { arrive: 0 }, { arrive: 1 }, { arrive: 1 });
 }
 
+/**
+ * From anywhere straight to a place (D-139: search and the dock's Places): no anchor to dive into,
+ * so the veil falls at once and the place arrives as after a dive.
+ */
+export function jumpTo(push: (href: string) => void, href: string, veil: string): void {
+  if (location.pathname === href) return;
+  leave(push, href, veil, { glide: {}, ms: JUMP_MS, veilAt: 0, undo: {} }, { arrive: 0 }, { arrive: 1 }, { arrive: 1 });
+}
+const JUMP_MS = 600;
+
 /** From a place back out to the atlas, at the stop the place was found at. */
 export function pullOut(push: (href: string) => void, href: string, anchor: string, zoom: number, veil: string): void {
   leave(push, href, veil, { glide: { arrive: 0 }, ms: SHRINK_MS, veilAt: SHRINK_VEIL_AT, undo: { arrive: 1 } }, { zoom, focus: anchor, dive: 1 }, { dive: 0 }, { dive: 0 });

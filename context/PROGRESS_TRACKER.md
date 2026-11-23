@@ -15,7 +15,7 @@ Everything is committed and pushed to the private GitHub repo (`AbdulDevHub/Cosm
 
 ## In Progress
 
-- Item 4 below: the dock and search, with hidden Music mode.
+- Item 5 below: the video button.
 
 ## Next Steps
 
@@ -35,7 +35,7 @@ Agreed with the owner on 2026-11-22 (D-136). Work down the list and commit after
    - The Blue World's land is blobby, with a blown-out highlight.
    - The Wormhole reads as a ringed planet, not a tunnel.
    - Check every scene against its colour family (black holes indigo, gold and violet; quasars electric blue and white; and so on).
-4. [ ] **Dock and search:**
+4. [x] **Dock and search** (done 2026-11-22, D-139):
    - Replace the placeholder dock with Places (a jump list), Flights, Ship (move the ship picker off the start page), Search and Sound.
    - Search flies you to a place.
    - **Hidden Music mode:** online, the site plays browser-made white noise and the effects stay on. Typing "Music" in search shows a sound icon that turns on the real music, remembered in localStorage.

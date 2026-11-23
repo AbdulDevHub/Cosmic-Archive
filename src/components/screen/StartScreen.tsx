@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { SHIPS, setShip, useShip } from "@/lib/ship";
 import { holdMusic } from "@/lib/sound";
 import { ArrowIcon } from "../icons";
 import styles from "./start.module.css";
@@ -13,9 +12,8 @@ import styles from "./start.module.css";
   allowed to start the music, and the start of the flight into the galaxy. "Scroll to explore"
   says the wheel (or a swipe) does the same.
 
-  The menu that was the dock at the bottom now hangs in the header (D-116). In its place, the
-  fleet (D-118): five classes of ship to choose from; the one chosen flies in the scene and is
-  remembered.
+  The menu that was the dock at the bottom now hangs in the header (D-116). The fleet (D-118)
+  that took its place has moved into the dock's Ship panel (D-139).
 */
 
 export type StartPhase = "start" | "leaving" | "atlas";
@@ -56,23 +54,7 @@ export function StartScreen({ phase, onBegin }: { phase: StartPhase; onBegin: ()
         <span>Scroll to explore</span>
       </p>
 
-      <Fleet />
-
     </div>
   );
 }
 
-/** The fleet (D-118): choose the ship that carries you. */
-function Fleet() {
-  const chosen = useShip();
-  return (
-    <div className={styles.fleet} role="radiogroup" aria-label="Choose your vessel" data-menu>
-      <span className={styles.fleetLabel}>Choose Your Vessel</span>
-      {SHIPS.map((ship) => (
-        <button key={ship.id} type="button" role="radio" aria-checked={chosen === ship.id} className={styles.vessel} title={ship.role} onClick={() => setShip(ship.id)}>
-          {ship.name}
-        </button>
-      ))}
-    </div>
-  );
-}

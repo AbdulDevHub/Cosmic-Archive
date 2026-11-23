@@ -98,6 +98,23 @@ export const SparkIcon = () => (
 );
 
 /** Zoom Out (D-116): a lens with a minus, and two corners opening outward. */
+/** A small starship seen from above (D-139: the dock's Ship). */
+export const ShipIcon = () => (
+  <Icon>
+    <path d="M12 3c1.6 2 2.4 4.6 2.4 7.6V15l3.6 2.6V20l-3.6-1.4h-4.8L6 20v-2.4L9.6 15v-4.4C9.6 7.6 10.4 5 12 3z" />
+    <circle cx="12" cy="9" r="1.2" />
+  </Icon>
+);
+
+/** A pair of notes (D-139: the hidden Music switch in search). */
+export const MusicIcon = () => (
+  <Icon>
+    <path d="M9 18V6l10-2v12" />
+    <circle cx="6.5" cy="18" r="2.5" />
+    <circle cx="16.5" cy="16" r="2.5" />
+  </Icon>
+);
+
 export const ZoomOutIcon = () => (
   <Icon size={20}>
     <circle cx="10.5" cy="10.5" r="6" />

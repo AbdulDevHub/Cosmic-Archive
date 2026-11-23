@@ -184,60 +184,6 @@
   }
 }
 
-/* ---- the fleet (D-118): five ships to choose from, on a glass bar at the bottom ---- */
-
-.fleet {
-  position: absolute;
-  left: 50%;
-  bottom: clamp(20px, 4.5vh, 44px);
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 10px 8px 22px;
-  border-radius: 999px;
-  border: 1px solid oklch(0.85 0.05 280 / 0.28);
-  background: linear-gradient(180deg, oklch(0.3 0.07 280 / 0.45), oklch(0.18 0.05 275 / 0.55));
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 0 40px oklch(0.5 0.18 285 / 0.22);
-}
-
-.fleetLabel {
-  margin-right: 10px;
-  font: 400 12px / 1 var(--font-display);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: oklch(0.82 0.05 280);
-  white-space: nowrap;
-}
-
-.vessel {
-  min-height: 38px;
-  padding: 0 16px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: none;
-  font: 400 15px / 1 var(--font-display);
-  color: oklch(0.92 0.02 275);
-  cursor: pointer;
-  transition:
-    background-color var(--dur-fast) ease-out,
-    border-color var(--dur-fast) ease-out;
-}
-
-.vessel:hover {
-  background: oklch(0.95 0.02 280 / 0.08);
-}
-
-.vessel[aria-checked="true"] {
-  font-weight: 500;
-  color: white;
-  background: linear-gradient(90deg, oklch(0.6 0.19 298 / 0.75), oklch(0.62 0.15 250 / 0.75));
-  border-color: oklch(0.88 0.08 270 / 0.55);
-  box-shadow: 0 0 18px oklch(0.62 0.18 285 / 0.5);
-}
-
 /* ---- calm: no bob, no wheel animation ---- */
 
 :global(html[data-motion="paused"]) .start,
@@ -278,8 +224,7 @@
     min-height: 54px;
   }
 
-  .scroll,
-  .fleet {
+  .scroll {
     display: none;
   }
 }

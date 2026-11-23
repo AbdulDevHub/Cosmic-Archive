@@ -1,26 +1,63 @@
-import { AtomIcon, BookIcon, PlanetIcon, SparkIcon } from "./icons";
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import type { MenuGroup } from "@/lib/content/menu";
+import { SHIPS, setShip, useShip } from "@/lib/ship";
+import { flowBusy, jumpTo } from "@/scene/host/flow";
+import { PlanetIcon, ShipIcon, SparkIcon } from "./icons";
 import styles from "./Dock.module.css";
 
 /*
-  The menu (D-116): the start page's flared glass dock, moved up into the header and flipped, so
-  it hangs from the top of the window, wide where it meets the edge. Science, Explore, Learn and
-  Discover are pages still to come: shown, marked "coming soon", doing nothing yet (the owner's
-  call). On a phone it folds away with the rest of the header's middle.
+  The menu (D-116, D-139): the start page's flared glass dock, hanging in the header. Its
+  placeholders are gone; it holds what the site has:
+  - Places: every place, grouped by where it is found; a choice flies there (`jumpTo`).
+  - Flights: guided flights and the cinematic tour, still to come (item 7): marked "coming soon".
+  - Ship: the fleet (D-118), moved here off the start page; the choice flies in the start scene.
+  Each opens a small glass panel under the dock; Escape, a click elsewhere or a choice closes it.
+  On a phone it folds away with the rest of the header's middle.
 */
 
 /** The outline, in its own 540 by 98 box, wide at the top (the CSS clips the blur to the same path). */
 const DOCK_PATH = "M78 97H462C488 97 498 91 508 78L530 34C543 10 532 1 508 1H32C8 1 -3 10 10 34L32 78C42 91 52 97 78 97Z";
 
-const ITEMS = [
-  { label: "Science", icon: <AtomIcon /> },
-  { label: "Explore", icon: <PlanetIcon /> },
-  { label: "Learn", icon: <BookIcon /> },
-  { label: "Discover", icon: <SparkIcon /> },
-];
+type Panel = "places" | "ship" | null;
 
-export function Dock() {
+export function Dock({ groups }: { groups: MenuGroup[] }) {
+  const [open, setOpen] = useState<Panel>(null);
+  const root = useRef<HTMLElement>(null);
+  const toggles = useRef<Record<string, HTMLButtonElement | null>>({});
+  const router = useRouter();
+  const chosen = useShip();
+
+  useEffect(() => {
+    if (!open) return;
+    const away = (event: PointerEvent) => {
+      if (!root.current?.contains(event.target as Node)) setOpen(null);
+    };
+    const key = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      // focus goes back to the button that opened the panel
+      toggles.current[open]?.focus();
+      setOpen(null);
+    };
+    window.addEventListener("pointerdown", away);
+    window.addEventListener("keydown", key);
+    return () => {
+      window.removeEventListener("pointerdown", away);
+      window.removeEventListener("keydown", key);
+    };
+  }, [open]);
+
+  const toggle = (panel: Exclude<Panel, null>) => setOpen((now) => (now === panel ? null : panel));
+  const go = (id: string, veil: string) => {
+    if (flowBusy()) return; // a flight is under way: the panel stays open for another try
+    setOpen(null);
+    jumpTo((href) => router.push(href), `/${id}`, veil);
+  };
+
   return (
-    <nav className={styles.dock} aria-label="Sections (coming soon)" data-menu>
+    <nav ref={root} className={styles.dock} aria-label="Menu" data-menu>
       <svg className={styles.ink} aria-hidden="true" focusable="false">
         <linearGradient id="dock-ink" gradientUnits="userSpaceOnUse" x1="3" y1="3" x2="21" y2="21">
           <stop offset="0" stopColor="#9cc4ff" />
@@ -42,12 +79,66 @@ export function Dock() {
         </defs>
         <path d={DOCK_PATH} fill="url(#dock-fill)" stroke="url(#dock-edge)" strokeWidth="1.2" />
       </svg>
-      {ITEMS.map((item) => (
-        <button key={item.label} type="button" className={styles.item} aria-disabled="true" title={`${item.label}: coming soon`}>
-          {item.icon}
-          <span>{item.label}</span>
-        </button>
-      ))}
+
+      <Item label="Places" icon={<PlanetIcon />} expanded={open === "places"} controls="dock-places" onClick={() => toggle("places")} keep={(el) => {
+        toggles.current.places = el;
+      }} />
+      <button type="button" className={styles.item} aria-disabled="true" title="Flights: coming soon">
+        <SparkIcon />
+        <span>Flights</span>
+      </button>
+      <Item label="Ship" icon={<ShipIcon />} expanded={open === "ship"} controls="dock-ship" onClick={() => toggle("ship")} keep={(el) => {
+        toggles.current.ship = el;
+      }} />
+
+      {open === "places" ? (
+        <div id="dock-places" className={styles.panel}>
+          {groups.map((group) => (
+            <div key={group.name} className={styles.group}>
+              <p className={styles.groupName} id={`dock-group-${group.name.replace(/W+/g, "-")}`}>{group.name}</p>
+              <ul aria-labelledby={`dock-group-${group.name.replace(/W+/g, "-")}`}>
+              {group.places.map((place) => (
+                <li key={place.id}>
+                <a
+                  data-travel
+                  className={styles.choice}
+                  href={`/${place.id}`}
+                  onClick={(event) => {
+                    if (event.metaKey || event.ctrlKey || event.shiftKey) return;
+                    event.preventDefault();
+                    go(place.id, place.veil);
+                  }}
+                >
+                  {place.name}
+                </a>
+                </li>
+              ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {open === "ship" ? (
+        <div id="dock-ship" className={`${styles.panel} ${styles.ships}`} role="radiogroup" aria-label="Choose your vessel">
+          <p className={styles.groupName}>Choose Your Vessel</p>
+          {SHIPS.map((ship) => (
+            <button key={ship.id} type="button" role="radio" aria-checked={chosen === ship.id} className={styles.choice} onClick={() => setShip(ship.id)}>
+              <span>{ship.name}</span>
+              <small>{ship.role}</small>
+            </button>
+          ))}
+        </div>
+      ) : null}
     </nav>
+  );
+}
+
+function Item({ label, icon, expanded, controls, onClick, keep }: { label: string; icon: ReactNode; expanded: boolean; controls: string; onClick: () => void; keep: (el: HTMLButtonElement | null) => void }) {
+  return (
+    <button ref={keep} type="button" className={styles.item} aria-expanded={expanded} aria-controls={controls} onClick={onClick}>
+      {icon}
+      <span>{label}</span>
+    </button>
   );
 }

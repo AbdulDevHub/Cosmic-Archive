@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { FirstLoad } from "@/components/FirstLoad";
 import { Veil } from "@/components/screen/Veil";
 import { SiteHeader } from "@/components/SiteHeader";
+import { menuGroups } from "@/lib/content/menu";
 import { motionInitScript } from "@/lib/motion";
 import { DEFAULT_OG, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import { SceneHostLoader } from "@/scene/host/SceneHostLoader";
@@ -53,7 +54,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
           Skip to content
         </a>
         <SceneHostLoader />
-        <SiteHeader />
+        <SiteHeader groups={menuGroups()} />
         <main id="content">{children}</main>
         <Veil />
         <FirstLoad />
