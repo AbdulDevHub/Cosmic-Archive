@@ -36,7 +36,7 @@ export interface OrbConfig {
   arriveFrom: number;
   /** Detail per tier, handed to the shader as `uDetail` (0 low, 1 medium, 2 high). */
   detail?: Record<ParticleTier, number>;
-  /** Up to six bodies at scene time `t` and the drag's turn and tilt; named ones are hotspots. */
+  /** Up to eight bodies at scene time `t` and the drag's turn and tilt; named ones are hotspots. */
   bodies?: (t: number, yaw: number, pitch: number) => readonly OrbBody[];
   /** How many times larger the composition is at the end of a dive into a body. */
   diveScale?: number;
@@ -49,7 +49,7 @@ export interface OrbBody {
   z: number;
 }
 
-const MARKS = 6;
+const MARKS = 8;
 const smooth = (x: number) => {
   const c = Math.min(1, Math.max(0, x));
   return c * c * (3 - 2 * c);
@@ -199,7 +199,7 @@ uniform float uScale;      // CSS pixels per radius
 uniform float uTime;
 uniform float uYaw, uPitch;
 uniform int uDetail;
-uniform vec3 uMark[6];     // the scene's bodies (D-132): x, y in radii with y up, z toward the visitor
+uniform vec3 uMark[8];     // the scene's bodies (D-132): x, y in radii with y up, z toward the visitor
 
 const float TAU = 6.28318530718;
 

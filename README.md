@@ -8,7 +8,7 @@ Cosmic Archive is a website for looking at the universe rather than reading abou
 
 Every scene is drawn live in the browser with WebGL shaders, with no photos or downloaded images, so it stays original and small. Each view has only a name and one short line, and every line is checked against a real source. Each scene has its own music. If 3D can't run, every page still shows a still image and works as plain HTML.
 
-**Status:** being polished; not deployed yet. 4 zoom levels and 18 places are built. What's next is in `context/PROGRESS_TRACKER.md`.
+**Status:** being polished; not deployed yet. 4 zoom levels and 19 places are built. What's next is in `context/PROGRESS_TRACKER.md`.
 
 ## Ideas That Shape It
 

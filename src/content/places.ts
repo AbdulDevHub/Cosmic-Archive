@@ -32,10 +32,10 @@ export interface Stop {
   video?: string;
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
 export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
-export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart";
+export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet";
 
 export interface Place {
   id: PlaceId;
@@ -223,6 +223,13 @@ export const SOURCES: readonly Source[] = [
     title: "Spacetime Simulations and the Discovery of Gravitational Waves",
     publisher: "NASA Advanced Supercomputing Division, NASA Ames Research Center",
     url: "https://www.nas.nasa.gov/pubs/stories/2019/feature_gravitational_waves_Centrella.html",
+    checked: "2026-11-22",
+  },
+  {
+    id: "nasa-comet-facts",
+    title: "Comet Facts",
+    publisher: "NASA Science",
+    url: "https://science.nasa.gov/solar-system/comets/facts/",
     checked: "2026-11-22",
   },
 ];
@@ -416,6 +423,19 @@ export const PLACES: readonly Place[] = [
     anchor: "merger",
     stop: 1,
     veil: "#07061a",
+  },
+  {
+    // D-145: inside the solar system, out past the belt; no video yet (owner to pick)
+    id: "comet",
+    name: "A Comet",
+    // the source: comets "have been referred to as "dirty snowballs.""; "A comet warms up as it nears the Sun";
+    // "The Sun's heat causes the comet's ices to change to gases"; "Comets actually have two tails"
+    line: "A dirty snowball whose ices, warmed by the Sun, grow two tails.",
+    sources: ["nasa-comet-facts"],
+    anchor: "comet",
+    stop: 1,
+    inside: "solar-system",
+    veil: "#040a14",
   },
   {
     id: "quasi-star",

@@ -1,9 +1,9 @@
 /**
  * A Solar System (D-132): our own illustration of a yellow star and the worlds it rules, seen from
  * above its plane: a hot little rock, the blue world (a hotspot), a belt of asteroids, a ringed
- * giant and an ice giant far out. Nothing is drawn but the bodies and their light: no orbit lines
- * (D-094). One full-screen shader, no particles. The star and the blue world are places of their
- * own; a click dives into either (the orb's dive, D-132).
+ * giant, an ice giant far out and a comet (D-145). Nothing is drawn but the bodies and their light: no orbit lines
+ * (D-094). One full-screen shader, no particles. The star, the blue world and the comet are places of their
+ * own; a click dives into any of them (the orb's dive, D-132).
  *
  * The bodies are placed here, in TypeScript, and handed to the shader (`uMark`), so the hotspots
  * stand exactly where the shader draws them. A drag turns the system about its star and tilts it.
@@ -30,6 +30,8 @@ const ORBITS = [
   { a: 0.95, w: 0.007, from: 3.6 }, // the ice giant
 ] as const;
 const MOON = { a: 0.06, w: 0.35 };
+/** D-145: a comet, out past the belt, creeping round; its tails point away from the star. */
+const COMET = { a: 0.8, w: 0.004, from: -1.25 };
 
 /** A point in the system's plane, turned by the drag and seen from the tilt: x right, y up, z toward the visitor. */
 function seen(x: number, z: number, yaw: number, tilt: number): OrbBody {
@@ -53,6 +55,8 @@ function bodies(t: number, yaw: number, pitch: number): OrbBody[] {
   const th = ORBITS[1].from + ORBITS[1].w * t;
   const m = MOON.w * t;
   out.push(seen(ORBITS[1].a * Math.cos(th) + MOON.a * Math.cos(m), ORBITS[1].a * Math.sin(th) + MOON.a * Math.sin(m), yaw, tilt));
+  const ct = COMET.from + COMET.w * t;
+  out.push({ ...seen(COMET.a * Math.cos(ct), COMET.a * Math.sin(ct), yaw, tilt), name: "comet" });
   return out;
 }
 
@@ -202,6 +206,24 @@ void main(){
     }
   }
   col = mix(col, body, cover);
+
+  // ---- the comet (uMark[6], D-145): a small bright head, its two tails blown away from the star ----
+  vec3 cm = uMark[6];
+  vec2 away = normalize(cm.xy - uMark[0].xy + 1e-4);
+  vec2 side = vec2(-away.y, away.x);
+  vec2 dc = u - cm.xy;
+  float along = dot(dc, away);
+  float across = dot(dc, side);
+  float dcl = length(dc);
+  vec3 comet = vec3(0.85, 0.93, 1.0) * (0.9 * exp(-dcl / 0.004) + 0.22 * exp(-dcl / 0.014));
+  if (along > 0.0) {
+    float ion = exp(-pow(across / (0.003 + 0.02 * along), 2.0)) * exp(-along / 0.11);
+    float bend = across - 0.35 * along * along;
+    float dust = exp(-pow(bend / (0.005 + 0.07 * along), 2.0)) * exp(-along / 0.08);
+    comet += vec3(0.4, 0.65, 1.0) * ion * 0.35 + vec3(1.0, 0.9, 0.74) * dust * 0.3;
+  }
+  // in front of everything but the star's own disc
+  col += comet * (1.0 - cover * step(cm.z, best));
 
   col = col / (1.0 + max(col - 0.9, 0.0) * 0.8);
   gl_FragColor = vec4(col, 1.0);
