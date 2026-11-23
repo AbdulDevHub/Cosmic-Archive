@@ -46,21 +46,50 @@ void main(){
   float r = length(v - sc);
   vec3 star = vec3(0.0);
   if (r < SR) {
+    // a sphere: boiling granules, bright spots and dark lanes, darker and redder toward the limb
     float z = sqrt(1.0 - (r / SR) * (r / SR));
-    float gran = fbm3(vec3((v - sc) * 14.0, t * 0.15));
-    star = mix(vec3(1.0, 0.5, 0.12), SUN, 0.5 + 0.5 * gran) * (0.55 + 0.75 * pow(z, 0.45)) + vec3(1.0, 0.95, 0.8) * pow(z, 3.0) * 0.35;
+    vec2 sp = (v - sc) / SR;
+    vec3 sph = vec3(sp, z);
+    float gran = fbm3(sph * 9.0 + vec3(0.0, 0.0, t * 0.12));
+    float cells = fbm3(sph * 26.0 + vec3(t * 0.05, 0.0, 4.0));
+    float heat = clamp(0.35 + 0.9 * (gran - 0.5) + 0.5 * (cells - 0.5), 0.0, 1.0);
+    vec3 surf = mix(vec3(0.85, 0.32, 0.06), mix(SUN, vec3(1.0, 0.97, 0.85), smoothstep(0.55, 0.9, heat)), smoothstep(0.1, 0.6, heat));
+    float limb = pow(z, 0.55);
+    star = surf * (0.25 + 0.95 * limb) + vec3(1.0, 0.96, 0.85) * pow(z, 4.0) * 0.25;
+    star = mix(vec3(0.7, 0.22, 0.04) * 0.8, star, smoothstep(0.0, 0.35, z));    // the red rim
   }
-  col = mix(col, star, smoothstep(SR, SR - 0.006, r));
-  col += SUN * (exp(-max(r - SR, 0.0) / 0.05) * 0.3 + exp(-max(r - SR, 0.0) / 0.35) * 0.14);
+  col = mix(col, star, smoothstep(SR, SR - 0.004, r));
+  // the corona: soft streamers and a wide glow
+  float ra = atan(v.y - sc.y, v.x - sc.x);
+  float streamer = 0.6 + 0.8 * fbm3(vec3(ra * 3.0, r * 2.0 - t * 0.05, 7.0));
+  col += vec3(1.0, 0.72, 0.35) * (exp(-max(r - SR, 0.0) / 0.035) * 0.45 + exp(-max(r - SR, 0.0) / 0.22) * 0.16 * streamer + exp(-max(r - SR, 0.0) / 0.8) * 0.05);
 
-  // the engine: a dark disc seen edge-on-ish, to the left of the star, its rim lit by the star
+  // the star's wind, drawn off its near side in thin streams into the engine's mouth
+  {
+    float along = smoothstep(sc.x - SR + 0.02, -0.3, v.x) * smoothstep(-0.36, -0.26, v.x);
+    float strands = fbm3(vec3(v.x * 6.0 + t * 1.2, v.y * 26.0, 2.0));
+    float funnel = exp(-v.y * v.y / (0.02 + 0.08 * smoothstep(-0.3, sc.x - SR, v.x)));
+    col += vec3(1.0, 0.7, 0.35) * along * funnel * smoothstep(0.45, 0.8, strands) * 0.35;
+  }
+
+  // the engine: a vast disc of machinery seen almost edge-on, to the left of the star. Its face
+  // toward the star glows with the gathered wind; its back is dark, ringed with structure.
   vec2 ec = vec2(-0.35, 0.0);
-  vec2 ed = (v - ec) * vec2(1.0 / 0.09, 1.0 / 0.42);
+  vec2 ed = (v - ec) * vec2(1.0 / 0.085, 1.0 / 0.42);
   float el = length(ed);
-  float edge = smoothstep(1.0, 0.95, el);
-  vec3 engine = vec3(0.05, 0.05, 0.08) + SUN * 0.5 * smoothstep(0.5, 1.0, ed.x) * edge;
-  float panels = fbm3(vec3((v - ec) * vec2(30.0, 9.0), 3.0));
-  engine += vec3(0.18, 0.17, 0.22) * panels * edge + PLASMA * 0.25 * exp(-abs(ed.y) * 3.0) * smoothstep(0.3, -0.6, ed.x) * edge;
+  float edge = smoothstep(1.0, 0.96, el);
+  float rimN = sqrt(max(1.0 - el * el, 0.0));                 // as if a lens: thickest at its middle
+  float rings = smoothstep(0.4, 0.47, abs(fract(abs(ed.y) * 7.0) - 0.5));
+  float panels = fbm3(vec3(floor(ed.y * 28.0), floor(ed.x * 3.0), 3.0));
+  vec3 engine = vec3(0.045, 0.045, 0.07) * (0.6 + 0.8 * panels) * (0.5 + 0.5 * rimN) + vec3(0.1, 0.1, 0.14) * rings * 0.4;
+  // lit by the star on its right-hand face, with a hot rim where it bends away
+  float lit = smoothstep(-0.2, 0.9, ed.x);
+  engine += SUN * lit * (0.18 + 0.25 * panels) + vec3(1.0, 0.8, 0.5) * smoothstep(0.8, 1.0, el) * smoothstep(0.0, 0.6, ed.x) * 0.9;
+  // its intake ring and nozzle glow, at its middle
+  engine += vec3(1.0, 0.8, 0.5) * exp(-abs(ed.y) * 9.0) * lit * 0.7;
+  engine += mix(WHITE, PLASMA, 0.4) * exp(-abs(ed.y) * 6.0) * smoothstep(0.3, -0.9, ed.x) * 0.55;
+  // a thin rim of starlight all the way round
+  engine += vec3(0.6, 0.55, 0.7) * smoothstep(0.88, 1.0, el) * 0.25;
 
   // its jets: a long thick one streaming left, and a short soft one back toward the star
   float jl = -(v.x - ec.x) - 0.05;                       // along the main jet
@@ -71,7 +100,6 @@ void main(){
   float bl = (v.x - ec.x) - 0.06;                        // the jet back toward the star
   float back = exp(-v.y * v.y / 0.003) * smoothstep(0.0, 0.04, bl) * smoothstep(0.42, 0.12, bl) * (0.5 + 0.6 * flow);
   col += mix(PLASMA, WHITE, 0.4) * back * 0.6;
-  // the star's wind, drawn into the engine from the star's near side
 
   col = mix(col, engine, edge);
 

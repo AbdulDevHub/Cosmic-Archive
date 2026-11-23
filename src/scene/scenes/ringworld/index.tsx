@@ -4,7 +4,8 @@
  * its inner face one endless landscape. Seen from above and outside the ring's plane: the star small
  * and white at the middle; the ring a broad band in perspective, its far side showing its sunlit
  * inner face of blue seas, green and tan land and drifting cloud between tall rim walls, its near
- * side showing only its dark underside, edged with the light of the walls. One full-screen shader,
+ * side showing only its ribbed outer hull, edged with the light of the walls. Twenty shadow squares
+ * circle the star inside it, casting the soft night patches on the land. One full-screen shader,
  * one draw call, no particles. Its own colour family: ocean blue, leaf green and sun white.
  */
 
@@ -75,17 +76,44 @@ void main(){
       ground = mix(ground, vec3(0.95), cloud * 0.75);
       float wall = smoothstep(0.82, 0.97, abs(across));
       ground = mix(ground, vec3(0.55, 0.52, 0.5), wall);
-      // lit by the star: brightest straight below it; a thin haze of air over it
+      // lit by the star; the air thickens to a blue haze where the face is seen side-on
+      vec3 nIn = -normalize(vec3(p.x, 0.0, p.z));
+      float graze = 1.0 - abs(dot(nIn, -d));
       ground *= 0.9;
-      ground += vec3(0.4, 0.6, 1.0) * 0.12;
-      // the shadow squares' night falls across it in long, soft patches
-      float night = smoothstep(0.2, 0.0, abs(fract(ang * 20.0 / TAU + t * 0.003) - 0.5) - 0.32);
-      ground *= 1.0 - 0.75 * night;
+      ground = mix(ground, vec3(0.5, 0.7, 1.0), 0.12 + 0.55 * pow(graze, 2.5));
+      // the shadow squares' night falls across it in long, soft patches (twenty of them)
+      float night = smoothstep(0.45, 0.05, abs(fract(ang * 20.0 / TAU + t * 0.003) - 0.5));
+      ground *= 1.0 - 0.4 * night;
+      // the tops of the rim walls catch the starlight: two fine bright edges
+      ground += SUNW * 0.5 * smoothstep(0.985, 1.0, abs(across));
       col = ground;
     } else if (near) {
-      // the underside: dark, its edges lit where the walls catch the starlight
+      // the outer hull: dark steel in long ribbed panels, rim-lit at its edges, the walls' tops bright
       float across = p1.y / HALF;
-      col = vec3(0.03, 0.035, 0.05) + SUNW * 0.12 * smoothstep(0.85, 1.0, abs(across)) + vec3(0.2, 0.25, 0.4) * 0.05;
+      float ang = atan(p1.z, p1.x) + spin;
+      float rib = smoothstep(0.4, 0.48, abs(fract(ang * 180.0 / TAU) - 0.5));
+      float panel = fbm3(vec3(floor(ang * 360.0 / TAU), floor(across * 3.0), 2.0));
+      float side = 1.0 - abs(p1.x);           // facing the viewer most at the middle
+      col = vec3(0.05, 0.055, 0.075) * (0.7 + 0.6 * panel) * (0.6 + 0.4 * side) + vec3(0.12, 0.13, 0.17) * rib * 0.35;
+      col += vec3(0.35, 0.45, 0.7) * 0.18 * pow(1.0 - side, 3.0);                      // starlight scattered round its ends
+      col += SUNW * (0.08 * smoothstep(0.8, 1.0, abs(across)) + 0.4 * smoothstep(0.975, 1.0, abs(across)));
+    }
+  }
+
+  // the shadow squares: twenty dark plates on a smaller ring round the star, against its glow
+  {
+    float k = 0.42;                                    // their orbit, in the ring's radii
+    // where the ray meets the ring's plane (y = 0 in ring space)
+    if (abs(d.y) > 1e-4) {
+      float sp = -o.y / d.y;
+      vec3 pp = o + d * sp;
+      float rr = length(pp.xz);
+      float ang = atan(pp.z, pp.x) - t * 0.02;
+      float cell = fract(ang * 20.0 / TAU);
+      float plate = smoothstep(0.012, 0.0, abs(rr - k) - 0.022) * smoothstep(0.02, 0.0, abs(cell - 0.5) - 0.2);
+      // hidden behind the ring's near hull
+      bool behind = disc > 0.0 && abs((o + d * ((-b - sqrt(max(disc, 0.0))) / (2.0 * a))).y) < HALF;
+      if (sp > 0.0 && !behind) col = mix(col, vec3(0.015, 0.015, 0.025) + SUNW * 0.05, plate * 0.92);
     }
   }
 

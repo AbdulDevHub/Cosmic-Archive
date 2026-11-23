@@ -2,9 +2,9 @@
 
 > **What this file is:** where the work stands. It covers what works now, what is in progress, what comes next (the plan) and a dated session log. A new session reads this first, after `AGENTS.md`. Update it at the end of every session, and tick an item only when it is built and verified. Older log entries fold into "Earlier history" rather than being deleted. Why things are the way they are lives in `DECISIONS.md`, and that log wins over everything else here.
 
-## Current State (2026-11-23, D-175)
+## Current State (2026-11-24, D-176)
 
-Everything is committed and pushed to the private GitHub repo (`AbdulDevHub/Cosmic-Archive`). Nothing is deployed. Judge on the 1440x900 laptop first (D-110).
+The overnight branch is merged into `main` locally, with four megastructures polished (D-176). `main` is ahead of GitHub until the owner says push. Nothing is deployed. Judge on the 1440x900 laptop first (D-110).
 
 - **Start page** (`/`, from the owner's `Home.png`, D-107): gradient headline, Begin, "Choose Your Vessel" with five ships (Sovereign, Predator, Celestial, Discovery, Colossus; D-120, brief in `SHIP_BRIEF.md`), and a spaceship loader (D-123). `/#atlas` skips it.
 - **Header:** wordmark, glass dock (Places, Flights, Ship; D-139, D-151), search that flies to a place, and Sound.
@@ -79,6 +79,7 @@ Limits: draw calls on `low` under 30, scene chunks under 40 KB. Tests that need 
 
 ## Session Log
 
+- **2026-11-24 (overnight review), D-176:** Fast-forwarded `overnight/2026-11-24` into `main` (local only). `npm run check` and `npm run build` pass. Looked at every new still. Redid the four weakest (O'Neill Cylinder, Ringworld, Stellar Engine, Generation Ship); their posters, share images and targeted `npm run shots` (24 of 24) pass. Still weak, for a later pass: Higher Dimensions (reads as a hollow cube), Programmable Matter (a dotted egg) and Matrioshka Brain (shells read as arcs).
 - **Overnight summary (2026-11-23 into 11-24, branch `overnight/2026-11-24`, D-151 to D-175):**
   - **Built:** item 7, the guided flights (A Star's Life, Black Hole to Quasar) and The Grand Tour with Skip, from the dock's Flights (D-151). Item 8, the Starbase (a ray-marched wheel station in A Quasar Galaxy) and all eleven of its ideas (D-152 to D-163). Item 9, the nine megastructures in A Quasar Galaxy (D-164 to D-173). Item 10, the Seven Heavens as stop 5 (D-174). Item 11, new lines for Black Hole, Nebula and Quasar (D-175). That makes 21 new places (46 in all) and 5 stops. Also: the Places panel gives the Starbase's ideas a group of their own; `npm run shots -- <word>` runs only matching routes; `PW_CHROMIUM` lets the scripts use the container's own Chromium.
   - **Checked:** `npm run check` and `npm run build` before every commit. The flights were driven end to end in Playwright, with and without reduced motion. A full `npm run shots` run passed all 149 shots it reached (every desktop and reduced-motion shot from before tonight's places, and some phone shots) before I stopped it to save time. Every new place, A Quasar Galaxy, the atlas stills and the Seven Heavens then passed targeted shots (desktop, phone, reduced). `npm run fallbacks`: 168 of 170 pass; the two touch checks fail, as before (item 13). Three fallback checks were out of date since D-132, D-133 and D-147, and now expect places inside places. `npm run a11y` was not run tonight.
