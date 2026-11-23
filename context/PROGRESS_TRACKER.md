@@ -2,7 +2,7 @@
 
 > **What this file is:** where the work stands. It covers what works now, what is in progress, what comes next (the plan) and a dated session log. A new session reads this first, after `AGENTS.md`. Update it at the end of every session, and tick an item only when it is built and verified. Older log entries fold into "Earlier history" rather than being deleted. Why things are the way they are lives in `DECISIONS.md`, and that log wins over everything else here.
 
-## Current State (2026-11-22, D-133)
+## Current State (2026-11-23, D-175)
 
 Everything is committed and pushed to the private GitHub repo (`AbdulDevHub/Cosmic-Archive`). Nothing is deployed. Judge on the 1440x900 laptop first (D-110).
 
@@ -16,7 +16,7 @@ Everything is committed and pushed to the private GitHub repo (`AbdulDevHub/Cosm
 
 ## In Progress
 
-- Item 12 below: ship refinement.
+- Item 12 below: ship refinement (not started overnight).
 
 ## Next Steps
 
@@ -78,6 +78,11 @@ Limits: draw calls on `low` under 30, scene chunks under 40 KB. Tests that need 
 - Latest verdict (2026-11-22): "the ships definitely need to be redesigned/refined, but the celestial stuff and its effect and soundscape is coming along nicely."
 
 ## Session Log
+
+- **Overnight summary (2026-11-23 into 11-24, branch `overnight/2026-11-24`, D-151 to D-175):**
+  - **Built:** item 7, the guided flights (A Star's Life, Black Hole to Quasar) and The Grand Tour with Skip, from the dock's Flights (D-151). Item 8, the Starbase (a ray-marched wheel station in A Quasar Galaxy) and all eleven of its ideas (D-152 to D-163). Item 9, the nine megastructures in A Quasar Galaxy (D-164 to D-173). Item 10, the Seven Heavens as stop 5 (D-174). Item 11, new lines for Black Hole, Nebula and Quasar (D-175). That makes 21 new places (46 in all) and 5 stops. Also: the Places panel gives the Starbase's ideas a group of their own; `npm run shots -- <word>` runs only matching routes; `PW_CHROMIUM` lets the scripts use the container's own Chromium.
+  - **Checked:** `npm run check` and `npm run build` before every commit. The flights were driven end to end in Playwright, with and without reduced motion. A full `npm run shots` run passed all 149 shots it reached (every desktop and reduced-motion shot from before tonight's places, and some phone shots) before I stopped it to save time. Every new place, A Quasar Galaxy, the atlas stills and the Seven Heavens then passed targeted shots (desktop, phone, reduced). `npm run fallbacks`: 168 of 170 pass; the two touch checks fail, as before (item 13). Three fallback checks were out of date since D-132, D-133 and D-147, and now expect places inside places. `npm run a11y` was not run tonight.
+  - **Needs your eyes:** every new scene on the laptop, especially Matrioshka Brain (its shells read partly as arcs), O'Neill Cylinder (its mirrors are left out; the colours are simple), Generation Ship (a ship as a place, by the plan) and the Seven Heavens (abstract light: are the layers clear enough?). Several sources are not NASA: arXiv papers, Space.com, Science News Explores, Freethink, Scientific American, Reactor, UNLV and NSS pages. The Seven Heavens' sources are Quran.com, in The Clear Quran. New places have no videos and no music loops; the flights have no voice-over or extra sound. Item 12 (ships) was not started.
 
 - **2026-11-22 (cleanup):** Moved the docs to `context/`. Merged `TECHNICAL_DIRECTION.md` into `ARCHITECTURE.md` and the old checklist and roadmap into this tracker. Deleted the night-run brief. Moved the owner's private folders into `owner/` (D-134). Set up `AGENTS.md` as the single rules file.
 - **2026-11-22 (evening), D-132 and D-133:** three growing supervoids; A Solar System, A Blue World, Its Moon and An Asteroid; A Quasar Galaxy through the Wormhole; "Growing empty…". Pushed.
