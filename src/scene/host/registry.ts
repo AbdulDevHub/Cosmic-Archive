@@ -38,5 +38,8 @@ export const SCENES: Record<SceneId, () => Promise<SceneModule>> = {
   "blue-world": () => import("../scenes/blue-world"),
   asteroid: () => import("../scenes/asteroid"),
   "quasar-galaxy": () => import("../scenes/quasar-galaxy"),
+  "programmable-matter": () => import("../scenes/programmable-matter"),
+  "warp-drive": () => import("../scenes/warp-drive"),
+  "starbase": () => import("../scenes/starbase"),
   "moon": () => import("../scenes/moon"),
 };

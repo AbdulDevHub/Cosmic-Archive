@@ -19,7 +19,7 @@ const ROUTES = [
   { path: (view) => `/?shot=1&t=12&zoom=2&tier=${view.tier}`, name: "web-still", scene: true, mustDraw: true, spots: 3, phoneSpots: 3 },
   { path: (view) => `/?shot=1&t=12&zoom=3&tier=${view.tier}`, name: "void-still", scene: true, mustDraw: true, spots: 1, phoneSpots: 1 },
   { path: (view) => `/?shot=1&t=12&zoom=4&tier=${view.tier}`, name: "universe-still", scene: true, mustDraw: true, spots: 1, phoneSpots: 1 },
-  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter", "molecular-cloud", "red-giant", "planetary-nebula", "white-dwarf", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy"].flatMap((id) => [
+  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter", "molecular-cloud", "red-giant", "planetary-nebula", "white-dwarf", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy", "starbase", "warp-drive", "programmable-matter"].flatMap((id) => [
     { path: () => `/${id}`, name: id, scene: true },
     { path: (view) => `/${id}?shot=1&t=12&tier=${view.tier}`, name: `${id}-still`, scene: true, mustDraw: true },
   ]),
@@ -30,6 +30,10 @@ const VIEWS = [
   { name: "phone", tier: "low", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, reducedMotion: "no-preference", isMobile: true, hasTouch: true },
   { name: "desktop-reduced", tier: "high", viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" },
 ];
+
+// `npm run shots -- starbase` takes only the routes whose name contains the word (a new place, quickly);
+// the full run, with no word, is the one that counts before a deploy.
+const only = process.argv[2];
 
 const OUT = "screenshots";
 mkdirSync(OUT, { recursive: true });
@@ -45,6 +49,7 @@ try {
     const context = await browser.newContext(options);
     for (const route of ROUTES) {
       if (route.only && route.only !== name) continue;
+      if (only && !route.name.includes(only)) continue;
       const page = await context.newPage();
       const problems = [];
       page.on("console", (msg) => msg.type() === "error" && problems.push(`console: ${msg.text()}`));

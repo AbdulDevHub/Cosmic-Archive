@@ -52,6 +52,9 @@ export const PLACE_OG: Readonly<Record<string, { name: string; alt: string }>> =
   "blue-world": { name: "blue-world", alt: "Our own illustration of an Earthlike world: blue oceans, clouds, city lights on its night side, and its moon." },
   "asteroid": { name: "asteroid", alt: "Our own illustration of an asteroid: a lumpy, cratered rock lit hard from one side, a blue planet far behind it." },
   "quasar-galaxy": { name: "quasar-galaxy", alt: "Our own illustration of a quasar galaxy: a tilted spiral with a blinding heart and two jets along its axis." },
+  "programmable-matter": { name: "programmable-matter", alt: "Our own illustration of programmable matter: a body of tiny silver units with cyan light in their seams, reshaping itself." },
+  "warp-drive": { name: "warp-drive", alt: "Our own illustration of a warp bubble: calm space inside, stars squeezed blue ahead and stretched red behind." },
+  "starbase": { name: "starbase", alt: "Our own illustration of an imagined starbase: a great turning wheel with warm windows and eleven glowing bays." },
   "moon": { name: "moon", alt: "Our own illustration of a moon: grey, cratered, with dark lava plains, lit hard from one side." },
 };
 

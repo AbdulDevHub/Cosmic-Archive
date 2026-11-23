@@ -32,10 +32,10 @@ export interface Stop {
   video?: string;
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy" | "starbase" | "warp-drive" | "programmable-matter";
 export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi" | "dark" | "cloud" | "redgiant" | "planetary";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
-export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant" | "dwarf";
+export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant" | "dwarf" | "starbase" | "warp" | "matter" | "dims" | "pocket" | "omniverse" | "bubbles" | "vacuum" | "foam" | "strings" | "quarks" | "stringtheory";
 
 export interface Place {
   id: PlaceId;
@@ -258,6 +258,27 @@ export const SOURCES: readonly Source[] = [
     title: "The Life Cycles of Stars",
     publisher: "NASA Goddard Space Flight Center, Imagine the Universe!",
     url: "https://imagine.gsfc.nasa.gov/educators/lifecycles/LC_main3.html",
+    checked: "2026-11-23",
+  },
+  {
+    id: "nss-stanford-torus",
+    title: "Stanford Torus Space Settlement",
+    publisher: "National Space Society",
+    url: "https://nss.org/stanford-torus-space-settlement/",
+    checked: "2026-11-23",
+  },
+  {
+    id: "arxiv-alcubierre-warp-drive",
+    title: "The warp drive: hyper-fast travel within general relativity",
+    publisher: "arXiv (Miguel Alcubierre; Classical and Quantum Gravity, 1994)",
+    url: "https://arxiv.org/abs/gr-qc/0009013",
+    checked: "2026-11-23",
+  },
+  {
+    id: "cmu-claytronics",
+    title: "Claytronics",
+    publisher: "Carnegie Mellon University, School of Computer Science",
+    url: "https://www.cs.cmu.edu/~claytronics/",
     checked: "2026-11-23",
   },
 ];
@@ -599,6 +620,45 @@ export const PLACES: readonly Place[] = [
     inside: "moon",
     veil: "#0a0908",
     video: "dKm7T13X7n4",
+  },
+  {
+    // D-152: the hub for ideas space scenes cannot show, inside the quasar galaxy (D-136)
+    id: "starbase",
+    name: "The Starbase",
+    // the source: "a torus or donut-shaped ring"; it "rotates once per minute to provide Earth-normal gravity";
+    // "the principal design considered by the 1975 NASA Summer Study". Fiction, so "imagined"
+    line: "An imagined wheel station, spun for gravity, as NASA studied in 1975.",
+    sources: ["nss-stanford-torus"],
+    anchor: "starbase",
+    stop: 2,
+    inside: "quasar-galaxy",
+    veil: "#070912",
+  },
+  {
+    // D-153: the first of the Starbase's ideas
+    id: "warp-drive",
+    name: "Warp Drive",
+    // the source: "a purely local expansion of spacetime behind the spaceship and an opposite contraction in front of it";
+    // "exotic matter will be needed", so the line says "imagined"
+    line: "An imagined drive: space contracts ahead of the ship and expands behind.",
+    sources: ["arxiv-alcubierre-warp-drive"],
+    anchor: "warp",
+    stop: 2,
+    inside: "starbase",
+    veil: "#05061a",
+  },
+  {
+    // D-154: an idea in the Starbase
+    id: "programmable-matter",
+    name: "Programmable Matter",
+    // the source: "manage the shaping of ensembles of millions of catoms into dynamic, 3-Dimensional forms";
+    // a research goal, not a thing that exists, so "imagined"
+    line: "Imagined matter: millions of tiny units, shaping themselves into moving 3D forms.",
+    sources: ["cmu-claytronics"],
+    anchor: "matter",
+    stop: 2,
+    inside: "starbase",
+    veil: "#060a0e",
   },
 ];
 

@@ -22,15 +22,21 @@ const tiltOf = (pitch: number) => Math.min(0.95, Math.max(0.25, 0.55 + pitch * 0
 const SPIN = 0.006;
 /** The Dyson Sphere's star, in the disc: its radius (of the galaxy's) and angle. */
 const DYSON = { r: 0.42, a: 2.4 };
+/** The Starbase (D-152), out in the disc on the far side from the Dyson Sphere. */
+const STARBASE = { r: 0.62, a: 5.4 };
 
 function bodies(t: number, yaw: number, pitch: number): OrbBody[] {
   const tilt = tiltOf(pitch);
   const a = DYSON.a + yaw + t * SPIN;
   const x = DYSON.r * Math.cos(a);
   const z = DYSON.r * Math.sin(a);
+  const b = STARBASE.a + yaw + t * SPIN;
+  const bx = STARBASE.r * Math.cos(b);
+  const bz = STARBASE.r * Math.sin(b);
   return [
     { name: "core", x: 0, y: 0, z: 0 },
     { name: "dyson", x, y: -z * Math.sin(tilt), z: z * Math.cos(tilt) },
+    { name: "starbase", x: bx, y: -bz * Math.sin(tilt), z: bz * Math.cos(tilt) },
   ];
 }
 
@@ -110,6 +116,10 @@ void main(){
   col += vec3(1.0, 0.97, 0.92) * (exp(-rc / 0.012) * 3.0 + exp(-rc / 0.05) * 0.8 + exp(-rc / 0.18) * 0.18) * flick;
   float spikes = exp(-abs(u.y) * 400.0) * exp(-abs(u.x) * 7.0) + exp(-abs(u.x) * 400.0) * exp(-abs(u.y) * 7.0);
   col += vec3(0.9, 0.95, 1.0) * spikes * 0.5 * flick;
+
+  // the Starbase (D-152): a small warm light of its own in the disc
+  float rs = length(u - uMark[2].xy);
+  col += vec3(1.0, 0.7, 0.35) * (exp(-rs / 0.006) * 1.4 + exp(-rs / 0.025) * 0.25);
 
   col = col / (1.0 + max(col - 0.85, 0.0) * 0.85);
   gl_FragColor = vec4(col, 1.0);

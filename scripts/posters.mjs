@@ -21,7 +21,7 @@ const POSTERS = [
   { file: "atlas-start-wide.webp", path: "/?shot=1&t=12&tier=high", ...WIDE, quality: 0.8 },
   { file: "atlas-start-narrow.webp", path: "/?shot=1&t=12&tier=low", ...NARROW, quality: 0.8 },
   // Places: `<scene id>-wide` and `<scene id>-narrow`, the names the place page asks for.
-  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter", "molecular-cloud", "red-giant", "planetary-nebula", "white-dwarf", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy"].flatMap((id) => [
+  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter", "molecular-cloud", "red-giant", "planetary-nebula", "white-dwarf", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy", "starbase", "warp-drive", "programmable-matter"].flatMap((id) => [
     { file: `${id}-wide.webp`, path: `/${id}?shot=1&t=12&tier=high`, ...WIDE, quality: 0.8 },
     { file: `${id}-narrow.webp`, path: `/${id}?shot=1&t=12&tier=low`, ...NARROW, quality: 0.8 },
   ]),
@@ -53,6 +53,9 @@ const POSTERS = [
     ["moon", "/moon?shot=1&t=12&tier=high"],
     ["asteroid", "/asteroid?shot=1&t=12&tier=high"],
     ["quasar-galaxy", "/quasar-galaxy?shot=1&t=12&tier=high"],
+    ["starbase", "/starbase?shot=1&t=12&tier=high"],
+    ["warp-drive", "/warp-drive?shot=1&t=12&tier=high"],
+    ["programmable-matter", "/programmable-matter?shot=1&t=12&tier=high"],
   ].map(([name, path]) => ({ file: `${name}.jpg`, dir: join("public", "og"), path, viewport: { width: 1440, height: 900 }, crop: { x: 0, y: 72, w: 1440, h: 756 }, out: 1200, quality: 0.82, type: "image/jpeg" })),
 ];
 

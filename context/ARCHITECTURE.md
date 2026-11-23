@@ -99,7 +99,8 @@ src/
 | `/nebula` | `nebula` | `place` |
 | `/quasar` | `quasar` (the black-hole shader seen from far off) | `place` |
 | `/solar-system` | `solar-system`: holds `/star` and `/blue-world`, which holds `/moon`, which holds `/asteroid` (D-132, D-133) | `place` |
-| `/quasar-galaxy` | `quasar-galaxy`: found at the web and through `/wormhole`; holds `/quasar` and `/dyson-sphere` (D-133) | `place` |
+| `/quasar-galaxy` | `quasar-galaxy`: found at the web and through `/wormhole`; holds `/quasar`, `/dyson-sphere` and `/starbase` (D-133, D-152) | `place` |
+| `/starbase` | `starbase`: a ray-marched wheel station whose eleven bays lead to the Starbase's ideas (`/warp-drive`, `/programmable-matter`, more to come) (D-152) | `place` |
 
 All routes are static (`generateStaticParams` for `[place]`, `dynamicParams = false`). No server runtime, no API routes. The routes of v1 (`/explore`, `/subjects/*`, `/journeys/*`, `/archive`) and then `/about` were removed before anything was deployed, so they have no redirects (D-093, D-095, D-099). The 404 page is the one page without a scene.
 
