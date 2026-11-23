@@ -111,7 +111,7 @@ const DESKTOP = { viewport: { width: 1440, height: 900 } };
 const SMALL = { viewport: { width: 900, height: 560 } };
 // `#atlas` skips the start page (D-107): these tests are about the atlas itself
 const PINNED = "/?tier=low#atlas";
-const PLACES = ["/black-hole", "/nebula", "/quasar", "/neutron-star", "/star", "/strange-star", "/dyson-sphere", "/wormhole", "/gravastar", "/supernova-remnant", "/quasi-star", "/solar-system", "/blue-world", "/moon", "/asteroid", "/quasar-galaxy"];
+const PLACES = ["/black-hole", "/nebula", "/quasar", "/neutron-star", "/star", "/strange-star", "/dyson-sphere", "/wormhole", "/gravastar", "/supernova-remnant", "/magnetar", "/quasi-star", "/solar-system", "/blue-world", "/moon", "/asteroid", "/quasar-galaxy"];
 
 let browser;
 const { base, stop } = await serveBuild("fallbacks");

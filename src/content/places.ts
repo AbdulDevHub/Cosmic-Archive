@@ -32,10 +32,10 @@ export interface Stop {
   video?: string;
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
 export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "quasi";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
-export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat";
+export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart";
 
 export interface Place {
   id: PlaceId;
@@ -211,6 +211,13 @@ export const SOURCES: readonly Source[] = [
     url: "https://imagine.gsfc.nasa.gov/science/objects/supernova_remnants.html",
     checked: "2026-11-22",
   },
+  {
+    id: "nasa-ixpe-magnetar-outburst",
+    title: "NASA's IXPE Obtains First X-ray Polarization Measurement of Magnetar Outburst",
+    publisher: "NASA Marshall Space Flight Center",
+    url: "https://www.nasa.gov/missions/ixpe/nasas-ixpe-obtains-first-x-ray-polarization-measurement-of-magnetar-outburst/",
+    checked: "2026-11-22",
+  },
 ];
 
 // Videos (D-141): Kurzgesagt, checked through YouTube oEmbed on 2026-11-22; the nebula has none yet.
@@ -377,6 +384,19 @@ export const PLACES: readonly Place[] = [
     anchor: "remnant",
     stop: 1,
     veil: "#140608",
+  },
+  {
+    // D-143: the star's remains at the remnant's heart; no video yet (owner to pick)
+    id: "magnetar",
+    name: "A Magnetar",
+    // the source: magnetars "host the strongest magnetic fields of any known object in the universe"; in outburst
+    // "emitting the luminosity equivalent to 1000 suns"
+    line: "The strongest magnet known: its outbursts flash like a thousand Suns.",
+    sources: ["nasa-ixpe-magnetar-outburst"],
+    anchor: "heart",
+    stop: 1,
+    inside: "supernova-remnant",
+    veil: "#12041a",
   },
   {
     id: "quasi-star",

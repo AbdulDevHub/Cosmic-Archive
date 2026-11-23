@@ -11,7 +11,7 @@ Everything is committed and pushed to the private GitHub repo (`AbdulDevHub/Cosm
 - **Atlas stops** (Zoom Out moves outward): A Spiral Galaxy → The Cosmic Web → A Supervoid (three voids growing, dark energy in the line, no turning there; D-132, D-137) → The Observable Universe (turns like a globe, D-130 to D-132).
 - **Places** (one shader each; wheel zooms, drag turns, Zoom Out leaves): Black Hole, Nebula, Neutron Star, Strange Star, Wormhole, Gravastar and Quasi-Star in the galaxy. **A Solar System** holds the Yellow Star and A Blue World. A Blue World holds Its Moon, and Its Moon holds An Asteroid. **A Quasar Galaxy** (reached from the web and through the Wormhole) holds the Quasar and the Dyson Sphere. Places inside places: `inside` and `through` in `src/content/places.ts`, `bodies` in `src/scene/scenes/shared/orb.tsx`.
 - **Sound** (`src/lib/sound.ts`): a loop per scene in `public/audio/music/` (in git since D-140, cut from `owner/music-library/`), effects in `public/audio/effects/`, Magical Space as the fallback, warp sounds on every move, nothing before Begin (D-100, D-114 to D-116).
-- **Content:** 4 stops and 16 places in `src/content/places.ts`, each line sourced and checked by `npm run check`.
+- **Content:** 4 stops and 17 places in `src/content/places.ts`, each line sourced and checked by `npm run check`.
 
 ## In Progress
 
@@ -41,7 +41,7 @@ Agreed with the owner on 2026-11-22 (D-136). Work down the list and commit after
    - **Hidden Music mode:** online, the site plays browser-made white noise and the effects stay on. Typing "Music" in search shows a sound icon that turns on the real music, remembered in localStorage.
 5. [x] **Video button** (done 2026-11-22, D-141; the Nebula still needs a video, owner to pick): a round button right of Zoom Out that opens the scene's YouTube video (mostly Kurzgesagt) in a new tab. Each video ID is stored with its place.
 6. [ ] **Real places:**
-   - In the galaxy: Supernova and Its Remnant (done 2026-11-22, D-142: A Supernova Remnant; video and music loop to come), Pulsar or Magnetar, Black Hole Merger.
+   - In the galaxy: Supernova and Its Remnant (done 2026-11-22, D-142: A Supernova Remnant; video and music loop to come), Pulsar or Magnetar (done 2026-11-22, D-143: A Magnetar, inside the remnant), Black Hole Merger.
    - In the Solar System: a Comet and a Ringed Planet.
    - At the web: the Dark Matter reveal (the halo and filaments glow).
 7. [ ] **A Star's Life and flights:**

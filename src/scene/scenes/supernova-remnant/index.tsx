@@ -132,6 +132,8 @@ const CONFIG: OrbConfig = {
   framing: (width, height) => Math.min(height * 0.25, width * 0.17),
   close: 1.7,
   arriveFrom: 0.25,
+  // D-143: the star's remains at the heart lead to the magnetar
+  bodies: () => [{ name: "heart", x: 0, y: 0, z: 0 }],
   detail: { low: 0, medium: 1, high: 2 },
 };
 
