@@ -15,23 +15,53 @@ Everything is committed and pushed to the private GitHub repo (`AbdulDevHub/Cosm
 
 ## In Progress
 
-- The replan: every open item below is to be ordered with the owner and written into "Next Steps".
+- Item 1 below: finish the cleanup.
 
 ## Next Steps
 
-Not yet ordered. The owner sets the order in the replan session. Open items, by track:
+Agreed with the owner on 2026-11-22 (D-136). Work down the list and commit after each item; keep going until the owner stops. Tick an item only when it is built and verified.
 
-- **Polish the places:** the Moon's craters look stamped and its maria blocky; the Blue World's land is blobby with a blown-out highlight; the Wormhole reads as a ringed planet, not a tunnel.
-- **New places:** a starbase and more sci-fi places in the Quasar Galaxy (names from the owner); further levels beyond the universe (a "multiverse", owner's idea).
-- **Lines and voice:** rewrite the weakest lines in a vivid "what it is" voice, still sourced and true.
-- **Ships:** refine all five, closer to `SHIP_BRIEF.md` and the references. Use Blender `.glb` models when code-built hulls stop being enough. Sovereign looks egg-like from above.
-- **Sound:** swells that rise with power at the black hole and the quasar (optional). **Ask the owner in the replan** about the three music folders: `owner/music-library/` (15 source tracks plus `INDEX.json`), `public/music/` (the loops the site plays, gitignored, 55 MB) and `public/sounds/` (Magical Space and the 3 Star Trek effects, in git).
-- **Video button (idea, not decided):** a small round button right of Zoom Out that opens a YouTube video for the scene, mostly Kurzgesagt.
-- **Tests and health:** the tests are heavy and the machine runs out of memory. Run shots, a11y and fallbacks one at a time. The live `/black-hole` can take past the 30 s settle limit, so raise `sceneSettled` or trim routes. Known failures: the two fallbacks `touch` checks, and drag-hint contrast on `/star`.
-- **Owner checks:** look at each new scene on the laptop (`/solar-system`, `/blue-world`, `/moon`, `/asteroid`, `/quasar-galaxy`, `/#supervoid`, `/#universe`). Decide whether arXiv papers are acceptable sources (Wormhole, Gravastar, Quasi-Star). Never measured on real hardware: frame rate (an integrated-GPU laptop and a mid-range phone), and touch and pinch on a real phone.
-- **Budgets:** first-load JS on the scene routes is about 145 KB against the 140 KB limit written for routes with no scene (D-047). The owner should confirm that is fine.
-- **Phone (for the final pass):** the nebula's dark dust bank fills the lower part of a phone screen.
-- **Before deploy:** music licensing (the scene loops and Star Trek effects are copyrighted), the phone polish pass (D-110, only where it costs the laptop nothing), the `NEXT_PUBLIC_SITE_URL` value, and the owner's sign-off before Vercel.
+**Where things live:** real places are in real space. The megastructures are in A Quasar Galaxy. The Starbase (a place inside the Quasar Galaxy) is the hub for ideas space scenes can't show. The Seven Heavens is the outermost stop. Hypothetical and fiction lines are hedged ("A possible…", "An imagined…") and still sourced.
+
+1. [ ] **Finish the cleanup:**
+   - Move the audio to `public/audio/music/` (loops and Magical Space) and `public/audio/effects/` (warp sounds and beep).
+   - Fold the unique vision-doc notes into `IDEAS.md` and `DESIGN_SPEC.md`, then delete `owner/vision-docs/`.
+   - Rewrite `IDEAS.md` as built / planned / not planned.
+   - Fix the BLUEPRINT scope: zones, laptop first, and the v1 table becomes this plan.
+   - To-do for later: delete `owner/music-library/` once every loop is cut.
+2. [ ] **Supervoid fixes:** remove the separate "Growing empty…" note and put "growing" plus dark energy into the line itself; make the growth slower; turn off panning in the supervoid scene.
+3. [ ] **Polish the places:**
+   - The Moon's craters look stamped and its maria blocky.
+   - The Blue World's land is blobby, with a blown-out highlight.
+   - The Wormhole reads as a ringed planet, not a tunnel.
+   - Check every scene against its colour family (black holes indigo, gold and violet; quasars electric blue and white; and so on).
+4. [ ] **Dock and search:**
+   - Replace the placeholder dock with Places (a jump list), Flights, Ship (move the ship picker off the start page), Search and Sound.
+   - Search flies you to a place.
+   - **Hidden Music mode:** online, the site plays browser-made white noise and the effects stay on. Typing "Music" in search shows a sound icon that turns on the real music, remembered in localStorage.
+5. [ ] **Video button:** a round button right of Zoom Out that opens the scene's YouTube video (mostly Kurzgesagt) in a new tab. Each video ID is stored with its place.
+6. [ ] **Real places:**
+   - In the galaxy: Supernova and Its Remnant, Pulsar or Magnetar, Black Hole Merger.
+   - In the Solar System: a Comet and a Ringed Planet.
+   - At the web: the Dark Matter reveal (the halo and filaments glow).
+7. [ ] **A Star's Life and flights:**
+   - Add the stages as places: molecular cloud, red giant, planetary nebula, white dwarf.
+   - Add guided flights: A Star's Life, and black hole to quasar.
+   - Add a cinematic hands-off tour with Skip, from the dock's Flights.
+8. [ ] **The Starbase hub** (in the Quasar Galaxy): Warp Drive, Programmable Matter, Higher Dimensions, Pocket Dimensions, Omniverse, Bubble Universes, Vacuum Decay, Quantum Foam, Cosmic Strings, Quarks, String Theory.
+9. [ ] **Megastructures** (in the Quasar Galaxy): Dyson Swarm, Ringworld, O'Neill Cylinder, Matrioshka Brain, Generation Ship, Stellar Engine, Von Neumann Probes, Space Elevator, Star Lifter.
+10. [ ] **The Seven Heavens:** one stop after the Observable Universe, seven nested layers each bigger than the last, drawn as abstract light. The line on the site has no Quran quote. Its source (the Quran, fetched) goes in `places.ts`.
+11. [ ] **Vivid lines pass:** rewrite the weakest lines to say what a thing is, still sourced and true.
+12. [ ] **Ship refinement:** better code-built hulls first (Sovereign looks egg-like from above); Blender only if they still fall short.
+13. [ ] **Before deploy:**
+    - Test health: raise `sceneSettled` (the live `/black-hole` passes 30 s), fix the two fallbacks `touch` checks and the `/star` drag-hint contrast.
+    - Phone pass (D-110), including the nebula's dust bank on phones.
+    - Set `NEXT_PUBLIC_SITE_URL`.
+    - The owner's checks: look at the new scenes on the laptop; arXiv as a source (Wormhole, Gravastar, Quasi-Star); frame rate and touch on real hardware; scene routes at about 145 KB against the 140 KB limit (D-047).
+    - An "Islam and Space" page and a verse about those who ponder the signs at the end of the README (fetch the verse).
+    - Deploy only when the owner says so.
+
+**Dropped (2026-11-22):** the hypothetical tag, share images per place, a suggestion form, galaxy collision, a cluster stop, the CMB, kilonova, Wolf-Rayet, binary stars, tidal disruption, exoplanets, auroras, first stars, photo mode.
 
 ## How to Check
 

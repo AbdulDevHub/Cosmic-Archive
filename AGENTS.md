@@ -40,7 +40,7 @@ The palette and type live in `src/styles/tokens.css`, from the approved F1 proto
 - **Science:** every line is true. No fact, number or name from memory: fetch the source, name it in `src/content/places.ts` and record the checked date. `npm run check` enforces this.
 - **Imagery:** our own illustrations only. Never embed or host telescope photos or third-party art.
 - **Sound:** the owner's own music, the effects the owner supplied in `public/sounds/` (D-114), and whooshes made in the browser. Nothing plays before the first gesture, and the Sound button always works (D-100).
-- **Scope:** the v1 table in `context/BLUEPRINT.md` section 4, in the order the tracker's "Next Steps" gives. Until it lists an order, ask the owner what comes first. Do one session at a time, then stop, unless the owner asks for several in a row.
+- **Scope:** the plan in `context/PROGRESS_TRACKER.md` "Next Steps" (D-136). Work down it in order and commit after each item; keep going until the owner stops for the day.
 
 ## Working Rules
 
