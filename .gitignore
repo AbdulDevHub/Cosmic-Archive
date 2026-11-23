@@ -23,6 +23,3 @@ next-env.d.ts
 # and the music library (copyrighted source tracks, D-116)
 owner/
 
-# scene loops cut from the owner's music library (D-116); Magical Space is the owner's own and stays in git
-public/audio/music/*
-!public/audio/music/magical-space.*

@@ -27,8 +27,8 @@ const MUSIC_VOLUME = 0.32;
 
 /**
  * Each scene's music (D-116): the owner's "Magical Space" for the start page and the galaxy, and a
- * loop cut from the owner's chosen tracks for the web and each place (`public/audio/music/`, kept out of
- * git: copyrighted). A missing loop falls back to Magical Space.
+ * loop cut from the owner's chosen tracks for the web and each place (`public/audio/music/`, in git
+ * since D-140; copyrighted, heard only in hidden Music mode, D-139). A missing loop falls back to Magical Space.
  */
 const TRACKS: Record<string, string> = {
   galaxy: "/audio/music/magical-space",
@@ -119,7 +119,7 @@ function graph(): AudioContext | null {
   // Vorbis where the browser plays it, AAC elsewhere (Safari)
   canOgg = music.canPlayType('audio/ogg; codecs="vorbis"') !== "";
   music.src = srcOf(track);
-  // a scene's loop that is not there (a fresh clone: the loops are not in git) falls back to Magical Space
+  // a scene's loop that is not there (a loop not yet cut) falls back to Magical Space
   music.addEventListener("error", () => {
     if (!music || music.src.endsWith(srcOf("galaxy"))) return;
     music.src = srcOf("galaxy");
