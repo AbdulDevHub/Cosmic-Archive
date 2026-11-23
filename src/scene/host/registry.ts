@@ -30,6 +30,7 @@ export const SCENES: Record<SceneId, () => Promise<SceneModule>> = {
   "ringed-giant": () => import("../scenes/ringed-giant"),
   "dark-matter": () => import("../scenes/dark-matter"),
   "molecular-cloud": () => import("../scenes/molecular-cloud"),
+  "red-giant": () => import("../scenes/red-giant"),
   "quasi-star": () => import("../scenes/quasi-star"),
   "solar-system": () => import("../scenes/solar-system"),
   "blue-world": () => import("../scenes/blue-world"),

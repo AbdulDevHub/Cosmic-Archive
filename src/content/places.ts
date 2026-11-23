@@ -32,8 +32,8 @@ export interface Stop {
   video?: string;
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
-export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi" | "dark" | "cloud";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
+export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi" | "dark" | "cloud" | "redgiant";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
 export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant";
 
@@ -251,6 +251,13 @@ export const SOURCES: readonly Source[] = [
     title: "Star Basics",
     publisher: "NASA Science",
     url: "https://science.nasa.gov/universe/stars/",
+    checked: "2026-11-23",
+  },
+  {
+    id: "nasa-imagine-star-life-cycles",
+    title: "The Life Cycles of Stars",
+    publisher: "NASA Goddard Space Flight Center, Imagine the Universe!",
+    url: "https://imagine.gsfc.nasa.gov/educators/lifecycles/LC_main3.html",
     checked: "2026-11-23",
   },
 ];
@@ -494,6 +501,18 @@ export const PLACES: readonly Place[] = [
     anchor: "cloud",
     stop: 1,
     veil: "#0a0605",
+  },
+  {
+    // D-149: A Star's Life, after the Yellow Star; no video yet (owner to pick)
+    id: "red-giant",
+    name: "A Red Giant",
+    // the source: "Beginning of the End"; "The star expands to larger than it ever was during its lifetime -- a few to
+    // about a hundred times bigger."; "The star has become a red giant."
+    line: "A star near its end, swollen up to a hundred times bigger.",
+    sources: ["nasa-imagine-star-life-cycles"],
+    anchor: "redgiant",
+    stop: 1,
+    veil: "#140504",
   },
   {
     id: "quasi-star",
