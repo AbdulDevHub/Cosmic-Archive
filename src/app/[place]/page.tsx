@@ -37,5 +37,5 @@ export default async function PlacePage({ params }: Props) {
   // arrived through another place (D-133), Zoom Out goes back through it
   const via = place.through ? getPlace(place.through) : undefined;
   const through = via && place.throughAnchor ? { from: via.id, outTo: `/${via.id}`, outZoom: 1, outVeil: via.veil, anchor: place.throughAnchor } : undefined;
-  return <PlaceView place={{ name: place.name, line: place.line, scene: place.id, anchor: place.anchor, ...out, through }} inner={inner} />;
+  return <PlaceView place={{ name: place.name, line: place.line, video: place.video, scene: place.id, anchor: place.anchor, ...out, through }} inner={inner} />;
 }

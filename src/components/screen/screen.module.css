@@ -64,7 +64,8 @@
   right: var(--gutter);
   bottom: clamp(28px, 7vh, 72px);
   display: flex;
-  gap: var(--gap-5);
+  align-items: center;
+  gap: 12px;
 }
 
 /* Zoom Out (D-116): a real button, a glowing pill like the start page's, an icon and the word */
@@ -99,6 +100,36 @@
 .control[aria-disabled="true"] {
   opacity: 0.45;
   cursor: default;
+}
+
+/* the video button (D-141): Zoom Out's glass, round, an icon only */
+.video {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid oklch(0.85 0.06 280 / 0.35);
+  border-radius: 50%;
+  background: linear-gradient(180deg, oklch(0.3 0.07 280 / 0.55), oklch(0.18 0.05 275 / 0.6));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 0 22px oklch(0.55 0.16 285 / 0.25);
+  color: oklch(0.96 0.01 270);
+  transition:
+    box-shadow var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
+}
+
+.video:hover {
+  border-color: oklch(0.88 0.1 280 / 0.6);
+  box-shadow: 0 0 30px oklch(0.62 0.18 285 / 0.45);
+  transform: translateY(-1px);
+}
+
+.video:focus-visible {
+  outline: 2px solid var(--beacon);
+  outline-offset: 3px;
 }
 
 .icon {

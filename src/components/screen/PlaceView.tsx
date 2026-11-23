@@ -7,6 +7,7 @@ import { diveInto, flowBusy, pullOut } from "@/scene/host/flow";
 import { SceneSlot } from "@/scene/host/SceneSlot";
 import { getSceneFrame, getSceneInput, sceneIsLive, setSceneInput, subscribeSceneFrame, useSceneState, type SceneFrame, type SceneId } from "@/scene/host/store";
 import { ZoomOutIcon } from "../icons";
+import { VideoButton } from "./VideoButton";
 import { DragHint } from "./DragHint";
 import styles from "./screen.module.css";
 import { useGestures } from "./useGestures";
@@ -30,6 +31,8 @@ import { useGestures } from "./useGestures";
 export interface PlaceWords {
   name: string;
   line: string;
+  /** A video about it on YouTube (D-141). */
+  video?: string;
   scene: SceneId;
   anchor: string;
   /** Where Zoom Out goes: the atlas, or the place this one is inside (D-132). */
@@ -250,6 +253,7 @@ export function PlaceView({ place, inner = [] }: { place: PlaceWords; inner?: re
           </i>
           <span>Zoom Out</span>
         </a>
+        <VideoButton video={place.video} name={place.name} />
       </div>
     </div>
   );

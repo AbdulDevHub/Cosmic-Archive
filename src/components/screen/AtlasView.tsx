@@ -20,6 +20,7 @@ import {
   type SceneFrame,
 } from "@/scene/host/store";
 import { ZoomOutIcon } from "../icons";
+import { VideoButton } from "./VideoButton";
 import { HOME_EVENT } from "../SiteHeader";
 import { DragHint } from "./DragHint";
 import { setVia } from "./PlaceView";
@@ -41,6 +42,8 @@ export interface StopWords {
   zoom: 0 | 1 | 2 | 3 | 4;
   name: string;
   line: string;
+  /** A video about it on YouTube (D-141). */
+  video?: string;
 }
 
 export interface Spot {
@@ -353,6 +356,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
             </i>
             <span>Zoom Out</span>
           </button>
+          <VideoButton video={words.video} name={words.name} />
         </div>
       ) : null}
     </div>

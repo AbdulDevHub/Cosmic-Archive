@@ -28,6 +28,8 @@ export interface Stop {
   name: string;
   line: string;
   sources: readonly string[];
+  /** A video about it on YouTube (D-141): its ID, opened by the video button in a new tab. */
+  video?: string;
 }
 
 export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
@@ -57,6 +59,8 @@ export interface Place {
   throughAnchor?: InnerAnchor;
   /** The colour the screen passes through on the way in and out: the place's own darkness. */
   veil: string;
+  /** A video about it on YouTube (D-141): its ID, opened by the video button in a new tab. */
+  video?: string;
 }
 
 export const SOURCES: readonly Source[] = [
@@ -202,18 +206,21 @@ export const SOURCES: readonly Source[] = [
   },
 ];
 
+// Videos (D-141): Kurzgesagt, checked through YouTube oEmbed on 2026-11-22; the nebula has none yet.
 export const STOPS: readonly Stop[] = [
   {
     zoom: 1,
     name: "A Spiral Galaxy",
     line: "An island of stars, gas and dust, held together by gravity.",
     sources: ["nasa-galaxies"],
+    video: "Pj-h6MEgE7I",
   },
   {
     zoom: 2,
     name: "The Cosmic Web",
     line: "Every point of light here is a galaxy.",
     sources: ["nasa-cosmic-web"],
+    video: "QAa2O_8wBUQ",
   },
   {
     // D-119: a zoom out of the web, no longer a place of its own
@@ -223,6 +230,7 @@ export const STOPS: readonly Stop[] = [
     // dark energy is "making the universe expand at an accelerating rate" (D-137: "growing" lives in the line itself)
     line: "Growing empty bubbles between the web's walls, stretched by dark energy.",
     sources: ["nasa-large-scale-structures", "nasa-dark-energy"],
+    video: "yDAAlojz8NU",
   },
   {
     // D-130: a zoom out of the supervoid, the last stop
@@ -231,6 +239,7 @@ export const STOPS: readonly Stop[] = [
     // the source: "These walls are likely the largest-known superstructures within the observable universe."
     line: "Its largest known structures are likely vast walls of galaxies.",
     sources: ["nasa-large-scale-structures"],
+    video: "Z_1Q0XB4X0Y",
   },
 ];
 
@@ -243,6 +252,7 @@ export const PLACES: readonly Place[] = [
     anchor: "core",
     stop: 1,
     veil: "#140b0a",
+    video: "e-P5IFTqB98",
   },
   {
     id: "nebula",
@@ -263,6 +273,7 @@ export const PLACES: readonly Place[] = [
     stop: 2,
     inside: "quasar-galaxy",
     veil: "#0a0e1e",
+    video: "V4Z8EdiJxgk",
   },
   {
     // D-133: the galaxy round the quasar, found at the web and through the wormhole; it holds the
@@ -277,6 +288,7 @@ export const PLACES: readonly Place[] = [
     through: "wormhole",
     throughAnchor: "throat",
     veil: "#070a18",
+    video: "L_JQOH1tEEA",
   },
   {
     id: "neutron-star",
@@ -287,6 +299,7 @@ export const PLACES: readonly Place[] = [
     anchor: "pulsar",
     stop: 1,
     veil: "#060a1c",
+    video: "udFxKZRyQt4",
   },
   {
     id: "star",
@@ -299,6 +312,7 @@ export const PLACES: readonly Place[] = [
     stop: 1,
     inside: "solar-system",
     veil: "#160b04",
+    video: "J0ldO87Pprc",
   },
   {
     id: "strange-star",
@@ -309,6 +323,7 @@ export const PLACES: readonly Place[] = [
     anchor: "strange",
     stop: 1,
     veil: "#08061a",
+    video: "p_8yK2kmxoo",
   },
   {
     id: "dyson-sphere",
@@ -321,6 +336,7 @@ export const PLACES: readonly Place[] = [
     stop: 2,
     inside: "quasar-galaxy",
     veil: "#120a04",
+    video: "pP44EPBMb8A",
   },
   {
     id: "wormhole",
@@ -331,6 +347,7 @@ export const PLACES: readonly Place[] = [
     anchor: "wormhole",
     stop: 1,
     veil: "#0a0a16",
+    video: "9P6rdqiybaw",
   },
   {
     id: "gravastar",
@@ -341,6 +358,7 @@ export const PLACES: readonly Place[] = [
     anchor: "gravastar",
     stop: 1,
     veil: "#080614",
+    video: "BmUZ2wp1lM8",
   },
   {
     id: "quasi-star",
@@ -351,6 +369,7 @@ export const PLACES: readonly Place[] = [
     anchor: "quasi",
     stop: 1,
     veil: "#160604",
+    video: "aeWyp2vXxqA",
   },
   {
     // D-132: the galaxy's Yellow Star, Earth and Moon became one place with places inside it
@@ -362,6 +381,7 @@ export const PLACES: readonly Place[] = [
     anchor: "sun",
     stop: 1,
     veil: "#0a0810",
+    video: "gLZJlf5rHVs",
   },
   {
     // D-132: an Earthlike world, not Earth: our galaxy is not drawn as the Milky Way (owner)
@@ -374,6 +394,7 @@ export const PLACES: readonly Place[] = [
     stop: 1,
     inside: "solar-system",
     veil: "#020814",
+    video: "VD6xJq8NguY",
   },
   {
     id: "moon",
@@ -385,6 +406,7 @@ export const PLACES: readonly Place[] = [
     stop: 1,
     inside: "blue-world",
     veil: "#0a0a0e",
+    video: "lheapd7bgLA",
   },
   {
     // D-133: inside the moon's scene, tumbling past it
@@ -397,6 +419,7 @@ export const PLACES: readonly Place[] = [
     stop: 1,
     inside: "moon",
     veil: "#0a0908",
+    video: "dKm7T13X7n4",
   },
 ];
 

@@ -15,7 +15,7 @@ Everything is committed and pushed to the private GitHub repo (`AbdulDevHub/Cosm
 
 ## In Progress
 
-- Item 5 below: the video button.
+- Item 6 below: the real places (Supernova, Pulsar, Black Hole Merger, Comet, Ringed Planet, Dark Matter reveal).
 
 ## Next Steps
 
@@ -39,7 +39,7 @@ Agreed with the owner on 2026-11-22 (D-136). Work down the list and commit after
    - Replace the placeholder dock with Places (a jump list), Flights, Ship (move the ship picker off the start page), Search and Sound.
    - Search flies you to a place.
    - **Hidden Music mode:** online, the site plays browser-made white noise and the effects stay on. Typing "Music" in search shows a sound icon that turns on the real music, remembered in localStorage.
-5. [ ] **Video button:** a round button right of Zoom Out that opens the scene's YouTube video (mostly Kurzgesagt) in a new tab. Each video ID is stored with its place.
+5. [x] **Video button** (done 2026-11-22, D-141; the Nebula still needs a video, owner to pick): a round button right of Zoom Out that opens the scene's YouTube video (mostly Kurzgesagt) in a new tab. Each video ID is stored with its place.
 6. [ ] **Real places:**
    - In the galaxy: Supernova and Its Remnant, Pulsar or Magnetar, Black Hole Merger.
    - In the Solar System: a Comet and a Ringed Planet.

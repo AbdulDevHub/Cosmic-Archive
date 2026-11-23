@@ -15,7 +15,7 @@ const WEBSITE = {
   inLanguage: "en",
 };
 
-const STOP_WORDS: StopWords[] = STOPS.map(({ zoom, name, line }) => ({ zoom, name, line }));
+const STOP_WORDS: StopWords[] = STOPS.map(({ zoom, name, line, video }) => ({ zoom, name, line, video }));
 
 const SPOTS: Spot[] = [
   // places inside other places (D-132) are found in their parent's scene, not in the atlas
