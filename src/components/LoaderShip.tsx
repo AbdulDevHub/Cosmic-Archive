@@ -27,13 +27,12 @@ const LOOKS: Record<ShipClass, Look> = {
   },
   predator: {
     hull: ["#4a505c", "#22252c"],
-    engines: [[14, 27], [14, 33], [24, 5], [24, 55]],
+    engines: [[18, 27], [18, 33], [26, 22], [26, 38]],
     body: (
       <>
-        <path d="M118 30 L84 25 Q66 12 46 3 L38 3 L50 23 L16 25 L16 35 L50 37 L38 57 L46 57 Q66 48 84 35 Z" />
-        <rect x="24" y="2" width="24" height="5" rx="2.5" />
-        <rect x="24" y="53" width="24" height="5" rx="2.5" />
-        <path d="M84 27 L58 28 M84 33 L58 32" stroke="#6fb6ff" strokeWidth="0.9" />
+        <path d="M118 27 L100 30 L118 33 L96 36 L70 38 L30 37 L20 34 L20 26 L30 23 L70 22 L96 24 Z" />
+        <path d="M82 23 Q78 4 8 2 L11 5 Q46 10 40 23 Z M82 37 Q78 56 8 58 L11 55 Q46 50 40 37 Z" />
+        <path d="M80 21 Q75 5 16 3 M80 39 Q75 55 16 57" fill="none" stroke="#6fb6ff" strokeWidth="0.9" />
       </>
     ),
   },
@@ -57,7 +56,8 @@ const LOOKS: Record<ShipClass, Look> = {
       <>
         <path d="M52 22 L34 6 L28 6 L36 22 Z M52 38 L34 54 L28 54 L36 38 Z" />
         <rect x="30" y="20" width="62" height="20" rx="3" />
-        <path d="M92 20 L114 30 L92 40 Z" fill="#7d8799" />
+        <path d="M92 20 L106 22 L114 30 L106 38 L92 40 Z" fill="#7d8799" />
+        <path d="M99 21 L104 21.7 L104 38.3 L99 39 Z" fill="#1b2a44" />
         <rect x="16" y="8" width="36" height="10" rx="5" fill="#3f6fd8" />
         <rect x="16" y="42" width="36" height="10" rx="5" fill="#3f6fd8" />
         <rect x="46" y="27" width="34" height="6" rx="1" fill="#3f6fd8" />
@@ -69,10 +69,10 @@ const LOOKS: Record<ShipClass, Look> = {
     engines: [[10, 22], [10, 27], [10, 33], [10, 38]],
     body: (
       <>
-        <path d="M118 30 L100 14 L20 11 L12 16 L12 44 L20 49 L100 46 Z" />
-        <path d="M100 30 L88 20 L22 18 L22 42 L88 40 Z" fill="#26304a" />
-        {[80, 64, 48, 32].map((x) => (
-          <rect key={x} x={x} y="23" width="13" height="14" rx="1" fill="#9aa6bd" />
+        <path d="M118 30 L96 14 L40 10 L16 15 L10 22 L10 38 L16 45 L40 50 L96 46 Z" />
+        <path d="M104 30 L88 19 L30 17 L18 23 L18 37 L30 43 L88 41 Z" fill="#26304a" />
+        {[86, 70, 54, 38].map((x) => (
+          <path key={x} d={`M${x + 8} 30 L${x - 2} 21 L${x - 8} 21 L${x} 30 L${x - 8} 39 L${x - 2} 39 Z`} fill="#9aa6bd" />
         ))}
       </>
     ),

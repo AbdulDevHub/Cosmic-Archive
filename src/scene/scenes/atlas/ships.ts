@@ -177,44 +177,54 @@ function sovereign(): ShipModel {
 }
 
 /**
- * Predator, the intimidating cruiser (V1 sheet): a long, flat, layered blade of graphite, broad
- * wings with curved leading edges drooping a little toward engine pods at their tips, small
- * canards forward, blue seams and engines.
+ * Predator, the intimidating cruiser (V1 sheet, refined in D-177): a long, flat, layered blade of
+ * graphite split at the bow into two prongs, never a fighter's nose; two great sickle wings, a
+ * broad upper pair and a narrower lower pair, sweeping out and back to points well behind the
+ * stern; a stepped dorsal ridge; blue light only along the leading edges and in its four engines.
  */
 function predator(): ShipModel {
-  const base = sym([[0.64, 0], [0.4, 0.045], [0.12, 0.09], [-0.3, 0.125], [-0.5, 0.12], [-0.56, 0.07], [-0.56, 0]]);
-  const deck = sym([[0.42, 0], [0.2, 0.04], [-0.15, 0.07], [-0.42, 0.072], [-0.47, 0]]);
-  const spine = sym([[0.22, 0], [0.0, 0.022], [-0.36, 0.028], [-0.4, 0]]);
-  const keel = sym([[0.46, 0], [0.1, 0.07], [-0.45, 0.09], [-0.5, 0]]);
-  // one wing: a curved leading edge out to the tip, a curved trailing edge back to the root
-  const wing: P2[] = [[0.06, 0.09], ...bend([0.06, 0.09], [-0.06, 0.3], [-0.36, 0.5], 10), [-0.47, 0.49], ...bend([-0.47, 0.49], [-0.36, 0.26], [-0.44, 0.11], 8)];
-  const canard: P2[] = [[0.34, 0.045], [0.22, 0.17], [0.17, 0.17], [0.2, 0.06]];
-  const droop = (side: number) => new Matrix4().makeRotationX(side * 0.09);
+  // the blade, its bow notched into two prongs
+  const base = sym([[0.5, 0], [0.76, 0.04], [0.66, 0.075], [0.34, 0.1], [-0.1, 0.13], [-0.48, 0.125], [-0.58, 0.07], [-0.56, 0]]);
+  const deck = sym([[0.46, 0], [0.56, 0.03], [0.3, 0.06], [-0.15, 0.08], [-0.46, 0.075], [-0.5, 0]]);
+  const ridge = sym([[0.3, 0], [0.06, 0.03], [-0.3, 0.04], [-0.44, 0]]);
+  const crest = sym([[0.08, 0], [-0.1, 0.016], [-0.34, 0.018], [-0.38, 0]]);
+  const keel = sym([[0.42, 0], [0.1, 0.07], [-0.45, 0.09], [-0.52, 0]]);
+  // the sickles: a leading edge bowed outward to a point far aft, a trailing edge curving back in
+  const upperEdge: P2[] = [[0.16, 0.09], ...bend([0.16, 0.09], [0.02, 0.5], [-0.78, 0.56], 14)];
+  const upper: P2[] = [...upperEdge, [-0.8, 0.545], ...bend([-0.8, 0.545], [-0.36, 0.36], [-0.42, 0.11], 12)];
+  const lowerEdge: P2[] = [[0.02, 0.1], ...bend([0.02, 0.1], [-0.12, 0.36], [-0.62, 0.4], 12)];
+  const lower: P2[] = [...lowerEdge, [-0.64, 0.39], ...bend([-0.64, 0.39], [-0.34, 0.24], [-0.4, 0.1], 10)];
+  const droop = (side: number, a: number) => new Matrix4().makeRotationX(side * a);
   const parts = [
     plate(base, 0.04, GRAPHITE, 0.0, true),
     plate(deck, 0.03, GUNMETAL, 0.035),
-    plate(spine, 0.022, GRAPHITE, 0.06),
+    plate(ridge, 0.024, GRAPHITE, 0.062),
+    plate(crest, 0.018, GUNMETAL, 0.084),
     plate(keel, 0.03, GRAPHITE, -0.04),
-    // a glass slit far back on the deck, never a fighter's cockpit
-    part(new BoxGeometry(0.08, 0.008, 0.03), GLASS, [-0.18, 0.065, 0]),
-    ...[1, -1].flatMap((side) => [
-      plate(side > 0 ? wing : flipZ(wing), 0.022, GRAPHITE, -0.004).applyMatrix4(droop(side)),
-      plate(side > 0 ? canard : flipZ(canard), 0.014, GUNMETAL, 0.01),
-      // blue seams along the deck's edges and the wing roots
-      part(new BoxGeometry(0.5, 0.006, 0.006), BLUE, [-0.05, 0.04, side * 0.06]),
-      part(new BoxGeometry(0.3, 0.005, 0.006), BLUE, [-0.22, 0.005, side * 0.15]),
-      // the wingtip pods and the two main engines at the stern
-      hull([[0, 0], [0.026, 0.01], [0.03, 0.06], [0.03, 0.3], [0.018, 0.36], [0, 0.37]], 16, GUNMETAL, [-0.6, -0.045, side * 0.49]),
-      part(new CylinderGeometry(0.036, 0.04, 0.12, 16), ENGINE, [-0.53, 0.0, side * 0.06], ALONG_X),
-      // a red light at each wingtip
-      part(new BoxGeometry(0.012, 0.008, 0.012), RED, [-0.27, -0.01, side * 0.5]),
-    ]),
+    // a glass slit far back on the ridge, never a fighter's cockpit
+    part(new BoxGeometry(0.07, 0.008, 0.024), GLASS, [-0.06, 0.09, 0]),
+    // the stern block that holds the main engines
+    part(new BoxGeometry(0.1, 0.07, 0.22), GUNMETAL, [-0.52, 0.005, 0]),
+    ...[1, -1].flatMap((side) => {
+      const s = (points: P2[]) => (side > 0 ? points : flipZ(points));
+      return [
+        plate(s(upper), 0.022, GRAPHITE, 0.01).applyMatrix4(droop(side, 0.05)),
+        plate(s(lower), 0.018, GUNMETAL, -0.03).applyMatrix4(droop(side, 0.14)),
+        // blue light along each sickle's leading edge
+        tube(upperEdge.slice(2, 12).map(([x, z]): Vec3 => [x, 0.022 - z * 0.05, side * z]), 0.0045, BLUE),
+        // the main engines in the stern block, and a smaller pair at the wing roots
+        part(new CylinderGeometry(0.036, 0.042, 0.1, 18), ENGINE, [-0.56, 0.005, side * 0.06], ALONG_X),
+        part(new CylinderGeometry(0.024, 0.028, 0.1, 16), ENGINE, [-0.46, 0.005, side * 0.15], ALONG_X),
+        // a red light at each sickle's point
+        part(new BoxGeometry(0.012, 0.008, 0.012), RED, [-0.76, 0.0, side * 0.555]),
+      ];
+    }),
   ];
   return {
     geometry: merge(parts),
-    nozzles: [[-0.6, -0.045, 0.49], [-0.6, -0.045, -0.49], [-0.6, 0, 0.06], [-0.6, 0, -0.06]],
+    nozzles: [[-0.61, 0.005, 0.06], [-0.61, 0.005, -0.06], [-0.51, 0.005, 0.15], [-0.51, 0.005, -0.15]],
     glow: 0.7,
-    size: 0.86,
+    size: 0.9,
   };
 }
 
@@ -253,15 +263,15 @@ function celestial(): ShipModel {
 
 /**
  * Discovery, the experimental explorer (Discovery.jpg, recoloured white, silver and blue): a
- * chunky shuttle body behind a dark wedge nose, two big round engine pods, narrow swept wings and
+ * chunky shuttle body behind a six-sided steel prow ringed with windows (D-177), two big round engine pods, narrow swept wings and
  * twin tall fins leaning outward.
  */
 function discovery(): ShipModel {
   const wing: P2[] = [[-0.06, 0.11], [-0.32, 0.33], [-0.4, 0.33], [-0.34, 0.11]];
   const parts = [
-    // the wedge nose in bare steel, its glass band on the slope
-    fin([[0.62, -0.03], [0.44, 0.065], [0.22, 0.085], [0.22, -0.075], [0.54, -0.065]], 0.19, STEEL, 0),
-    part(new SphereGeometry(0.06, 20, 10).scale(1.9, 0.3, 1.3), GLASS, [0.38, 0.065, 0], new Matrix4().makeRotationZ(-0.36)),
+    // the nose: a six-sided prow in bare steel, a band of windows wrapped round its taper
+    hull([[0.13, 0], [0.13, 0.12], [0.11, 0.24], [0.065, 0.33], [0.02, 0.38], [0, 0.385]], 6, STEEL, [0.2, 0.0, 0], 0.72, 0.95),
+    hull([[0.136, 0.13], [0.114, 0.235]], 6, GLASS, [0.2, 0.0, 0], 0.72, 0.95),
     // the long body, its upper module and a rear module
     part(new BoxGeometry(0.6, 0.16, 0.22), WHITE, [-0.08, 0, 0], undefined, true),
     part(new BoxGeometry(0.42, 0.07, 0.16), WHITE, [-0.1, 0.115, 0]),
@@ -284,44 +294,44 @@ function discovery(): ShipModel {
 }
 
 /**
- * Colossus, the mobile expedition fortress (V2 sheet): a long, broad stack of armoured decks with
- * a chisel prow, low and continuous on top (no tower), lit windows along every deck, armour
- * blisters down its flanks, and its engines built into one wide band across the stern.
+ * Colossus, the mobile expedition fortress (V2 sheet, refined in D-177): a long lens of four
+ * stacked armoured decks, pointed at the bow and tapering toward the stern, chevrons of armour
+ * down its spine (low and continuous on top: no tower), lit windows along every deck, bands of
+ * blue light, armour blisters down its flanks, and its engines built into the stern.
  */
 function colossus(): ShipModel {
-  const base = sym([[0.84, 0], [0.58, 0.15], [0.26, 0.235], [-0.62, 0.255], [-0.75, 0.225], [-0.77, 0]]);
-  const middle = sym([[0.64, 0], [0.44, 0.125], [0.16, 0.185], [-0.66, 0.195], [-0.74, 0]]);
-  const spine = sym([[0.44, 0], [0.28, 0.07], [-0.66, 0.08], [-0.7, 0]]);
-  const keel = sym([[0.58, 0], [0.34, 0.14], [-0.56, 0.2], [-0.72, 0]]);
-  // the top: a row of armoured blocks down the spine, low and separate, never a tower
-  const blocks: [number, number, number, number][] = [
-    // x, length, width, height
-    [0.3, 0.16, 0.16, 0.03],
-    [0.1, 0.18, 0.24, 0.04],
-    [-0.12, 0.18, 0.27, 0.045],
-    [-0.34, 0.18, 0.27, 0.045],
-    [-0.55, 0.16, 0.25, 0.04],
-  ];
+  // a long lens of stacked armour, drawn to a point at the bow and tapering again toward the stern
+  const base = sym([[0.92, 0], [0.62, 0.13], [0.22, 0.23], [-0.38, 0.25], [-0.7, 0.21], [-0.8, 0.13], [-0.8, 0]]);
+  const middle = sym([[0.74, 0], [0.48, 0.11], [0.12, 0.19], [-0.4, 0.205], [-0.72, 0.16], [-0.76, 0]]);
+  const upper = sym([[0.52, 0], [0.3, 0.085], [-0.02, 0.14], [-0.44, 0.15], [-0.7, 0.11], [-0.72, 0]]);
+  const spine = sym([[0.3, 0], [0.1, 0.05], [-0.5, 0.075], [-0.68, 0]]);
+  const keel = sym([[0.66, 0], [0.36, 0.13], [-0.44, 0.2], [-0.74, 0.12], [-0.76, 0]]);
+  // a V of armour pointing forward: its tip, out and back along one arm, in to the notch
+  const chevron = (x: number, w: number): P2[] => sym([[x + 0.1, 0], [x - 0.02, w], [x - 0.09, w], [x, 0]]);
   const parts = [
-    plate(base, 0.06, STEEL, 0.0, true),
-    plate(middle, 0.05, NAVY, 0.05, true),
-    plate(spine, 0.02, NAVY, 0.075),
-    plate(keel, 0.045, NAVY, -0.055, true),
-    ...blocks.map(([x, length, width, height], i) => part(new BoxGeometry(length, height, width), i % 2 ? NAVY : STEEL, [x, 0.075 + height / 2, 0], undefined, true)),
+    plate(base, 0.05, STEEL, 0.0, true),
+    plate(middle, 0.045, NAVY, 0.045, true),
+    plate(upper, 0.035, STEEL, 0.085, true),
+    plate(spine, 0.022, NAVY, 0.115),
+    plate(keel, 0.045, NAVY, -0.05, true),
+    // chevron armour down the spine, pointing forward, low and continuous: never a tower
+    ...[0.2, 0.02, -0.16, -0.34, -0.52].map((x, i) => plate(chevron(x, 0.1 + 0.025 * Math.min(i, 2)), 0.016, i % 2 ? STEEL : SILVER, 0.135)),
     // the engine band across the stern, its four nozzles glowing
-    part(new BoxGeometry(0.05, 0.085, 0.44), GUNMETAL, [-0.76, 0.0, 0]),
-    ...[0.07, -0.07, 0.18, -0.18].map((z) => part(new CylinderGeometry(0.034, 0.034, 0.02, 20), GLOW, [-0.79, 0, z], ALONG_X)),
+    part(new BoxGeometry(0.06, 0.1, 0.4), GUNMETAL, [-0.78, 0.02, 0]),
+    ...[0.065, -0.065, 0.165, -0.165].map((z) => part(new CylinderGeometry(0.036, 0.036, 0.02, 20), GLOW, [-0.815, 0.02, z], ALONG_X)),
     ...[1, -1].flatMap((side) => [
-      // armour blisters down the flanks
-      ...[0.12, -0.12, -0.36, -0.58].map((x) => part(new BoxGeometry(0.17, 0.05, 0.04), STEEL, [x, -0.005, side * 0.252], undefined, true)),
-      // blue light along the deck edges
-      part(new BoxGeometry(1.0, 0.006, 0.006), BLUE, [-0.14, 0.028, side * 0.255]),
-      part(new BoxGeometry(0.8, 0.006, 0.006), BLUE, [-0.22, 0.073, side * 0.19]),
+      // armour blisters down the flanks, between bands of blue light
+      ...[0.2, -0.02, -0.24, -0.46].map((x, i) => part(new BoxGeometry(0.18, 0.045, 0.035), STEEL, [x, -0.005, side * (0.232 + 0.012 * Math.min(i, 2))], undefined, true)),
+      part(new BoxGeometry(0.9, 0.006, 0.006), BLUE, [-0.1, 0.05, side * 0.248]),
+      part(new BoxGeometry(0.8, 0.006, 0.006), BLUE, [-0.14, 0.092, side * 0.205]),
+      part(new BoxGeometry(0.6, 0.006, 0.006), BLUE, [-0.2, 0.125, side * 0.152]),
+      // long glowing engine vents built into the stern quarters
+      part(new BoxGeometry(0.16, 0.022, 0.012), GLOW, [-0.66, 0.02, side * 0.2]),
     ]),
   ];
   return {
     geometry: merge(parts),
-    nozzles: [[-0.8, 0.0, 0.07], [-0.8, 0.0, -0.07], [-0.8, 0.0, 0.18], [-0.8, 0.0, -0.18]],
+    nozzles: [[-0.83, 0.02, 0.065], [-0.83, 0.02, -0.065], [-0.83, 0.02, 0.165], [-0.83, 0.02, -0.165]],
     glow: 1.0,
     size: 0.95,
   };

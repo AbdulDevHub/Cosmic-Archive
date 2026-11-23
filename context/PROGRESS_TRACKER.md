@@ -2,9 +2,9 @@
 
 > **What this file is:** where the work stands. It covers what works now, what is in progress, what comes next (the plan) and a dated session log. A new session reads this first, after `AGENTS.md`. Update it at the end of every session, and tick an item only when it is built and verified. Older log entries fold into "Earlier history" rather than being deleted. Why things are the way they are lives in `DECISIONS.md`, and that log wins over everything else here.
 
-## Current State (2026-11-24, D-176)
+## Current State (2026-11-24, D-177)
 
-The overnight branch is merged into `main` locally, with four megastructures polished (D-176). `main` is ahead of GitHub until the owner says push. Nothing is deployed. Judge on the 1440x900 laptop first (D-110).
+The overnight branch is merged and pushed, four megastructures are polished (D-176), and the ships are refined (D-177). Nothing is deployed. Judge on the 1440x900 laptop first (D-110).
 
 - **Start page** (`/`, from the owner's `Home.png`, D-107): gradient headline, Begin, "Choose Your Vessel" with five ships (Sovereign, Predator, Celestial, Discovery, Colossus; D-120, brief in `SHIP_BRIEF.md`), and a spaceship loader (D-123). `/#atlas` skips it.
 - **Header:** wordmark, glass dock (Places, Flights, Ship; D-139, D-151), search that flies to a place, and Sound.
@@ -16,7 +16,7 @@ The overnight branch is merged into `main` locally, with four megastructures pol
 
 ## In Progress
 
-- Item 12 below: ship refinement (not started overnight).
+- Item 13 below: before deploy (test health, phone pass, the owner's checks).
 
 ## Next Steps
 
@@ -54,7 +54,7 @@ Agreed with the owner on 2026-11-22 (D-136). Work down the list and commit after
 9. [x] **Megastructures** (in the Quasar Galaxy; done 2026-11-23, D-164 to D-173; each still needs a video and a music loop): Dyson Swarm, Ringworld, O'Neill Cylinder, Matrioshka Brain, Generation Ship, Stellar Engine, Von Neumann Probes, Space Elevator, Star Lifter.
 10. [x] **The Seven Heavens** (done 2026-11-23, D-174): one stop after the Observable Universe, seven nested layers each bigger than the last, drawn as abstract light. The line on the site has no Quran quote. Its source (the Quran, fetched) goes in `places.ts`.
 11. [x] **Vivid lines pass** (done 2026-11-23, D-175: Black Hole, Nebula and Quasar; owner to judge the rest): rewrite the weakest lines to say what a thing is, still sourced and true.
-12. [ ] **Ship refinement:** better code-built hulls first (Sovereign looks egg-like from above); Blender only if they still fall short.
+12. [x] **Ship refinement** (done 2026-11-24, D-177: Predator, Colossus and Discovery reshaped, finer plating on all; owner to judge whether Blender is still needed): better code-built hulls first (Sovereign looks egg-like from above); Blender only if they still fall short.
 13. [ ] **Before deploy:**
     - Test health: raise `sceneSettled` (the live `/black-hole` passes 30 s), fix the two fallbacks `touch` checks and the `/star` drag-hint contrast.
     - Phone pass (D-110), including the nebula's dust bank on phones.
@@ -79,6 +79,7 @@ Limits: draw calls on `low` under 30, scene chunks under 40 KB. Tests that need 
 
 ## Session Log
 
+- **2026-11-24 (ships), D-177:** Screenshotted each ship on the start page with a temporary script. Reshaped the Predator (sickle wings, a pronged bow), the Colossus (stacked decks, chevron armour) and the Discovery (a six-sided prow). The plating is finer on all five, and the loader silhouettes match. `npm run check` and `npm run build` pass, as do the `home` and `start` shots (6 of 6). The start-page posters were remade.
 - **2026-11-24 (overnight review), D-176:** Fast-forwarded `overnight/2026-11-24` into `main` (local only). `npm run check` and `npm run build` pass. Looked at every new still. Redid the four weakest (O'Neill Cylinder, Ringworld, Stellar Engine, Generation Ship); their posters, share images and targeted `npm run shots` (24 of 24) pass. Still weak, for a later pass: Higher Dimensions (reads as a hollow cube), Programmable Matter (a dotted egg) and Matrioshka Brain (shells read as arcs).
 - **Overnight summary (2026-11-23 into 11-24, branch `overnight/2026-11-24`, D-151 to D-175):**
   - **Built:** item 7, the guided flights (A Star's Life, Black Hole to Quasar) and The Grand Tour with Skip, from the dock's Flights (D-151). Item 8, the Starbase (a ray-marched wheel station in A Quasar Galaxy) and all eleven of its ideas (D-152 to D-163). Item 9, the nine megastructures in A Quasar Galaxy (D-164 to D-173). Item 10, the Seven Heavens as stop 5 (D-174). Item 11, new lines for Black Hole, Nebula and Quasar (D-175). That makes 21 new places (46 in all) and 5 stops. Also: the Places panel gives the Starbase's ideas a group of their own; `npm run shots -- <word>` runs only matching routes; `PW_CHROMIUM` lets the scripts use the container's own Chromium.

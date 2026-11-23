@@ -158,17 +158,24 @@ void main(){
       // how mirror-like: gold and the metals reflect, paint and pearl are softer
       float metalness = id == 3.0 ? 0.9 : id == 0.0 || id == 10.0 ? 0.55 : id == 4.0 || id == 12.0 || id == 11.0 ? 0.45 : 0.2;
       float shine = id == 3.0 ? 1.6 : id == 7.0 || id == 9.0 ? 0.8 : 0.9;
-      // plating: panel seams, and each panel a shade of its own
-      vec3 cell = floor(vO * vec3(16.0, 22.0, 13.0));
-      float seams = step(0.06, fract(vO.x * 16.0)) * step(0.07, fract(vO.z * 13.0 + 0.3));
+      // plating: staggered rows of plates of two sizes, fine dark seams, each plate a shade of its
+      // own, a few darker access hatches, and a faint grime over the whole hull
+      vec3 q = vO * vec3(24.0, 30.0, 17.0);
+      q.x += step(0.5, fract(floor(q.z) * 0.5)) * 0.5;          // every other row is offset, like brickwork
+      vec3 cell = floor(q);
+      vec3 f = fract(q);
+      float seams = smoothstep(0.0, 0.07, f.x) * smoothstep(1.0, 0.93, f.x) * smoothstep(0.0, 0.08, f.z) * smoothstep(1.0, 0.92, f.z);
+      float tone = h3(cell);
+      float hatch = step(0.93, h3(cell + 7.0));
+      float grime = 0.9 + 0.12 * fbm3(vO * 7.0);
       // pearl is poured, not plated: no seams, only the faintest shading
-      float panel = id == 7.0 ? 0.97 + 0.03 * h3(cell) : (0.9 + 0.1 * h3(cell)) * mix(0.88, 1.0, seams);
+      float panel = id == 7.0 ? 0.97 + 0.03 * tone : (0.86 + 0.14 * tone) * mix(0.62, 1.0, seams) * (1.0 - 0.28 * hatch) * grime;
       vec3 albedo = base * panel;
       // what the hull mirrors: the violet and azure of the sky, and the galaxy's warm light
       vec3 r = reflect(-v, n);
       vec3 env = mix(vec3(0.05, 0.03, 0.12), vec3(0.2, 0.3, 0.6), r.y * 0.5 + 0.5) + vec3(1.0, 0.82, 0.62) * pow(max(dot(r, L), 0.0), 10.0) * 0.8;
       col = albedo * (0.1 + 0.9 * diff) * (1.0 - metalness * 0.45) + fill * 1.2 + albedo * env * metalness * 1.4;
-      col += mix(vec3(0.9), base, id == 3.0 ? 0.8 : 0.4) * spec * shine + vec3(0.45, 0.7, 1.0) * fres * 0.45;
+      col += mix(vec3(0.9), base, id == 3.0 ? 0.8 : 0.4) * spec * shine * (0.6 + 0.8 * tone) * (id == 7.0 ? 1.0 : seams) + vec3(0.45, 0.7, 1.0) * fres * 0.45;
       // pearl: a soft rose-to-azure sheen toward the edges
       if (id == 7.0) col += mix(vec3(1.0, 0.7, 0.85), vec3(0.6, 0.8, 1.0), fres) * fres * 0.35;
       // windows: rows of small lights on the windowed hull's sides, warm on pale hulls, blue on dark ones
