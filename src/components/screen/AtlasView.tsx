@@ -97,19 +97,8 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
   const words = stops.find((entry) => entry.zoom === stop) ?? stops[0];
   // the level the camera is headed for (tests read it as `data-web`, `data-void` and `data-universe`); Zoom Out is dimmed at the last
   const [level, setLevel] = useState<Level>(1);
-  // "Growing empty…" (owner, D-133): while the supervoids swell on their own, so the visitor knows
-  // why they grow; it fades once they have nearly filled (the growth is 95% done by about 27 s)
-  const [growing, setGrowing] = useState(false);
-  useEffect(() => {
-    if (level !== 3 || !live || calm()) return;
-    const start = setTimeout(() => setGrowing(true), 900);
-    const end = setTimeout(() => setGrowing(false), 26000);
-    return () => {
-      clearTimeout(start);
-      clearTimeout(end);
-      setGrowing(false);
-    };
-  }, [level, live]);
+  // the supervoid's foam is pinned to space, so a drag there would slide the voids over the web (D-137)
+  const inVoid = () => levelAt(getSceneInput().zoom) === 3;
   const sync = () => setLevel(levelAt(getSceneInput().zoom));
   // the galaxy, the web, the supervoid and the universe have their own music (D-116)
   useEffect(() => setMusic(level === 4 ? "universe" : level === 3 ? "supervoid" : level === 2 ? "web" : "galaxy"), [level]);
@@ -258,6 +247,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
         if (touch && swipe.current > 60) beginRef.current();
         return;
       }
+      if (inVoid()) return;
       const { yaw, pitch } = getSceneInput();
       setSceneInput(touch ? { yaw: yaw - dx * DRAG_YAW } : { yaw: yaw - dx * DRAG_YAW, pitch: pitch + dy * DRAG_PITCH });
     },
@@ -288,6 +278,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
       if (event.key === "+" || event.key === "=") setSceneInput({ zoom: zoom - KEY_ZOOM });
       else if (event.key === "-" || event.key === "_") setSceneInput({ zoom: zoom + KEY_ZOOM });
       else if (event.key === "Escape") back();
+      else if (event.key.startsWith("Arrow") && inVoid()) return;
       else if (event.key === "ArrowLeft") setSceneInput({ yaw: yaw - KEY_YAW });
       else if (event.key === "ArrowRight") setSceneInput({ yaw: yaw + KEY_YAW });
       else if (event.key === "ArrowUp") setSceneInput({ pitch: pitch - KEY_PITCH });
@@ -333,11 +324,6 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
         <div key={words.zoom} className={live ? styles.words : undefined}>
           <h1>{words.name}</h1>
           <p>{words.line}</p>
-          {words.zoom === 3 ? (
-            <p className={styles.growing} data-on={growing ? "" : undefined} aria-hidden={!growing}>
-              Growing empty…
-            </p>
-          ) : null}
         </div>
         <ul ref={list} className={styles.spots} data-live={live ? "" : undefined} aria-label="Places">
           {spots.map((spot) => (
@@ -358,7 +344,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
         </ul>
       </div>
 
-      <DragHint live={live} />
+      <DragHint live={live && stop !== 3} />
       {live ? (
         <div className={styles.controls}>
           <button type="button" className={styles.control} onClick={back} aria-disabled={level === 4}>

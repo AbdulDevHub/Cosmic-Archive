@@ -96,6 +96,13 @@ export const SOURCES: readonly Source[] = [
     checked: "2026-11-21",
   },
   {
+    id: "nasa-dark-energy",
+    title: "What is Dark Energy? Inside Our Accelerating, Expanding Universe",
+    publisher: "NASA Science",
+    url: "https://science.nasa.gov/dark-energy/",
+    checked: "2026-11-22",
+  },
+  {
     id: "nasa-cosmic-web",
     title: "Slime Mold Simulations Used to Map Dark Matter Holding Universe Together",
     publisher: "NASA Science",
@@ -212,9 +219,10 @@ export const STOPS: readonly Stop[] = [
     // D-119: a zoom out of the web, no longer a place of its own
     zoom: 3,
     name: "A Supervoid",
-    // the source: "voids of space in between, as if the galaxies were resting on empty bubbles"; "clusters and walls"
-    line: "Empty bubbles of space between the cosmic web's walls of galaxies.",
-    sources: ["nasa-large-scale-structures"],
+    // the sources: "voids of space in between, as if the galaxies were resting on empty bubbles"; "clusters and walls";
+    // dark energy is "making the universe expand at an accelerating rate" (D-137: "growing" lives in the line itself)
+    line: "Growing empty bubbles between the web's walls, stretched by dark energy.",
+    sources: ["nasa-large-scale-structures", "nasa-dark-energy"],
   },
   {
     // D-130: a zoom out of the supervoid, the last stop

@@ -838,7 +838,7 @@ export class AtlasWorld {
     const last = (isPhone(width, height) ? KEYS_PHONE : KEYS_DESK)[VOID_STOP].d;
     u.uGrow.value = last / Math.max(1, camera.position.length());
     (u.uPan.value as Vector2).set(view.yaw * 0.6, view.pitch * 0.6);
-    u.uSwell.value = mix(-0.35, 1, 1 - Math.exp(-out / 9));
+    u.uSwell.value = mix(-0.35, 1, 1 - Math.exp(-out / 13)); // a little slower than D-124's 9 s (owner, D-137)
     u.uTime.value = t;
     u.uAlpha.value = alpha;
   }
