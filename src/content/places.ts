@@ -32,8 +32,8 @@ export interface Stop {
   video?: string;
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
-export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
+export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi" | "dark";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
 export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant";
 
@@ -238,6 +238,13 @@ export const SOURCES: readonly Source[] = [
     publisher: "NASA Science",
     url: "https://science.nasa.gov/saturn/facts/",
     checked: "2026-11-22",
+  },
+  {
+    id: "nasa-dark-matter",
+    title: "Dark Matter",
+    publisher: "NASA Science",
+    url: "https://science.nasa.gov/dark-matter/",
+    checked: "2026-11-23",
   },
 ];
 
@@ -456,6 +463,18 @@ export const PLACES: readonly Place[] = [
     stop: 1,
     inside: "solar-system",
     veil: "#0e0a06",
+  },
+  {
+    // D-147: the web's unseen matter, made to glow; a knot of the web leads here; no video yet (owner to pick)
+    id: "dark-matter",
+    name: "The Dark Matter Web",
+    // the source: "Dark matter is the invisible glue that holds the universe together."; "ordinary matter makes up only
+    // about 5% of the universe, while dark matter makes up about 27%" (27 / 5 is about five)
+    line: "The universe's invisible glue: about five times more than ordinary matter.",
+    sources: ["nasa-dark-matter"],
+    anchor: "dark",
+    stop: 2,
+    veil: "#04060e",
   },
   {
     id: "quasi-star",

@@ -48,6 +48,7 @@ const TRACKS: Record<string, string> = {
   asteroid: "/audio/music/asteroid",
   "quasar-galaxy": "/audio/music/quasar-galaxy",
   "moon": "/audio/music/moon",
+  "dark-matter": "/audio/music/web", // D-147: the web's own loop
   supervoid: "/audio/music/web",
   universe: "/audio/music/universe",
 };

@@ -89,7 +89,7 @@ const REMNANT_TH = armAngle(1, REMNANT_R) + 0.75;
 // D-144: a black hole merger, in the outer disc
 const MERGER_R = 0.86;
 const MERGER_TH = armAngle(2, MERGER_R) + 4.2;
-type Anchor = { local: Vec3; spin: boolean } | { web: "quasar" | "home" };
+type Anchor = { local: Vec3; spin: boolean } | { web: "quasar" | "home" | "dark" };
 const ANCHORS: Record<string, Anchor> = {
   /** The heart of the galaxy. */
   core: { local: [0, 0, 0], spin: false },
@@ -113,6 +113,8 @@ const ANCHORS: Record<string, Anchor> = {
   merger: { local: [MERGER_R * Math.cos(MERGER_TH), 0, MERGER_R * Math.sin(MERGER_TH)], spin: true },
   /** A far galaxy of the web, placed where the zoomed-out composition wants it. */
   quasar: { web: "quasar" },
+  /** The web's dark matter, revealed (D-147): another knot of the web, where the composition wants it. */
+  dark: { web: "dark" },
   /** The galaxy the visitor came from. */
   home: { web: "home" },
   /** The web the visitor came from, seen from the supervoid: a patch of one wall (D-119). */
@@ -123,6 +125,8 @@ const ANCHORS: Record<string, Anchor> = {
 
 /** Where the quasar's hotspot should fall in the zoomed-out view, in NDC (the prototype's). */
 const QUASAR_WANT = { wide: [0.4, -0.38], narrow: [0.02, 0.55] } as const; // narrow: room for "A Quasar Galaxy" (D-133)
+/** Where the dark matter's hotspot should fall in the zoomed-out view (D-147): the open upper left, clear of the name and the quasar. */
+const DARK_WANT = { wide: [-0.32, 0.34], narrow: [-0.35, 0.12] } as const;
 /**
  * Where the supervoid's great bubble sits, from our web, in units of half the window's height
  * (y up). The web is on the bubble's wall (D-119); the camera's lens shift puts it right of centre
@@ -631,6 +635,7 @@ export class AtlasWorld {
   /** The start page's planet, moons, asteroids and ship (D-107); drawn only while `intro` is above 0. */
   private readonly start: StartProps;
   private readonly quasar = new Vector3();
+  private readonly dark = new Vector3();
   private readonly focus = new Vector3();
   private readonly scratch = new Vector3();
   /** Strengths of the glow layers for this tier; see the constructor. */
@@ -740,38 +745,47 @@ export class AtlasWorld {
 
   /**
    * The quasar is a galaxy of the web: the knot nearest to where the zoomed-out composition
-   * wants its hotspot. If no knot is near, it sits in the plane of the web at that spot.
+   * wants its hotspot. If no knot is near, it sits in the plane of the web at that spot. The dark
+   * matter's hotspot (D-147) is found the same way, skipping the quasar's knot.
    */
   private layoutQuasar(camera: PerspectiveCamera, width: number, height: number): void {
     placeCamera(camera, 2, width, height);
-    const [wantX, wantY] = isPhone(width, height) ? QUASAR_WANT.narrow : QUASAR_WANT.wide;
+    const phone = isPhone(width, height);
+    this.nearestKnot(camera, width, height, phone ? QUASAR_WANT.narrow : QUASAR_WANT.wide, this.quasar, null);
+    this.nearestKnot(camera, width, height, phone ? DARK_WANT.narrow : DARK_WANT.wide, this.dark, this.quasar);
+    this.quasarDot.object.position.copy(this.quasar);
+  }
+
+  /** The web's knot nearest to `want` (NDC) seen from `camera`, other than `not`; else the web's plane there. */
+  private nearestKnot(camera: PerspectiveCamera, width: number, height: number, want: readonly number[], out: Vector3, not: Vector3 | null): void {
+    const [wantX, wantY] = want;
     const v = this.scratch;
     let best = 0.3; // NDC: farther than this is not "near"
     let found = false;
     for (let i = 1; i < this.webNodes.length; i++) {
       const [x, y, z] = this.webNodes[i];
+      if (not && not.x === x && not.y === y && not.z === z) continue;
       v.set(x, y, z).project(camera);
       if (v.z >= 1) continue;
       const d = Math.hypot(v.x - wantX, (v.y - wantY) * (height / width));
       if (d < best) {
         best = d;
         found = true;
-        this.quasar.set(x, y, z);
+        out.set(x, y, z);
       }
     }
     if (!found) {
       const e = camera.projectionMatrix.elements;
       const dir = v.set((wantX + e[8]) / e[0], (wantY + e[9]) / e[5], -1).transformDirection(camera.matrixWorld);
-      this.quasar.copy(camera.position).addScaledVector(dir, -camera.position.y / dir.y);
+      out.copy(camera.position).addScaledVector(dir, -camera.position.y / dir.y);
     }
-    this.quasarDot.object.position.copy(this.quasar);
   }
 
   /** Where a named place is in the world at scene time `t`. */
   private anchorAt(name: string, t: number, out: Vector3): Vector3 {
     const anchor = ANCHORS[name];
     if (!anchor) return out.set(0, 0, 0);
-    if ("web" in anchor) return anchor.web === "quasar" ? out.copy(this.quasar) : out.set(0, 0, 0);
+    if ("web" in anchor) return anchor.web === "quasar" ? out.copy(this.quasar) : anchor.web === "dark" ? out.copy(this.dark) : out.set(0, 0, 0);
     const [x, y, z] = anchor.local;
     const ang = t * SPIN;
     const c = Math.cos(ang);
