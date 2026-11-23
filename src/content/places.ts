@@ -32,7 +32,7 @@ export interface Stop {
   video?: string;
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy" | "starbase" | "warp-drive" | "programmable-matter" | "higher-dimensions" | "quantum-foam" | "vacuum-decay" | "bubble-universes" | "quarks";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy" | "starbase" | "warp-drive" | "programmable-matter" | "higher-dimensions" | "quantum-foam" | "vacuum-decay" | "bubble-universes" | "quarks" | "pocket-dimensions" | "omniverse" | "cosmic-strings" | "string-theory";
 export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi" | "dark" | "cloud" | "redgiant" | "planetary";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
 export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant" | "dwarf" | "starbase" | "warp" | "matter" | "dims" | "pocket" | "omniverse" | "bubbles" | "vacuum" | "foam" | "strings" | "quarks" | "stringtheory";
@@ -321,6 +321,34 @@ export const SOURCES: readonly Source[] = [
     title: "Eternal inflation (cosmology notes)",
     publisher: "University of Nevada, Las Vegas, Physics (David Jeffery)",
     url: "https://www.physics.unlv.edu/~jeffery/astro/cosmol/inflation_eternal.html",
+    checked: "2026-11-23",
+  },
+  {
+    id: "arxiv-baby-universes",
+    title: "From Black Holes to Baby Universes: Exploring the Possibility of Creating a Cosmos in the Laboratory",
+    publisher: "arXiv (S. Ansoldi, Z. Merali, E. I. Guendelman; Bulgarian Journal of Physics, 2018)",
+    url: "https://arxiv.org/abs/1801.04539",
+    checked: "2026-11-23",
+  },
+  {
+    id: "arxiv-tegmark-parallel-universes",
+    title: "Parallel Universes",
+    publisher: "arXiv (Max Tegmark; Science and Ultimate Reality, Cambridge University Press, 2003)",
+    url: "https://arxiv.org/abs/astro-ph/0302131",
+    checked: "2026-11-23",
+  },
+  {
+    id: "arxiv-cosmic-strings",
+    title: "Cosmic strings",
+    publisher: "arXiv (M. B. Hindmarsh, T. W. B. Kibble; Reports on Progress in Physics, 1995)",
+    url: "https://arxiv.org/abs/hep-ph/9411342",
+    checked: "2026-11-23",
+  },
+  {
+    id: "space-string-theory",
+    title: "What is string theory?",
+    publisher: "Space.com",
+    url: "https://www.space.com/17594-string-theory.html",
     checked: "2026-11-23",
   },
 ];
@@ -767,6 +795,58 @@ export const PLACES: readonly Place[] = [
     stop: 2,
     inside: "starbase",
     veil: "#0d0510",
+  },
+  {
+    // D-160: an idea in the Starbase
+    id: "pocket-dimensions",
+    name: "Pocket Dimensions",
+    // the source asks whether "baby universes could be formed within our present universe - either in a future
+    // particle accelerator, or spontaneously" (an open question, so "possible")
+    line: "A possible baby universe, formed inside ours, perhaps even in a lab.",
+    sources: ["arxiv-baby-universes"],
+    anchor: "pocket",
+    stop: 2,
+    inside: "starbase",
+    veil: "#031009",
+  },
+  {
+    // D-161: an idea in the Starbase
+    id: "omniverse",
+    name: "Omniverse",
+    // the source: "a natural four-level hierarchy of multiverses allowing progressively greater diversity";
+    // "Level IV: Other mathematical structures give different fundamental equations of physics"
+    line: "A speculative top level: universes built on other equations of physics.",
+    sources: ["arxiv-tegmark-parallel-universes"],
+    anchor: "omniverse",
+    stop: 2,
+    inside: "starbase",
+    veil: "#0c0b10",
+  },
+  {
+    // D-162: an idea in the Starbase
+    id: "cosmic-strings",
+    name: "Cosmic Strings",
+    // the source: "'topological defects' that may have been formed at phase transitions in the very early history of
+    // the Universe"; "predicted by some unified theories of particle interactions"; "If they exist"
+    line: "Possible defects from the very early universe, predicted by some unified theories.",
+    sources: ["arxiv-cosmic-strings"],
+    anchor: "strings",
+    stop: 2,
+    inside: "starbase",
+    veil: "#04061a",
+  },
+  {
+    // D-163: an idea in the Starbase
+    id: "string-theory",
+    name: "String Theory",
+    // the source: "reality is made up of infinitesimal vibrating strings"; "String theory predicts ten total spacetime
+    // dimensions"; "No experiment has definitively proven string theory", so "Perhaps"
+    line: "Perhaps all matter is tiny vibrating strings, in ten dimensions of spacetime.",
+    sources: ["space-string-theory"],
+    anchor: "stringtheory",
+    stop: 2,
+    inside: "starbase",
+    veil: "#08061a",
   },
 ];
 
