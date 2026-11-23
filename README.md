@@ -4,11 +4,11 @@ A spectacle of the cosmos you click through: real-time scenes from a spiral gala
 
 ## Project Overview
 
-Cosmic Archive is a website for looking at the universe rather than reading about it. You pick a spaceship on the start page, press Begin, and fly into a galaxy. From there you click a glowing point to dive into what it marks (a black hole, a nebula, a neutron star, a solar system with its own planet, moon and asteroid) or press Zoom Out to pull back through the cosmic web, the empty supervoids and finally the whole observable universe. A wormhole leads to a second, stranger galaxy with a quasar, a Dyson sphere and a Starbase, a turning wheel station whose glowing bays open onto eleven big ideas, from a warp drive and quantum foam to string theory and the omniverse. The Flights menu flies you through a star's whole life, from a black hole to a quasar, or on a hands-off tour you can skip at any time.
+Cosmic Archive is a website for looking at the universe rather than reading about it. You pick a spaceship on the start page, press Begin, and fly into a galaxy. From there you click a glowing point to dive into what it marks (a black hole, a nebula, a neutron star, a solar system with its own planet, moon and asteroid) or press Zoom Out to pull back through the cosmic web, the empty supervoids and finally the whole observable universe. A wormhole leads to a second, stranger galaxy with a quasar, a Dyson sphere and a Starbase, a turning wheel station whose glowing bays open onto eleven big ideas, from a warp drive and quantum foam to string theory and the omniverse, among nine imagined megastructures from a Dyson swarm to a ringworld. The Flights menu flies you through a star's whole life, from a black hole to a quasar, or on a hands-off tour you can skip at any time.
 
 Every scene is drawn live in the browser with WebGL shaders, with no photos or downloaded images, so it stays original and small. Each view has only a name and one short line, and every line is checked against a real source. Each scene has its own music. If 3D can't run, every page still shows a still image and works as plain HTML.
 
-**Status:** being polished; not deployed yet. 4 zoom levels, 37 places, two guided flights and a hands-off tour are built. What's next is in `context/PROGRESS_TRACKER.md`.
+**Status:** being polished; not deployed yet. 4 zoom levels, 46 places, two guided flights and a hands-off tour are built. What's next is in `context/PROGRESS_TRACKER.md`.
 
 ## Ideas That Shape It
 

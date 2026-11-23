@@ -28,12 +28,14 @@ function root(place: Place): Place {
 }
 
 function groupOf(place: Place): string {
+  // the Starbase's ideas are many: they get their own group, the Starbase leading it (D-174)
+  if (place.id === "starbase" || place.inside === "starbase") return "The Starbase";
   const top = root(place);
   if (top.id === "solar-system" || top.id === "quasar-galaxy") return top.name;
   return top.stop >= 2 ? "The Cosmic Web" : "A Spiral Galaxy";
 }
 
-const ORDER = ["A Spiral Galaxy", "A Solar System", "The Cosmic Web", "A Quasar Galaxy"];
+const ORDER = ["A Spiral Galaxy", "A Solar System", "The Cosmic Web", "A Quasar Galaxy", "The Starbase"];
 
 export function menuGroups(): MenuGroup[] {
   const groups = new Map<string, MenuPlace[]>();
@@ -42,7 +44,7 @@ export function menuGroups(): MenuGroup[] {
     const list = groups.get(name) ?? [];
     // the group's own place (the solar system, the quasar galaxy) leads its list
     const entry = { id: place.id, name: place.name, veil: place.veil };
-    if (root(place) === place && name === place.name) list.unshift(entry);
+    if ((root(place) === place && name === place.name) || place.id === "starbase") list.unshift(entry);
     else list.push(entry);
     groups.set(name, list);
   }

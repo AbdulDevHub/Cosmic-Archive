@@ -21,7 +21,7 @@ const POSTERS = [
   { file: "atlas-start-wide.webp", path: "/?shot=1&t=12&tier=high", ...WIDE, quality: 0.8 },
   { file: "atlas-start-narrow.webp", path: "/?shot=1&t=12&tier=low", ...NARROW, quality: 0.8 },
   // Places: `<scene id>-wide` and `<scene id>-narrow`, the names the place page asks for.
-  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter", "molecular-cloud", "red-giant", "planetary-nebula", "white-dwarf", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy", "starbase", "warp-drive", "programmable-matter", "higher-dimensions", "quantum-foam", "quarks", "vacuum-decay", "bubble-universes", "pocket-dimensions", "omniverse", "cosmic-strings", "string-theory"].flatMap((id) => [
+  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter", "molecular-cloud", "red-giant", "planetary-nebula", "white-dwarf", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy", "starbase", "warp-drive", "programmable-matter", "higher-dimensions", "quantum-foam", "quarks", "vacuum-decay", "bubble-universes", "pocket-dimensions", "omniverse", "cosmic-strings", "string-theory", "dyson-swarm", "ringworld", "oneill-cylinder", "matrioshka-brain", "generation-ship", "stellar-engine", "von-neumann-probes", "space-elevator", "star-lifter"].flatMap((id) => [
     { file: `${id}-wide.webp`, path: `/${id}?shot=1&t=12&tier=high`, ...WIDE, quality: 0.8 },
     { file: `${id}-narrow.webp`, path: `/${id}?shot=1&t=12&tier=low`, ...NARROW, quality: 0.8 },
   ]),
@@ -65,6 +65,15 @@ const POSTERS = [
     ["omniverse", "/omniverse?shot=1&t=12&tier=high"],
     ["cosmic-strings", "/cosmic-strings?shot=1&t=12&tier=high"],
     ["string-theory", "/string-theory?shot=1&t=12&tier=high"],
+    ["dyson-swarm", "/dyson-swarm?shot=1&t=12&tier=high"],
+    ["ringworld", "/ringworld?shot=1&t=12&tier=high"],
+    ["oneill-cylinder", "/oneill-cylinder?shot=1&t=12&tier=high"],
+    ["matrioshka-brain", "/matrioshka-brain?shot=1&t=12&tier=high"],
+    ["generation-ship", "/generation-ship?shot=1&t=12&tier=high"],
+    ["stellar-engine", "/stellar-engine?shot=1&t=12&tier=high"],
+    ["von-neumann-probes", "/von-neumann-probes?shot=1&t=12&tier=high"],
+    ["space-elevator", "/space-elevator?shot=1&t=12&tier=high"],
+    ["star-lifter", "/star-lifter?shot=1&t=12&tier=high"],
   ].map(([name, path]) => ({ file: `${name}.jpg`, dir: join("public", "og"), path, viewport: { width: 1440, height: 900 }, crop: { x: 0, y: 72, w: 1440, h: 756 }, out: 1200, quality: 0.82, type: "image/jpeg" })),
 ];
 

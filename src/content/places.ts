@@ -32,10 +32,10 @@ export interface Stop {
   video?: string;
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy" | "starbase" | "warp-drive" | "programmable-matter" | "higher-dimensions" | "quantum-foam" | "vacuum-decay" | "bubble-universes" | "quarks" | "pocket-dimensions" | "omniverse" | "cosmic-strings" | "string-theory";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy" | "starbase" | "warp-drive" | "programmable-matter" | "higher-dimensions" | "quantum-foam" | "vacuum-decay" | "bubble-universes" | "quarks" | "pocket-dimensions" | "omniverse" | "cosmic-strings" | "string-theory" | "dyson-swarm" | "ringworld" | "oneill-cylinder" | "matrioshka-brain" | "generation-ship" | "stellar-engine" | "von-neumann-probes" | "space-elevator" | "star-lifter";
 export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi" | "dark" | "cloud" | "redgiant" | "planetary";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
-export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant" | "dwarf" | "starbase" | "warp" | "matter" | "dims" | "pocket" | "omniverse" | "bubbles" | "vacuum" | "foam" | "strings" | "quarks" | "stringtheory";
+export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant" | "dwarf" | "starbase" | "warp" | "matter" | "dims" | "pocket" | "omniverse" | "bubbles" | "vacuum" | "foam" | "strings" | "quarks" | "stringtheory" | "swarm" | "ringworld" | "oneill" | "matrioshka" | "generation" | "engine" | "probes" | "elevator" | "lifter";
 
 export interface Place {
   id: PlaceId;
@@ -349,6 +349,62 @@ export const SOURCES: readonly Source[] = [
     title: "What is string theory?",
     publisher: "Space.com",
     url: "https://www.space.com/17594-string-theory.html",
+    checked: "2026-11-23",
+  },
+  {
+    id: "nss-oneill-cylinder",
+    title: "O’Neill Cylinder Space Settlement",
+    publisher: "National Space Society",
+    url: "https://nss.org/o-neill-cylinder-space-settlement/",
+    checked: "2026-11-23",
+  },
+  {
+    id: "snexplores-space-elevator",
+    title: "Could humans build a tall tower or giant rope to space?",
+    publisher: "Science News Explores (Society for Science)",
+    url: "https://www.snexplores.org/article/can-we-build-space-elevator-tall-tower-or-giant-rope",
+    checked: "2026-11-23",
+  },
+  {
+    id: "freethink-stellar-engine",
+    title: "Move the sun, save the earth: the plan to relocate our solar system",
+    publisher: "Freethink",
+    url: "https://www.freethink.com/energy/stellar-engine",
+    checked: "2026-11-23",
+  },
+  {
+    id: "arxiv-wright-dyson-computation",
+    title: "Application of the Thermodynamics of Radiation to Dyson Spheres as Work Extractors and Computational Engines, and their Observational Consequences",
+    publisher: "arXiv (Jason T. Wright, 2023; accepted to AAS Journals)",
+    url: "https://arxiv.org/abs/2309.06564",
+    checked: "2026-11-23",
+  },
+  {
+    id: "reactor-ringworld",
+    title: "Ringworld 40th Anniversary: Introduction",
+    publisher: "Reactor (Tor.com)",
+    url: "https://reactormag.com/ringworld-40th-anniversary-introduction/",
+    checked: "2026-11-23",
+  },
+  {
+    id: "arxiv-world-ships",
+    title: "World ships: Feasibility and Rationale",
+    publisher: "arXiv (A. M. Hein, C. Smith, F. Marin, K. Staats; Acta Futura, 2020)",
+    url: "https://arxiv.org/abs/2005.04100",
+    checked: "2026-11-23",
+  },
+  {
+    id: "arxiv-von-neumann-probes",
+    title: "Why is there no von Neumann probe on Ceres? Error catastrophe can explain the Fermi-Hart Paradox",
+    publisher: "arXiv (Axel Kowald; Journal of the British Interplanetary Society, 2015)",
+    url: "https://arxiv.org/abs/1605.02169",
+    checked: "2026-11-23",
+  },
+  {
+    id: "arxiv-star-lifting",
+    title: "Lazarus Stars: Numerical investigations of stellar evolution with star-lifting as a life extension strategy",
+    publisher: "arXiv (M. T. Scoggins, D. Kipping; MNRAS)",
+    url: "https://arxiv.org/abs/2210.02338",
     checked: "2026-11-23",
   },
 ];
@@ -847,6 +903,122 @@ export const PLACES: readonly Place[] = [
     stop: 2,
     inside: "starbase",
     veil: "#08061a",
+  },
+  {
+    // D-165: a megastructure in the quasar galaxy (D-136 item 9)
+    id: "dyson-swarm",
+    name: "Dyson Swarm",
+    // the source: "Dyson didn’t picture the energy collectors in a solid shell"; "a loose collection or swarm of objects
+    // traveling on independent orbits around the star"; the page's title: it "harvests the energy of stars"
+    line: "Imagined collectors on independent orbits, a swarm drinking a star's light.",
+    sources: ["earthsky-dyson-sphere"],
+    anchor: "swarm",
+    stop: 2,
+    inside: "quasar-galaxy",
+    veil: "#0d0703",
+  },
+  {
+    // D-173: a megastructure in the quasar galaxy (D-136 item 9)
+    id: "ringworld",
+    name: "Ringworld",
+    // the source: "Imagine a world in the shape of a ring that surrounds a star at the Earth's distance from the sun";
+    // "a world containing the surface area of three million Earths"; Larry Niven's novel, so "Fiction's"
+    line: "Fiction's ring round a star: the surface of three million Earths.",
+    sources: ["reactor-ringworld"],
+    anchor: "ringworld",
+    stop: 2,
+    inside: "quasar-galaxy",
+    veil: "#04070d",
+  },
+  {
+    // D-169: a megastructure in the quasar galaxy (D-136 item 9)
+    id: "oneill-cylinder",
+    name: "O'Neill Cylinder",
+    // the source: "a pair of cylinders, each 20 miles long and 4 miles in diameter"; they "rotate in opposite directions";
+    // they "can house several million people"; a design, never built, so "Imagined"
+    line: "Imagined twin cylinders, twenty miles long, turning opposite ways, home to millions.",
+    sources: ["nss-oneill-cylinder"],
+    anchor: "oneill",
+    stop: 2,
+    inside: "quasar-galaxy",
+    veil: "#05080c",
+  },
+  {
+    // D-172: a megastructure in the quasar galaxy (D-136 item 9)
+    id: "matrioshka-brain",
+    name: "Matrioshka Brain",
+    // the source: "Dyson spheres as machines that do work or computation"; "little to no advantage to nesting shells (as in
+    // a \"Matrioshka Brain\")"
+    line: "Imagined computer shells nested round a star; one may work as well.",
+    sources: ["arxiv-wright-dyson-computation"],
+    anchor: "matrioshka",
+    stop: 2,
+    inside: "quasar-galaxy",
+    veil: "#0d0303",
+  },
+  {
+    // D-166: a megastructure in the quasar galaxy (D-136 item 9)
+    id: "generation-ship",
+    name: "Generation Ship",
+    // the source: world ships are "hypothetical, large, self-contained spacecraft for crewed interstellar travel, taking
+    // centuries to reach other stars", positioned "with respect to similar concepts such as generation ships"
+    line: "An imagined world ship, crossing to other stars over centuries.",
+    sources: ["arxiv-world-ships"],
+    anchor: "generation",
+    stop: 2,
+    inside: "quasar-galaxy",
+    veil: "#03050c",
+  },
+  {
+    // D-171: a megastructure in the quasar galaxy (D-136 item 9)
+    id: "stellar-engine",
+    name: "Stellar Engine",
+    // the source: a proposed "stellar engine"; "essentially a giant jet engine alongside the sun, which pushes the sun
+    // forward like a tugboat pushing a barge"
+    line: "An imagined giant jet beside a star, pushing it like a tugboat.",
+    sources: ["freethink-stellar-engine"],
+    anchor: "engine",
+    stop: 2,
+    inside: "quasar-galaxy",
+    veil: "#06040e",
+  },
+  {
+    // D-167: a megastructure in the quasar galaxy (D-136 item 9)
+    id: "von-neumann-probes",
+    name: "Von Neumann Probes",
+    // the source: "self-replicating robotic probes could spread to all stars of our galaxy" (the paper asks why none are seen)
+    line: "Imagined self-copying probes that could spread to every star in a galaxy.",
+    sources: ["arxiv-von-neumann-probes"],
+    anchor: "probes",
+    stop: 2,
+    inside: "quasar-galaxy",
+    veil: "#04080a",
+  },
+  {
+    // D-170: a megastructure in the quasar galaxy (D-136 item 9)
+    id: "space-elevator",
+    name: "Space Elevator",
+    // the source: "The end of the giant ribbon swinging around the planet would need to be in geosynchronous orbit"; "A cable
+    // that reaches into orbit could work — but only if researchers can find a strong enough material to build it"
+    line: "A possible ribbon to orbit, if a strong enough material is found.",
+    sources: ["snexplores-space-elevator"],
+    anchor: "elevator",
+    stop: 2,
+    inside: "quasar-galaxy",
+    veil: "#03060f",
+  },
+  {
+    // D-168: a megastructure in the quasar galaxy (D-136 item 9)
+    id: "star-lifter",
+    name: "Star Lifter",
+    // the source: "remove (or star-lift) mass from their host star at a rate that offsets the increase in luminosity"; its
+    // title: "star-lifting as a life extension strategy"
+    line: "Imagined machines lifting mass off a star, to lengthen its life.",
+    sources: ["arxiv-star-lifting"],
+    anchor: "lifter",
+    stop: 2,
+    inside: "quasar-galaxy",
+    veil: "#0d0303",
   },
 ];
 

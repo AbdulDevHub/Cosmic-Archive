@@ -10,6 +10,7 @@ Sorted on 2026-11-22 (D-136), from `owner/vision-docs/` (the original ChatGPT ha
 - **Real places:** Black Hole ★, Nebula ★, Quasar ★, Neutron Star ★, Yellow Star (★ Sun, stars), A Solar System ★, A Blue World (★ Earth), Its Moon ★, An Asteroid ★.
 - **Hypothetical places:** Wormhole ★, Gravastar ★, Quasi-Star (★ "black hole star"), Strange Star ★.
 - **Fiction:** Dyson Sphere ★, in A Quasar Galaxy.
+- **Since 2026-11-22 (D-142 to D-173):** A Supernova Remnant, A Magnetar, A Black Hole Merger, A Comet, A Ringed Giant, The Dark Matter Web; A Star's Life (A Molecular Cloud, A Red Giant, A Planetary Nebula, A White Dwarf); the guided flights and The Grand Tour; the Starbase ★ and its eleven ideas (Warp Drive, Programmable Matter ★, Higher Dimensions ★, Pocket Dimensions ★, Omniverse ★, Bubble Universes, Vacuum Decay, Quantum Foam, Cosmic Strings, Quarks, String Theory); the nine megastructures (Dyson Swarm, Ringworld, O'Neill Cylinder, Matrioshka Brain, Generation Ship, Stellar Engine, Von Neumann Probes, Space Elevator, Star Lifter).
 - **Ships** (★ Star Trek starships): the five-ship fleet on the start page.
 
 ## Planned (in the Tracker)

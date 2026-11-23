@@ -12,11 +12,11 @@ Everything is committed and pushed to the private GitHub repo (`AbdulDevHub/Cosm
 - **Atlas stops** (Zoom Out moves outward): A Spiral Galaxy → The Cosmic Web → A Supervoid (three voids growing, dark energy in the line, no turning there; D-132, D-137) → The Observable Universe (turns like a globe, D-130 to D-132).
 - **Places** (one shader each; wheel zooms, drag turns, Zoom Out leaves): Black Hole, Nebula, Neutron Star, Strange Star, Wormhole, Gravastar and Quasi-Star in the galaxy. **A Solar System** holds the Yellow Star and A Blue World. A Blue World holds Its Moon, and Its Moon holds An Asteroid. **A Quasar Galaxy** (reached from the web and through the Wormhole) holds the Quasar and the Dyson Sphere. Places inside places: `inside` and `through` in `src/content/places.ts`, `bodies` in `src/scene/scenes/shared/orb.tsx`.
 - **Sound** (`src/lib/sound.ts`): a loop per scene in `public/audio/music/` (in git since D-140, cut from `owner/music-library/`), effects in `public/audio/effects/`, Magical Space as the fallback, warp sounds on every move, nothing before Begin (D-100, D-114 to D-116).
-- **Content:** 4 stops and 37 places in `src/content/places.ts`, each line sourced and checked by `npm run check`.
+- **Content:** 4 stops and 46 places in `src/content/places.ts`, each line sourced and checked by `npm run check`.
 
 ## In Progress
 
-- Item 9 below: the megastructures in A Quasar Galaxy.
+- Item 10 below: the Seven Heavens.
 
 ## Next Steps
 
@@ -51,7 +51,7 @@ Agreed with the owner on 2026-11-22 (D-136). Work down the list and commit after
    - Add a cinematic hands-off tour with Skip, from the dock's Flights (done 2026-11-23, D-151: The Grand Tour, 13 places).
 8. [x] **The Starbase hub** (done 2026-11-23, D-152 to D-163; each still needs a video and a music loop) (in the Quasar Galaxy): Warp Drive, Programmable Matter, Higher Dimensions, Pocket Dimensions, Omniverse, Bubble Universes, Vacuum Decay, Quantum Foam, Cosmic Strings, Quarks, String Theory.
    - The Starbase itself, with a bay for each idea (done 2026-11-23, D-152); Warp Drive (done 2026-11-23, D-153); Programmable Matter (done 2026-11-23, D-154); Higher Dimensions, Quantum Foam, Quarks, Vacuum Decay and Bubble Universes (done 2026-11-23, D-155 to D-159); Pocket Dimensions, Omniverse, Cosmic Strings and String Theory (done 2026-11-23, D-160 to D-163).
-9. [ ] **Megastructures** (in the Quasar Galaxy): Dyson Swarm, Ringworld, O'Neill Cylinder, Matrioshka Brain, Generation Ship, Stellar Engine, Von Neumann Probes, Space Elevator, Star Lifter.
+9. [x] **Megastructures** (in the Quasar Galaxy; done 2026-11-23, D-164 to D-173; each still needs a video and a music loop): Dyson Swarm, Ringworld, O'Neill Cylinder, Matrioshka Brain, Generation Ship, Stellar Engine, Von Neumann Probes, Space Elevator, Star Lifter.
 10. [ ] **The Seven Heavens:** one stop after the Observable Universe, seven nested layers each bigger than the last, drawn as abstract light. The line on the site has no Quran quote. Its source (the Quran, fetched) goes in `places.ts`.
 11. [ ] **Vivid lines pass:** rewrite the weakest lines to say what a thing is, still sourced and true.
 12. [ ] **Ship refinement:** better code-built hulls first (Sovereign looks egg-like from above); Blender only if they still fall short.

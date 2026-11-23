@@ -24,6 +24,18 @@ const SPIN = 0.006;
 const DYSON = { r: 0.42, a: 2.4 };
 /** The Starbase (D-152), out in the disc on the far side from the Dyson Sphere. */
 const STARBASE = { r: 0.62, a: 5.4 };
+/** The megastructures (D-164 to D-173): each a body in the disc, placed clear of the others' hotspots. */
+const MEGA: readonly { name: string; r: number; a: number }[] = [
+  { name: "swarm", r: 0.3, a: 4.2 },
+  { name: "ringworld", r: 0.78, a: 1.2 },
+  { name: "oneill", r: 0.55, a: 3.3 },
+  { name: "matrioshka", r: 0.85, a: 4.5 },
+  { name: "generation", r: 0.9, a: 2.85 },
+  { name: "engine", r: 0.72, a: 0.15 },
+  { name: "probes", r: 0.5, a: 0.9 },
+  { name: "elevator", r: 0.35, a: 5.6 },
+  { name: "lifter", r: 0.82, a: 6.0 },
+];
 
 function bodies(t: number, yaw: number, pitch: number): OrbBody[] {
   const tilt = tiltOf(pitch);
@@ -37,6 +49,11 @@ function bodies(t: number, yaw: number, pitch: number): OrbBody[] {
     { name: "core", x: 0, y: 0, z: 0 },
     { name: "dyson", x, y: -z * Math.sin(tilt), z: z * Math.cos(tilt) },
     { name: "starbase", x: bx, y: -bz * Math.sin(tilt), z: bz * Math.cos(tilt) },
+    ...MEGA.map(({ name, r, a: at }) => {
+      const m = at + yaw + t * SPIN;
+      const mz = r * Math.sin(m);
+      return { name, x: r * Math.cos(m), y: -mz * Math.sin(tilt), z: mz * Math.cos(tilt) };
+    }),
   ];
 }
 
