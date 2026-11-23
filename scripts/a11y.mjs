@@ -11,9 +11,9 @@ const require = createRequire(import.meta.url);
 const AXE = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
 
 /** The routes with a scene: the scan waits for it to be drawn, and fails if it never is. */
-const SCENES = new Set(["/", "/black-hole", "/nebula", "/quasar", "/neutron-star", "/star", "/strange-star", "/dyson-sphere", "/wormhole", "/gravastar", "/quasi-star", "/solar-system", "/blue-world", "/moon", "/asteroid", "/quasar-galaxy"]);
+const SCENES = new Set(["/", "/black-hole", "/nebula", "/quasar", "/neutron-star", "/star", "/strange-star", "/dyson-sphere", "/wormhole", "/gravastar", "/supernova-remnant", "/quasi-star", "/solar-system", "/blue-world", "/moon", "/asteroid", "/quasar-galaxy"]);
 
-const ROUTES = ["/", "/black-hole", "/nebula", "/quasar", "/neutron-star", "/star", "/strange-star", "/dyson-sphere", "/wormhole", "/gravastar", "/quasi-star", "/solar-system", "/blue-world", "/moon", "/asteroid", "/quasar-galaxy"];
+const ROUTES = ["/", "/black-hole", "/nebula", "/quasar", "/neutron-star", "/star", "/strange-star", "/dyson-sphere", "/wormhole", "/gravastar", "/supernova-remnant", "/quasi-star", "/solar-system", "/blue-world", "/moon", "/asteroid", "/quasar-galaxy"];
 const VIEWS = [
   { name: "desktop", viewport: { width: 1440, height: 900 } },
   { name: "phone", viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true },

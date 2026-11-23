@@ -83,6 +83,9 @@ const GRAV_TH = armAngle(2, GRAV_R) + 0.9;
 // D-127: a quasi-star, far out at the disc's edge (the early universe, in spirit)
 const QUASI_R = 1.02;
 const QUASI_TH = armAngle(1, QUASI_R) + 0.6;
+// D-142: a supernova remnant, out in the disc between the arms
+const REMNANT_R = 0.58;
+const REMNANT_TH = armAngle(1, REMNANT_R) + 0.75;
 type Anchor = { local: Vec3; spin: boolean } | { web: "quasar" | "home" };
 const ANCHORS: Record<string, Anchor> = {
   /** The heart of the galaxy. */
@@ -101,6 +104,8 @@ const ANCHORS: Record<string, Anchor> = {
   gravastar: { local: [GRAV_R * Math.cos(GRAV_TH), 0, GRAV_R * Math.sin(GRAV_TH)], spin: true },
   /** A hypothetical quasi-star out at the edge of the disc (D-127). */
   quasi: { local: [QUASI_R * Math.cos(QUASI_TH), 0, QUASI_R * Math.sin(QUASI_TH)], spin: true },
+  /** A supernova remnant in the disc (D-142). */
+  remnant: { local: [REMNANT_R * Math.cos(REMNANT_TH), 0, REMNANT_R * Math.sin(REMNANT_TH)], spin: true },
   /** A far galaxy of the web, placed where the zoomed-out composition wants it. */
   quasar: { web: "quasar" },
   /** The galaxy the visitor came from. */

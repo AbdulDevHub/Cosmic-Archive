@@ -32,8 +32,8 @@ export interface Stop {
   video?: string;
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
-export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "quasi";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
+export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "quasi";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
 export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat";
 
@@ -204,6 +204,13 @@ export const SOURCES: readonly Source[] = [
     url: "https://science.nasa.gov/moon/facts/",
     checked: "2026-11-22",
   },
+  {
+    id: "nasa-imagine-snr",
+    title: "Supernova Remnants",
+    publisher: "NASA Goddard Space Flight Center, Imagine the Universe!",
+    url: "https://imagine.gsfc.nasa.gov/science/objects/supernova_remnants.html",
+    checked: "2026-11-22",
+  },
 ];
 
 // Videos (D-141): Kurzgesagt, checked through YouTube oEmbed on 2026-11-22; the nebula has none yet.
@@ -359,6 +366,17 @@ export const PLACES: readonly Place[] = [
     stop: 1,
     veil: "#080614",
     video: "BmUZ2wp1lM8",
+  },
+  {
+    // D-142: no video yet (owner to pick)
+    id: "supernova-remnant",
+    name: "A Supernova Remnant",
+    // the source: "A supernova remnant (SNR) is the remains of a supernova explosion."; they "distribute heavy elements throughout the galaxy"
+    line: "The remains of a star's blast, scattering heavy elements through the galaxy.",
+    sources: ["nasa-imagine-snr"],
+    anchor: "remnant",
+    stop: 1,
+    veil: "#140608",
   },
   {
     id: "quasi-star",
