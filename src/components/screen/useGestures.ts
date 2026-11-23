@@ -71,9 +71,15 @@ export function useGestures(target: RefObject<HTMLElement | null>, live: boolean
       return Math.hypot(a.x - b.x, a.y - b.y);
     };
     const onDown = (event: PointerEvent) => {
-      if (event.button !== 0 || (event.target as Element).closest("a, button")) return;
-      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY, touch: event.pointerType === "touch" });
-      element.setPointerCapture(event.pointerId);
+      if (event.button !== 0) return;
+      const touch = event.pointerType === "touch";
+      // A finger that lands on a place still counts toward a pinch (the screen is full of places on
+      // a phone), but is never captured, so a tap on the place still opens it. A mouse on a link is
+      // left alone.
+      const onLink = (event.target as Element).closest("a, button") !== null;
+      if (onLink && !touch) return;
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY, touch });
+      if (!onLink) element.setPointerCapture(event.pointerId);
       element.dataset.dragging = "";
       moved = 0;
     };

@@ -56,7 +56,7 @@ Agreed with the owner on 2026-11-22 (D-136). Work down the list and commit after
 11. [x] **Vivid lines pass** (done 2026-11-23, D-175: Black Hole, Nebula and Quasar; owner to judge the rest): rewrite the weakest lines to say what a thing is, still sourced and true.
 12. [x] **Ship refinement** (done 2026-11-24, D-177: Predator, Colossus and Discovery reshaped, finer plating on all; owner to judge whether Blender is still needed): better code-built hulls first (Sovereign looks egg-like from above); Blender only if they still fall short.
 13. [ ] **Before deploy:**
-    - Test health: raise `sceneSettled` (the live `/black-hole` passes 30 s), fix the two fallbacks `touch` checks and the `/star` drag-hint contrast.
+    - Test health (done 2026-11-24, D-178: `sceneSettled` is 90 s, the pinch on a phone counts a finger on a marker, the touch check is fixed, `/star` is clean in axe; a full `npm run a11y` run is still to do, since the last one was stopped for low memory).
     - Phone pass (D-110), including the nebula's dust bank on phones.
     - Set `NEXT_PUBLIC_SITE_URL`.
     - The owner's checks: look at the new scenes on the laptop; arXiv as a source (Wormhole, Gravastar, Quasi-Star); frame rate and touch on real hardware; scene routes at about 145 KB against the 140 KB limit (D-047).
@@ -79,6 +79,7 @@ Limits: draw calls on `low` under 30, scene chunks under 40 KB. Tests that need 
 
 ## Session Log
 
+- **2026-11-24 (test health), D-178:** Fixed a real phone bug: a pinch with one finger on a marker only turned the view. Brought the stale touch check up to date and raised the settle timeout. `npm run fallbacks` passes in full. A one-route axe scan of `/star` is clean. The full `npm run a11y` run was stopped for low memory.
 - **2026-11-24 (ships), D-177:** Screenshotted each ship on the start page with a temporary script. Reshaped the Predator (sickle wings, a pronged bow), the Colossus (stacked decks, chevron armour) and the Discovery (a six-sided prow). The plating is finer on all five, and the loader silhouettes match. `npm run check` and `npm run build` pass, as do the `home` and `start` shots (6 of 6). The start-page posters were remade.
 - **2026-11-24 (overnight review), D-176:** Fast-forwarded `overnight/2026-11-24` into `main` (local only). `npm run check` and `npm run build` pass. Looked at every new still. Redid the four weakest (O'Neill Cylinder, Ringworld, Stellar Engine, Generation Ship); their posters, share images and targeted `npm run shots` (24 of 24) pass. Still weak, for a later pass: Higher Dimensions (reads as a hollow cube), Programmable Matter (a dotted egg) and Matrioshka Brain (shells read as arcs).
 - **Overnight summary (2026-11-23 into 11-24, branch `overnight/2026-11-24`, D-151 to D-175):**

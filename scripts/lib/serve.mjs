@@ -60,8 +60,11 @@ export function launchBrowser(extraArgs = []) {
   return chromium.launch({ executablePath, args: ["--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", ...extraArgs] });
 }
 
-/** Resolves once the scene has drawn its first frame, or the page has settled on the poster. */
-export function sceneSettled(page, timeout = 45000) {
+/**
+ * Resolves once the scene has drawn its first frame, or the page has settled on the poster. The
+ * heavier live scenes (the black hole) take over 30 s under software WebGL, so allow 90 s.
+ */
+export function sceneSettled(page, timeout = 90000) {
   return page.waitForFunction(
     () => {
       const state = document.documentElement.dataset.scene;

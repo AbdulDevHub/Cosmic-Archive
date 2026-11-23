@@ -412,15 +412,17 @@ try {
     const cx = 195;
     const cy = 300;
     const touch = (type, d) => cdp.send("Input.dispatchTouchEvent", { type, touchPoints: type === "touchEnd" ? [] : [{ x: cx - d, y: cy, id: 1 }, { x: cx + d, y: cy, id: 2 }] });
-    await touch("touchStart", 140);
-    for (let d = 130; d >= 30; d -= 10) await touch("touchMove", d);
+    // fingers 300 px apart closing to 80: log2(3.75) x 1.1, about 2.1 stops out, the web's middle
+    await touch("touchStart", 150);
+    for (let d = 140; d >= 40; d -= 10) await touch("touchMove", d);
     await touch("touchEnd", 0);
     await page.waitForTimeout(400);
     const after = await webFlag();
     check("touch", "a pinch pulls back to the cosmic web", !before && after, `on the web: ${before} then ${after}`);
-    const spot = await spotFor(page, "/quasar").catch(() => null);
+    // the web's places are A Quasar Galaxy and The Dark Matter Web (D-133, D-147)
+    const spot = await spotFor(page, "/quasar-galaxy").catch(() => null);
     if (spot) await spot.tap();
-    const opened = !!spot && (await page.waitForURL((url) => url.pathname === "/quasar", { timeout: 15000 }).then(() => true, () => false));
+    const opened = !!spot && (await page.waitForURL((url) => url.pathname === "/quasar-galaxy", { timeout: 15000 }).then(() => true, () => false));
     check("touch", "a tap on a place opens it", opened && (await settledFlow(page)), page.url().replace(base, ""));
     await context.close();
   }
