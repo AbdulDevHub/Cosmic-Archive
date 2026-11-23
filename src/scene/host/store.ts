@@ -122,7 +122,7 @@ export function setSlotVisible(token: number, visible: boolean): void {
  * event, and the host eases toward it frame by frame.
  */
 export interface SceneInput {
-  /** The atlas's stops: 0 close in, 1 the whole galaxy, 2 the cosmic web, 3 the supervoid, 4 the observable universe (ARCHITECTURE.md 4, D-130). */
+  /** The atlas's stops: 0 close in, 1 the whole galaxy, 2 the cosmic web, 3 the supervoid, 4 the observable universe (ARCHITECTURE.md 4, D-130), 5 the Seven Heavens (D-174). */
   zoom: number;
   /** Turn about the vertical axis, in radians, from free control. */
   yaw: number;
@@ -142,7 +142,7 @@ export interface SceneInput {
 export type SceneNumber = "zoom" | "yaw" | "pitch" | "dive" | "arrive" | "intro";
 
 export const ZOOM_MIN = 0;
-export const ZOOM_MAX = 4;
+export const ZOOM_MAX = 5;
 const PITCH_LIMIT = 0.3;
 
 const input: SceneInput = { zoom: 0, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1, intro: 0 };

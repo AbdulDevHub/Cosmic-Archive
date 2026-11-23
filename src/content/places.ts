@@ -21,7 +21,7 @@ export interface Source {
 
 
 /** The atlas's views: the galaxy (close in or whole, one name since D-115), the cosmic web, the supervoid around it (D-119) and the observable universe (D-130). */
-export type StopIndex = 0 | 1 | 2 | 3 | 4;
+export type StopIndex = 0 | 1 | 2 | 3 | 4 | 5;
 
 export interface Stop {
   zoom: StopIndex;
@@ -407,6 +407,27 @@ export const SOURCES: readonly Source[] = [
     url: "https://arxiv.org/abs/2210.02338",
     checked: "2026-11-23",
   },
+  {
+    id: "quran-67-3",
+    title: "Surah Al-Mulk 67:3 (The Clear Quran, Dr. Mustafa Khattab)",
+    publisher: "Quran.com",
+    url: "https://quran.com/67/3",
+    checked: "2026-11-23",
+  },
+  {
+    id: "quran-71-15",
+    title: "Surah Nuh 71:15 (The Clear Quran, Dr. Mustafa Khattab)",
+    publisher: "Quran.com",
+    url: "https://quran.com/71/15",
+    checked: "2026-11-23",
+  },
+  {
+    id: "quran-2-29",
+    title: "Surah Al-Baqarah 2:29 (The Clear Quran, Dr. Mustafa Khattab)",
+    publisher: "Quran.com",
+    url: "https://quran.com/2/29",
+    checked: "2026-11-23",
+  },
 ];
 
 // Videos (D-141): Kurzgesagt, checked through YouTube oEmbed on 2026-11-22; the nebula has none yet.
@@ -443,6 +464,16 @@ export const STOPS: readonly Stop[] = [
     line: "Its largest known structures are likely vast walls of galaxies.",
     sources: ["nasa-large-scale-structures"],
     video: "Z_1Q0XB4X0Y",
+  },
+  {
+    // D-174: the last stop, out past the observable universe (D-136 item 10). The line quotes no verse,
+    // for every visitor; the sources: "˹He is the One˺ Who created seven heavens, one above the other." (67:3);
+    // "Do you not see how Allah created seven heavens, one above the other," (71:15); "Then He turned towards
+    // the heaven, forming it into seven heavens." (2:29), in Dr. Mustafa Khattab's The Clear Quran
+    zoom: 5,
+    name: "The Seven Heavens",
+    line: "Seven heavens, created in layers, each one above the last.",
+    sources: ["quran-67-3", "quran-71-15", "quran-2-29"],
   },
 ];
 

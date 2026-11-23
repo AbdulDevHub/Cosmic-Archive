@@ -46,7 +46,8 @@ import type { SceneFrame, SceneInput } from "../../host/store";
 import type { ParticleTier } from "../../quality/tiers";
 import { POINT_FRAGMENT, POINT_VERTEX, SPRITE_FRAGMENT, SPRITE_VERTEX } from "../../shaders/points.glsl";
 import { SKY_CHUNK } from "../../shaders/sky.glsl";
-import { isPhone, KEYS_DESK, KEYS_PHONE, LAST_STOP, placeCamera } from "./camera";
+import { isPhone, KEYS_DESK, KEYS_PHONE, placeCamera } from "./camera";
+import { heavens } from "./heavens";
 import { StartProps } from "./start";
 import { armAngle, buildAtlas, COUNTS, joinClouds, mix, OUTER, SPIN, sstep, TAU, type Cloud, type Vec3 } from "./model";
 
@@ -136,6 +137,8 @@ const ANCHORS: Record<string, Anchor> = {
   patch: { web: "home" },
   /** The supervoid, seen from the observable universe: our web at its middle (D-130). */
   voidspot: { web: "home" },
+  /** The observable universe, seen from the Seven Heavens (D-174): small at their middle. */
+  ball: { web: "home" },
 };
 
 /** Where the quasar's hotspot should fall in the zoomed-out view, in NDC (the prototype's). */
@@ -151,6 +154,8 @@ const DARK_WANT = { wide: [-0.32, 0.34], narrow: [-0.35, 0.12] } as const;
 const VOID_STOP = 3;
 /** How many times larger than whole the universe's sphere is as the zoom leaves the supervoid (D-130). */
 const UNIVERSE_FROM = 28;
+/** How many times smaller the universe's ball is at the Seven Heavens than whole (D-174). */
+const HEAVENS_SHRINK = 7;
 
 export function makeFrame(): SceneFrame {
   const points: SceneFrame["points"] = {};
@@ -637,6 +642,8 @@ export class AtlasWorld {
   private readonly voidLayer = supervoid();
   /** Level 4, the observable universe (D-130). */
   private readonly universeLayer = universe();
+  /** Level 5, the Seven Heavens (D-174). */
+  private readonly heavensLayer = heavens();
   /** Scene time the visitor came out to the supervoid, or null while they are not there. */
   private voidSince: number | null = null;
   /** The universe's turn with the drag (D-131) and where its supervoid falls on screen (x, y, facing). */
@@ -730,7 +737,7 @@ export class AtlasWorld {
     // the supervoid's foam: its far layer is dropped on the lowest tier (its cost is per pixel)
     this.voidLayer.material.uniforms.uDetail.value = tier === "low" ? 0 : 1;
     this.universeLayer.material.uniforms.uDetail.value = tier === "low" ? 0 : 1;
-    this.root.add(this.sky, this.voidLayer, this.universeLayer, this.webGlow.object, this.webStrands.object, this.web.object, this.homeDot.object, this.quasarDot.object);
+    this.root.add(this.sky, this.voidLayer, this.universeLayer, this.heavensLayer, this.webGlow.object, this.webStrands.object, this.web.object, this.homeDot.object, this.quasarDot.object);
 
     this.galaxy.rotation.z = -0.2;
     this.root.add(this.wash.object, this.stars.object, this.galaxy);
@@ -856,6 +863,7 @@ export class AtlasWorld {
     this.quasarDot.alpha = shown * stays;
     this.frameVoid(camera, t, view, width, height, sstep(2.05, 2.75, zoom) * (1 - sstep(3.15, 3.7, zoom)));
     this.frameUniverse(camera, t, view, width, height, sstep(3.0, 3.35, zoom));
+    this.frameHeavens(t, view, width, height, sstep(4.05, 4.6, zoom));
 
     this.report(camera, t, zoom, width, height, out);
   }
@@ -897,8 +905,10 @@ export class AtlasWorld {
     u.uUnit.value = this.bufferHeight / 2;
     // whole, it fits the window's height on a laptop and its width on a phone
     const whole = isPhone(width, height) ? (width / height) * 0.88 : 0.68;
-    const out = sstep(3, LAST_STOP, view.zoom);
-    u.uRadius.value = whole * Math.exp(mix(Math.log(UNIVERSE_FROM), 0, out));
+    const out = sstep(3, 4, view.zoom);
+    // on out to the Seven Heavens (D-174) the whole ball shrinks to a small light at their middle
+    const beyond = sstep(4, 5, view.zoom);
+    u.uRadius.value = whole * Math.exp(mix(Math.log(UNIVERSE_FROM), 0, out) - beyond * Math.log(HEAVENS_SHRINK));
     u.uFrom.value = whole * UNIVERSE_FROM;
     // the drag turns the ball like a globe (owner, D-131): its features follow the drag
     this.spinEuler.set(-view.pitch * 0.5, -view.yaw * 0.5, 0, "XYZ");
@@ -921,6 +931,27 @@ export class AtlasWorld {
     const home = u.uHome.value as Vector2;
     const unit = (u.uUnit.value as number) * ball;
     this.voidSpot.set((home.x + seen.x * unit) * (width / this.bufferWidth), height - (home.y + seen.y * unit) * (height / this.bufferHeight), seen.z);
+  }
+
+  /**
+   * The Seven Heavens (D-174), round the universe's middle: they open as the zoom leaves the
+   * universe, the first heaven a little wider than the shrunken ball.
+   */
+  private frameHeavens(t: number, view: SceneInput, width: number, height: number, alpha: number): void {
+    const mesh = this.heavensLayer;
+    mesh.visible = alpha > 0.0005;
+    if (!mesh.visible) return;
+    const u = mesh.material.uniforms;
+    // the same middle as the universe's ball
+    (u.uHome.value as Vector2).copy(this.universeLayer.material.uniforms.uHome.value as Vector2);
+    u.uUnit.value = this.bufferHeight / 2;
+    const whole = isPhone(width, height) ? (width / height) * 0.88 : 0.68;
+    const ball = whole / HEAVENS_SHRINK;
+    // the heavens open out from the ball: the first one grows from its edge to its own size
+    u.uInner.value = ball * mix(1.0, 1.9, sstep(4, 5, view.zoom));
+    u.uTime.value = t;
+    u.uAlpha.value = alpha;
+    (u.uTurn.value as Vector2).set(view.yaw, view.pitch);
   }
 
   /** Projects the anchors for the DOM (hotspots). */

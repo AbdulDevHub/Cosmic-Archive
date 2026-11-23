@@ -131,6 +131,10 @@ A flight is a route through places, started from the dock's Flights: **A Star's 
 - The tour moves on by itself after about nine seconds at each place, its camera easing slowly back and round while it waits. With reduced motion there is no drift: each place is a still for ten seconds, and each move is the short cross-fade.
 - Anything that takes the visitor elsewhere (Zoom Out, a hotspot, search, Back) ends the flight. A reload ends it too. A flight starts only from a click, so it never sounds before the first gesture (D-100).
 
+### 7.6 The Seven Heavens (D-174)
+
+One Zoom Out past the observable universe: the ball shrinks to a small light at the middle, and seven heavens open round it, one above the other, each wider than the last, in soft light from indigo through violet, rose and gold to warm white. No rings: each heaven is a filled glow whose edge swells softly and breaks up. Zoom Out is dimmed there; the universe's hotspot glides back.
+
 ## 8. About
 
 Removed (D-099). The sources behind the site's few lines stay in `src/content/places.ts`, checked by the build.

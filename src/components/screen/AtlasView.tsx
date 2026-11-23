@@ -39,7 +39,7 @@ import { useGestures } from "./useGestures";
 */
 
 export interface StopWords {
-  zoom: 0 | 1 | 2 | 3 | 4;
+  zoom: 0 | 1 | 2 | 3 | 4 | 5;
   name: string;
   line: string;
   /** A video about it on YouTube (D-141). */
@@ -52,8 +52,8 @@ export interface Spot {
   /** The place's page, or null for a stop of the atlas itself (the galaxy, seen from the web). */
   href: string | null;
   anchor: string;
-  /** The stop it is found at: 1 shows from close in to the whole galaxy, 2 on the web, 3 in the supervoid, 4 in the universe. */
-  stop: 1 | 2 | 3 | 4;
+  /** The stop it is found at: 1 shows from close in to the whole galaxy, 2 on the web, 3 in the supervoid, 4 in the universe, 5 in the Seven Heavens. */
+  stop: 1 | 2 | 3 | 4 | 5;
   veil: string;
 }
 
@@ -74,14 +74,18 @@ const PINCH_ZOOM = 1.1; // stops per halving of the distance between two fingers
 const WEB_AT = 1.5;
 const VOID_AT = 2.5;
 const UNIVERSE_AT = 3.5;
+/** Past this, out in the Seven Heavens (D-174). */
+const HEAVENS_AT = 4.5;
+/** The observable universe's stop: `/#universe` opens there, and the heavens glide back to it. */
+const UNIVERSE_STOP = 4;
 /** The supervoid's stop: `/#supervoid` opens there (D-119). */
 const VOID_STOP = 3;
-type Level = 1 | 2 | 3 | 4;
-const levelAt = (zoom: number): Level => (zoom > UNIVERSE_AT ? 4 : zoom > VOID_AT ? 3 : zoom > WEB_AT ? 2 : 1);
+type Level = 1 | 2 | 3 | 4 | 5;
+const levelAt = (zoom: number): Level => (zoom > HEAVENS_AT ? 5 : zoom > UNIVERSE_AT ? 4 : zoom > VOID_AT ? 3 : zoom > WEB_AT ? 2 : 1);
 const spotShows = (spot: Spot, zoom: number) =>
-  spot.stop === 4 ? zoom > 3.65 : spot.stop === 3 ? zoom > 2.65 && zoom < 3.35 : spot.stop === 2 ? zoom > 1.6 && zoom < 2.35 : zoom < 1.45;
+  spot.stop === 5 ? zoom > 4.65 : spot.stop === 4 ? zoom > 3.65 && zoom < 4.35 : spot.stop === 3 ? zoom > 2.65 && zoom < 3.35 : spot.stop === 2 ? zoom > 1.6 && zoom < 2.35 : zoom < 1.45;
 /** The addresses that skip the start page, and the stop each opens at. */
-const OPENS_AT: Record<string, number> = { "#atlas": ZOOM_MIN, "#supervoid": VOID_STOP, "#universe": ZOOM_MAX };
+const OPENS_AT: Record<string, number> = { "#atlas": ZOOM_MIN, "#supervoid": VOID_STOP, "#universe": UNIVERSE_STOP, "#heavens": ZOOM_MAX };
 
 export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots: readonly Spot[] }) {
   const stage = useRef<HTMLDivElement>(null);
@@ -104,7 +108,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
   const inVoid = () => levelAt(getSceneInput().zoom) === 3;
   const sync = () => setLevel(levelAt(getSceneInput().zoom));
   // the galaxy, the web, the supervoid and the universe have their own music (D-116)
-  useEffect(() => setMusic(level === 4 ? "universe" : level === 3 ? "supervoid" : level === 2 ? "web" : "galaxy"), [level]);
+  useEffect(() => setMusic(level >= 4 ? "universe" : level === 3 ? "supervoid" : level === 2 ? "web" : "galaxy"), [level]);
 
   const glideTo = (zoom: number) => {
     if (flowBusy()) return;
@@ -121,7 +125,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
    */
   const back = () => {
     const at = levelAt(getSceneInput().zoom);
-    if (flowBusy() || at === 4) return;
+    if (flowBusy() || at === 5) return;
     glideTo(at + 1);
   };
 
@@ -144,7 +148,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
     if (startsHere.current) return { intro: 1, zoom: ZOOM_MIN };
     // `/#supervoid` (where `/supervoid` now leads, D-119) opens out in the supervoid, `/#universe` out in the universe
     const hash = window.location.hash;
-    return (hash === "#supervoid" || hash === "#universe") && getFlow().phase === "idle" && !sceneParams().shot ? { zoom: OPENS_AT[hash] } : {};
+    return (hash === "#supervoid" || hash === "#universe" || hash === "#heavens") && getFlow().phase === "idle" && !sceneParams().shot ? { zoom: OPENS_AT[hash] } : {};
   };
   useEffect(() => {
     // the slot asked first (a child's effect runs before its parent's); without a scene, ask here
@@ -190,7 +194,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
     };
     const hash = () => {
       if (window.location.hash === "#atlas") beginRef.current();
-      else if (window.location.hash === "#supervoid" || window.location.hash === "#universe") {
+      else if (window.location.hash === "#supervoid" || window.location.hash === "#universe" || window.location.hash === "#heavens") {
         if (phaseRef.current === "start") beginRef.current();
         glideRef.current(OPENS_AT[window.location.hash]);
       }
@@ -303,6 +307,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
         setVia(spot.id, null); // found from the atlas: its Zoom Out comes back here (D-133)
         diveInto((href) => routerRef.current.push(href), spot.href, spot.anchor, spot.veil);
       }
+      else if (spot.stop === 5) glideTo(UNIVERSE_STOP); // the universe, seen from the heavens: back to it (D-174)
       else if (spot.stop === 4) glideTo(VOID_STOP); // the supervoid, seen from the universe: back to it (D-130)
       else if (spot.stop === 3) glideTo(2); // the web, seen from the supervoid: back to the web (D-119)
       else glideTo(ZOOM_MIN); // the galaxy, seen from the web: back in close (D-112)
@@ -319,7 +324,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
   }, [live, spots]);
 
   return (
-    <div ref={stage} className={styles.screen} data-live={live ? "" : undefined} data-moving={moving ? "" : undefined} data-start={phase !== "atlas" ? "" : undefined} data-web={level >= 2 ? "" : undefined} data-void={level === 3 ? "" : undefined} data-universe={level === 4 ? "" : undefined}>
+    <div ref={stage} className={styles.screen} data-live={live ? "" : undefined} data-moving={moving ? "" : undefined} data-start={phase !== "atlas" ? "" : undefined} data-web={level >= 2 ? "" : undefined} data-void={level === 3 ? "" : undefined} data-universe={level === 4 ? "" : undefined} data-heavens={level === 5 ? "" : undefined}>
       <SceneSlot id="atlas" mode="atlas" posters={POSTERS} opening={opening} />
       <StartScreen phase={phase} onBegin={begin} />
 
@@ -350,7 +355,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
       <DragHint live={live && stop !== 3} />
       {live ? (
         <div className={styles.controls}>
-          <button type="button" className={styles.control} onClick={back} aria-disabled={level === 4}>
+          <button type="button" className={styles.control} onClick={back} aria-disabled={level === 5}>
             <i className={styles.icon} aria-hidden="true">
               <ZoomOutIcon />
             </i>

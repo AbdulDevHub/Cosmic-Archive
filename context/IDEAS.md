@@ -20,7 +20,7 @@ Sorted on 2026-11-22 (D-136), from `owner/vision-docs/` (the original ChatGPT ha
 - **Other flights:** black hole to quasar; a cinematic hands-off tour with Skip.
 - **The Starbase hub** (★ starbases), in A Quasar Galaxy: Warp Drive, Programmable Matter ★, Higher Dimensions ★ (tesseract), Pocket Dimensions ★, Omniverse ★, Bubble Universes, Vacuum Decay, Quantum Foam, Cosmic Strings, Quarks, String Theory.
 - **Megastructures** in A Quasar Galaxy: Dyson Swarm, Ringworld, O'Neill Cylinder, Matrioshka Brain, Generation Ship, Stellar Engine, Von Neumann Probes, Space Elevator, Star Lifter.
-- **The Seven Heavens** (in place of the ★ multiverse): the outermost stop.
+- **The Seven Heavens** (in place of the ★ multiverse): the outermost stop (built, D-174).
 - **Interface:** a dock with Places, Flights and Ship; search that flies you to a place; the video button (★ Kurzgesagt, the inspiration); hidden Music mode.
 
 ## Not Planned (Yet)

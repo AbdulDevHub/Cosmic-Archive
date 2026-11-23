@@ -94,7 +94,7 @@ src/
 
 | Route | Scene | Mode |
 |---|---|---|
-| `/` | `atlas`: stops 0 close in, 1 the galaxy, 2 the cosmic web, 3 the supervoid (D-119), 4 the observable universe (D-130) | `atlas` (free control, zoom stops, hotspots) |
+| `/` | `atlas`: stops 0 close in, 1 the galaxy, 2 the cosmic web, 3 the supervoid (D-119), 4 the observable universe (D-130), 5 the Seven Heavens (D-174) | `atlas` (free control, zoom stops, hotspots) |
 | `/black-hole` | `black-hole` | `place` |
 | `/nebula` | `nebula` | `place` |
 | `/quasar` | `quasar` (the black-hole shader seen from far off) | `place` |
@@ -193,7 +193,7 @@ Scene routes carry their page code above the no-scene figure (D-047). Targets: 6
 
 - **Ported from the prototype.** The seeded generator, the palette, every `build*` function in `model.ts`, the base strengths, the log-distance camera interpolation and lens shift, and the fade ranges are the F1 prototype's (removed in D-135; in git history). The camera keys are centred now that no copy sits beside the galaxy.
 - **Layers, in draw order:** background wash and stars; body glow, arm haze, halo, companion; the disc points; dust (sprites that darken what is behind them); core glow; then the web's points and glow, and two of its lights a little brighter: our galaxy and the quasar. Everything is additive except dust. Nothing is drawn over the cosmos (D-094).
-- **One zoom scalar.** `zoom` in [0, 4]: 0 close in, 1 the whole galaxy, 2 the cosmic web, 3 the supervoid (D-119), 4 the observable universe (D-130). It drives the camera rig and the cross-fade between the galaxy and the web.
+- **One zoom scalar.** `zoom` in [0, 5]: 0 close in, 1 the whole galaxy, 2 the cosmic web, 3 the supervoid (D-119), 4 the observable universe (D-130), 5 the Seven Heavens (D-174). It drives the camera rig and the cross-fade between the galaxy and the web.
 - **The dive.** `placeCamera(..., focus, dive)`: the look turns toward the focused anchor (the first half of the dive) while the distance to it closes from wherever the camera is to inside its glow, on a log scale; the lens shift fades out so the place ends centred.
 - **Hotspots are links.** The scene projects its anchors (`core`, `arm`, `quasar`, `home`) every frame into the store's frame; `AtlasView` stands a real `<a>` (or a button, for the galaxy seen from the web) on each with a transform. A hotspot shows at its stop, hides when its point leaves the screen or while a move is under way, and leaves the tab order when hidden. The canvas is `aria-hidden`.
 

@@ -276,7 +276,8 @@ try {
       await page.goto(base + path, { waitUntil: "networkidle" });
       await sceneSettled(page);
       const state = await pageComplete(page);
-      const back = await page.locator('a[href="/"]', { hasText: "Zoom Out" }).count();
+      // Zoom Out leads to the atlas, or to the place this one is inside (D-132): a plain link either way
+      const back = await page.locator('a[href^="/"]', { hasText: "Zoom Out" }).count();
       check(name, "no WebGL: poster, name, line, Zoom Out, no 3D code", (await html(page, "scene")) === "static" && state.posterLoaded && state.canvases === 0 && state.headline.length > 0 && state.line.length > 0 && back === 1 && !(await loadedThree()), `"${state.headline}"`);
       await context.close();
     }
@@ -368,15 +369,19 @@ try {
     await page.keyboard.press("Enter");
     await page.waitForTimeout(300);
     const toVoid = web && (await atVoid()) && (await zoomOut.getAttribute("aria-disabled")) === "false";
-    // and once more out to the observable universe (D-130), where it is dimmed
+    // once more out to the observable universe (D-130), and once more to the Seven Heavens (D-174), where it is dimmed
     const atUniverse = () => page.evaluate(() => document.querySelector("[data-universe]") !== null);
+    const atHeavens = () => page.evaluate(() => document.querySelector("[data-heavens]") !== null);
     await page.keyboard.press("Enter");
     await page.waitForTimeout(300);
-    const out = toVoid && (await atUniverse()) && (await zoomOut.getAttribute("aria-disabled")) === "true";
-    for (let i = 0; i < 16; i++) await page.keyboard.press("+");
+    const toUniverse = toVoid && (await atUniverse()) && (await zoomOut.getAttribute("aria-disabled")) === "false";
+    await page.keyboard.press("Enter");
+    await page.waitForTimeout(300);
+    const out = toUniverse && (await atHeavens()) && (await zoomOut.getAttribute("aria-disabled")) === "true";
+    for (let i = 0; i < 20; i++) await page.keyboard.press("+");
     await page.waitForTimeout(300);
     const backIn = !(await atWeb());
-    check("keyboard", "Zoom Out glides to the web, the supervoid, then the universe (dimmed there); + zooms back in", out && backIn);
+    check("keyboard", "Zoom Out glides to the web, the supervoid, the universe, then the Seven Heavens (dimmed there); + zooms back in", out && backIn);
     for (let i = 0; i < 8; i++) await page.keyboard.press("-"); // out to the web again
     await page.waitForTimeout(2500); // the camera eases out and the web's places appear
     let onPlace = false;
@@ -385,7 +390,8 @@ try {
       onPlace = await page.evaluate(() => !!document.activeElement?.matches("a[data-anchor]"));
     }
     if (onPlace) await page.keyboard.press("Enter");
-    const opened = onPlace && (await page.waitForURL((url) => url.pathname === "/quasar", { timeout: 15000 }).then(() => true, () => false));
+    // the web holds the quasar's galaxy and The Dark Matter Web (D-147): either one, opened, passes
+    const opened = onPlace && (await page.waitForURL((url) => url.pathname !== "/", { timeout: 15000 }).then(() => true, () => false));
     check("keyboard", "Enter on a place opens it", opened && (await settledFlow(page)), page.url().replace(base, ""));
     await page.keyboard.press("Escape");
     const home = await page.waitForURL(base + "/", { timeout: 15000 }).then(() => true, () => false);
@@ -434,7 +440,8 @@ try {
     await page.waitForTimeout(400);
     const stayed = new URL(page.url()).pathname === "/quasar";
     await press(page.getByRole("link", { name: "Zoom Out" }));
-    const left = await page.waitForURL((url) => url.pathname === "/", { timeout: 15000 }).then(() => true, () => false);
+    // the quasar is inside A Quasar Galaxy (D-133): Zoom Out leaves for it
+    const left = await page.waitForURL((url) => url.pathname === "/quasar-galaxy", { timeout: 15000 }).then(() => true, () => false);
     check("place zoom", "no Closer on a place; - zooms out and stays; Zoom Out leaves at once", noCloser && stayed && left);
     // and none on the atlas either (D-114): checked past the start page, where the controls show
     await page.goto(base + "/?tier=low#atlas", { waitUntil: "load" });
