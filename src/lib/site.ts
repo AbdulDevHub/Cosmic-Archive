@@ -43,6 +43,7 @@ export const PLACE_OG: Readonly<Record<string, { name: string; alt: string }>> =
   "comet": { name: "comet", alt: "Our own illustration of a comet: a dark nucleus in a glowing head, with a blue gas tail and a curving dust tail." },
   "ringed-giant": { name: "ringed-giant", alt: "Our own illustration of a ringed giant planet: a banded globe inside broad, grooved rings." },
   "dark-matter": { name: "dark-matter", alt: "Our own illustration of the cosmic web's dark matter made visible: glowing filaments and halos strung with galaxies." },
+  "molecular-cloud": { name: "molecular-cloud", alt: "Our own illustration of a molecular cloud: dark pillars of dust with baby stars burning through their tips." },
   "quasi-star": { name: "quasi-star", alt: "Our own illustration of a hypothetical quasi-star: a vast red star with a black hole feeding at its heart." },
   "solar-system": { name: "solar-system", alt: "Our own illustration of a solar system: a yellow star, four planets, a ringed giant and a belt of asteroids." },
   "blue-world": { name: "blue-world", alt: "Our own illustration of an Earthlike world: blue oceans, clouds, city lights on its night side, and its moon." },

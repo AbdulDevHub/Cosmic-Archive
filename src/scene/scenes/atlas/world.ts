@@ -89,6 +89,9 @@ const REMNANT_TH = armAngle(1, REMNANT_R) + 0.75;
 // D-144: a black hole merger, in the outer disc
 const MERGER_R = 0.86;
 const MERGER_TH = armAngle(2, MERGER_R) + 4.2;
+// D-148: A Star's Life: a molecular cloud in an arm, near the nebula
+const CLOUD_R = 0.66;
+const CLOUD_TH = armAngle(3, CLOUD_R) + 0.3;
 type Anchor = { local: Vec3; spin: boolean } | { web: "quasar" | "home" | "dark" };
 const ANCHORS: Record<string, Anchor> = {
   /** The heart of the galaxy. */
@@ -111,6 +114,8 @@ const ANCHORS: Record<string, Anchor> = {
   remnant: { local: [REMNANT_R * Math.cos(REMNANT_TH), 0, REMNANT_R * Math.sin(REMNANT_TH)], spin: true },
   /** A black hole merger in the outer disc (D-144). */
   merger: { local: [MERGER_R * Math.cos(MERGER_TH), 0, MERGER_R * Math.sin(MERGER_TH)], spin: true },
+  /** A molecular cloud in an arm (D-148). */
+  cloud: { local: [CLOUD_R * Math.cos(CLOUD_TH), 0, CLOUD_R * Math.sin(CLOUD_TH)], spin: true },
   /** A far galaxy of the web, placed where the zoomed-out composition wants it. */
   quasar: { web: "quasar" },
   /** The web's dark matter, revealed (D-147): another knot of the web, where the composition wants it. */

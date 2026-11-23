@@ -32,8 +32,8 @@ export interface Stop {
   video?: string;
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
-export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi" | "dark";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy";
+export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi" | "dark" | "cloud";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
 export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant";
 
@@ -244,6 +244,13 @@ export const SOURCES: readonly Source[] = [
     title: "Dark Matter",
     publisher: "NASA Science",
     url: "https://science.nasa.gov/dark-matter/",
+    checked: "2026-11-23",
+  },
+  {
+    id: "nasa-star-basics",
+    title: "Star Basics",
+    publisher: "NASA Science",
+    url: "https://science.nasa.gov/universe/stars/",
     checked: "2026-11-23",
   },
 ];
@@ -475,6 +482,18 @@ export const PLACES: readonly Place[] = [
     anchor: "dark",
     stop: 2,
     veil: "#04060e",
+  },
+  {
+    // D-148: A Star's Life, its first stage; no video yet (owner to pick)
+    id: "molecular-cloud",
+    name: "A Molecular Cloud",
+    // the source: "Stars form in large clouds of gas and dust called molecular clouds."; "Molecular clouds are cold";
+    // "gravity causes some of these clumps to collapse"; "a protostar – a baby star"
+    line: "A cold cloud of gas and dust, collapsing into baby stars.",
+    sources: ["nasa-star-basics"],
+    anchor: "cloud",
+    stop: 1,
+    veil: "#0a0605",
   },
   {
     id: "quasi-star",

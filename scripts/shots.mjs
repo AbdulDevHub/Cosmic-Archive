@@ -15,11 +15,11 @@ const ROUTES = [
   { path: () => "/", name: "home", scene: true },
   { path: (view) => `/?shot=1&t=12&tier=${view.tier}`, name: "start-still", scene: true, mustDraw: true },
   { path: (view) => `/?shot=1&t=12&zoom=0&tier=${view.tier}`, name: "close-still", scene: true, mustDraw: true },
-  { path: (view) => `/?shot=1&t=12&zoom=1&tier=${view.tier}`, name: "galaxy-still", scene: true, mustDraw: true, spots: 10, phoneSpots: 2 },
+  { path: (view) => `/?shot=1&t=12&zoom=1&tier=${view.tier}`, name: "galaxy-still", scene: true, mustDraw: true, spots: 11, phoneSpots: 2 },
   { path: (view) => `/?shot=1&t=12&zoom=2&tier=${view.tier}`, name: "web-still", scene: true, mustDraw: true, spots: 3, phoneSpots: 3 },
   { path: (view) => `/?shot=1&t=12&zoom=3&tier=${view.tier}`, name: "void-still", scene: true, mustDraw: true, spots: 1, phoneSpots: 1 },
   { path: (view) => `/?shot=1&t=12&zoom=4&tier=${view.tier}`, name: "universe-still", scene: true, mustDraw: true, spots: 1, phoneSpots: 1 },
-  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy"].flatMap((id) => [
+  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter", "molecular-cloud", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy"].flatMap((id) => [
     { path: () => `/${id}`, name: id, scene: true },
     { path: (view) => `/${id}?shot=1&t=12&tier=${view.tier}`, name: `${id}-still`, scene: true, mustDraw: true },
   ]),
