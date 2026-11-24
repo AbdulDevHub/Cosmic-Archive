@@ -20,9 +20,21 @@ const TYPES = { ogg: "audio/ogg", m4a: "audio/mp4" } as const;
 
 const digest = (value: string) => createHash("sha256").update(value).digest();
 
+/** The key as typed: decoded (the browser stores it URL-encoded: a key may hold spaces), unquoted, trimmed. */
+function plain(value: string | undefined): string {
+  if (!value) return "";
+  let out = value;
+  try {
+    out = decodeURIComponent(value);
+  } catch {
+    // not encoded
+  }
+  return out.trim().replace(/^(["'])(.*)\1$/, "$2").trim();
+}
+
 function allowed(request: NextRequest): boolean {
-  const key = process.env.MUSIC_KEY;
-  const given = request.cookies.get(MUSIC_COOKIE)?.value;
+  const key = plain(process.env.MUSIC_KEY);
+  const given = plain(request.cookies.get(MUSIC_COOKIE)?.value);
   if (!key || !given) return false;
   return timingSafeEqual(digest(key), digest(given));
 }

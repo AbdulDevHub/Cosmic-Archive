@@ -89,9 +89,9 @@ const levelAt = (zoom: number): Level => (zoom > OMNI_AT ? 6 : zoom > MULTI_AT ?
 const spotShows = (spot: Spot, zoom: number) =>
   spot.stop === 6 ? zoom > 5.65 : spot.stop === 5 ? zoom > 4.65 && zoom < 5.35 : spot.stop === 4 ? zoom > 3.65 && zoom < 4.35 : spot.stop === 3 ? zoom > 2.65 && zoom < 3.35 : spot.stop === 2 ? zoom > 1.6 && zoom < 2.35 : zoom < 1.45;
 /** The addresses that skip the start page, and the stop each opens at. */
-const OPENS_AT: Record<string, number> = { "#atlas": ZOOM_MIN, "#supervoid": VOID_STOP, "#universe": UNIVERSE_STOP, "#multiverse": MULTI_STOP, "#heavens": MULTI_STOP, "#omniverse": ZOOM_MAX };
+const OPENS_AT: Record<string, number> = { "#atlas": ZOOM_MIN, "#web": 2, "#supervoid": VOID_STOP, "#universe": UNIVERSE_STOP, "#multiverse": MULTI_STOP, "#heavens": MULTI_STOP, "#omniverse": ZOOM_MAX };
 /** The addresses that open out past the galaxy (`#heavens` is the old name of `#multiverse`). */
-const OUT_THERE = new Set(["#supervoid", "#universe", "#multiverse", "#heavens", "#omniverse"]);
+const OUT_THERE = new Set(["#web", "#supervoid", "#universe", "#multiverse", "#heavens", "#omniverse"]);
 
 export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots: readonly Spot[] }) {
   const stage = useRef<HTMLDivElement>(null);

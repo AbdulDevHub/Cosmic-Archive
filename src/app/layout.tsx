@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Google_Sans_Flex, Hanken_Grotesk } from "next/font/google";
+import Script from "next/script";
 import type { ReactNode } from "react";
 import { FirstLoad } from "@/components/FirstLoad";
 import { FlightBar } from "@/components/screen/FlightBar";
@@ -49,10 +50,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en" data-motion="on" className={`${display.variable} ${hanken.variable}`} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: motionInitScript }} />
-      </head>
       <body>
+        {/* sets data-motion before the page hydrates; next/script, since React 19 warns about a raw <script> in a component */}
+        <Script id="motion-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: motionInitScript }} />
         <a className="skip-link" href="#content">
           Skip to content
         </a>

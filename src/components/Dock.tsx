@@ -8,6 +8,7 @@ import type { MenuFlight, MenuGroup } from "@/lib/content/menu";
 import { startFlight } from "@/lib/flight";
 import { SHIPS, setShip, useShip } from "@/lib/ship";
 import { flowBusy, jumpTo } from "@/scene/host/flow";
+import { getSceneInput } from "@/scene/host/store";
 import { BookIcon, PlanetIcon, ShipIcon, SparkIcon } from "./icons";
 import styles from "./Dock.module.css";
 
@@ -106,7 +107,7 @@ export function Dock({ groups, flights }: { groups: MenuGroup[]; flights: MenuFl
         className={styles.item}
         href="/about"
         onClick={() => {
-          noteAboutFrom(); // About's Back returns here (D-185)
+          noteAboutFrom(getSceneInput().zoom); // About's Back returns to this very view (D-185)
           setOpen(null);
         }}
       >

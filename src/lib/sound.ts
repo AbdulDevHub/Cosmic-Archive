@@ -333,7 +333,8 @@ export function playSample(name: Sample): void {
 if (typeof window !== "undefined") {
   try {
     // the owner's key (D-185): where it is kept, the music is on, and the route reads it from a cookie
-    const key = localStorage.getItem(OWNER_KEY)?.trim();
+    // as typed, quotes or not (`my key` and `"my key"` are the same key)
+    const key = localStorage.getItem(OWNER_KEY)?.trim().replace(/^(["'])(.*)\1$/, "$2").trim();
     if (key) {
       const secure = location.protocol === "https:" ? "; Secure" : "";
       document.cookie = `${KEY_COOKIE}=${encodeURIComponent(key)}; path=/; max-age=31536000; SameSite=Strict${secure}`;
