@@ -1,5 +1,4 @@
-# Not needed to build the site; owner/ holds private, copyrighted files
-owner/
+# Not needed to build the site. private-assets/ is NOT listed: /api/music/ reads the music from it (D-183)
 screenshots/
 context/
 node_modules/

@@ -19,10 +19,5 @@ screenshots/
 next-env.d.ts
 *.tsbuildinfo
 
-# The owner's private files (D-134): reference images (inspiration, not our art; D-018, D-101)
-# and the music library (copyrighted source tracks, D-116)
-owner/
-
-
 # The owner's music never goes in public/ (D-183): it lives in the private-assets submodule
 public/audio/music/
