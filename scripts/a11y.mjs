@@ -32,6 +32,8 @@ try {
       await page.goto(base + route + (route.includes("?") ? "&" : "?") + "tier=low", { waitUntil: "load" });
       await sceneSettled(page).catch(() => {});
       await page.waitForTimeout(500);
+      // let one-off fades end (the drag hint fades in after 1.2 s): axe reads a half-faded word as low contrast
+      await page.evaluate(() => Promise.all(document.getAnimations().filter((a) => a.effect?.getTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {}))));
       if (SCENES.has(route) && (await page.evaluate(() => document.documentElement.dataset.scene)) !== "ready") {
         failed = true;
         console.log(`FAIL ${route} (${view.name})  the scene was not drawn, so the labels on it were not checked`);

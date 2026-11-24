@@ -14,6 +14,9 @@ import styles from "./verses.module.css";
 const POSTERS = { wide: "/posters/heavens-wide.webp", narrow: "/posters/heavens-narrow.webp" };
 const HEAVENS = 5;
 
+/** The Clear Quran marks words added for sense with ˹ ˺, which our fonts lack: shown as [ ]. */
+const shown = (text: string) => text.replace(/˹/g, "[").replace(/˺/g, "]");
+
 export function VersesView({ title, line, verses }: { title: string; line: string; verses: readonly Verse[] }) {
   return (
     <div className={styles.screen}>
@@ -25,7 +28,7 @@ export function VersesView({ title, line, verses }: { title: string; line: strin
           {verses.map((verse) => (
             <li key={verse.key}>
               <blockquote cite={verse.url}>
-                <p>{verse.text}</p>
+                <p>{shown(verse.text)}</p>
               </blockquote>
               <a className={styles.cite} href={verse.url} target="_blank" rel="noopener noreferrer">
                 Quran {verse.key} · {verse.surah} · The Clear Quran
