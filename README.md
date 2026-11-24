@@ -14,7 +14,7 @@ A spectacle of the cosmos you click through: real-time scenes from a spiral gala
 
 Cosmic Atlas is a website for looking at the universe rather than reading about it. Pick a ship, press Begin and fly into a galaxy. Click a glowing point to dive into a black hole, a nebula or a solar system, or Zoom Out through the cosmic web to the observable universe and the Seven Heavens beyond it. A wormhole leads to a stranger galaxy of quasars, megastructures and big ideas, and guided flights and a hands-off tour show you around.
 
-Every scene is drawn live in the browser with WebGL shaders, with no photos or downloaded images, so it stays original and small. Each view has only a name and one short line, and every line is checked against a real source. Each scene has its own music. If 3D can't run, every page still shows a still image and works as plain HTML.
+Every scene is drawn live in the browser with WebGL shaders, with no photos or downloaded images, so it stays original and small. Each view has only a name and one short line, and every line is checked against a real source. Under every scene plays a soft hush of deep space. If 3D can't run, every page still shows a still image and works as plain HTML.
 
 **Status:** live at https://the-cosmic-atlas.vercel.app, still being polished. 5 zoom levels, 46 places, two guided flights and a hands-off tour are built. What's next is in `context/PROGRESS_TRACKER.md`.
 
@@ -66,7 +66,7 @@ npm run dev
 
 ## Deploying
 
-The site is a Vercel project (`vercel deploy --prod`; `.vercelignore` keeps `owner/` and the screenshots out of the upload). Canonical links, Open Graph tags, the sitemap and robots.txt use `NEXT_PUBLIC_SITE_URL` when it is set, and otherwise the Vercel project's production domain; a build anywhere else points them at a placeholder on `cosmic-atlas.example`.
+The site is a Vercel project (`vercel deploy --prod`; `.vercelignore` keeps the docs and screenshots out of the upload). Canonical links, Open Graph tags, the sitemap and robots.txt use `NEXT_PUBLIC_SITE_URL` when it is set, and otherwise the Vercel project's production domain; a build anywhere else points them at a placeholder on `cosmic-atlas.example`.
 
 All imagery is original illustration. Nothing here is a telescope photograph.
 
@@ -76,7 +76,7 @@ Cosmic Atlas is open source and contributions are welcome: new places, better sc
 
 ## License
 
-The code is [MIT](LICENSE). The audio in `public/audio/` is not covered and must not be reused.
+The code is [MIT](LICENSE). The sound effects in `public/audio/effects/` are not covered and must not be reused.
 
 ---
 

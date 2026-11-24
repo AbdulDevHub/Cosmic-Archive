@@ -12,7 +12,9 @@
  * Hidden Music mode (D-139): the owner's music is theirs alone. By default the scenes play a soft
  * noise made here in the browser (filtered, like the hush of deep space) under the same effects;
  * typing "Music" in search shows a switch that turns the real music on, remembered in this browser.
- * This hides the music, it does not protect it: the files are still served.
+ * Since D-183 the music is also protected: the loops live in the private `Private-Assets` submodule
+ * and `/api/music/` serves them only to a browser holding the owner's key (asked for once, kept in
+ * a cookie). Without it, or if a loop will not load, the noise bed plays.
  *
  * Client only. Imports nothing.
  */
@@ -26,32 +28,29 @@ const NOISE_LEVEL = 0.55;
 const MUSIC_VOLUME = 0.32;
 
 /**
- * Each scene's music (D-116): the owner's "Magical Space" for the start page and the galaxy, and a
- * loop cut from the owner's chosen tracks for the web and each place (`public/audio/music/`, in git
- * since D-140; copyrighted, heard only in hidden Music mode, D-139). A missing loop falls back to Magical Space.
+ * Each scene's music (D-116, D-183): the owner's "Magical Space" for the start page and the galaxy,
+ * and a loop of its own for every other atlas stop and every place, cut from the owner's chosen
+ * tracks (copyrighted, so private: `private-assets/cosmic-atlas/music/`, served by `/api/music/`).
+ * A missing loop falls back to Magical Space.
  */
+const SCENES = [
+  "web", "supervoid", "universe", "heavens",
+  "black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "moon",
+  "solar-system", "blue-world", "asteroid", "quasar-galaxy", "quasi-star", "gravastar",
+  "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter",
+  "molecular-cloud", "red-giant", "planetary-nebula", "white-dwarf", "starbase", "warp-drive",
+  "programmable-matter", "higher-dimensions", "quantum-foam", "quarks", "vacuum-decay",
+  "bubble-universes", "pocket-dimensions", "omniverse", "cosmic-strings", "string-theory",
+  "dyson-swarm", "ringworld", "oneill-cylinder", "matrioshka-brain", "generation-ship",
+  "stellar-engine", "von-neumann-probes", "space-elevator", "star-lifter", "wormhole",
+] as const;
 const TRACKS: Record<string, string> = {
-  galaxy: "/audio/music/magical-space",
-  web: "/audio/music/web",
-  "black-hole": "/audio/music/black-hole",
-  quasar: "/audio/music/quasar",
-  nebula: "/audio/music/nebula",
-  "neutron-star": "/audio/music/neutron-star",
-  star: "/audio/music/star",
-  "strange-star": "/audio/music/strange-star",
-  "dyson-sphere": "/audio/music/dyson-sphere",
-  "wormhole": "/audio/music/wormhole",
-  "gravastar": "/audio/music/gravastar",
-  "quasi-star": "/audio/music/quasi-star",
-  "solar-system": "/audio/music/solar-system",
-  "blue-world": "/audio/music/blue-world",
-  asteroid: "/audio/music/asteroid",
-  "quasar-galaxy": "/audio/music/quasar-galaxy",
-  "moon": "/audio/music/moon",
-  "dark-matter": "/audio/music/web", // D-147: the web's own loop
-  supervoid: "/audio/music/web",
-  universe: "/audio/music/universe",
+  galaxy: "/api/music/magical-space",
+  ...Object.fromEntries(SCENES.map((scene) => [scene, `/api/music/${scene}`])),
 };
+/** The cookie that carries the owner's music key to `/api/music/` (the same name in its route). */
+const KEY_COOKIE = "cosmic-atlas-music";
+const hasKey = () => typeof document !== "undefined" && document.cookie.split("; ").some((part) => part.startsWith(`${KEY_COOKIE}=`));
 const SWAP_OUT = 0.9; // seconds: the old track fades out, then the new one fades in
 const SWAP_IN = 2.2;
 let track = "galaxy";
@@ -119,10 +118,16 @@ function graph(): AudioContext | null {
   music.preload = "auto";
   // Vorbis where the browser plays it, AAC elsewhere (Safari)
   canOgg = music.canPlayType('audio/ogg; codecs="vorbis"') !== "";
-  music.src = srcOf(track);
-  // a scene's loop that is not there (a loop not yet cut) falls back to Magical Space
+  // only Music mode loads a loop: everyone else never asks for one (it would only be refused)
+  if (state.music) music.src = srcOf(track);
+  // a scene's loop that is not there (a loop not yet cut) falls back to Magical Space; if that will
+  // not load either (no key, a wrong key), the noise bed takes over
   music.addEventListener("error", () => {
-    if (!music || music.src.endsWith(srcOf("galaxy"))) return;
+    if (!music || !state.music || !music.getAttribute("src")) return;
+    if (music.src.endsWith(srcOf("galaxy"))) {
+      toNoise();
+      return;
+    }
     music.src = srcOf("galaxy");
     // the swap that failed had faded the music out: bring Magical Space back up
     if (state.playing && state.music)
@@ -170,6 +175,32 @@ function graph(): AudioContext | null {
   return ctx;
 }
 
+/** The music would not load: the noise bed plays instead, at the music's level, for this visit. */
+function toNoise(): void {
+  if (!noiseGate || !musicGain || !state.music) return;
+  music?.pause();
+  noiseGate.gain.value = NOISE_LEVEL;
+  if (state.playing) fade(musicGain.gain, MUSIC_VOLUME, SWAP_IN);
+}
+
+/**
+ * The hidden Music switch asks for the owner's key once (D-183). It is kept in a cookie for a year
+ * and checked with `/api/music/key`; a right key turns the music on, a wrong one is forgotten.
+ */
+export async function unlockMusic(key: string): Promise<boolean> {
+  const secure = location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${KEY_COOKIE}=${encodeURIComponent(key.trim())}; path=/; max-age=31536000; SameSite=Strict${secure}`;
+  const ok = await fetch("/api/music/key", { cache: "no-store" }).then((response) => response.ok, () => false);
+  if (ok) setMusicMode(true);
+  else document.cookie = `${KEY_COOKIE}=; path=/; max-age=0`;
+  return ok;
+}
+
+/** True once this browser holds a music key (it may still be wrong; the server decides). */
+export function musicUnlocked(): boolean {
+  return hasKey();
+}
+
 function fade(gain: AudioParam, to: number, seconds: number): void {
   if (!ctx) return;
   const now = ctx.currentTime;
@@ -194,7 +225,8 @@ export function setMusic(name: string): void {
   if (!(name in TRACKS) || name === track) return;
   track = name;
   if (!music || !musicGain || !ctx) return;
-  if (!state.playing || !state.music) {
+  if (!state.music) return; // the noise bed does not change with the scene
+  if (!state.playing) {
     music.src = srcOf(track);
     return;
   }
@@ -202,13 +234,16 @@ export function setMusic(name: string): void {
   fade(musicGain.gain, 0, SWAP_OUT);
   const wanted = track;
   setTimeout(() => {
-    if (track !== wanted || !music || !musicGain || !state.playing) {
+    if (track !== wanted || !music || !musicGain || !state.playing || !state.music) {
       swapping = false;
       return;
     }
     music.src = srcOf(wanted);
     void music.play().then(
-      () => fade(musicGain!.gain, MUSIC_VOLUME, SWAP_IN),
+      () => {
+        if (noiseGate) noiseGate.gain.value = 0; // a loop plays again after a fall back to the noise bed
+        fade(musicGain!.gain, MUSIC_VOLUME, SWAP_IN);
+      },
       () => undefined,
     );
     setTimeout(() => (swapping = false), SWAP_IN * 1000);
@@ -237,6 +272,7 @@ async function start(): Promise<void> {
     // the bed is set here from the mode every time, so a switch made while silent always holds;
     // music that will not play (missing, blocked) falls back to the noise bed for this visit
     let musicPlays = false;
+    if (state.music && !music.getAttribute("src")) music.src = srcOf(track);
     if (state.music) musicPlays = await music.play().then(() => true, () => false);
     else music.pause();
     if (noiseGate) noiseGate.gain.value = musicPlays ? 0 : NOISE_LEVEL;
@@ -292,7 +328,8 @@ export function setMusicMode(on: boolean): void {
   const gate = noiseGate.gain;
   if (!state.playing) {
     gate.value = on ? 0 : NOISE_LEVEL;
-    if (!on) music.pause();
+    if (on) music.src = srcOf(track); // ready for when sound starts
+    else music.pause();
     return;
   }
   swapping = true;
@@ -355,7 +392,8 @@ export function playSample(name: Sample): void {
 
 if (typeof window !== "undefined") {
   try {
-    state = { ...state, enabled: localStorage.getItem(STORAGE_KEY) !== "off", music: localStorage.getItem(MUSIC_KEY) === "on" };
+    // Music mode needs the key too (D-183): without it the switch is off, whatever was remembered
+    state = { ...state, enabled: localStorage.getItem(STORAGE_KEY) !== "off", music: localStorage.getItem(MUSIC_KEY) === "on" && hasKey() };
   } catch {
     // storage blocked: on by default
   }

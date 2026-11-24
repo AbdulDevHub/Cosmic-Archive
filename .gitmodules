@@ -1,0 +1,3 @@
+[submodule "private-assets"]
+	path = private-assets
+	url = https://github.com/AbdulDevHub/Private-Assets

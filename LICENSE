@@ -22,9 +22,9 @@ SOFTWARE.
 
 ---
 
-Not covered by this license: the audio in `public/audio/` (the music loops and
-sound effects). It is not the authors' to license, is included only so the
-site runs, and must not be reused. Forks should replace it with their own.
+Not covered by this license: the sound effects in `public/audio/effects/`.
+They are not the authors' to license, are included only so the site runs,
+and must not be reused. Forks should replace them with their own.
 
 Quotations from The Clear Quran (Dr. Mustafa Khattab) and the facts cited in
 `src/content/` belong to their sources, which are named next to each one.

@@ -109,7 +109,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
   const inVoid = () => levelAt(getSceneInput().zoom) === 3;
   const sync = () => setLevel(levelAt(getSceneInput().zoom));
   // the galaxy, the web, the supervoid and the universe have their own music (D-116)
-  useEffect(() => setMusic(level >= 4 ? "universe" : level === 3 ? "supervoid" : level === 2 ? "web" : "galaxy"), [level]);
+  useEffect(() => setMusic(level >= 5 ? "heavens" : level === 4 ? "universe" : level === 3 ? "supervoid" : level === 2 ? "web" : "galaxy"), [level]);
 
   const glideTo = (zoom: number) => {
     if (flowBusy()) return;

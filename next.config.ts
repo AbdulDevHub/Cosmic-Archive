@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [{ source: "/supervoid", destination: "/#supervoid", permanent: false }];
   },
+  // D-183: the owner's music is read from the private submodule at request time, so ship it with its route
+  outputFileTracingIncludes: {
+    "/api/music/*": ["./private-assets/cosmic-atlas/music/**/*"],
+  },
 };
 
 export default nextConfig;

@@ -9,11 +9,12 @@ The universe to look at: real-time cosmic scenes a visitor clicks through, from 
 
 ## Stack
 
-Next.js 16 (App Router, static), React 19, TypeScript strict, CSS Modules with OKLCH tokens, three with React Three Fiber (WebGL2, GLSL). Playwright for screenshots and tests. npm.
+Next.js 16 (App Router, static pages plus one route, `/api/music/`), React 19, TypeScript strict, CSS Modules with OKLCH tokens, three with React Three Fiber (WebGL2, GLSL). Playwright for screenshots and tests. npm.
 
 ## Commands
 
 - `npm install`, then `npm run dev` (http://localhost:3000).
+- The owner's music is the private submodule `private-assets/` (D-183): clone with `--recurse-submodules`, or run `git submodule update --init`. Without access the site still runs; Music mode just plays the noise bed. Deploy with the Vercel CLI from a checkout that has it, with `MUSIC_KEY` set in Vercel.
 - Run `npm run shots`, `npm run a11y`, `npm run fallbacks` and `npm run posters` one at a time, with no server or build running: the machine runs short of memory.
 - In a cloud container whose Chromium does not match the pinned Playwright, set `PW_CHROMIUM` to the browser on the machine (e.g. `/opt/pw-browsers/chromium`) (D-151).
 
@@ -40,7 +41,7 @@ The palette and type live in `src/styles/tokens.css`, from the approved F1 proto
 - **Budgets** in `context/ARCHITECTURE.md` section 3.9 are limits, not targets to revisit.
 - **Science:** every line is true. No fact, number or name from memory: fetch the source, name it in `src/content/places.ts` and record the checked date. `npm run check` enforces this.
 - **Imagery:** our own illustrations only. Never embed or host telescope photos or third-party art.
-- **Sound:** the owner's own music, the effects the owner supplied in `public/audio/effects/` (D-114), and whooshes made in the browser. Nothing plays before the first gesture, and the Sound button always works (D-100).
+- **Sound:** the owner's music (private: never in this repo or `public/`; only `/api/music/` serves it, to the key holder, D-183), the effects the owner supplied in `public/audio/effects/` (D-114), and whooshes made in the browser. Nothing plays before the first gesture, and the Sound button always works (D-100).
 - **Scope:** the plan in `context/PROGRESS_TRACKER.md` "Next Steps" (D-136). Work down it in order and commit after each item; keep going until the owner stops for the day.
 
 ## Working Rules
@@ -56,7 +57,7 @@ The palette and type live in `src/styles/tokens.css`, from the approved F1 proto
 ## Boundaries
 
 - `context/reference-images/` holds the owner's own AI-generated reference images (inspiration only, never in the site; D-182).
-- `owner/` (gitignored) holds only `music-library/` (copyrighted source tracks; the loops in `public/audio/music/` are cut from it; delete it, and then `owner/`, once every loop is cut). The original ChatGPT handoff was folded into `context/IDEAS.md` and deleted (D-136); it is in commit `15e3478`.
+- `private-assets/` is the owner's private `Private-Assets` repo (a submodule). This project's loops are in `cosmic-atlas/music/`, one per scene id plus `magical-space`, `.ogg` and `.m4a`; `cosmic-atlas/SOURCES.json` says what each was cut from. A new scene needs a loop there and its id in `SCENES` in `src/lib/sound.ts`. The original ChatGPT handoff was folded into `context/IDEAS.md` and deleted (D-136); it is in commit `15e3478`.
 
 ## More
 

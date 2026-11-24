@@ -11,7 +11,7 @@ Four megastructures are polished (D-176), the ships are refined (D-177), and the
 - **Flights** (D-151, `src/content/flights.ts`): A Star's Life and Black Hole to Quasar (guided, Next and End Flight) and The Grand Tour (hands-off, Skip Tour), from the dock's Flights.
 - **Atlas stops** (Zoom Out moves outward): A Spiral Galaxy → The Cosmic Web → A Supervoid (three voids growing, dark energy in the line, no turning there; D-132, D-137) → The Observable Universe (turns like a globe, D-130 to D-132) → The Seven Heavens (abstract layers of light, D-174).
 - **Places** (one shader each; wheel zooms, drag turns, Zoom Out leaves): Black Hole, Nebula, Neutron Star, Strange Star, Wormhole, Gravastar and Quasi-Star in the galaxy. **A Solar System** holds the Yellow Star and A Blue World. A Blue World holds Its Moon, and Its Moon holds An Asteroid. **A Quasar Galaxy** (reached from the web and through the Wormhole) holds the Quasar and the Dyson Sphere. Places inside places: `inside` and `through` in `src/content/places.ts`, `bodies` in `src/scene/scenes/shared/orb.tsx`.
-- **Sound** (`src/lib/sound.ts`): a loop per scene in `public/audio/music/` (in git since D-140, cut from `owner/music-library/`), effects in `public/audio/effects/`, Magical Space as the fallback, warp sounds on every move, nothing before Begin (D-100, D-114 to D-116).
+- **Sound** (`src/lib/sound.ts`): a loop of its own for every stop and place, private (D-183): in the `Private-Assets` repo (submodule `private-assets/cosmic-atlas/music/`), served by `/api/music/` only to a browser holding `MUSIC_KEY`; everyone else hears the noise bed. Effects in `public/audio/effects/`, Magical Space as the fallback, warp sounds on every move, nothing before Begin (D-100, D-114 to D-116).
 - **Content:** 5 stops and 46 places in `src/content/places.ts`, each line sourced and checked by `npm run check`.
 
 ## In Progress
@@ -29,7 +29,7 @@ Agreed with the owner on 2026-11-22 (D-136). Work down the list and commit after
    - Fold the unique vision-doc notes into `IDEAS.md` and `DESIGN_SPEC.md`, then delete `owner/vision-docs/`.
    - Rewrite `IDEAS.md` as built / planned / not planned.
    - Fix the BLUEPRINT scope: zones, laptop first, and the v1 table becomes this plan.
-   - To-do for later: delete `owner/music-library/` once every loop is cut.
+   - To-do for later: delete `owner/music-library/` once every loop is cut (done 2026-11-24, D-183: `owner/` is gone).
 2. [x] **Supervoid fixes** (done 2026-11-22, D-137): remove the separate "Growing empty…" note and put "growing" plus dark energy into the line itself; make the growth slower; turn off panning in the supervoid scene.
 3. [x] **Polish the places** (done 2026-11-22, D-138):
    - The Moon's craters look stamped and its maria blocky.

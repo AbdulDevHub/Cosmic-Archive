@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useMemo, useState, type KeyboardEvent, type MouseEvent } from "react";
 import type { MenuFlight, MenuGroup, MenuPlace } from "@/lib/content/menu";
-import { setMusicMode, toggleSound, useSound } from "@/lib/sound";
+import { musicUnlocked, setMusicMode, toggleSound, unlockMusic, useSound } from "@/lib/sound";
 import { flowBusy, jumpTo } from "@/scene/host/flow";
 import { Dock } from "./Dock";
 import { Emblem, MusicIcon, SearchIcon } from "./icons";
@@ -14,7 +14,8 @@ import styles from "./SiteHeader.module.css";
   The header (D-107, D-116, D-139): the emblem and the spaced wordmark on the left (it leads home,
   to the start page); in the middle the menu, the flared glass dock; search and Sound on the right.
   Search finds a place by name and flies there. Typed in full, "Music" shows a switch beside the
-  field that turns the owner's music on or off (hidden Music mode, D-139).
+  field that turns the owner's music on or off (hidden Music mode, D-139). The first time, the
+  switch asks for the owner's music key in place of the search field (D-183).
   On a phone the menu and search fold away; the wordmark and Sound stay.
 */
 
@@ -30,6 +31,8 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
   const on = useSound((s) => s.enabled);
   const musicOn = useSound((s) => s.music);
   const [query, setQuery] = useState("");
+  const [askKey, setAskKey] = useState(false);
+  const [wrongKey, setWrongKey] = useState(false);
   const places = useMemo(() => groups.flatMap((group) => group.places), [groups]);
 
   const asked = query.trim().toLowerCase();
@@ -46,6 +49,25 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
     setQuery("");
     (document.activeElement as HTMLElement | null)?.blur();
     jumpTo((href) => router.push(href), `/${place.id}`, place.veil);
+  };
+  const musicSwitch = () => {
+    if (musicOn) setMusicMode(false);
+    else if (musicUnlocked()) setMusicMode(true);
+    else setAskKey((open) => !open);
+  };
+  const onKeyField = async (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Escape") setAskKey(false);
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    const field = event.currentTarget;
+    if (await unlockMusic(field.value)) {
+      setAskKey(false);
+      setWrongKey(false);
+      setQuery("");
+    } else {
+      setWrongKey(true);
+      field.value = "";
+    }
   };
   const onKey = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Escape") setQuery("");
@@ -70,6 +92,20 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
 
       <div className={styles.tools}>
         <div className={styles.finder}>
+          {askKey && musicWord ? (
+            <label className={styles.search}>
+              <MusicIcon />
+              <input
+                type="password"
+                placeholder={wrongKey ? "Wrong key, try again" : "Music key"}
+                aria-label="Music key"
+                aria-invalid={wrongKey || undefined}
+                autoComplete="current-password"
+                autoFocus
+                onKeyDown={onKeyField}
+              />
+            </label>
+          ) : (
           <label className={styles.search}>
             <SearchIcon />
             <input
@@ -83,6 +119,7 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
               onKeyDown={onKey}
             />
           </label>
+          )}
           {matches.length ? (
             <ul className={styles.results} aria-label="Places found">
               {matches.map((place) => (
@@ -105,7 +142,7 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
           ) : null}
         </div>
         {musicWord ? (
-          <button type="button" className={styles.sound} onClick={() => setMusicMode(!musicOn)} data-on={musicOn ? "" : undefined} aria-pressed={musicOn} aria-label="Music" title={musicOn ? "Music on" : "Music off"}>
+          <button type="button" className={styles.sound} onClick={musicSwitch} data-on={musicOn ? "" : undefined} aria-pressed={musicOn} aria-label="Music" title={musicOn ? "Music on" : "Music off"}>
             <MusicIcon />
           </button>
         ) : null}
