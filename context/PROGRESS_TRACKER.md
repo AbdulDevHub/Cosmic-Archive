@@ -4,7 +4,7 @@
 
 ## Current State (2026-11-24, D-180)
 
-Four megastructures are polished (D-176), the ships are refined (D-177), and the site is deployed on Vercel with an Islam and Space page and SEO (D-179), and renamed Cosmic Atlas (D-180): https://cosmic-archive-sigma.vercel.app. Judge on the 1440x900 laptop first (D-110).
+Four megastructures are polished (D-176), the ships are refined (D-177), and the site is deployed on Vercel with an Islam and Space page and SEO (D-179), and renamed Cosmic Atlas (D-180): https://the-cosmic-atlas.vercel.app. Judge on the 1440x900 laptop first (D-110).
 
 - **Start page** (`/`, from the owner's `Home.png`, D-107): gradient headline, Begin, "Choose Your Vessel" with five ships (Sovereign, Predator, Celestial, Discovery, Colossus; D-120, brief in `SHIP_BRIEF.md`), and a spaceship loader (D-123). `/#atlas` skips it.
 - **Header:** wordmark, glass dock (Places, Flights, Ship; D-139, D-151), search that flies to a place, and Sound.

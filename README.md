@@ -2,7 +2,7 @@
 
 A spectacle of the cosmos you click through: real-time scenes from a spiral galaxy out to the observable universe and the Seven Heavens beyond it, and down into the strange places inside them, each move a smooth flight.
 
-**[Fly through it live](https://cosmic-archive-sigma.vercel.app)** · real-time WebGL · Next.js · React Three Fiber
+**[Fly through it live](https://the-cosmic-atlas.vercel.app)** · real-time WebGL · Next.js · React Three Fiber
 
 ![The start page of Cosmic Atlas: a spiral galaxy, a ship and a blue planet, all drawn live in the browser](.github/social-preview.png)
 
@@ -16,7 +16,7 @@ Cosmic Atlas is a website for looking at the universe rather than reading about 
 
 Every scene is drawn live in the browser with WebGL shaders, with no photos or downloaded images, so it stays original and small. Each view has only a name and one short line, and every line is checked against a real source. Each scene has its own music. If 3D can't run, every page still shows a still image and works as plain HTML.
 
-**Status:** live at https://cosmic-archive-sigma.vercel.app, still being polished. 5 zoom levels, 46 places, two guided flights and a hands-off tour are built. What's next is in `context/PROGRESS_TRACKER.md`.
+**Status:** live at https://the-cosmic-atlas.vercel.app, still being polished. 5 zoom levels, 46 places, two guided flights and a hands-off tour are built. What's next is in `context/PROGRESS_TRACKER.md`.
 
 ## Ideas That Shape It
 
