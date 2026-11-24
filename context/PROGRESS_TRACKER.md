@@ -2,9 +2,9 @@
 
 > **What this file is:** where the work stands. It covers what works now, what is in progress, what comes next (the plan) and a dated session log. A new session reads this first, after `AGENTS.md`. Update it at the end of every session, and tick an item only when it is built and verified. Older log entries fold into "Earlier history" rather than being deleted. Why things are the way they are lives in `DECISIONS.md`, and that log wins over everything else here.
 
-## Current State (2026-11-24, D-177)
+## Current State (2026-11-24, D-179)
 
-The overnight branch is merged and pushed, four megastructures are polished (D-176), and the ships are refined (D-177). Nothing is deployed. Judge on the 1440x900 laptop first (D-110).
+Four megastructures are polished (D-176), the ships are refined (D-177), and the site is deployed on Vercel with an Islam and Space page and SEO (D-179): https://cosmic-archive-sigma.vercel.app. Judge on the 1440x900 laptop first (D-110).
 
 - **Start page** (`/`, from the owner's `Home.png`, D-107): gradient headline, Begin, "Choose Your Vessel" with five ships (Sovereign, Predator, Celestial, Discovery, Colossus; D-120, brief in `SHIP_BRIEF.md`), and a spaceship loader (D-123). `/#atlas` skips it.
 - **Header:** wordmark, glass dock (Places, Flights, Ship; D-139, D-151), search that flies to a place, and Sound.
@@ -16,7 +16,7 @@ The overnight branch is merged and pushed, four megastructures are polished (D-1
 
 ## In Progress
 
-- Item 13 below: before deploy (test health, phone pass, the owner's checks).
+- Item 13 below: the owner's checks on the deployed site.
 
 ## Next Steps
 
@@ -55,13 +55,13 @@ Agreed with the owner on 2026-11-22 (D-136). Work down the list and commit after
 10. [x] **The Seven Heavens** (done 2026-11-23, D-174): one stop after the Observable Universe, seven nested layers each bigger than the last, drawn as abstract light. The line on the site has no Quran quote. Its source (the Quran, fetched) goes in `places.ts`.
 11. [x] **Vivid lines pass** (done 2026-11-23, D-175: Black Hole, Nebula and Quasar; owner to judge the rest): rewrite the weakest lines to say what a thing is, still sourced and true.
 12. [x] **Ship refinement** (done 2026-11-24, D-177: Predator, Colossus and Discovery reshaped, finer plating on all; owner to judge whether Blender is still needed): better code-built hulls first (Sovereign looks egg-like from above); Blender only if they still fall short.
-13. [ ] **Before deploy:**
-    - Test health (done 2026-11-24, D-178: `sceneSettled` is 90 s, the pinch on a phone counts a finger on a marker, the touch check is fixed, `/star` is clean in axe; a full `npm run a11y` run is still to do, since the last one was stopped for low memory).
-    - Phone pass (D-110), including the nebula's dust bank on phones.
-    - Set `NEXT_PUBLIC_SITE_URL`.
+13. [ ] **Before deploy** (deployed 2026-11-24, D-179; only the owner's checks are left):
+    - Test health (done 2026-11-24, D-178: `sceneSettled` is 90 s, the pinch on a phone counts a finger on a marker, the touch check is fixed, `/star` is clean in axe; a full `npm run a11y` run passed all 96 checks on 2026-11-24, D-179, after the scan learned to wait for the drag hint to finish fading in).
+    - Phone pass (D-110), including the nebula's dust bank on phones (done 2026-11-24, D-179: the nebula reads well on a phone; the start page's hidden galaxy words no longer show over the wordmark before the scene is live).
+    - Set `NEXT_PUBLIC_SITE_URL` (done 2026-11-24, D-179: Vercel's production domain is the fallback; set the variable only for a custom domain).
     - The owner's checks: look at the new scenes on the laptop; arXiv as a source (Wormhole, Gravastar, Quasi-Star); frame rate and touch on real hardware; scene routes at about 145 KB against the 140 KB limit (D-047).
-    - An "Islam and Space" page and a verse about those who ponder the signs at the end of the README (fetch the verse).
-    - Deploy only when the owner says so.
+    - An "Islam and Space" page and a verse about those who ponder the signs at the end of the README (fetch the verse) (done 2026-11-24, D-179: `/islam-and-space`, linked from the Seven Heavens; README ends with 3:190).
+    - Deploy only when the owner says so (done 2026-11-24, D-179: the owner said so; Vercel project `cosmic-archive`).
 
 **Dropped (2026-11-22):** the hypothetical tag, share images per place, a suggestion form, galaxy collision, a cluster stop, the CMB, kilonova, Wolf-Rayet, binary stars, tidal disruption, exoplanets, auroras, first stars, photo mode.
 

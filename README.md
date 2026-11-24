@@ -2,13 +2,21 @@
 
 A spectacle of the cosmos you click through: real-time scenes from a spiral galaxy out to the observable universe and the Seven Heavens beyond it, and down into the strange places inside them, each move a smooth flight.
 
+**[Fly through it live](https://cosmic-archive-sigma.vercel.app)** · real-time WebGL · Next.js · React Three Fiber
+
+![The start page: a spiral galaxy, a ship and a blue planet, all drawn live in the browser](public/og/atlas.jpg)
+
+| A Black Hole | A Nebula | A Quasar |
+|---|---|---|
+| ![Our own illustration of a black hole and its bent disc of gas](public/og/black-hole.jpg) | ![Our own illustration of a star-forming cloud](public/og/nebula.jpg) | ![Our own illustration of a quasar, its jets and host galaxy](public/og/quasar.jpg) |
+
 ## Project Overview
 
-Cosmic Archive is a website for looking at the universe rather than reading about it. You pick a spaceship on the start page, press Begin, and fly into a galaxy. From there you click a glowing point to dive into what it marks (a black hole, a nebula, a neutron star, a solar system with its own planet, moon and asteroid) or press Zoom Out to pull back through the cosmic web, the empty supervoids and the whole observable universe, out to the Seven Heavens drawn as layers of light. A wormhole leads to a second, stranger galaxy with a quasar, a Dyson sphere and a Starbase, a turning wheel station whose glowing bays open onto eleven big ideas, from a warp drive and quantum foam to string theory and the omniverse, among nine imagined megastructures from a Dyson swarm to a ringworld. The Flights menu flies you through a star's whole life, from a black hole to a quasar, or on a hands-off tour you can skip at any time.
+Cosmic Archive is a website for looking at the universe rather than reading about it. You pick a spaceship on the start page, press Begin, and fly into a galaxy. From there you click a glowing point to dive into what it marks (a black hole, a nebula, a neutron star, a solar system with its own planet, moon and asteroid) or press Zoom Out to pull back through the cosmic web, the empty supervoids and the whole observable universe, out to the Seven Heavens drawn as layers of light. A wormhole leads to a second, stranger galaxy with a quasar, a Dyson sphere and a Starbase, a turning wheel station whose glowing bays open onto eleven big ideas, from a warp drive and quantum foam to string theory and the omniverse, among nine imagined megastructures from a Dyson swarm to a ringworld. The Flights menu flies you through a star's whole life, from a black hole to a quasar, or on a hands-off tour you can skip at any time. From the Seven Heavens, an Islam and Space page sets a few verses on the heavens over the same light.
 
 Every scene is drawn live in the browser with WebGL shaders, with no photos or downloaded images, so it stays original and small. Each view has only a name and one short line, and every line is checked against a real source. Each scene has its own music. If 3D can't run, every page still shows a still image and works as plain HTML.
 
-**Status:** being polished; not deployed yet. 5 zoom levels, 46 places, two guided flights and a hands-off tour are built. What's next is in `context/PROGRESS_TRACKER.md`.
+**Status:** live at https://cosmic-archive-sigma.vercel.app, still being polished. 5 zoom levels, 46 places, two guided flights and a hands-off tour are built. What's next is in `context/PROGRESS_TRACKER.md`.
 
 ## Ideas That Shape It
 
@@ -57,6 +65,11 @@ npm run dev
 
 ## Deploying
 
-Set `NEXT_PUBLIC_SITE_URL` to the site's address (for example in Vercel's project settings). Canonical links, Open Graph tags, the sitemap and robots.txt are built from it; without it they point at a placeholder on `cosmic-archive.example`.
+The site is a Vercel project (`vercel deploy --prod`; `.vercelignore` keeps `owner/` and the screenshots out of the upload). Canonical links, Open Graph tags, the sitemap and robots.txt use `NEXT_PUBLIC_SITE_URL` when it is set, and otherwise the Vercel project's production domain; a build anywhere else points them at a placeholder on `cosmic-archive.example`.
 
 All imagery is original illustration. Nothing here is a telescope photograph.
+
+---
+
+> *"Indeed, in the creation of the heavens and the earth and the alternation of the day and night…"*
+> — Quran 3:190, The Clear Quran ([the whole verse on Quran.com](https://quran.com/3/190))
