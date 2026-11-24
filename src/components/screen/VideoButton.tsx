@@ -9,9 +9,9 @@ import styles from "./screen.module.css";
 export function VideoButton({ video, name }: { video?: string; name: string }) {
   if (!video) return null;
   return (
-    <a className={styles.video} href={`https://www.youtube.com/watch?v=${video}`} target="_blank" rel="noopener noreferrer" aria-label={`Watch a video about ${name} (opens YouTube in a new tab)`} title="Watch a video about it">
-      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-        <path d="M9 7.2v9.6L17 12z" fill="currentColor" />
+    <a className={styles.video} href={`https://www.youtube.com/watch?v=${video}`} target="_blank" rel="noopener noreferrer" aria-label={`Watch a video about ${name} (opens YouTube in a new tab)`} data-tip="Watch a video about it" data-tip-end>
+      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+        <path d="M9 6.2v11.6L18.6 12z" fill="currentColor" />
       </svg>
     </a>
   );

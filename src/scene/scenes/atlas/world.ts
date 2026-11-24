@@ -826,7 +826,7 @@ export class AtlasWorld {
     const host = this.drifted[this.field.host];
     this.row = rowLayout(width, height, isPhone(width, height), zoom, host ? [host.x, host.y] : [0, 0]);
     this.frameUniverse(camera, t, view, width, height, sstep(3.0, 3.35, zoom));
-    this.frameBeyond(t, sstep(4.35, 4.5, zoom), sstep(5.05, 5.75, zoom));
+    this.frameBeyond(t, view, sstep(4.35, 4.5, zoom), sstep(5.05, 5.75, zoom));
 
     this.report(camera, t, zoom, width, height, out);
   }
@@ -918,7 +918,7 @@ export class AtlasWorld {
     });
   }
 
-  private frameBeyond(t: number, multiAlpha: number, omniAlpha: number): void {
+  private frameBeyond(t: number, view: SceneInput, multiAlpha: number, omniAlpha: number): void {
     const unit = this.bufferHeight / 2;
     const midX = this.bufferWidth / 2;
     const midY = this.bufferHeight / 2;
@@ -928,6 +928,8 @@ export class AtlasWorld {
       const u = multi.material.uniforms;
       const balls = u.uB.value as Vector4[];
       for (let i = 1; i < balls.length; i++) balls[i].set(midX + this.row.x[i] * unit, midY + this.row.y[i] * unit, this.row.r[i] * unit, balls[i].w);
+      // the drag turns them all as it turns ours (frameUniverse's spin: half the yaw and pitch, D-188)
+      (u.uTurn.value as Vector2).set(view.yaw * 0.5, -view.pitch * 0.5);
       u.uTime.value = t;
       u.uAlpha.value = multiAlpha;
     }

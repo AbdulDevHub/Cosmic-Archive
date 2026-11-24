@@ -48,6 +48,9 @@ const SCENES = [
 const TRACKS: Record<string, string> = {
   galaxy: "/api/music/magical-space",
   ...Object.fromEntries(SCENES.map((scene) => [scene, `/api/music/${scene}`])),
+  // the owner's swap (D-188): the cosmic web plays the supervoid's loop, and the supervoid the web's
+  web: "/api/music/supervoid",
+  supervoid: "/api/music/web",
 };
 /** The cookie that carries the owner's music key to `/api/music/` (the same name in its route). */
 const KEY_COOKIE = "cosmic-atlas-music";

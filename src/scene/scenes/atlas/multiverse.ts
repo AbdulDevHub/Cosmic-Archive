@@ -167,7 +167,8 @@ vec4 universeBall(vec2 d, float seed, int detail, float t, vec3 tint, float soft
   float inside = 1.0 - smoothstep(1.0 - soft, 1.0, r);
   float z = sqrt(max(1.0 - r * r, 0.0));
   // the cells crowd toward the rim, as on a ball; each universe its own size of cell
-  vec2 q = d / (0.45 + 0.55 * z) + vec2(t * 0.004 + seed * 13.1, seed * 7.7);
+  // a drag turns every universe of the line as it turns ours (uTurn, D-188)
+  vec2 q = d / (0.45 + 0.55 * z) + uTurn + vec2(t * 0.004 + seed * 13.1, seed * 7.7);
   float cells = 3.4 + fract(seed * 3.7) * 1.6;
   vec3 web = webLayer(q, cells, 0.045, 1.0);
   if (detail > 0) web += webLayer(q * 2.1 + 3.3, cells, 0.05, 0.5);
@@ -199,6 +200,7 @@ vec4 universeBall(vec2 d, float seed, int detail, float t, vec3 tint, float soft
 const MULTIVERSE_FRAGMENT = /* glsl */ `
 precision highp float;
 uniform vec4 uB[${ROW}];  // each universe: middle (device pixels from the bottom left), radius (device pixels), seed
+uniform vec2 uTurn;      // the drag's turn, as it turns our universe (world.ts)
 uniform float uTime;
 uniform float uAlpha;
 uniform int uDetail;
@@ -366,6 +368,7 @@ export function multiverse(): Mesh<BufferGeometry, ShaderMaterial> {
     MULTIVERSE_FRAGMENT,
     {
       uB: { value: seeds.map((s) => new Vector4(0, 0, 0, s)) },
+      uTurn: { value: new Vector2() },
       uTime: { value: 0 },
       uAlpha: { value: 0 },
       uDetail: { value: 1 },

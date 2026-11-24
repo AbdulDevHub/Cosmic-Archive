@@ -102,7 +102,7 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
             </ul>
           ) : null}
         </div>
-        <button type="button" className={styles.sound} onClick={toggleSound} data-sound-toggle data-on={on ? "" : undefined} aria-pressed={on} aria-label="Sound" title={on ? "Sound on" : "Sound off"}>
+        <button type="button" className={styles.sound} onClick={toggleSound} data-sound-toggle data-on={on ? "" : undefined} aria-pressed={on} aria-label="Sound" data-tip={on ? "Sound on" : "Sound off"} data-tip-below data-tip-end>
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
             <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" />
             {on ? (

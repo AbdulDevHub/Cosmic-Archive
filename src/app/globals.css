@@ -71,3 +71,72 @@ h2 {
 .skip-link:focus-visible {
   transform: none;
 }
+
+/* Tooltips (D-188): a small glass label in the dock's style, for a control named by an icon alone.
+   Set `data-tip="…"` (and `data-tip-below` to hang it under the control, `data-tip-end` to line it up
+   with the control's right side, near the window's edge); the control keeps its
+   `aria-label`, so this is for the eye only. It fades in on hover and keyboard focus. */
+[data-tip] {
+  position: relative;
+}
+
+[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 12px);
+  z-index: 20;
+  padding: 7px 12px;
+  border: 1px solid oklch(0.85 0.06 280 / 0.3);
+  border-radius: 999px;
+  background: linear-gradient(180deg, oklch(0.28 0.07 280 / 0.85), oklch(0.17 0.05 275 / 0.9));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 0 18px oklch(0.55 0.16 285 / 0.3);
+  color: oklch(0.96 0.01 270);
+  font: 500 12.5px / 1 var(--font-display);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 4px);
+  transition:
+    opacity var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
+}
+
+[data-tip-below]::after {
+  top: calc(100% + 12px);
+  bottom: auto;
+  transform: translate(-50%, -4px);
+}
+
+[data-tip]:hover::after,
+[data-tip]:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition-delay: 250ms;
+}
+
+/* by the window's right edge: the tip lines up with the control's right side (`data-tip-end`) */
+[data-tip-end]::after {
+  left: auto;
+  right: 0;
+  transform: translate(0, 4px);
+}
+
+[data-tip-end][data-tip-below]::after {
+  transform: translate(0, -4px);
+}
+
+[data-tip-end]:hover::after,
+[data-tip-end]:focus-visible::after {
+  transform: translate(0, 0);
+}
+
+@media (hover: none) {
+  [data-tip]::after {
+    display: none;
+  }
+}
+
