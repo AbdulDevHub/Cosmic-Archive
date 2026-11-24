@@ -43,7 +43,7 @@ const SCENES = [
   "programmable-matter", "higher-dimensions", "quantum-foam", "quarks", "vacuum-decay",
   "bubble-universes", "pocket-dimensions", "omniverse", "cosmic-strings", "string-theory",
   "dyson-swarm", "ringworld", "oneill-cylinder", "matrioshka-brain", "generation-ship",
-  "stellar-engine", "von-neumann-probes", "space-elevator", "star-lifter", "wormhole",
+  "stellar-engine", "von-neumann-probes", "space-elevator", "star-lifter", "last-civilization", "wormhole",
 ] as const;
 const TRACKS: Record<string, string> = {
   galaxy: "/api/music/magical-space",

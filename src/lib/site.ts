@@ -56,6 +56,7 @@ export const PLACE_OG: Readonly<Record<string, { name: string; alt: string }>> =
   "asteroid": { name: "asteroid", alt: "Our own illustration of an asteroid: a lumpy, cratered rock lit hard from one side, a blue planet far behind it." },
   "quasar-galaxy": { name: "quasar-galaxy", alt: "Our own illustration of a quasar galaxy: a tilted spiral with a blinding heart and two jets along its axis." },
   "star-lifter": { name: "star-lifter", alt: "Our own illustration of star lifting: plumes of glowing gas drawn off a ruby star toward small collectors." },
+  "last-civilization": { name: "last-civilization", alt: "Our own illustration of an imagined hibernating civilization: a dark shell of panels round a dim white dwarf, ringed by a glowing store of energy." },
   "space-elevator": { name: "space-elevator", alt: "Our own illustration of a space elevator: a silver ribbon rising from a blue world at sunrise into orbit." },
   "von-neumann-probes": { name: "von-neumann-probes", alt: "Our own illustration of self-copying probes: a front of mint light spreading across a spiral galaxy." },
   "stellar-engine": { name: "stellar-engine", alt: "Our own illustration of a stellar engine: a dark disc beside a yellow star, firing a long violet jet." },

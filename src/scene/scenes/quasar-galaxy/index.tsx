@@ -35,6 +35,7 @@ const MEGA: readonly { name: string; r: number; a: number }[] = [
   { name: "probes", r: 0.5, a: 0.9 },
   { name: "elevator", r: 0.35, a: 5.6 },
   { name: "lifter", r: 0.82, a: 6.0 },
+  { name: "hibernator", r: 0.66, a: 1.85 }, // D-189: The Last Civilization
 ];
 
 function bodies(t: number, yaw: number, pitch: number): OrbBody[] {

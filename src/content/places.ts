@@ -32,10 +32,10 @@ export interface Stop {
   video?: string;
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy" | "starbase" | "warp-drive" | "programmable-matter" | "higher-dimensions" | "quantum-foam" | "vacuum-decay" | "bubble-universes" | "quarks" | "pocket-dimensions" | "cosmic-strings" | "string-theory" | "dyson-swarm" | "ringworld" | "oneill-cylinder" | "matrioshka-brain" | "generation-ship" | "stellar-engine" | "von-neumann-probes" | "space-elevator" | "star-lifter";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy" | "starbase" | "warp-drive" | "programmable-matter" | "higher-dimensions" | "quantum-foam" | "vacuum-decay" | "bubble-universes" | "quarks" | "pocket-dimensions" | "cosmic-strings" | "string-theory" | "dyson-swarm" | "ringworld" | "oneill-cylinder" | "matrioshka-brain" | "generation-ship" | "stellar-engine" | "von-neumann-probes" | "space-elevator" | "star-lifter" | "last-civilization";
 export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi" | "dark" | "cloud" | "redgiant" | "planetary";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
-export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant" | "dwarf" | "starbase" | "warp" | "matter" | "dims" | "pocket" | "bubbles" | "vacuum" | "foam" | "strings" | "quarks" | "stringtheory" | "swarm" | "ringworld" | "oneill" | "matrioshka" | "generation" | "engine" | "probes" | "elevator" | "lifter";
+export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant" | "dwarf" | "starbase" | "warp" | "matter" | "dims" | "pocket" | "bubbles" | "vacuum" | "foam" | "strings" | "quarks" | "stringtheory" | "swarm" | "ringworld" | "oneill" | "matrioshka" | "generation" | "engine" | "probes" | "elevator" | "lifter" | "hibernator";
 
 export interface Place {
   id: PlaceId;
@@ -399,6 +399,13 @@ export const SOURCES: readonly Source[] = [
     publisher: "arXiv (Axel Kowald; Journal of the British Interplanetary Society, 2015)",
     url: "https://arxiv.org/abs/1605.02169",
     checked: "2026-11-23",
+  },
+  {
+    id: "dyson-time-without-end",
+    title: "Time without end: Physics and biology in an open universe",
+    publisher: "Reviews of Modern Physics 51, 447 (Freeman J. Dyson, 1979)",
+    url: "https://suli.pppl.gov/2019/course/RevModPhys.51.447.pdf",
+    checked: "2026-11-24",
   },
   {
     id: "arxiv-star-lifting",
@@ -1029,6 +1036,21 @@ export const PLACES: readonly Place[] = [
     stop: 2,
     inside: "quasar-galaxy",
     veil: "#0d0303",
+  },
+  {
+    // D-189: a megastructure in the quasar galaxy, after Kurzgesagt's "We Found a Loophole to Survive the End of the
+    // Universe". The source: "Life and communication can continue for ever, utilizing a finite store of energy, if the
+    // assumed scaling laws are valid"; "life has another strategy with which to escape from this impasse, namely
+    // hibernation. Life may metabolize intermittently" (an idea, so "Imagined" and "perhaps")
+    id: "last-civilization",
+    name: "The Last Civilization",
+    line: "Imagined life that hibernates on a finite store of energy, perhaps forever.",
+    sources: ["dyson-time-without-end"],
+    anchor: "hibernator",
+    stop: 2,
+    inside: "quasar-galaxy",
+    veil: "#030409",
+    video: "VMm-U2pHrXE",
   },
 ];
 

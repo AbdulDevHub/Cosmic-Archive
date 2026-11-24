@@ -1,11 +1,13 @@
 /**
- * Von Neumann Probes (D-167): our own illustration of self-copying probes spreading through a
- * galaxy, a megastructure idea in A Quasar Galaxy. A spiral galaxy seen at a slant; from one star
- * system near its edge a front of mint-green light spreads slowly across it, system after system
- * waking as copies arrive, each a small, sharp mint spark that pulses as it builds the next; behind
- * the front, the reached stars keep a soft silver glow; ahead of it, the galaxy is still its own
- * colours. The front grows, then fades and starts again. One full-screen shader, one draw call, no
- * particles. Its own colour family: mint green, silver and indigo.
+ * Von Neumann Probes (D-167, redrawn D-189): our own illustration of self-copying probes, a
+ * megastructure idea in A Quasar Galaxy. A dim orange star and its belt of rocks, seen at a slant.
+ * One probe, a sharp mint spark, flies in and settles on a rock; the rock glows as it is taken apart
+ * and shrinks away, and two new probes leave it, each for another rock. Each of those is eaten and
+ * gives two more: 1, 2, 4, 8, 16 probes, the belt stripped faster and faster, until the last
+ * sixteen fly off out of the frame toward other stars. Then the belt is whole again and it starts
+ * over. The probes are a binary tree: rock i's two children go to rocks 2i+1 and 2i+2. One
+ * full-screen shader, one draw call, no particles. Its own colour family: mint green, silver and
+ * indigo, round a dim orange star.
  */
 
 import type { SceneBudget, SceneProps } from "../../host/types";
@@ -24,57 +26,125 @@ ${SKY_CHUNK}
 
 const vec3 MINT = vec3(0.4, 1.0, 0.75);
 const vec3 SILVER = vec3(0.82, 0.86, 0.95);
-const vec3 INDIGO = vec3(0.25, 0.22, 0.6);
-const vec3 WARM = vec3(1.0, 0.82, 0.6);
-const float CYCLE = 40.0;
+const vec3 SUN = vec3(1.0, 0.55, 0.28);
+const float ROCKS = 31.0;   // five generations: 1 + 2 + 4 + 8 + 16
+const float FLY = 3.0;      // seconds a probe takes between rocks
+const float EAT = 2.2;      // seconds a rock takes to be taken apart
+const float CYCLE = 34.0;
+const float PI = 3.14159265;
+
+float tiltNow(){ return clamp(0.42 + uPitch * 0.6, 0.18, 0.9); }
+
+/* rock i in the belt: x, y on screen (radii, y up), and its size */
+vec3 rockAt(float i){
+  float h1 = hash3(vec3(i, 1.0, 7.0));
+  float h2 = hash3(vec3(i, 2.0, 3.0));
+  float a = i * 2.39996 + 0.6 + uYaw + uTime * 0.008;
+  float r = 0.34 + 0.6 * h1;
+  vec2 p = vec2(cos(a), sin(a)) * r;
+  return vec3(p.x, p.y * tiltNow() + (h2 - 0.5) * 0.05, 0.011 + 0.017 * hash3(vec3(i, 5.0, 1.0)));
+}
+
+/* the generation a rock is eaten in: 0 for the first, 4 for the last sixteen */
+float levelOf(float i){ return floor(log2(i + 1.0) + 1e-4); }
+
+float segment(vec2 p, vec2 a, vec2 b){
+  vec2 ab = b - a;
+  float h = clamp(dot(p - a, ab) / max(dot(ab, ab), 1e-6), 0.0, 1.0);
+  return length(p - a - ab * h);
+}
+
+/* a probe's path from a to b over e in 0..1, bowed a little to one side */
+vec2 pathAt(vec2 a, vec2 b, float e, float side){
+  vec2 ab = b - a;
+  vec2 n = normalize(vec2(-ab.y, ab.x) + 1e-5);
+  return mix(a, b, e) + n * sin(e * PI) * 0.05 * side * min(length(ab), 1.0);
+}
 
 void main(){
   vec2 css = vec2(gl_FragCoord.x, uResolution.y - gl_FragCoord.y) / uDpr;
   vec2 q = css - uCentre;
   q.y = -q.y;
-  vec2 u = q / uScale;     // the galaxy's radii, y up
+  vec2 u = q / uScale;     // the belt's radii, y up
   float t = uTime;
   vec2 size = uResolution / uDpr;
-  vec3 col = skyDeep(normalize(vec3((css - size * 0.5) / size.y * 1.3, -1.0)), 0.4) * 0.55;
+  vec3 col = skyDeep(normalize(vec3((css - size * 0.5) / size.y * 1.3, -1.0)), 0.4) * 0.5;
 
-  // the disc, back onto its plane
-  float st = clamp(0.5 + uPitch * 0.6, 0.25, 0.9);
-  vec2 d = vec2(u.x, u.y / st);
-  float a0 = uYaw + t * 0.004;
-  d = vec2(cos(a0) * d.x - sin(a0) * d.y, sin(a0) * d.x + cos(a0) * d.y);
-  float r = length(d);
-  float th = atan(d.y, d.x);
-  float wind = th - log(max(r, 0.02)) * 2.4;
-  float arms = pow(0.5 + 0.5 * cos(2.0 * wind + fbm3(vec3(d * 3.0, 1.0)) - 0.5), 2.5);
-  float disc = exp(-r / 0.38) * smoothstep(1.05, 0.65, r);
-  vec3 galaxy = mix(WARM, INDIGO * 1.6, smoothstep(0.05, 0.6, r)) * disc * (0.25 + 1.3 * arms);
-  galaxy += WARM * exp(-length(u) / 0.06) * 0.7;
-  col += galaxy * 0.8;
+  // the star the belt circles
+  float rs = length(u);
+  col += SUN * exp(-rs / 0.03) * 1.5 + SUN * exp(-rs / 0.18) * 0.16;
 
-  // the front: spreading from a system near the edge, over the cycle
-  vec2 origin = vec2(0.62, -0.2);
-  float age = mod(t + 4.0, CYCLE);   // the poster frame (t = 12) catches the front well under way
-  float reach = 1.9 * sqrt(age / CYCLE);
-  float fade = smoothstep(CYCLE, CYCLE - 6.0, age);
-  float fromO = length(d - origin);
-  float front = exp(-pow((fromO - reach) / 0.11, 2.0));
-  float behind = smoothstep(reach + 0.02, reach - 0.15, fromO);
+  float tc = mod(t + 6.0, CYCLE);   // the poster frame (t = 12) catches eight probes in flight
+  float fade = smoothstep(0.0, 1.5, tc) * smoothstep(CYCLE, CYCLE - 2.5, tc);
 
-  // star systems: small points in the disc; reached ones glow silver, those at the front pulse mint
-  vec2 g = d * 40.0;
-  vec2 id = floor(g);
-  float h = hash3(vec3(id, 3.0));
-  float sys = step(0.78, h) * (disc * 6.0 * (0.4 + arms) + 0.15);
-  vec2 sp = fract(g) - 0.5 - 0.25 * (vec2(hash3(vec3(id, 4.0)), hash3(vec3(id, 5.0))) - 0.5);
-  float dot1 = exp(-length(sp) * 14.0) * min(sys, 1.0);
-  float pulse = 0.5 + 0.5 * sin(t * 4.0 + h * 30.0);
-  col += SILVER * dot1 * behind * 0.6 * fade;
-  col += MINT * dot1 * front * (0.8 + 1.2 * pulse) * fade;
-  col += WARM * dot1 * (1.0 - behind) * 0.25;
-  // the front's own faint light over the disc, and a soft silver over what it has reached
-  col += MINT * front * (disc * 0.9 + 0.04) * fade + SILVER * behind * disc * 0.12 * fade;
-  // where it began: one bright mint point
-  col += MINT * exp(-fromO / 0.012) * 1.2 * fade;
+  // the belt's dust and gravel, the raw material: it thins as the rocks are eaten
+  float tilt = tiltNow();
+  vec2 disc = vec2(u.x, u.y / tilt);
+  float rr = length(disc);
+  float band = smoothstep(0.26, 0.4, rr) * smoothstep(1.02, 0.88, rr);
+  float spun = atan(disc.y, disc.x) - uYaw - t * 0.008;
+  vec2 polar = vec2(cos(spun), sin(spun)) * rr;
+  float eaten = clamp((tc - FLY) / (5.0 * (FLY + EAT)), 0.0, 1.0);
+  float grit = noise3(vec3(polar * 9.0, 2.0)) * noise3(vec3(polar * 31.0, 5.0));
+  col += vec3(0.5, 0.44, 0.38) * band * (0.05 + 0.22 * grit) * (1.0 - 0.8 * eaten);
+
+  // the rocks: whole until their probe arrives, then taken apart, shrinking away in a mint glow
+  for (int k = 0; k < 31; k++) {
+    float i = float(k);
+    vec3 rock = rockAt(i);
+    float start = levelOf(i) * (FLY + EAT) + FLY;
+    float s = clamp((tc - start) / EAT, 0.0, 1.0);
+    vec2 d = u - rock.xy;
+    float dist = length(d);
+    if (dist > 0.12) continue;
+    float br = rock.z * (1.0 - s * s);
+    if (br > 0.002) {
+      // a lumpy rock, not a ball, with a crisp edge
+      float lump = br * (0.78 + 0.4 * noise3(vec3(normalize(d + 1e-5) * 1.6, i * 1.7)));
+      float inside = smoothstep(lump, lump - 1.2 / uScale, dist);
+      vec3 nrm = normalize(vec3(d / br, 0.7));
+      float shade = 0.35 + 0.65 * max(dot(nrm, normalize(vec3(-rock.xy, 0.8))), 0.0);
+      vec3 stone = mix(vec3(0.3, 0.26, 0.24), vec3(0.58, 0.5, 0.44), noise3(vec3(d / br * 2.2, i)));
+      col = mix(col, stone * shade * 0.85 + MINT * s * 0.4, inside);
+    }
+    // the probe at work: a mint light flickering over the rock, and specks of it carried off
+    float busy = step(start, tc) * step(tc, start + EAT);
+    col += MINT * exp(-dist / 0.008) * busy * (0.7 + 0.5 * sin(t * 11.0 + i * 3.0)) * fade;
+    col += MINT * exp(-dist / 0.035) * busy * 0.1 * fade;
+    // and once it is gone, a faint haze of dust
+    col += SILVER * exp(-dist / 0.035) * 0.05 * step(start + EAT, tc);
+  }
+
+  // the first probe, flying in from the dark
+  vec2 home = rockAt(0.0).xy;
+  float f0 = clamp(tc / FLY, 0.0, 1.0);
+  if (f0 > 0.0 && f0 < 1.0) {
+    float e = f0 * f0 * (3.0 - 2.0 * f0);
+    vec2 from = vec2(-1.6, 1.1);
+    vec2 p = pathAt(from, home, e, 1.0);
+    vec2 back = pathAt(from, home, max(e - 0.07, 0.0), 1.0);
+    col += MINT * (exp(-length(u - p) / 0.005) * 1.6 + exp(-segment(u, back, p) / 0.003) * 0.5) * fade;
+  }
+
+  // the copies: two leave each rock as it is finished, for rocks 2i+1 and 2i+2 (the last sixteen's
+  // children leave the belt, outward, toward other stars)
+  for (int k = 0; k < 31; k++) {
+    float i = float(k);
+    float launch = levelOf(i) * (FLY + EAT) + FLY + EAT;
+    float f = (tc - launch) / FLY;
+    if (f < 0.0 || f > 1.0) continue;
+    float e = f * f * (3.0 - 2.0 * f);
+    vec2 from = rockAt(i).xy;
+    for (int c = 1; c <= 2; c++) {
+      float j = 2.0 * i + float(c);
+      float side = c == 1 ? 1.0 : -1.0;
+      vec2 to = j < ROCKS ? rockAt(j).xy : from + normalize(from + vec2(0.0, 0.001)) * 1.4 + vec2(side * 0.3, 0.0);
+      vec2 p = pathAt(from, to, e, side);
+      vec2 back = pathAt(from, to, max(e - 0.1, 0.0), side);
+      float glow = exp(-length(u - p) / 0.005) * 1.6 + exp(-segment(u, back, p) / 0.003) * 0.5;
+      col += MINT * glow * fade;
+    }
+  }
 
   col = col / (1.0 + max(col - 0.85, 0.0) * 0.85);
   gl_FragColor = vec4(col, 1.0);
