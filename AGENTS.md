@@ -1,4 +1,4 @@
-# Cosmic Archive: Agent Rules
+# Cosmic Atlas: Agent Rules
 
 > **What this file is:** the rules for AI coding agents working on this repo. Claude Code reads it through `CLAUDE.md`, which imports it. It holds only what you can't infer from the code.
 > After any meaningful change to this project, update this file, `context/PROGRESS_TRACKER.md`, and the "Project Overview" section of `README.md` to reflect the current state. Do this proactively, without being asked.

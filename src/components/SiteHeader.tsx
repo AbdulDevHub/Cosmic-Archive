@@ -60,7 +60,7 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
       <Link className={styles.wordmark} href="/" onClick={home}>
         <Emblem size={56} />
         <span className={styles.letters}>
-          <span>Cosmic</span> <span>Archive</span>
+          <span>Cosmic</span> <span>Atlas</span>
         </span>
       </Link>
 

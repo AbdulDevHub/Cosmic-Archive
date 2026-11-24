@@ -217,7 +217,7 @@ try {
         .waitForFunction(() => document.documentElement.dataset.scene === "ready" && !!document.querySelector("canvas")?.parentElement?.hasAttribute("data-on"), undefined, { timeout: 30000 })
         .then(() => true)
         .catch(() => false);
-    const home = page.getByRole("link", { name: "Cosmic Archive" }).first();
+    const home = page.getByRole("link", { name: "Cosmic Atlas" }).first();
 
     await page.goto(base + "/nebula?tier=low", { waitUntil: "load" });
     await sceneSettled(page);
@@ -308,7 +308,7 @@ try {
     // Back in the middle of a dive calls the move off: the visitor is not pushed forward again
     await page.goto(base + "/nebula?tier=low", { waitUntil: "load" });
     await sceneSettled(page);
-    await page.getByRole("link", { name: "Cosmic Archive" }).first().click();
+    await page.getByRole("link", { name: "Cosmic Atlas" }).first().click();
     await page.waitForURL((url) => url.pathname === "/");
     await sceneSettled(page);
     await page.getByRole("button", { name: "Begin Your Journey" }).click();
@@ -507,7 +507,7 @@ try {
       .then(() => true, () => false);
     const spot = await spotFor(page, "/black-hole").then(() => true, () => false);
     check("start page", "Begin flies into the galaxy; its words and places show", first && landed && spot);
-    await page.getByRole("link", { name: "Cosmic Archive" }).click();
+    await page.getByRole("link", { name: "Cosmic Atlas" }).click();
     const back = await page.getByRole("button", { name: "Begin Your Journey" }).waitFor({ state: "visible", timeout: 8000 }).then(() => true, () => false);
     check("start page", "the wordmark (home) flies back out to the start page", back && new URL(page.url()).pathname === "/");
     await context.close();

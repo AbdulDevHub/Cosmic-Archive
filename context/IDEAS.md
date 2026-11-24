@@ -1,4 +1,4 @@
-# Cosmic Archive: Ideas
+# Cosmic Atlas: Ideas
 
 > **What this file is:** the idea bank: every topic from the owner's original list and the brainstorm, sorted into built, planned and not planned. The order of work is in `PROGRESS_TRACKER.md` "Next Steps", and that file wins. Before any idea becomes a scene, check the inclusion rule in `BLUEPRINT.md` section 5. Add new ideas under "Not Planned (Yet)" and move them up only when the owner says so.
 

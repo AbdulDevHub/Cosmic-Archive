@@ -1,13 +1,13 @@
-# Cosmic Archive: Project Blueprint
+# Cosmic Atlas: Project Blueprint
 
-> **What this file is:** what Cosmic Archive is, what is in scope and the editorial rules (sourcing, imagery). Read it before touching content in `src/content/places.ts` or changing scope. Update it only when the owner changes the scope, and record the change in `DECISIONS.md`.
+> **What this file is:** what Cosmic Atlas is, what is in scope and the editorial rules (sourcing, imagery). Read it before touching content in `src/content/places.ts` or changing scope. Update it only when the owner changes the scope, and record the change in `DECISIONS.md`.
 
 **Status:** v4, 2026-11-22: scope, audience and inclusion rule updated for the replan (D-136). v3, 2026-11-20. Rewritten after the owner's read-through of v1: "way too wordy; I wanted a spectacle that showcases beauty, not an educational site" (D-092). Replaces v2 (2026-11-11, in git), which described a sourced, educational atlas.
 **This file answers:** what the product is, what is in scope, and the editorial rules. How it looks is in `DESIGN_SPEC.md`; how it is built is in `ARCHITECTURE.md`; the order of work is in `PROGRESS_TRACKER.md`.
 
 ## 1. Vision
 
-Cosmic Archive is the universe to look at: a spectacle of real-time cosmic scenes that a visitor clicks through, from the cosmic web into a galaxy and down into the wonders inside it, each move a smooth flight.
+Cosmic Atlas is the universe to look at: a spectacle of real-time cosmic scenes that a visitor clicks through, from the cosmic web into a galaxy and down into the wonders inside it, each move a smooth flight.
 
 The feeling to aim for is **beautiful cosmic wonder**: enormous, colourful, alive. The universe is always the whole picture.
 
@@ -86,4 +86,4 @@ Routes: `/` (the universe), `/black-hole`, `/nebula`, `/quasar`. The header has 
 
 ## 9. Standing owner decisions
 
-Name: Cosmic Archive. Identity: the universe to look at, cosmos alone (D-092, D-094). Places: black hole, nebula, quasar; the galaxy is a stop of the universe, not a place of its own (D-093). Sound: on, the owner's own music (D-100). Deployment: Vercel, later, only when the owner says so. The full log is `DECISIONS.md`.
+Name: Cosmic Atlas. Identity: the universe to look at, cosmos alone (D-092, D-094). Places: black hole, nebula, quasar; the galaxy is a stop of the universe, not a place of its own (D-093). Sound: on, the owner's own music (D-100). Deployment: Vercel, later, only when the owner says so. The full log is `DECISIONS.md`.

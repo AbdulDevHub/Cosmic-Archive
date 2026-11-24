@@ -87,7 +87,7 @@ export function FirstLoad() {
       <div className={styles.ship}>
         <LoaderShip ship={ship} />
       </div>
-      <p className={styles.word}>Cosmic Archive</p>
+      <p className={styles.word}>Cosmic Atlas</p>
       <span className={styles.line} />
     </div>
   );

@@ -1,4 +1,4 @@
-# Cosmic Archive: Architecture
+# Cosmic Atlas: Architecture
 
 > **What this file is:** how the site is built: the stack, folder boundaries, the scene system, budgets, the content model and how it is verified. Read it before touching `src/scene/`, adding a dependency or changing a budget. Update it when the structure changes; record why in `DECISIONS.md`. Budgets in section 3.9 are limits, not targets.
 

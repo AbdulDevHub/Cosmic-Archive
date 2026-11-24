@@ -1,4 +1,4 @@
-# Cosmic Archive: Design Spec
+# Cosmic Atlas: Design Spec
 
 > **What this file is:** the look of the site: the bans, colour, type, hotspots, motion, each screen, and the screenshot checklist (section 11) that every visual change must pass. Read it before any visual change. Update it when the owner settles a look, and record why in `DECISIONS.md`.
 
@@ -85,10 +85,10 @@ Every scene route is one screen: the scene fills the window and nothing scrolls.
 
 ### 7.1 Header (replaced by D-107)
 
-The emblem and "COSMIC ARCHIVE" in widely spaced capitals (it leads home); in the middle the menu, the flared glass dock (D-116), now **Places**, **Flights** and **Ship** (D-139): Places opens a glass panel of every place grouped by where it is found, and a choice flies there; Ship holds the fleet, moved off the start page; Flights (D-151) lists the guided flights and the tour; a choice starts one (see 7.5). **Search** finds a place by name and flies there (Enter takes the first); typed in full, "Music" shows a round music switch beside it (hidden Music mode). A round Sound button. On a phone only the wordmark and Sound. What follows is the header before D-107.
+The emblem and "COSMIC ATLAS" in widely spaced capitals (it leads home); in the middle the menu, the flared glass dock (D-116), now **Places**, **Flights** and **Ship** (D-139): Places opens a glass panel of every place grouped by where it is found, and a choice flies there; Ship holds the fleet, moved off the start page; Flights (D-151) lists the guided flights and the tour; a choice starts one (see 7.5). **Search** finds a place by name and flies there (Enter takes the first); typed in full, "Music" shows a round music switch beside it (hidden Music mode). A round Sound button. On a phone only the wordmark and Sound. What follows is the header before D-107.
 
 
-Wordmark "Cosmic Archive" in the display face, left; it leads home to the universe. Right: **Sound**, a speaker with waves when on and a cross when off, with the word (its icon only on a phone). No background: every page is a scene, and the header's empty middle can be dragged through.
+Wordmark "Cosmic Atlas" in the display face, left; it leads home to the universe. Right: **Sound**, a speaker with waves when on and a cross when off, with the word (its icon only on a phone). No background: every page is a scene, and the header's empty middle can be dragged through.
 
 ### 7.1a Sound (D-100)
 

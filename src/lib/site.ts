@@ -8,18 +8,18 @@
 
 import type { Metadata } from "next";
 
-export const SITE_NAME = "Cosmic Archive";
+export const SITE_NAME = "Cosmic Atlas";
 export const SITE_DESCRIPTION = "The universe, to look at: click from the cosmic web into a galaxy, a nebula, a black hole and a quasar.";
 
 // On Vercel, the project's production domain stands in when the variable is not set (D-179).
 const VERCEL_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined;
 
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? VERCEL_URL ?? "https://cosmic-archive.example").replace(/\/$/, "");
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? VERCEL_URL ?? "https://cosmic-atlas.example").replace(/\/$/, "");
 
 // Say so loudly in a production build without the address: every canonical link, card and the
 // sitemap would point at the placeholder. A warning, not an error, so local builds still run.
 if (!process.env.NEXT_PUBLIC_SITE_URL && !VERCEL_URL && process.env.NODE_ENV === "production" && typeof window === "undefined") {
-  console.warn("NEXT_PUBLIC_SITE_URL is not set: canonical links, Open Graph tags and the sitemap point at https://cosmic-archive.example. Set it before deploying (README, D-087).");
+  console.warn("NEXT_PUBLIC_SITE_URL is not set: canonical links, Open Graph tags and the sitemap point at https://cosmic-atlas.example. Set it before deploying (README, D-087).");
 }
 
 /** The Open Graph image for a page: our own scene stills (never telescope photos, D-018). */

@@ -1,4 +1,4 @@
-# Cosmic Archive — Spaceship Class Design Brief
+# Cosmic Atlas — Spaceship Class Design Brief
 
 > **What this file is:** the owner's design brief for the five ships on the start page, and which reference each one follows. Read it before touching `src/scene/scenes/atlas/ships.ts`. Update the table in section 0 only when the owner changes a reference.
 
@@ -20,7 +20,7 @@ Which reference each ship follows (files in `owner/reference-images/`):
 
 ## 1. Purpose and Context
 
-The Cosmic Archive features five distinct spaceship classes that visitors can choose from to personalize their exploration experience.
+The Cosmic Atlas features five distinct spaceship classes that visitors can choose from to personalize their exploration experience.
 
 These ships are not simply cosmetic variations of one another. Each represents a different philosophy of space exploration, with its own silhouette, personality, visual identity, and presence.
 
@@ -193,11 +193,11 @@ Do not make the five designs feel like the same underlying ship with different w
 
 Gold should remain strongly associated with the Celestial.
 
-## 4. Role in the Cosmic Archive Experience
+## 4. Role in the Cosmic Atlas Experience
 
 The ships are part of the homepage's visual identity and help visitors personalize their exploration experience.
 
-The visitor should be able to choose which ship represents their Cosmic Archive journey.
+The visitor should be able to choose which ship represents their Cosmic Atlas journey.
 
 The selected ship should appear in the homepage's cosmic environment, complementing the surrounding galaxies, nebulae, planets, and other celestial objects.
 
@@ -219,4 +219,4 @@ Use the supplied reference images to guide the actual visual implementation. Thi
 
 Do not unnecessarily redesign ships that have already been approved. Preserve their defining characteristics and focus future refinement on areas that remain unfinished.
 
-**The overall goal:** Five distinctive, memorable spacecraft that feel as though they belong in the same universe, while each offering a completely different way to experience the vastness of the Cosmic Archive.
+**The overall goal:** Five distinctive, memorable spacecraft that feel as though they belong in the same universe, while each offering a completely different way to experience the vastness of the Cosmic Atlas.
