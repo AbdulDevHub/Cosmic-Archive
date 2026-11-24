@@ -17,7 +17,7 @@ export const VERSES_TITLE = "Islam and Space";
 export const VERSES_LINE = "Verses on the heavens, for those who look up and reflect.";
 
 export const VERSES: readonly Verse[] = [
-  { key: "3:190", surah: "Al-Imran", text: "Indeed, in the creation of the heavens and the earth and the alternation of the day and night…", url: "https://quran.com/3/190", checked: "2026-11-24" },
+  { key: "3:190", surah: "Al-Imran", text: "Indeed, in the creation of the heavens and the earth and the alternation of the day and night there are signs for people of reason.", url: "https://quran.com/3/190", checked: "2026-11-24" },
   { key: "21:30", surah: "Al-Anbiya", text: "Do the disbelievers not realize that the heavens and earth were ˹once˺ one mass then We split them apart?", url: "https://quran.com/21/30", checked: "2026-11-24" },
   { key: "51:47", surah: "Adh-Dhariyat", text: "We built the universe with ˹great˺ might, and We are certainly expanding ˹it˺.", url: "https://quran.com/51/47", checked: "2026-11-24" },
   { key: "21:33", surah: "Al-Anbiya", text: "And He is the One Who created the day and the night, the sun and the moon…", url: "https://quran.com/21/33", checked: "2026-11-24" },

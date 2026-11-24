@@ -4,7 +4,7 @@ A spectacle of the cosmos you click through: real-time scenes from a spiral gala
 
 **[Fly through it live](https://the-cosmic-atlas.vercel.app)** · real-time WebGL · Next.js · React Three Fiber
 
-![The start page of Cosmic Atlas: a spiral galaxy, a ship and a blue planet, all drawn live in the browser](.github/social-preview.png)
+![Cosmic Atlas: The Universe to Look At, over a spiral galaxy drawn live in the browser, with a black hole, a nebula, a ringworld and the Seven Heavens below](.github/social-preview.png)
 
 | A Black Hole | A Nebula | A Quasar |
 |---|---|---|
@@ -12,7 +12,7 @@ A spectacle of the cosmos you click through: real-time scenes from a spiral gala
 
 ## Project Overview
 
-Cosmic Atlas is a website for looking at the universe rather than reading about it. You pick a spaceship on the start page, press Begin, and fly into a galaxy. From there you click a glowing point to dive into what it marks (a black hole, a nebula, a neutron star, a solar system with its own planet, moon and asteroid) or press Zoom Out to pull back through the cosmic web, the empty supervoids and the whole observable universe, out to the Seven Heavens drawn as layers of light. A wormhole leads to a second, stranger galaxy with a quasar, a Dyson sphere and a Starbase, a turning wheel station whose glowing bays open onto eleven big ideas, from a warp drive and quantum foam to string theory and the omniverse, among nine imagined megastructures from a Dyson swarm to a ringworld. The Flights menu flies you through a star's whole life, from a black hole to a quasar, or on a hands-off tour you can skip at any time. From the Seven Heavens, an Islam and Space page sets a few verses on the heavens over the same light.
+Cosmic Atlas is a website for looking at the universe rather than reading about it. Pick a ship, press Begin and fly into a galaxy. Click a glowing point to dive into a black hole, a nebula or a solar system, or Zoom Out through the cosmic web to the observable universe and the Seven Heavens beyond it. A wormhole leads to a stranger galaxy of quasars, megastructures and big ideas, and guided flights and a hands-off tour show you around.
 
 Every scene is drawn live in the browser with WebGL shaders, with no photos or downloaded images, so it stays original and small. Each view has only a name and one short line, and every line is checked against a real source. Each scene has its own music. If 3D can't run, every page still shows a still image and works as plain HTML.
 
@@ -60,7 +60,7 @@ npm run dev
 | `npm run posters` | Renders scene stills into `public/posters/` from the built app's own scenes; build again afterwards |
 | `npm run fallbacks` | Runs the scene tests on the built app: reduced motion, no WebGL, slow device, no 3D code on the 404 page, every place, the flow between scenes with and without motion, keyboard only and touch only |
 | `npm run a11y` | Scans every route with axe-core, wide and on a phone; fails on serious or critical findings |
-| `npm run social` | Screenshots the start page at 1280x640 into `.github/social-preview.png`, the repo's share image (upload it in GitHub under Settings, Social preview) |
+| `npm run social` | Renders the share card (`scripts/social-card.html`, over the scene stills) at 1280x640 into `.github/social-preview.png` (upload it in GitHub under Settings, Social preview) |
 
 `npm run shots` uses Playwright's Chromium; run `npx playwright install chromium` once if it is missing.
 
@@ -70,7 +70,15 @@ The site is a Vercel project (`vercel deploy --prod`; `.vercelignore` keeps `own
 
 All imagery is original illustration. Nothing here is a telescope photograph.
 
+## Contributing
+
+Cosmic Atlas is open source and contributions are welcome: new places, better scenes, faster shaders, fixes. Read [CONTRIBUTING.md](CONTRIBUTING.md) for setup and the house rules (every fact sourced, our own art only, nothing drawn over the cosmos), and look at `context/IDEAS.md` for places waiting to be built.
+
+## License
+
+The code is [MIT](LICENSE). The audio in `public/audio/` is not covered and must not be reused.
+
 ---
 
-> *"Indeed, in the creation of the heavens and the earth and the alternation of the day and night…"*
-> — Quran 3:190, The Clear Quran ([the whole verse on Quran.com](https://quran.com/3/190))
+> *"Indeed, in the creation of the heavens and the earth and the alternation of the day and night there are signs for people of reason."*
+> — Quran 3:190, The Clear Quran ([on Quran.com](https://quran.com/3/190))
