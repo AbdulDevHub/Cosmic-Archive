@@ -13,7 +13,7 @@
  * made here in the browser (filtered, like the hush of deep space) under the same effects. The loops
  * live in the private `Private-Assets` submodule and `/api/music/` serves them only to a browser
  * whose cookie holds the owner's key. The owner keeps the key in this browser's localStorage under
- * `Music`; where it is, the music is simply on (the key is copied to the cookie on load). Without
+ * `Music` or `MUSIC_KEY`; where it is, the music is simply on (the key is copied to the cookie on load). Without
  * it, or with a wrong one, or if a loop will not load, the noise bed plays.
  *
  * Client only. Imports nothing.
@@ -22,8 +22,8 @@
 import { useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "cosmic-archive:sound";
-/** Where the owner keeps their music key in this browser (D-185). */
-const OWNER_KEY = "Music";
+/** Where the owner keeps their music key in this browser (D-185): either name works (D-187). */
+const OWNER_KEYS = ["Music", "MUSIC_KEY"];
 /** The noise bed's level inside the music's gain: softer than the music. */
 const NOISE_LEVEL = 0.55;
 const MUSIC_VOLUME = 0.32;
@@ -334,7 +334,8 @@ if (typeof window !== "undefined") {
   try {
     // the owner's key (D-185): where it is kept, the music is on, and the route reads it from a cookie
     // as typed, quotes or not (`my key` and `"my key"` are the same key)
-    const key = localStorage.getItem(OWNER_KEY)?.trim().replace(/^(["'])(.*)\1$/, "$2").trim();
+    const stored = OWNER_KEYS.map((name) => localStorage.getItem(name)).find((value) => value?.trim());
+    const key = stored?.trim().replace(/^(["'])(.*)\1$/, "$2").trim();
     if (key) {
       const secure = location.protocol === "https:" ? "; Secure" : "";
       document.cookie = `${KEY_COOKIE}=${encodeURIComponent(key)}; path=/; max-age=31536000; SameSite=Strict${secure}`;

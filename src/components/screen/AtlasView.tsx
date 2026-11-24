@@ -386,24 +386,49 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
 }
 
 /**
- * Past the Omniverse (D-185): Zoom Out there opens this note, the owner's words, instead of moving.
- * A real dialog: it takes focus, Escape or Close or a click outside closes it.
+ * Past the Omniverse (D-185, D-187): Zoom Out there ends the journey. The screen slowly fades to
+ * black, then the owner's words rise out of the dark one line at a time, and last a quiet Return,
+ * which (or Escape) fades the dark away again. No box: the words stand on the black alone. A real
+ * dialog, so focus and Escape behave; with reduced motion it all appears at once.
  */
+const ENDING_OUT_MS = 1400;
+
 function BeyondNote({ open, onClose }: { open: boolean; onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const [leaving, setLeaving] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
     if (open && !dialog.open) dialog.showModal();
     else if (!open && dialog.open) dialog.close();
   }, [open]);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const leave = () => {
+    if (leaving) return;
+    setLeaving(true);
+    timer.current = setTimeout(() => {
+      setLeaving(false);
+      onClose();
+    }, calm() ? 0 : ENDING_OUT_MS);
+  };
   return (
-    <dialog ref={ref} className={styles.note} aria-label="Beyond the Omniverse" onClose={onClose} onClick={(event) => event.target === event.currentTarget && onClose()}>
-      <div className={styles.noteBody}>
-        <p>Who knows what lurks out there in the dark&hellip;</p>
-        <p>But if you believe in God, one day you may find out, and you have nothing to fear from His creation.</p>
-        <button type="button" className={styles.control} onClick={onClose} autoFocus>
-          Close
+    <dialog
+      ref={ref}
+      className={styles.ending}
+      data-leaving={leaving ? "" : undefined}
+      aria-label="Beyond the Omniverse"
+      onCancel={(event) => {
+        event.preventDefault(); // Escape fades out, as Return does
+        leave();
+      }}
+      onClose={onClose}
+    >
+      <div className={styles.endingWords}>
+        <p className={styles.endingFirst}>Who knows what lurks out there in the dark&hellip;</p>
+        <p className={styles.endingSecond}>But if you believe in God, one day you may find out, and you have nothing to fear from His creation.</p>
+        <button type="button" className={styles.endingReturn} onClick={leave} autoFocus>
+          Return
         </button>
       </div>
     </dialog>

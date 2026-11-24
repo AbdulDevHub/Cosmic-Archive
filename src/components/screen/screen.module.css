@@ -419,44 +419,135 @@
     visibility 0s 300ms;
 }
 
-/* ---- past the Omniverse (D-185): the owner's note, a glass card in the dock's style ---- */
+/* ---- past the Omniverse (D-185, D-187): the ending. The screen fades to black, the words rise
+   out of the dark one line at a time, then a quiet Return. No box. ---- */
 
-.note {
-  max-width: min(30rem, calc(100vw - 2 * var(--gutter)));
+.ending {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
   padding: 0;
-  border: 1px solid oklch(0.85 0.06 280 / 0.35);
-  border-radius: 24px;
-  background: linear-gradient(180deg, oklch(0.26 0.07 280 / 0.72), oklch(0.16 0.05 275 / 0.8));
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 0 60px oklch(0.55 0.16 285 / 0.35);
+  border: 0;
+  background:
+    radial-gradient(ellipse at 50% 55%, oklch(0.16 0.06 290 / 0.55), transparent 60%),
+    oklch(0.03 0.01 275);
   color: var(--ink);
+  animation: ending-dark 3.2s ease-in both;
 }
 
-.note::backdrop {
-  background: oklch(0.08 0.03 275 / 0.55);
-  backdrop-filter: blur(3px);
+.ending::backdrop {
+  background: transparent;
 }
 
-.noteBody {
+.ending[data-leaving] {
+  animation: ending-light 1.4s ease-out both;
+}
+
+.endingWords {
   display: grid;
+  place-content: center;
   justify-items: center;
-  gap: 0.9rem;
-  padding: clamp(24px, 4vh, 36px) clamp(22px, 3vw, 36px);
+  gap: clamp(22px, 4vh, 40px);
+  height: 100%;
+  padding: 0 var(--gutter);
   text-align: center;
 }
 
-.noteBody p {
+.endingWords p {
   margin: 0;
-  font: italic 400 clamp(1.05rem, 1.4vw, 1.25rem) / 1.5 var(--font-text);
+  max-width: 38rem;
+  text-wrap: balance;
 }
 
-.noteBody p:first-child {
-  font: 500 clamp(1.25rem, 1.9vw, 1.6rem) / 1.3 var(--font-display);
-  font-style: normal;
+.endingWords .endingFirst {
+  max-width: 48rem;
 }
 
-.noteBody .control {
-  margin-top: 0.4rem;
-  padding: 0 24px;
+.endingFirst {
+  font: 400 clamp(1.7rem, 3.4vw, 3rem) / 1.2 var(--font-display);
+  letter-spacing: 0.01em;
+  animation: ending-rise 3.6s cubic-bezier(0.22, 1, 0.36, 1) 2.6s both;
+}
+
+.endingSecond {
+  font: italic 400 clamp(1.1rem, 1.7vw, 1.45rem) / 1.6 var(--font-text);
+  color: var(--ink-2);
+  animation: ending-rise 3.6s cubic-bezier(0.22, 1, 0.36, 1) 6.4s both;
+}
+
+.endingReturn {
+  margin-top: clamp(12px, 3vh, 28px);
+  padding: 10px 18px;
+  border: 0;
+  background: none;
+  color: var(--ink-2);
+  font: 500 13px / 1 var(--font-display);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+  animation: ending-fade 2.4s ease 10.4s both;
+}
+
+.endingReturn:hover,
+.endingReturn:focus-visible {
+  color: var(--beacon);
+  opacity: 1;
+}
+
+.endingReturn:focus-visible {
+  outline: 1px solid var(--beacon);
+  outline-offset: 6px;
+}
+
+@keyframes ending-dark {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ending-light {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* each line comes out of the dark: from a blur, wide-set, a little low, to sharp and still */
+@keyframes ending-rise {
+  from {
+    opacity: 0;
+    filter: blur(14px);
+    letter-spacing: 0.18em;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: none;
+  }
+}
+
+@keyframes ending-fade {
+  from { opacity: 0; }
+  to { opacity: 0.7; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ending,
+  .ending[data-leaving],
+  .endingFirst,
+  .endingSecond,
+  .endingReturn {
+    animation: none;
+  }
+}
+
+:global(html[data-motion="paused"]) .ending,
+:global(html[data-motion="paused"]) .endingFirst,
+:global(html[data-motion="paused"]) .endingSecond,
+:global(html[data-motion="paused"]) .endingReturn {
+  animation: none;
 }

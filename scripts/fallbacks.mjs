@@ -381,13 +381,13 @@ try {
     const toMultiverse = toUniverse && (await atMultiverse()) && (await zoomOut.getAttribute("aria-disabled")) === "false";
     await page.keyboard.press("Enter");
     await page.waitForTimeout(300);
-    // past the Omniverse, Zoom Out opens the owner's note (D-185); Escape closes it
+    // past the Omniverse, Zoom Out opens the ending (D-185, D-187); Escape fades it out
     const noteOpen = () => page.evaluate(() => document.querySelector("dialog[open]") !== null);
     await page.keyboard.press("Enter");
     await page.waitForTimeout(300);
     const note = await noteOpen();
-    await page.keyboard.press("Escape");
-    await page.waitForTimeout(200);
+    await page.keyboard.press("Escape"); // the ending fades out before it closes (D-187)
+    await page.waitForTimeout(1800);
     const out = toMultiverse && (await atOmniverse()) && note && !(await noteOpen());
     for (let i = 0; i < 24; i++) await page.keyboard.press("+");
     await page.waitForTimeout(300);
