@@ -93,7 +93,7 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
       <div className={styles.tools}>
         <div className={styles.finder}>
           {askKey && musicWord ? (
-            <label className={styles.search}>
+            <label key="music-key" className={styles.search}>
               <MusicIcon />
               <input
                 type="password"
@@ -106,7 +106,7 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
               />
             </label>
           ) : (
-          <label className={styles.search}>
+          <label key="search" className={styles.search}>
             <SearchIcon />
             <input
               type="search"
