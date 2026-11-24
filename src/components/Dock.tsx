@@ -1,12 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { MenuFlight, MenuGroup } from "@/lib/content/menu";
 import { startFlight } from "@/lib/flight";
 import { SHIPS, setShip, useShip } from "@/lib/ship";
 import { flowBusy, jumpTo } from "@/scene/host/flow";
-import { PlanetIcon, ShipIcon, SparkIcon } from "./icons";
+import { BookIcon, PlanetIcon, ShipIcon, SparkIcon } from "./icons";
 import styles from "./Dock.module.css";
 
 /*
@@ -16,6 +17,7 @@ import styles from "./Dock.module.css";
   - Flights (D-151): the guided flights (A Star's Life, Black Hole to Quasar) and the hands-off
     tour; a choice starts it (`startFlight`), and the flight bar takes over.
   - Ship: the fleet (D-118), moved here off the start page; the choice flies in the start scene.
+  - About (D-184): a plain link to the About page, with Islam and Space.
   Each opens a small glass panel under the dock; Escape, a click elsewhere or a choice closes it.
   On a phone it folds away with the rest of the header's middle.
 */
@@ -99,6 +101,10 @@ export function Dock({ groups, flights }: { groups: MenuGroup[]; flights: MenuFl
       <Item label="Ship" icon={<ShipIcon />} expanded={open === "ship"} controls="dock-ship" onClick={() => toggle("ship")} keep={(el) => {
         toggles.current.ship = el;
       }} />
+      <Link className={styles.item} href="/about" onClick={() => setOpen(null)}>
+        <BookIcon />
+        <span>About</span>
+      </Link>
 
       {open === "places" ? (
         <div id="dock-places" className={styles.panel}>

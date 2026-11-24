@@ -418,12 +418,3 @@
     opacity 300ms ease-out,
     visibility 0s 300ms;
 }
-
-
-/* The Seven Heavens' one link, to Islam and Space (D-179) */
-.more {
-  display: inline-block;
-  margin-top: var(--gap-3);
-  color: var(--beacon);
-  pointer-events: auto;
-}

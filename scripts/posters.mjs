@@ -20,18 +20,20 @@ const NARROW = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 };
 const POSTERS = [
   { file: "atlas-start-wide.webp", path: "/?shot=1&t=12&tier=high", ...WIDE, quality: 0.8 },
   { file: "atlas-start-narrow.webp", path: "/?shot=1&t=12&tier=low", ...NARROW, quality: 0.8 },
-  // The Seven Heavens, behind the Islam and Space page (D-179)
-  { file: "heavens-wide.webp", path: "/?shot=1&t=12&tier=high&zoom=5", ...WIDE, quality: 0.8 },
-  { file: "heavens-narrow.webp", path: "/?shot=1&t=12&tier=low&zoom=5", ...NARROW, quality: 0.8 },
+  // The Multiverse, and the Omniverse behind the About page (D-184)
+  { file: "multiverse-wide.webp", path: "/?shot=1&t=12&tier=high&zoom=5", ...WIDE, quality: 0.8 },
+  { file: "multiverse-narrow.webp", path: "/?shot=1&t=12&tier=low&zoom=5", ...NARROW, quality: 0.8 },
+  { file: "omniverse-wide.webp", path: "/?shot=1&t=12&tier=high&zoom=6", ...WIDE, quality: 0.8 },
+  { file: "omniverse-narrow.webp", path: "/?shot=1&t=12&tier=low&zoom=6", ...NARROW, quality: 0.8 },
   // Places: `<scene id>-wide` and `<scene id>-narrow`, the names the place page asks for.
-  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter", "molecular-cloud", "red-giant", "planetary-nebula", "white-dwarf", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy", "starbase", "warp-drive", "programmable-matter", "higher-dimensions", "quantum-foam", "quarks", "vacuum-decay", "bubble-universes", "pocket-dimensions", "omniverse", "cosmic-strings", "string-theory", "dyson-swarm", "ringworld", "oneill-cylinder", "matrioshka-brain", "generation-ship", "stellar-engine", "von-neumann-probes", "space-elevator", "star-lifter"].flatMap((id) => [
+  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter", "molecular-cloud", "red-giant", "planetary-nebula", "white-dwarf", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy", "starbase", "warp-drive", "programmable-matter", "higher-dimensions", "quantum-foam", "quarks", "vacuum-decay", "bubble-universes", "pocket-dimensions", "cosmic-strings", "string-theory", "dyson-swarm", "ringworld", "oneill-cylinder", "matrioshka-brain", "generation-ship", "stellar-engine", "von-neumann-probes", "space-elevator", "star-lifter"].flatMap((id) => [
     { file: `${id}-wide.webp`, path: `/${id}?shot=1&t=12&tier=high`, ...WIDE, quality: 0.8 },
     { file: `${id}-narrow.webp`, path: `/${id}?shot=1&t=12&tier=low`, ...NARROW, quality: 0.8 },
   ]),
   // Open Graph images (O7, D-088): 1200x630 JPEG crops of the same frames, into public/og/.
   ...[
     ["atlas", "/?shot=1&t=12&tier=high"],
-    ["islam-and-space", "/?shot=1&t=12&tier=high&zoom=5"],
+    ["about", "/?shot=1&t=12&tier=high&zoom=6"],
     ["black-hole", "/black-hole?shot=1&t=12&tier=high"],
     ["nebula", "/nebula?shot=1&t=12&tier=high"],
     ["quasar", "/quasar?shot=1&t=12&tier=high"],
@@ -66,7 +68,6 @@ const POSTERS = [
     ["vacuum-decay", "/vacuum-decay?shot=1&t=12&tier=high"],
     ["bubble-universes", "/bubble-universes?shot=1&t=12&tier=high"],
     ["pocket-dimensions", "/pocket-dimensions?shot=1&t=12&tier=high"],
-    ["omniverse", "/omniverse?shot=1&t=12&tier=high"],
     ["cosmic-strings", "/cosmic-strings?shot=1&t=12&tier=high"],
     ["string-theory", "/string-theory?shot=1&t=12&tier=high"],
     ["dyson-swarm", "/dyson-swarm?shot=1&t=12&tier=high"],

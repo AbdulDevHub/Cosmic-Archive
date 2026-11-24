@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
-  keywords: ["universe", "space", "galaxy", "black hole", "nebula", "quasar", "cosmic web", "3D", "WebGL", "Seven Heavens"],
+  keywords: ["universe", "space", "galaxy", "black hole", "nebula", "quasar", "cosmic web", "3D", "WebGL", "multiverse", "omniverse"],
   robots: { index: true, follow: true },
   openGraph: { type: "website", siteName: SITE_NAME, locale: "en_GB", images: [DEFAULT_OG] },
   twitter: { card: "summary_large_image", images: [DEFAULT_OG.url] },

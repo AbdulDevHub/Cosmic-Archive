@@ -1,10 +1,10 @@
 # Cosmic Atlas: The Universe to Look At
 
-A spectacle of the cosmos you click through: real-time scenes from a spiral galaxy out to the observable universe and the Seven Heavens beyond it, and down into the strange places inside them, each move a smooth flight.
+A spectacle of the cosmos you click through: real-time scenes from a spiral galaxy out to the observable universe, the multiverse and the omniverse beyond it, and down into the strange places inside them, each move a smooth flight.
 
 **[Fly through it live](https://the-cosmic-atlas.vercel.app)** · real-time WebGL · Next.js · React Three Fiber
 
-![Cosmic Atlas: The Universe to Look At, over a spiral galaxy drawn live in the browser, with a black hole, a nebula, a ringworld and the Seven Heavens below](.github/social-preview.png)
+![Cosmic Atlas: The Universe to Look At, over a spiral galaxy drawn live in the browser, with a black hole, a nebula, a ringworld and the omniverse below](.github/social-preview.png)
 
 | A Black Hole | A Nebula | A Quasar |
 |---|---|---|
@@ -12,11 +12,11 @@ A spectacle of the cosmos you click through: real-time scenes from a spiral gala
 
 ## Project Overview
 
-Cosmic Atlas is a website for looking at the universe rather than reading about it. Pick a ship, press Begin and fly into a galaxy. Click a glowing point to dive into a black hole, a nebula or a solar system, or Zoom Out through the cosmic web to the observable universe and the Seven Heavens beyond it. A wormhole leads to a stranger galaxy of quasars, megastructures and big ideas, and guided flights and a hands-off tour show you around.
+Cosmic Atlas is a website for looking at the universe rather than reading about it. Pick a ship, press Begin and fly into a galaxy. Click a glowing point to dive into a black hole, a nebula or a solar system, or Zoom Out through the cosmic web and the observable universe to a line of other universes and the omniverse beyond. A wormhole leads to a stranger galaxy of quasars, megastructures and big ideas, and guided flights and a hands-off tour show you around.
 
 Every scene is drawn live in the browser with WebGL shaders, with no photos or downloaded images, so it stays original and small. Each view has only a name and one short line, and every line is checked against a real source. Under every scene plays a soft hush of deep space. If 3D can't run, every page still shows a still image and works as plain HTML.
 
-**Status:** live at https://the-cosmic-atlas.vercel.app, still being polished. 5 zoom levels, 46 places, two guided flights and a hands-off tour are built. What's next is in `context/PROGRESS_TRACKER.md`.
+**Status:** live at https://the-cosmic-atlas.vercel.app, still being polished. 6 zoom levels, 45 places, two guided flights and a hands-off tour are built. What's next is in `context/PROGRESS_TRACKER.md`.
 
 ## Ideas That Shape It
 

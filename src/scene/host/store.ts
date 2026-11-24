@@ -11,7 +11,7 @@
 import { useSyncExternalStore } from "react";
 import { rememberQuality, type Quality } from "../quality/tiers";
 
-export type SceneId = "atlas" | "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "moon" | "solar-system" | "blue-world" | "asteroid" | "quasar-galaxy" | "quasi-star" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "starbase" | "warp-drive" | "programmable-matter" | "higher-dimensions" | "quantum-foam" | "quarks" | "vacuum-decay" | "bubble-universes" | "pocket-dimensions" | "omniverse" | "cosmic-strings" | "string-theory" | "dyson-swarm" | "ringworld" | "oneill-cylinder" | "matrioshka-brain" | "generation-ship" | "stellar-engine" | "von-neumann-probes" | "space-elevator" | "star-lifter" | "wormhole";
+export type SceneId = "atlas" | "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "moon" | "solar-system" | "blue-world" | "asteroid" | "quasar-galaxy" | "quasi-star" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "starbase" | "warp-drive" | "programmable-matter" | "higher-dimensions" | "quantum-foam" | "quarks" | "vacuum-decay" | "bubble-universes" | "pocket-dimensions" | "cosmic-strings" | "string-theory" | "dyson-swarm" | "ringworld" | "oneill-cylinder" | "matrioshka-brain" | "generation-ship" | "stellar-engine" | "von-neumann-probes" | "space-elevator" | "star-lifter" | "wormhole";
 /** The atlas (`/`, free control and zoom stops) or one place (a page of its own). */
 export type SceneMode = "atlas" | "place";
 
@@ -122,7 +122,7 @@ export function setSlotVisible(token: number, visible: boolean): void {
  * event, and the host eases toward it frame by frame.
  */
 export interface SceneInput {
-  /** The atlas's stops: 0 close in, 1 the whole galaxy, 2 the cosmic web, 3 the supervoid, 4 the observable universe (ARCHITECTURE.md 4, D-130), 5 the Seven Heavens (D-174). */
+  /** The atlas's stops: 0 close in, 1 the whole galaxy, 2 the cosmic web, 3 the supervoid, 4 the observable universe (ARCHITECTURE.md 4, D-130), 5 the Multiverse, 6 the Omniverse (D-184). */
   zoom: number;
   /** Turn about the vertical axis, in radians, from free control. */
   yaw: number;
@@ -142,7 +142,7 @@ export interface SceneInput {
 export type SceneNumber = "zoom" | "yaw" | "pitch" | "dive" | "arrive" | "intro";
 
 export const ZOOM_MIN = 0;
-export const ZOOM_MAX = 5;
+export const ZOOM_MAX = 6;
 const PITCH_LIMIT = 0.3;
 
 const input: SceneInput = { zoom: 0, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1, intro: 0 };

@@ -66,7 +66,6 @@ export const PLACE_OG: Readonly<Record<string, { name: string; alt: string }>> =
   "dyson-swarm": { name: "dyson-swarm", alt: "Our own illustration of a Dyson swarm: countless copper panels on their own orbits round a fierce amber star." },
   "string-theory": { name: "string-theory", alt: "Our own illustration of string theory: three glowing loops of string, each vibrating in its own pattern and colour." },
   "cosmic-strings": { name: "cosmic-strings", alt: "Our own illustration of a cosmic string: a whipping thread of gold plasma across galaxies, which show twice beside it." },
-  "omniverse": { name: "omniverse", alt: "Our own illustration of the omniverse: spheres within spheres of light, each family in its own colour." },
   "pocket-dimensions": { name: "pocket-dimensions", alt: "Our own illustration of a baby universe: a bright emerald and gold pocket of space budding off from ours." },
   "bubble-universes": { name: "bubble-universes", alt: "Our own illustration of bubble universes: iridescent bubbles, each with its own sky, in a warm inflating haze." },
   "vacuum-decay": { name: "vacuum-decay", alt: "Our own illustration of vacuum decay: a crimson bubble of other physics behind a white-hot wall, swallowing the stars." },

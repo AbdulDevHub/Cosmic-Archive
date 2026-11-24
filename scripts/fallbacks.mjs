@@ -111,7 +111,7 @@ const DESKTOP = { viewport: { width: 1440, height: 900 } };
 const SMALL = { viewport: { width: 900, height: 560 } };
 // `#atlas` skips the start page (D-107): these tests are about the atlas itself
 const PINNED = "/?tier=low#atlas";
-const PLACES = ["/black-hole", "/nebula", "/quasar", "/neutron-star", "/star", "/strange-star", "/dyson-sphere", "/wormhole", "/gravastar", "/supernova-remnant", "/magnetar", "/black-hole-merger", "/comet", "/ringed-giant", "/dark-matter", "/molecular-cloud", "/red-giant", "/planetary-nebula", "/white-dwarf", "/quasi-star", "/solar-system", "/blue-world", "/moon", "/asteroid", "/quasar-galaxy", "/starbase", "/warp-drive", "/programmable-matter", "/higher-dimensions", "/quantum-foam", "/quarks", "/vacuum-decay", "/bubble-universes", "/pocket-dimensions", "/omniverse", "/cosmic-strings", "/string-theory", "/dyson-swarm", "/ringworld", "/oneill-cylinder", "/matrioshka-brain", "/generation-ship", "/stellar-engine", "/von-neumann-probes", "/space-elevator", "/star-lifter"];
+const PLACES = ["/black-hole", "/nebula", "/quasar", "/neutron-star", "/star", "/strange-star", "/dyson-sphere", "/wormhole", "/gravastar", "/supernova-remnant", "/magnetar", "/black-hole-merger", "/comet", "/ringed-giant", "/dark-matter", "/molecular-cloud", "/red-giant", "/planetary-nebula", "/white-dwarf", "/quasi-star", "/solar-system", "/blue-world", "/moon", "/asteroid", "/quasar-galaxy", "/starbase", "/warp-drive", "/programmable-matter", "/higher-dimensions", "/quantum-foam", "/quarks", "/vacuum-decay", "/bubble-universes", "/pocket-dimensions", "/cosmic-strings", "/string-theory", "/dyson-swarm", "/ringworld", "/oneill-cylinder", "/matrioshka-brain", "/generation-ship", "/stellar-engine", "/von-neumann-probes", "/space-elevator", "/star-lifter"];
 
 let browser;
 const { base, stop } = await serveBuild("fallbacks");
@@ -369,19 +369,23 @@ try {
     await page.keyboard.press("Enter");
     await page.waitForTimeout(300);
     const toVoid = web && (await atVoid()) && (await zoomOut.getAttribute("aria-disabled")) === "false";
-    // once more out to the observable universe (D-130), and once more to the Seven Heavens (D-174), where it is dimmed
+    // once more out to the observable universe (D-130), then the Multiverse and the Omniverse (D-184), where it is dimmed
     const atUniverse = () => page.evaluate(() => document.querySelector("[data-universe]") !== null);
-    const atHeavens = () => page.evaluate(() => document.querySelector("[data-heavens]") !== null);
+    const atMultiverse = () => page.evaluate(() => document.querySelector("[data-multiverse]") !== null);
+    const atOmniverse = () => page.evaluate(() => document.querySelector("[data-omniverse]") !== null);
     await page.keyboard.press("Enter");
     await page.waitForTimeout(300);
     const toUniverse = toVoid && (await atUniverse()) && (await zoomOut.getAttribute("aria-disabled")) === "false";
     await page.keyboard.press("Enter");
     await page.waitForTimeout(300);
-    const out = toUniverse && (await atHeavens()) && (await zoomOut.getAttribute("aria-disabled")) === "true";
-    for (let i = 0; i < 20; i++) await page.keyboard.press("+");
+    const toMultiverse = toUniverse && (await atMultiverse()) && (await zoomOut.getAttribute("aria-disabled")) === "false";
+    await page.keyboard.press("Enter");
+    await page.waitForTimeout(300);
+    const out = toMultiverse && (await atOmniverse()) && (await zoomOut.getAttribute("aria-disabled")) === "true";
+    for (let i = 0; i < 24; i++) await page.keyboard.press("+");
     await page.waitForTimeout(300);
     const backIn = !(await atWeb());
-    check("keyboard", "Zoom Out glides to the web, the supervoid, the universe, then the Seven Heavens (dimmed there); + zooms back in", out && backIn);
+    check("keyboard", "Zoom Out glides to the web, the supervoid, the universe, the Multiverse, then the Omniverse (dimmed there); + zooms back in", out && backIn);
     for (let i = 0; i < 8; i++) await page.keyboard.press("-"); // out to the web again
     await page.waitForTimeout(2500); // the camera eases out and the web's places appear
     let onPlace = false;

@@ -19,9 +19,10 @@ const ROUTES = [
   { path: (view) => `/?shot=1&t=12&zoom=2&tier=${view.tier}`, name: "web-still", scene: true, mustDraw: true, spots: 3, phoneSpots: 3 },
   { path: (view) => `/?shot=1&t=12&zoom=3&tier=${view.tier}`, name: "void-still", scene: true, mustDraw: true, spots: 1, phoneSpots: 1 },
   { path: (view) => `/?shot=1&t=12&zoom=4&tier=${view.tier}`, name: "universe-still", scene: true, mustDraw: true, spots: 1, phoneSpots: 1 },
-  { path: (view) => `/islam-and-space?shot=1&t=12&tier=${view.tier}`, name: "islam-and-space", scene: true, mustDraw: true },
-  { path: (view) => `/?shot=1&t=12&zoom=5&tier=${view.tier}`, name: "heavens-still", scene: true, mustDraw: true, spots: 1, phoneSpots: 1 },
-  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter", "molecular-cloud", "red-giant", "planetary-nebula", "white-dwarf", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy", "starbase", "warp-drive", "programmable-matter", "higher-dimensions", "quantum-foam", "quarks", "vacuum-decay", "bubble-universes", "pocket-dimensions", "omniverse", "cosmic-strings", "string-theory", "dyson-swarm", "ringworld", "oneill-cylinder", "matrioshka-brain", "generation-ship", "stellar-engine", "von-neumann-probes", "space-elevator", "star-lifter"].flatMap((id) => [
+  { path: (view) => `/about?shot=1&t=12&tier=${view.tier}`, name: "about", scene: true, mustDraw: true },
+  { path: (view) => `/?shot=1&t=12&zoom=5&tier=${view.tier}`, name: "multiverse-still", scene: true, mustDraw: true, spots: 1, phoneSpots: 1 },
+  { path: (view) => `/?shot=1&t=12&zoom=6&tier=${view.tier}`, name: "omniverse-still", scene: true, mustDraw: true, spots: 1, phoneSpots: 1 },
+  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter", "molecular-cloud", "red-giant", "planetary-nebula", "white-dwarf", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy", "starbase", "warp-drive", "programmable-matter", "higher-dimensions", "quantum-foam", "quarks", "vacuum-decay", "bubble-universes", "pocket-dimensions", "cosmic-strings", "string-theory", "dyson-swarm", "ringworld", "oneill-cylinder", "matrioshka-brain", "generation-ship", "stellar-engine", "von-neumann-probes", "space-elevator", "star-lifter"].flatMap((id) => [
     { path: () => `/${id}`, name: id, scene: true },
     { path: (view) => `/${id}?shot=1&t=12&tier=${view.tier}`, name: `${id}-still`, scene: true, mustDraw: true },
   ]),

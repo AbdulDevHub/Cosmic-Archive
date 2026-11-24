@@ -29,7 +29,9 @@ export const KEYS_DESK: readonly Key[] = [
   // the observable universe (D-130): further off still (inside the far plane), our web in the
   // middle of the frame, for it is the middle of the sphere world.ts draws around it
   { d: 24000, el: 66, az: 0.8, sx: 0.0, sy: 0.0 },
-  // the Seven Heavens (D-174): the camera holds still; the universe shrinks and the heavens open round it
+  // the Multiverse and the Omniverse (D-184): the camera holds still; the universe shrinks into a
+  // line of universes, and the line into a row of lights among many bubbles (world.ts, multiverse.ts)
+  { d: 24000, el: 66, az: 0.8, sx: 0.0, sy: 0.0 },
   { d: 24000, el: 66, az: 0.8, sx: 0.0, sy: 0.0 },
 ];
 
@@ -41,9 +43,10 @@ export const KEYS_PHONE: readonly Key[] = [
   { d: 12500, el: 64, az: 0.7, sx: 0.0, sy: 0.0 },
   { d: 26000, el: 66, az: 0.8, sx: 0.0, sy: 0.08 },
   { d: 26000, el: 66, az: 0.8, sx: 0.0, sy: 0.08 },
+  { d: 26000, el: 66, az: 0.8, sx: 0.0, sy: 0.08 },
 ];
 
-/** The stop the zoom ends at: the Seven Heavens (D-174), past the observable universe (D-130). */
+/** The stop the zoom ends at: the Omniverse (D-184), past the Multiverse and the observable universe (D-130). */
 export const LAST_STOP = KEYS_DESK.length - 1;
 
 /**

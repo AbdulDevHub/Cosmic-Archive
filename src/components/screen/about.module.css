@@ -1,10 +1,10 @@
-/* Islam and Space (D-179): the words sit on the left over the Seven Heavens, no panel behind them. */
+/* About (D-184), with Islam and Space (D-179): the words sit on the left over the Omniverse, no panel behind them. */
 
 .screen {
   position: absolute;
   inset: 0;
   height: 100svh;
-  overflow-y: auto; /* on a laptop it fits; a phone scrolls the verses */
+  overflow-y: auto; /* a page of words: it scrolls where it does not fit */
 }
 
 .words {
@@ -27,6 +27,28 @@
   margin-top: 0.6rem;
   font-size: var(--lede);
   color: var(--ink-2);
+}
+
+.about {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: clamp(14px, 2.6vh, 24px);
+  font-size: clamp(1rem, 1.15vw, 1.1rem);
+  line-height: 1.55;
+}
+
+.about p {
+  margin: 0;
+}
+
+.about a {
+  color: var(--beacon);
+}
+
+.section {
+  margin-top: clamp(28px, 5vh, 48px);
+  font-size: clamp(1.5rem, 2.6vw, 2.2rem);
+  line-height: 1.1;
 }
 
 .verses {

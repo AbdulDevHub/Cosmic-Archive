@@ -21,7 +21,7 @@ export interface Source {
 
 
 /** The atlas's views: the galaxy (close in or whole, one name since D-115), the cosmic web, the supervoid around it (D-119) and the observable universe (D-130). */
-export type StopIndex = 0 | 1 | 2 | 3 | 4 | 5;
+export type StopIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface Stop {
   zoom: StopIndex;
@@ -32,10 +32,10 @@ export interface Stop {
   video?: string;
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy" | "starbase" | "warp-drive" | "programmable-matter" | "higher-dimensions" | "quantum-foam" | "vacuum-decay" | "bubble-universes" | "quarks" | "pocket-dimensions" | "omniverse" | "cosmic-strings" | "string-theory" | "dyson-swarm" | "ringworld" | "oneill-cylinder" | "matrioshka-brain" | "generation-ship" | "stellar-engine" | "von-neumann-probes" | "space-elevator" | "star-lifter";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy" | "starbase" | "warp-drive" | "programmable-matter" | "higher-dimensions" | "quantum-foam" | "vacuum-decay" | "bubble-universes" | "quarks" | "pocket-dimensions" | "cosmic-strings" | "string-theory" | "dyson-swarm" | "ringworld" | "oneill-cylinder" | "matrioshka-brain" | "generation-ship" | "stellar-engine" | "von-neumann-probes" | "space-elevator" | "star-lifter";
 export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi" | "dark" | "cloud" | "redgiant" | "planetary";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
-export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant" | "dwarf" | "starbase" | "warp" | "matter" | "dims" | "pocket" | "omniverse" | "bubbles" | "vacuum" | "foam" | "strings" | "quarks" | "stringtheory" | "swarm" | "ringworld" | "oneill" | "matrioshka" | "generation" | "engine" | "probes" | "elevator" | "lifter";
+export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant" | "dwarf" | "starbase" | "warp" | "matter" | "dims" | "pocket" | "bubbles" | "vacuum" | "foam" | "strings" | "quarks" | "stringtheory" | "swarm" | "ringworld" | "oneill" | "matrioshka" | "generation" | "engine" | "probes" | "elevator" | "lifter";
 
 export interface Place {
   id: PlaceId;
@@ -335,7 +335,7 @@ export const SOURCES: readonly Source[] = [
     title: "Parallel Universes",
     publisher: "arXiv (Max Tegmark; Science and Ultimate Reality, Cambridge University Press, 2003)",
     url: "https://arxiv.org/abs/astro-ph/0302131",
-    checked: "2026-11-23",
+    checked: "2026-11-24",
   },
   {
     id: "arxiv-cosmic-strings",
@@ -407,27 +407,6 @@ export const SOURCES: readonly Source[] = [
     url: "https://arxiv.org/abs/2210.02338",
     checked: "2026-11-23",
   },
-  {
-    id: "quran-67-3",
-    title: "Surah Al-Mulk 67:3 (The Clear Quran, Dr. Mustafa Khattab)",
-    publisher: "Quran.com",
-    url: "https://quran.com/67/3",
-    checked: "2026-11-23",
-  },
-  {
-    id: "quran-71-15",
-    title: "Surah Nuh 71:15 (The Clear Quran, Dr. Mustafa Khattab)",
-    publisher: "Quran.com",
-    url: "https://quran.com/71/15",
-    checked: "2026-11-23",
-  },
-  {
-    id: "quran-2-29",
-    title: "Surah Al-Baqarah 2:29 (The Clear Quran, Dr. Mustafa Khattab)",
-    publisher: "Quran.com",
-    url: "https://quran.com/2/29",
-    checked: "2026-11-23",
-  },
 ];
 
 // Videos (D-141): Kurzgesagt, checked through YouTube oEmbed on 2026-11-22; the nebula has none yet.
@@ -466,14 +445,22 @@ export const STOPS: readonly Stop[] = [
     video: "Z_1Q0XB4X0Y",
   },
   {
-    // D-174: the last stop, out past the observable universe (D-136 item 10). The line quotes no verse,
-    // for every visitor; the sources: "˹He is the One˺ Who created seven heavens, one above the other." (67:3);
-    // "Do you not see how Allah created seven heavens, one above the other," (71:15); "Then He turned towards
-    // the heaven, forming it into seven heavens." (2:29), in Dr. Mustafa Khattab's The Clear Quran
+    // D-184: out past the observable universe, a row of universes (replaces D-174's Seven Heavens). The source:
+    // "Level II: In chaotic inflation, other thermalized regions may have different effective physical constants,
+    // dimensionality and particle content" (a hypothesis, so "Perhaps")
     zoom: 5,
-    name: "The Seven Heavens",
-    line: "Seven heavens, created in layers, each one above the last.",
-    sources: ["quran-67-3", "quran-71-15", "quran-2-29"],
+    name: "The Multiverse",
+    line: "Perhaps other universes, each with different physical constants and dimensions.",
+    sources: ["arxiv-tegmark-parallel-universes"],
+  },
+  {
+    // D-184: the last stop (was a place in the Starbase, D-161). The source: "a natural four-level hierarchy of
+    // multiverses allowing progressively greater diversity"; "Level IV: Other mathematical structures give different
+    // fundamental equations of physics"
+    zoom: 6,
+    name: "The Omniverse",
+    line: "A speculative top level: universes built on other equations of physics.",
+    sources: ["arxiv-tegmark-parallel-universes"],
   },
 ];
 
@@ -900,19 +887,6 @@ export const PLACES: readonly Place[] = [
     stop: 2,
     inside: "starbase",
     veil: "#031009",
-  },
-  {
-    // D-161: an idea in the Starbase
-    id: "omniverse",
-    name: "Omniverse",
-    // the source: "a natural four-level hierarchy of multiverses allowing progressively greater diversity";
-    // "Level IV: Other mathematical structures give different fundamental equations of physics"
-    line: "A speculative top level: universes built on other equations of physics.",
-    sources: ["arxiv-tegmark-parallel-universes"],
-    anchor: "omniverse",
-    stop: 2,
-    inside: "starbase",
-    veil: "#0c0b10",
   },
   {
     // D-162: an idea in the Starbase

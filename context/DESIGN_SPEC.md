@@ -131,44 +131,8 @@ A flight is a route through places, started from the dock's Flights: **A Star's 
 - The tour moves on by itself after about nine seconds at each place, its camera easing slowly back and round while it waits. With reduced motion there is no drift: each place is a still for ten seconds, and each move is the short cross-fade.
 - Anything that takes the visitor elsewhere (Zoom Out, a hotspot, search, Back) ends the flight. A reload ends it too. A flight starts only from a click, so it never sounds before the first gesture (D-100).
 
-### 7.6 The Seven Heavens (D-174)
+### 7.6 The Multiverse and the Omniverse (D-184)
 
-One Zoom Out past the observable universe: the ball shrinks to a small light at the middle, and seven heavens open round it, one above the other, each wider than the last, in soft light from indigo through violet, rose and gold to warm white. No rings: each heaven is a filled glow whose edge swells softly and breaks up. Zoom Out is dimmed there; the universe's hotspot glides back.
+Stop 5, The Multiverse: the observable universe shrinks to a small ball at the far left, and to its right a line of five more universes grows in, one after another, each larger than the last, the last running off the right edge (on a phone the line runs down the screen). Each is drawn as a universe, never as cloud: a ball of cosmic web, warm gold threads and knots on violet gas, under a glassy lilac rim, each in its own colours. Its hotspot, The Universe, glides back to stop 4.
 
-## 8. About
-
-Removed (D-099). The sources behind the site's few lines stay in `src/content/places.ts`, checked by the build.
-
-## 9. Responsive and accessibility
-
-- Designed at 390, 768 and 1440 wide. Phone compositions are their own, not shrunk.
-- Every place is a real link; the scene is decoration, hidden from assistive technology. Without the scene the hotspots are a plain list of links under the words.
-- The device's reduced-motion setting stills everything (there is no Pause control, D-099). The Sound button is a real toggle (`aria-pressed`).
-- Visible focus rings in `--beacon`. Touch targets at least 44 px.
-- Every screen is complete with the scene replaced by its poster: name, line, places, Zoom Out.
-
-## 10. What the prototype settled, and what is still open
-
-Settled and kept: the galaxy's colour sweep (gold heart, ember, rose, violet, azure, a teal rim); fullness from layers (body glow, arm haze, dust sprites that darken what is behind them, a halo, a companion); large glow sprites as instanced quads.
-
-Open, for the beauty sessions (S2 to S4, now done; see `PROGRESS_TRACKER.md`):
-
-- ~~Diving into the core passes through disc stars, which grow into large soft discs.~~ Done in S2 (D-111): near stars are capped and sharpened.
-- The cosmic web is thin on a phone at the `low` particle budget (phone polish waits, D-110).
-- ~~The galaxy could be denser between its arms.~~ S2 (D-111) added filaments, clouds and clumps; the outermost arm still has a darker gap inside it.
-- The nebula's young cluster is a tidy pattern of dots; it wants to look more natural.
-
-## 11. Self-review checklist for screenshots
-
-Run this on every screenshot before calling a visual task done.
-
-1. Is anything drawn over the scenery that the universe does not have: a ring, tick, line, grid or vessel, or dust that reads as a thin line? Remove it.
-1a. Is any part of the frame empty, flat dark? The deep sky should fill it (except the web, a little).
-2. Is the subject centred and large, filling the frame without being cropped awkwardly?
-3. Is there any glass, glow-on-UI, gradient text, pill nav or HUD element? Remove it.
-4. Are the words only the name and one line, in the lower left, readable over the brightest frame behind them?
-5. One accent colour in the UI, and is it `--beacon`?
-6. Does every hotspot look clickable, sit on its place, and stay clear of the words and buttons?
-7. Phone: is the composition deliberate, with nothing clipped and no horizontal scroll?
-8. Reduced motion: is the still frame as good as the moving one?
-9. Mid-move (a filmed dive): is there ever a flash of black, a jump, or a frame with no veil and no scene?
+Stop 6, The Omniverse, after the owner's reference (`context/reference-images/omniverse-bubble-universes.webp`): the line shrinks to a small row of lights, and round it float many bubble universes, large and near on the right, small, far and soft everywhere, in a deep indigo haze crossed by a band of violet light. The left third stays clear of large bubbles for the words. Its hotspot, The Multiverse, glides back to stop 5. The About page stands over this stop.

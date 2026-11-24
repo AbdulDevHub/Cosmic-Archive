@@ -47,7 +47,8 @@ import type { ParticleTier } from "../../quality/tiers";
 import { POINT_FRAGMENT, POINT_VERTEX, SPRITE_FRAGMENT, SPRITE_VERTEX } from "../../shaders/points.glsl";
 import { SKY_CHUNK } from "../../shaders/sky.glsl";
 import { isPhone, KEYS_DESK, KEYS_PHONE, placeCamera } from "./camera";
-import { heavens } from "./heavens";
+import { FOAM_CHUNK } from "./foam";
+import { fieldLayout, multiverse, omniverse, rowLayout, type Row } from "./multiverse";
 import { StartProps } from "./start";
 import { armAngle, buildAtlas, COUNTS, joinClouds, mix, OUTER, SPIN, sstep, TAU, type Cloud, type Vec3 } from "./model";
 
@@ -137,8 +138,10 @@ const ANCHORS: Record<string, Anchor> = {
   patch: { web: "home" },
   /** The supervoid, seen from the observable universe: our web at its middle (D-130). */
   voidspot: { web: "home" },
-  /** The observable universe, seen from the Seven Heavens (D-174): small at their middle. */
+  /** The observable universe, seen from the Multiverse (D-184): the small ball at the line's left end. */
   ball: { web: "home" },
+  /** The Multiverse, seen from the Omniverse (D-184): the line, shrunk to a small row of lights. */
+  multi: { web: "home" },
 };
 
 /** Where the quasar's hotspot should fall in the zoomed-out view, in NDC (the prototype's). */
@@ -154,8 +157,6 @@ const DARK_WANT = { wide: [-0.32, 0.34], narrow: [-0.35, 0.12] } as const;
 const VOID_STOP = 3;
 /** How many times larger than whole the universe's sphere is as the zoom leaves the supervoid (D-130). */
 const UNIVERSE_FROM = 28;
-/** How many times smaller the universe's ball is at the Seven Heavens than whole (D-174). */
-const HEAVENS_SHRINK = 7;
 
 export function makeFrame(): SceneFrame {
   const points: SceneFrame["points"] = {};
@@ -306,58 +307,6 @@ function backdrop(sky: Texture): Mesh<BufferGeometry, ShaderMaterial> {
   return mesh;
 }
 
-/**
- * The foam of the universe seen from very far off (D-119, D-130): cells of walls and threads of
- * galaxies around empty bubbles, shared by the supervoid and the observable universe.
- */
-const FOAM_CHUNK = /* glsl */ `
-const vec3 VIOLET = vec3(0.5, 0.32, 1.0);
-const vec3 AZURE = vec3(0.3, 0.6, 1.0);
-const vec3 ROSE = vec3(1.0, 0.4, 0.72);
-const vec3 GOLD = vec3(1.0, 0.82, 0.55);
-
-float hash3(vec3 p){
-  p = fract(p * 0.3183099 + 0.1);
-  p *= 17.0;
-  return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
-}
-float noise3(vec3 x){
-  vec3 i = floor(x), f = fract(x);
-  f = f * f * (3.0 - 2.0 * f);
-  return mix(
-    mix(mix(hash3(i), hash3(i + vec3(1.0, 0.0, 0.0)), f.x), mix(hash3(i + vec3(0.0, 1.0, 0.0)), hash3(i + vec3(1.0, 1.0, 0.0)), f.x), f.y),
-    mix(mix(hash3(i + vec3(0.0, 0.0, 1.0)), hash3(i + vec3(1.0, 0.0, 1.0)), f.x), mix(hash3(i + vec3(0.0, 1.0, 1.0)), hash3(i + vec3(1.0, 1.0, 1.0)), f.x), f.y),
-    f.z);
-}
-
-/* the cells, seen flat: distance to the nearest cell edge (F2 - F1) and the cell's id */
-vec2 cellEdge(vec2 p){
-  vec2 i = floor(p), f = fract(p);
-  float f1 = 9.0, f2 = 9.0, id = 0.0;
-  for (int y = -1; y <= 1; y++)
-  for (int x = -1; x <= 1; x++) {
-    vec2 g = vec2(float(x), float(y));
-    vec2 o = vec2(hash3(vec3(i + g, 1.0)), hash3(vec3(i + g, 7.0)));
-    float d = length(g + o - f);
-    if (d < f1) { f2 = f1; f1 = d; id = hash3(vec3(i + g, 3.0)); } else if (d < f2) { f2 = d; }
-  }
-  return vec2(f2 - f1, id);
-}
-
-/* one layer of the foam: threads of galaxies along the cell edges, knots where they meet */
-vec3 webLayer(vec2 p, float scale, float width, float bright){
-  vec2 c = cellEdge(p * scale);
-  float grain = noise3(vec3(p * scale * 11.0, c.y * 7.0));
-  float clumps = noise3(vec3(p * scale * 2.5, c.y * 3.0 + 4.0));
-  float core = exp(-c.x * c.x / (width * width)) * pow(grain, 2.5) * (0.4 + 1.2 * clumps);
-  float haze = exp(-c.x * c.x / (width * width * 9.0)) * (0.25 + 0.5 * clumps);
-  float knot = smoothstep(0.78, 1.0, grain) * exp(-c.x * c.x / (width * width * 0.5));
-  vec3 tint = mix(VIOLET, AZURE, c.y);
-  tint = mix(tint, ROSE, smoothstep(0.8, 0.95, c.y));
-  return (tint * core * 1.3 + tint * haze * 0.25 + mix(GOLD, vec3(1.0), 0.4) * knot * 1.8) * bright;
-}
-
-`;
 
 /**
  * Level 4, the observable universe (D-130): out past the supervoid the foam of walls and voids
@@ -377,6 +326,7 @@ uniform vec4 uVoid;    // the supervoid on the ball: its direction (xyz) and rad
 uniform float uTime;
 uniform float uAlpha;
 uniform int uDetail;
+uniform float uOutside; // how much of the sky outside the ball it darkens: none by the Omniverse (D-184)
 ${FOAM_CHUNK}
 
 /* 0 inside a void of radius rad about dir, 1 out in the web */
@@ -459,7 +409,7 @@ void main(){
 
   col = col / (1.0 + max(col - 0.85, 0.0) * 0.9);
   // premultiplied: the ball covers what is behind it; outside it the sky fades to nothing
-  float cover = mix(0.92, 0.8 * whole, 1.0 - inside) * uAlpha;
+  float cover = mix(0.92, 0.8 * whole * uOutside, 1.0 - inside) * uAlpha;
   gl_FragColor = vec4(col * uAlpha, cover);
 }
 `;
@@ -587,6 +537,7 @@ function universe(): Mesh<BufferGeometry, ShaderMaterial> {
       uTime: { value: 0 },
       uAlpha: { value: 0 },
       uDetail: { value: 1 },
+      uOutside: { value: 1 },
     },
     transparent: true,
     depthTest: false,
@@ -642,8 +593,12 @@ export class AtlasWorld {
   private readonly voidLayer = supervoid();
   /** Level 4, the observable universe (D-130). */
   private readonly universeLayer = universe();
-  /** Level 5, the Seven Heavens (D-174). */
-  private readonly heavensLayer = heavens();
+  /** Level 5, the other universes of the Multiverse's line, and level 6, the Omniverse (D-184). */
+  private readonly multiverseLayer = multiverse();
+  private readonly omniverseLayer = omniverse();
+  /** The line of universes this frame (units from the window's middle), and the Omniverse's bubbles. */
+  private row: Row = rowLayout(1, 1, false, 0);
+  private field: Vector4[] = [];
   /** Scene time the visitor came out to the supervoid, or null while they are not there. */
   private voidSince: number | null = null;
   /** The universe's turn with the drag (D-131) and where its supervoid falls on screen (x, y, facing). */
@@ -737,7 +692,9 @@ export class AtlasWorld {
     // the supervoid's foam: its far layer is dropped on the lowest tier (its cost is per pixel)
     this.voidLayer.material.uniforms.uDetail.value = tier === "low" ? 0 : 1;
     this.universeLayer.material.uniforms.uDetail.value = tier === "low" ? 0 : 1;
-    this.root.add(this.sky, this.voidLayer, this.universeLayer, this.heavensLayer, this.webGlow.object, this.webStrands.object, this.web.object, this.homeDot.object, this.quasarDot.object);
+    this.multiverseLayer.material.uniforms.uDetail.value = tier === "low" ? 0 : 1;
+    this.omniverseLayer.material.uniforms.uDetail.value = tier === "low" ? 0 : 1;
+    this.root.add(this.sky, this.voidLayer, this.omniverseLayer, this.universeLayer, this.multiverseLayer, this.webGlow.object, this.webStrands.object, this.web.object, this.homeDot.object, this.quasarDot.object);
 
     this.galaxy.rotation.z = -0.2;
     this.root.add(this.wash.object, this.stars.object, this.galaxy);
@@ -763,6 +720,7 @@ export class AtlasWorld {
     this.bufferHeight = bh;
     for (const layer of this.layers) layer.resize(px, dpr, bw, bh);
     this.layoutQuasar(camera, width, height);
+    this.field = fieldLayout(width, height, isPhone(width, height));
   }
 
   /**
@@ -862,8 +820,9 @@ export class AtlasWorld {
     this.homeDot.alpha = shown * stays;
     this.quasarDot.alpha = shown * stays;
     this.frameVoid(camera, t, view, width, height, sstep(2.05, 2.75, zoom) * (1 - sstep(3.15, 3.7, zoom)));
+    this.row = rowLayout(width, height, isPhone(width, height), zoom);
     this.frameUniverse(camera, t, view, width, height, sstep(3.0, 3.35, zoom));
-    this.frameHeavens(t, view, width, height, sstep(4.05, 4.6, zoom));
+    this.frameBeyond(t, view, sstep(4.35, 4.5, zoom), sstep(5.05, 5.75, zoom));
 
     this.report(camera, t, zoom, width, height, out);
   }
@@ -906,9 +865,17 @@ export class AtlasWorld {
     // whole, it fits the window's height on a laptop and its width on a phone
     const whole = isPhone(width, height) ? (width / height) * 0.88 : 0.68;
     const out = sstep(3, 4, view.zoom);
-    // on out to the Seven Heavens (D-174) the whole ball shrinks to a small light at their middle
-    const beyond = sstep(4, 5, view.zoom);
-    u.uRadius.value = whole * Math.exp(mix(Math.log(UNIVERSE_FROM), 0, out) - beyond * Math.log(HEAVENS_SHRINK));
+    const radius = whole * Math.exp(mix(Math.log(UNIVERSE_FROM), 0, out));
+    // on out to the Multiverse (D-184) the whole ball shrinks to the small one at the left end of
+    // the line of universes (before the others grow in beside it), and with the line on out to the Omniverse
+    const beyond = sstep(4, 4.6, view.zoom);
+    u.uRadius.value = beyond > 0 ? Math.exp(mix(Math.log(radius), Math.log(Math.max(this.row.r[0], 1e-4)), beyond)) : radius;
+    if (beyond > 0) {
+      const home = u.uHome.value as Vector2;
+      home.x = mix(home.x, this.bufferWidth / 2 + this.row.x[0] * u.uUnit.value, beyond);
+      home.y = mix(home.y, this.bufferHeight / 2 + this.row.y[0] * u.uUnit.value, beyond);
+    }
+    u.uOutside.value = 1 - sstep(5.0, 5.6, view.zoom);
     u.uFrom.value = whole * UNIVERSE_FROM;
     // the drag turns the ball like a globe (owner, D-131): its features follow the drag
     this.spinEuler.set(-view.pitch * 0.5, -view.yaw * 0.5, 0, "XYZ");
@@ -934,24 +901,43 @@ export class AtlasWorld {
   }
 
   /**
-   * The Seven Heavens (D-174), round the universe's middle: they open as the zoom leaves the
-   * universe, the first heaven a little wider than the shrunken ball.
+   * Out past the universe (D-184): the other universes of the line grow in beside ours, and on out
+   * to the Omniverse the line shrinks into a small row of lights among many more bubbles.
    */
-  private frameHeavens(t: number, view: SceneInput, width: number, height: number, alpha: number): void {
-    const mesh = this.heavensLayer;
-    mesh.visible = alpha > 0.0005;
-    if (!mesh.visible) return;
-    const u = mesh.material.uniforms;
-    // the same middle as the universe's ball
-    (u.uHome.value as Vector2).copy(this.universeLayer.material.uniforms.uHome.value as Vector2);
-    u.uUnit.value = this.bufferHeight / 2;
-    const whole = isPhone(width, height) ? (width / height) * 0.88 : 0.68;
-    const ball = whole / HEAVENS_SHRINK;
-    // the heavens open out from the ball: the first one grows from its edge to its own size
-    u.uInner.value = ball * mix(1.0, 1.9, sstep(4, 5, view.zoom));
-    u.uTime.value = t;
-    u.uAlpha.value = alpha;
-    (u.uTurn.value as Vector2).set(view.yaw, view.pitch);
+  private frameBeyond(t: number, view: SceneInput, multiAlpha: number, omniAlpha: number): void {
+    const unit = this.bufferHeight / 2;
+    const midX = this.bufferWidth / 2;
+    const midY = this.bufferHeight / 2;
+    const multi = this.multiverseLayer;
+    multi.visible = multiAlpha > 0.0005;
+    if (multi.visible) {
+      const u = multi.material.uniforms;
+      const balls = u.uB.value as Vector4[];
+      for (let i = 1; i < balls.length; i++) balls[i].set(midX + this.row.x[i] * unit, midY + this.row.y[i] * unit, this.row.r[i] * unit, balls[i].w);
+      u.uTime.value = t;
+      u.uAlpha.value = multiAlpha;
+    }
+    const omni = this.omniverseLayer;
+    omni.visible = omniAlpha > 0.0005;
+    if (omni.visible) {
+      const u = omni.material.uniforms;
+      (u.uSize.value as Vector2).set(this.bufferWidth, this.bufferHeight);
+      const balls = u.uB.value as Vector4[];
+      const grow = mix(0.35, 1, omniAlpha);
+      for (let i = 0; i < balls.length; i++) {
+        const b = this.field[i];
+        if (!b) {
+          balls[i].set(0, 0, 0, 0);
+          continue;
+        }
+        // they drift a little, and the near ones slide further with a drag (parallax)
+        const x = b.x + 0.012 * Math.sin(t * 0.07 + i * 1.7) - view.yaw * 0.25 * b.w;
+        const y = b.y + 0.012 * Math.cos(t * 0.06 + i * 2.3) + view.pitch * 0.25 * b.w;
+        balls[i].set(midX + x * unit, midY + y * unit, b.z * unit * grow, b.w);
+      }
+      u.uTime.value = t;
+      u.uAlpha.value = omniAlpha;
+    }
   }
 
   /** Projects the anchors for the DOM (hotspots). */
@@ -967,6 +953,18 @@ export class AtlasWorld {
       point.on = v.z < 1;
       point.x = (v.x * 0.5 + 0.5) * width;
       point.y = (-v.y * 0.5 + 0.5) * height;
+    }
+    // out past the universe (D-184): ours is the small ball at the line's left end, and from the
+    // Omniverse the line is a small row of lights
+    if (zoom > 4.4) {
+      const ball = out.points.ball;
+      ball.x = width / 2 + this.row.x[0] * (height / 2);
+      ball.y = height / 2 - this.row.y[0] * (height / 2);
+      ball.on = true;
+      const multi = out.points.multi;
+      multi.x = width / 2 + this.row.cluster[0] * (height / 2);
+      multi.y = height / 2 - this.row.cluster[1] * (height / 2);
+      multi.on = true;
     }
     // the supervoid's hotspot rides on the turning ball (D-131), hidden while it faces away
     if (this.universeLayer.visible) {

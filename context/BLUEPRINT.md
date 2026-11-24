@@ -34,7 +34,7 @@ The built site and the ordered plan are in `PROGRESS_TRACKER.md` ("Current State
 
 | Area | Contents |
 |---|---|
-| Stops | A Spiral Galaxy, The Cosmic Web, A Supervoid, The Observable Universe; the Seven Heavens planned as the outermost |
+| Stops | A Spiral Galaxy, The Cosmic Web, A Supervoid, The Observable Universe, The Multiverse, The Omniverse (D-184) |
 | Real places | Found where the atlas puts them: in the galaxy, in A Solar System and its worlds, or at the web |
 | A Quasar Galaxy | Reached from the web and through the Wormhole; holds the megastructures (Dyson Sphere and more) and the Starbase |
 | The Starbase | A hub for ideas that space scenes can't show: warp drive, programmable matter, higher dimensions and more |
@@ -46,7 +46,7 @@ Accounts, payments, analytics, a CMS or database, sound before the visitor's fir
 
 ## 5. Inclusion rule
 
-A place belongs if it is beautiful enough to fly into and sits in the right zone (D-136). **Real** places are found where the atlas puts them. **Hypothetical** places (a wormhole, a gravastar) can sit in real space, with lines that say "A possible…". **Fiction** and big ideas go in A Quasar Galaxy (megastructures) or the Starbase (concepts), with lines that say so. The Seven Heavens is framed for general visitors and sourced to the Quran. `IDEAS.md` is an idea bank, not a to-do list.
+A place belongs if it is beautiful enough to fly into and sits in the right zone (D-136). **Real** places are found where the atlas puts them. **Hypothetical** places (a wormhole, a gravastar) can sit in real space, with lines that say "A possible…". **Fiction** and big ideas go in A Quasar Galaxy (megastructures) or the Starbase (concepts), with lines that say so. The Multiverse and the Omniverse, the outermost stops, are framed as speculative ideas and sourced to physics (D-184); Islam and Space lives on the About page. `IDEAS.md` is an idea bank, not a to-do list.
 
 ## 6. Editorial standards
 

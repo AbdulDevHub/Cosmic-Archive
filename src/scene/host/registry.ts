@@ -49,7 +49,6 @@ export const SCENES: Record<SceneId, () => Promise<SceneModule>> = {
   "dyson-swarm": () => import("../scenes/dyson-swarm"),
   "string-theory": () => import("../scenes/string-theory"),
   "cosmic-strings": () => import("../scenes/cosmic-strings"),
-  "omniverse": () => import("../scenes/omniverse"),
   "pocket-dimensions": () => import("../scenes/pocket-dimensions"),
   "bubble-universes": () => import("../scenes/bubble-universes"),
   "vacuum-decay": () => import("../scenes/vacuum-decay"),

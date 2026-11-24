@@ -34,7 +34,7 @@ const MUSIC_VOLUME = 0.32;
  * A missing loop falls back to Magical Space.
  */
 const SCENES = [
-  "web", "supervoid", "universe", "heavens",
+  "web", "supervoid", "universe", "multiverse",
   "black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "moon",
   "solar-system", "blue-world", "asteroid", "quasar-galaxy", "quasi-star", "gravastar",
   "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter",

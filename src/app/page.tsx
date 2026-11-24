@@ -26,11 +26,13 @@ const SPOTS: Spot[] = [
   { id: "web", name: "The Cosmic Web", href: null, anchor: "patch", stop: 3, veil: "" },
   // and from the observable universe, the supervoid is lost at its middle, where we are: it glides back (D-130)
   { id: "supervoid", name: "The Supervoid", href: null, anchor: "voidspot", stop: 4, veil: "" },
-  // and from the Seven Heavens, the observable universe is a small light at their middle: it glides back (D-174)
+  // and from the Multiverse, the observable universe is the small ball at the line's left end: it glides back (D-184)
   { id: "universe", name: "The Universe", href: null, anchor: "ball", stop: 5, veil: "" },
+  // and from the Omniverse, the Multiverse is a small row of lights: it glides back (D-184)
+  { id: "multiverse", name: "The Multiverse", href: null, anchor: "multi", stop: 6, veil: "" },
 ];
 
-/* The universe (DESIGN_SPEC.md 7): one scene, six stops, the places you can click. */
+/* The universe (DESIGN_SPEC.md 7): one scene, seven stops, the places you can click. */
 export default function Home() {
   return (
     <>

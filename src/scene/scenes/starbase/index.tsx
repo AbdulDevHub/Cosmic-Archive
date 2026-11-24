@@ -3,7 +3,7 @@
  * ideas that space scenes cannot show (D-136). A great wheel, like the rotating settlements NASA
  * studied in 1975: a gunmetal ring, ribbed and panelled, turning slowly about a hub on three spokes,
  * lit blue-white from one side by the galaxy's quasar, its inner face strung with warm amber windows.
- * Round its outer rim stand eleven bays, each glowing in the colour of the idea it leads to; the
+ * Round its outer rim stand ten bays (the Omniverse left for the atlas, D-184), each glowing in the colour of the idea it leads to; the
  * galaxy's bright band and its quasar lie behind. Ray-marched in one full-screen shader: one draw
  * call, no particles. Its own colour family: gunmetal, amber and quasar blue.
  *
@@ -23,7 +23,7 @@ export const budget: SceneBudget = {
 const TUBE = 0.13;
 const BAY_R = 1 + TUBE + 0.02;
 /** The bays, in order round the rim: the anchors of the ideas inside the Starbase. */
-export const BAYS = ["warp", "matter", "dims", "pocket", "omniverse", "bubbles", "vacuum", "foam", "strings", "quarks", "stringtheory"] as const;
+export const BAYS = ["warp", "matter", "dims", "pocket", "bubbles", "vacuum", "foam", "strings", "quarks", "stringtheory"] as const;
 /** The wheel turns this fast, in radians a second: a full turn in about seventeen minutes. */
 const SPIN = 0.006;
 /** The camera's distance, in radii, and how far above the ring's plane it looks down. */
@@ -58,6 +58,7 @@ const float BAY_R = ${BAY_R.toFixed(3)};
 const float SPIN = ${SPIN.toFixed(4)};
 const float DIST = ${DIST.toFixed(2)};
 const float LIFT = ${LIFT.toFixed(2)};
+const float NBAYS = ${BAYS.length.toFixed(1)};
 const vec3 METAL = vec3(0.36, 0.38, 0.43);
 const vec3 AMBER = vec3(1.0, 0.62, 0.24);
 const vec3 QBLUE = vec3(0.62, 0.78, 1.0);
@@ -68,12 +69,11 @@ vec3 bayColour(int i){
   if (i == 1) return vec3(0.6, 0.95, 0.95);   // programmable matter
   if (i == 2) return vec3(1.0, 0.4, 0.9);     // higher dimensions
   if (i == 3) return vec3(0.35, 1.0, 0.65);   // pocket dimensions
-  if (i == 4) return vec3(1.0, 0.92, 0.65);   // omniverse
-  if (i == 5) return vec3(1.0, 0.55, 0.7);    // bubble universes
-  if (i == 6) return vec3(1.0, 0.3, 0.25);    // vacuum decay
-  if (i == 7) return vec3(0.4, 0.95, 1.0);    // quantum foam
-  if (i == 8) return vec3(1.0, 0.8, 0.35);    // cosmic strings
-  if (i == 9) return vec3(0.6, 1.0, 0.35);    // quarks
+  if (i == 4) return vec3(1.0, 0.55, 0.7);    // bubble universes
+  if (i == 5) return vec3(1.0, 0.3, 0.25);    // vacuum decay
+  if (i == 6) return vec3(0.4, 0.95, 1.0);    // quantum foam
+  if (i == 7) return vec3(1.0, 0.8, 0.35);    // cosmic strings
+  if (i == 8) return vec3(0.6, 1.0, 0.35);    // quarks
   return vec3(0.7, 0.5, 1.0);                 // string theory
 }
 
@@ -105,15 +105,15 @@ float station(vec3 p, out float id, out int bay){
   }
   if (h < d) { d = h; id = 2.0; }
   // the bays: domes on the outer rim
-  float slot = (ang - a0) / TAU * 11.0;
+  float slot = (ang - a0) / TAU * NBAYS;
   float k = floor(slot + 0.5);
-  float ba = a0 + k * TAU / 11.0;
+  float ba = a0 + k * TAU / NBAYS;
   vec3 bc = vec3(cos(ba), 0.0, sin(ba)) * BAY_R;
   float b = length(p - bc) - 0.05;
   if (b < d) {
     d = b;
     id = 1.0;
-    bay = int(mod(k, 11.0));
+    bay = int(mod(k, NBAYS));
   }
   return d;
 }
