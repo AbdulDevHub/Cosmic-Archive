@@ -1,5 +1,5 @@
 /**
- * A yellow star, like the Sun (D-116, D-117): our own illustration, after the owner's Star.png. A
+ * A yellow star, like the Sun (D-116, D-117): our own illustration, after the owner's star-surface.png. A
  * great golden ball of churning plasma, mottled with deeper orange and lit by blazing active
  * regions, its edge brighter; flames of gas flickering all around it, a few great arches, and a
  * wide burning glow. No sunspots (the owner found them ugly). One draw call, no particles.

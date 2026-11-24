@@ -6,7 +6,7 @@ import { ArrowIcon } from "../icons";
 import styles from "./start.module.css";
 
 /*
-  The start page's words (D-107, D-108), from the owner's Home.png: a spaced line above the
+  The start page's words (D-107, D-108), from the owner's start-page-mockup.png: a spaced line above the
   headline, "The Universe Awaits" with its last two words in a blue-to-violet gradient, one line
   under it, and a glowing "Begin Your Journey" button. Begin is the way in: the click that is
   allowed to start the music, and the start of the flight into the galaxy. "Scroll to explore"

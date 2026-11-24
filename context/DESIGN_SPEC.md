@@ -15,7 +15,7 @@ The cosmos fills the window and is the whole picture. A visitor moves through it
 
 ## 2. Bans
 
-The start page and the header are the exception, by the owner's word (D-107): they follow `Home.png`, with its gradient headline, glass bar and dock, glowing pill button, spaced line above the headline, and a ship. Everywhere else, these hold:
+The start page and the header are the exception, by the owner's word (D-107): they follow `start-page-mockup.png`, with its gradient headline, glass bar and dock, glowing pill button, spaced line above the headline, and a ship. Everywhere else, these hold:
 
 These make the site generic or break the idea. Do not introduce them.
 
@@ -81,7 +81,7 @@ Every scene route is one screen: the scene fills the window and nothing scrolls.
 
 ### 7.0 The start page (D-107)
 
-`/` opens on the owner's `Home.png`, as our own live scene: the galaxy large on the right; a planet's horizon across the lower left with a thin blue limb; two moons; asteroids at the edges; a ship crossing toward the galaxy with blue engine trails. On the left: "Explore • Discover • Be inspired", "The Universe Awaits" (the last two words in a violet-to-blue gradient), one line, and **Begin Your Journey**, a glowing violet-to-blue pill. Bottom left "Scroll to explore" (the dock moved into the header, D-116; the fleet into its Ship panel, D-139). Begin, the wheel or a swipe is the way in: the music starts, the ship speeds away, the planet and rocks sweep past, and the camera lands on the galaxy (3.8 s). Home flies back out. On a phone: the galaxy at the top, the words and Begin at the bottom over the planet; no dock.
+`/` opens on the owner's `start-page-mockup.png`, as our own live scene: the galaxy large on the right; a planet's horizon across the lower left with a thin blue limb; two moons; asteroids at the edges; a ship crossing toward the galaxy with blue engine trails. On the left: "Explore • Discover • Be inspired", "The Universe Awaits" (the last two words in a violet-to-blue gradient), one line, and **Begin Your Journey**, a glowing violet-to-blue pill. Bottom left "Scroll to explore" (the dock moved into the header, D-116; the fleet into its Ship panel, D-139). Begin, the wheel or a swipe is the way in: the music starts, the ship speeds away, the planet and rocks sweep past, and the camera lands on the galaxy (3.8 s). Home flies back out. On a phone: the galaxy at the top, the words and Begin at the bottom over the planet; no dock.
 
 ### 7.1 Header (replaced by D-107)
 

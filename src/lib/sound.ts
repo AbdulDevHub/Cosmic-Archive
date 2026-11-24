@@ -83,9 +83,9 @@ let noiseGate: GainNode | null = null;
 /** The owner's effects (D-114), decoded once the audio graph exists. */
 export type Sample = "journey" | "travel" | "click";
 const SAMPLES: Record<Sample, { url: string; gain: number; duck: number }> = {
-  journey: { url: "/audio/effects/tng_warp6_clean.mp3", gain: 0.6, duck: 0.45 },
-  travel: { url: "/audio/effects/tng_warp_out1.mp3", gain: 0.55, duck: 0.55 },
-  click: { url: "/audio/effects/padd_3.mp3", gain: 0.35, duck: 1 },
+  journey: { url: "/audio/effects/begin-journey-warp.mp3", gain: 0.6, duck: 0.45 },
+  travel: { url: "/audio/effects/scene-travel-warp.mp3", gain: 0.55, duck: 0.55 },
+  click: { url: "/audio/effects/menu-click.mp3", gain: 0.35, duck: 1 },
 };
 const decoded: Partial<Record<Sample, Promise<AudioBuffer | null>>> = {};
 

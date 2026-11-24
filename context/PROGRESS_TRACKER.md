@@ -6,7 +6,7 @@
 
 Four megastructures are polished (D-176), the ships are refined (D-177), and the site is deployed on Vercel with an Islam and Space page and SEO (D-179), and renamed Cosmic Atlas (D-180): https://the-cosmic-atlas.vercel.app. Judge on the 1440x900 laptop first (D-110).
 
-- **Start page** (`/`, from the owner's `Home.png`, D-107): gradient headline, Begin, "Choose Your Vessel" with five ships (Sovereign, Predator, Celestial, Discovery, Colossus; D-120, brief in `SHIP_BRIEF.md`), and a spaceship loader (D-123). `/#atlas` skips it.
+- **Start page** (`/`, from the owner's `start-page-mockup.png`, D-107): gradient headline, Begin, "Choose Your Vessel" with five ships (Sovereign, Predator, Celestial, Discovery, Colossus; D-120, brief in `SHIP_BRIEF.md`), and a spaceship loader (D-123). `/#atlas` skips it.
 - **Header:** wordmark, glass dock (Places, Flights, Ship; D-139, D-151), search that flies to a place, and Sound.
 - **Flights** (D-151, `src/content/flights.ts`): A Star's Life and Black Hole to Quasar (guided, Next and End Flight) and The Grand Tour (hands-off, Skip Tour), from the dock's Flights.
 - **Atlas stops** (Zoom Out moves outward): A Spiral Galaxy → The Cosmic Web → A Supervoid (three voids growing, dark energy in the line, no turning there; D-132, D-137) → The Observable Universe (turns like a globe, D-130 to D-132) → The Seven Heavens (abstract layers of light, D-174).
@@ -92,7 +92,7 @@ Limits: draw calls on `low` under 30, scene chunks under 40 KB. Tests that need 
 - **2026-11-22 (cleanup):** Moved the docs to `context/`. Merged `TECHNICAL_DIRECTION.md` into `ARCHITECTURE.md` and the old checklist and roadmap into this tracker. Deleted the night-run brief. Moved the owner's private folders into `owner/` (D-134). Set up `AGENTS.md` as the single rules file.
 - **2026-11-22 (evening), D-132 and D-133:** three growing supervoids; A Solar System, A Blue World, Its Moon and An Asteroid; A Quasar Galaxy through the Wormhole; "Growing empty…". Pushed.
 - **2026-11-22 (night run, merged), D-125 to D-131:** Wormhole, Gravastar, Quasi-Star, Earth (later A Blue World), Moon, and the Observable Universe as stop 4. The run went 93 of 93 on shots, 25 of 26 on a11y, and 64 of 68 on fallbacks (the touch checks, plus missing music in the cloud container).
-- **2026-11-21 to 2026-11-22, D-107 to D-124:** the start page from `Home.png`; the dock header; sound per scene; the five-ship fleet and its redesign; the supervoid as stop 3; the spaceship loader.
+- **2026-11-21 to 2026-11-22, D-107 to D-124:** the start page from `start-page-mockup.png`; the dock header; sound per scene; the five-ship fleet and its redesign; the supervoid as stop 3; the spaceship loader.
 
 ### Earlier History
 

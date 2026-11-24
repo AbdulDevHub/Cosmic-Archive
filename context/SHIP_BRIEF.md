@@ -2,19 +2,19 @@
 
 > **What this file is:** the owner's design brief for the five ships on the start page, and which reference each one follows. Read it before touching `src/scene/scenes/atlas/ships.ts`. Update the table in section 0 only when the owner changes a reference.
 
-The owner's brief for the five ship classes (from their ChatGPT brainstorm and image generation, 2026-11-22). Reference images live in the owner's `owner/reference-images/` (kept out of git). Where this brief and `DECISIONS.md` disagree, the decision log wins.
+The owner's brief for the five ship classes (from their ChatGPT brainstorm and image generation, 2026-11-22). Reference images live in `context/reference-images/` (the owner's own AI-generated images, in git since D-182). Where this brief and `DECISIONS.md` disagree, the decision log wins.
 
 ## 0. Owner's Choices (2026-11-22, overrides the brief where they differ)
 
-Which reference each ship follows (files in `owner/reference-images/`):
+Which reference each ship follows (files in `context/reference-images/`):
 
 | Ship | Reference | Notes |
 |---|---|---|
-| Sovereign | `V1 Spaceship.png` | Saucer and twin nacelles, as close to the sheet as possible (owner's call, replacing D-118's "role, not shape"). |
-| Predator | `V1 Spaceship.png` | The flat, angular blade cruiser, not V2's crescent wings. |
-| Celestial | `V2 Spaceship.png` + `Celestial.jpg` | V2's flowing gold yacht; Celestial.jpg for the rings and gold craftsmanship. |
-| Discovery | `Discovery.jpg` | Chunky modules, round engines, tall fins; its orange recoloured to the brief's white, silver and blue. |
-| Colossus | `V2 Spaceship.png` | The long, layered fortress with no tower and engines built into the rear. |
+| Sovereign | `fleet-page-mockup.png` | Saucer and twin nacelles, as close to the sheet as possible (owner's call, replacing D-118's "role, not shape"). |
+| Predator | `fleet-page-mockup.png` | The flat, angular blade cruiser, not V2's crescent wings. |
+| Celestial | `fleet-lineup.png` + `ship-celestial-concept.jpg` | V2's flowing gold yacht; ship-celestial-concept.jpg for the rings and gold craftsmanship. |
+| Discovery | `ship-discovery-concept.jpg` | Chunky modules, round engines, tall fins; its orange recoloured to the brief's white, silver and blue. |
+| Colossus | `fleet-lineup.png` | The long, layered fortress with no tower and engines built into the rear. |
 
 **Build method:** richer procedural geometry in code for now (lathed and extruded hulls, panel lines and lights in a shader). **Future path:** model the ships in Blender and load them as `.glb` with three's `GLTFLoader` (no new npm package), when the procedural versions stop being enough.
 

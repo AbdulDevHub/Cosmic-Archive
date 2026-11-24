@@ -1,7 +1,7 @@
 /**
  * The start page's foreground (D-107): a planet with a glowing atmosphere curving across the
  * lower left, two small moons, drifting asteroids, and a sleek ship with blue engine trails,
- * set before the galaxy as in the owner's `Home.png`. All of it our own, built here in code.
+ * set before the galaxy as in the owner's `start-page-mockup.png`. All of it our own, built here in code.
  *
  * It lives in the camera's own space: each frame the group takes the camera's place and turn, and
  * every object stands at a point of the screen (normalised device coordinates) at a depth, so the

@@ -33,7 +33,7 @@ The palette and type live in `src/styles/tokens.css`, from the approved F1 proto
 
 ## Rules That Do Not Change Without the Owner
 
-- **Identity:** the scenes show the cosmos alone, with nothing drawn over them (no rings, ticks or lines). The start page and header follow the owner's `Home.png` (D-107): gradient headline, glass bar and dock, glowing pill button, a ship. Elsewhere there are no glass panels, HUD elements or neon UI, and hotspots use `--beacon`.
+- **Identity:** the scenes show the cosmos alone, with nothing drawn over them (no rings, ticks or lines). The start page and header follow the owner's `start-page-mockup.png` (D-107): gradient headline, glass bar and dock, glowing pill button, a ship. Elsewhere there are no glass panels, HUD elements or neon UI, and hotspots use `--beacon`.
 - **Spectacle, not text:** each view gets a name and one line of at most twelve words. Click to travel; nothing scrolls; every move between scenes is a flight (dive, veil, arrive).
 - **Boundaries:** only `src/scene/` imports three. Pages use `<SceneSlot>`. Content holds facts; components hold layout.
 - **Every screen works without the scene:** the poster comes first; the name, line and places are server-rendered HTML; places are real links.
@@ -55,7 +55,8 @@ The palette and type live in `src/styles/tokens.css`, from the approved F1 proto
 
 ## Boundaries
 
-- `owner/` (gitignored) holds the owner's private files: `reference-images/` (inspiration only, never in the site), `music-library/` (copyrighted source tracks; the loops in `public/audio/music/` are cut from it; delete it once every loop is cut). The original ChatGPT handoff was folded into `context/IDEAS.md` and deleted (D-136); it is in commit `15e3478`.
+- `context/reference-images/` holds the owner's own AI-generated reference images (inspiration only, never in the site; D-182).
+- `owner/` (gitignored) holds only `music-library/` (copyrighted source tracks; the loops in `public/audio/music/` are cut from it; delete it, and then `owner/`, once every loop is cut). The original ChatGPT handoff was folded into `context/IDEAS.md` and deleted (D-136); it is in commit `15e3478`.
 
 ## More
 

@@ -11,7 +11,7 @@ import { DEFAULT_OG, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import { SceneHostLoader } from "@/scene/host/SceneHostLoader";
 import "./globals.css";
 
-/* Display and UI: Google Sans Flex, the face of the owner's Home.png (D-108; replaces Outfit, D-107). Text: Hanken Grotesk. */
+/* Display and UI: Google Sans Flex, the face of the owner's start-page-mockup.png (D-108; replaces Outfit, D-107). Text: Hanken Grotesk. */
 const display = Google_Sans_Flex({
   subsets: ["latin"],
   weight: "variable",

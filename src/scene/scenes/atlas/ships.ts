@@ -229,7 +229,7 @@ function predator(): ShipModel {
 }
 
 /**
- * Celestial, the legendary vessel (V2 sheet and Celestial.jpg): a long pearl hull drawn to a fine
+ * Celestial, the legendary vessel (V2 sheet and ship-celestial-concept.jpg): a long pearl hull drawn to a fine
  * point, a glass streak along its back, two sets of crescent blades sweeping back, gold trim on
  * every edge, and a gold halo ringing its stern.
  */
@@ -262,7 +262,7 @@ function celestial(): ShipModel {
 }
 
 /**
- * Discovery, the experimental explorer (Discovery.jpg, recoloured white, silver and blue): a
+ * Discovery, the experimental explorer (ship-discovery-concept.jpg, recoloured white, silver and blue): a
  * chunky shuttle body behind a six-sided steel prow ringed with windows (D-177), two big round engine pods, narrow swept wings and
  * twin tall fins leaning outward.
  */
