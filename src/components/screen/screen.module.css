@@ -408,6 +408,7 @@
 }
 
 .screen[data-start] .words,
+.screen[data-start] .caption > div:first-child, /* the words before the scene is live (no .words class yet) */
 .screen[data-start] .controls,
 .screen[data-start] .hint,
 .screen[data-start] .spots:not([data-live]) {
@@ -418,3 +419,11 @@
     visibility 0s 300ms;
 }
 
+
+/* The Seven Heavens' one link, to Islam and Space (D-179) */
+.more {
+  display: inline-block;
+  margin-top: var(--gap-3);
+  color: var(--beacon);
+  pointer-events: auto;
+}

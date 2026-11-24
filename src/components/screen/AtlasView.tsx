@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { calm, diveInto, flowBusy, getFlow, useFlow } from "@/scene/host/flow";
@@ -332,6 +333,11 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
         <div key={words.zoom} className={live ? styles.words : undefined}>
           <h1>{words.name}</h1>
           <p>{words.line}</p>
+          {stop === 5 ? (
+            <Link className={styles.more} href="/islam-and-space">
+              Islam and Space
+            </Link>
+          ) : null}
         </div>
         <ul ref={list} className={styles.spots} data-live={live ? "" : undefined} aria-label="Places">
           {spots.map((spot) => (
