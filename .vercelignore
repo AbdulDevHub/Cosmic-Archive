@@ -1,0 +1,6 @@
+# Not needed to build the site; owner/ holds private, copyrighted files
+owner/
+screenshots/
+context/
+node_modules/
+.next/
