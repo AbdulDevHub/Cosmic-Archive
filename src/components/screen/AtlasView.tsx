@@ -131,9 +131,16 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
    */
   const back = () => {
     const at = levelAt(getSceneInput().zoom);
-    if (flowBusy() || at === ZOOM_MAX) return;
+    if (flowBusy()) return;
+    // past the Omniverse there is nowhere to zoom: a word instead (D-185)
+    if (at === ZOOM_MAX) {
+      playSample("click");
+      setBeyond(true);
+      return;
+    }
     glideTo(at + 1);
   };
+  const [beyond, setBeyond] = useState(false);
 
   // The start page (D-107): shown on arriving at `/` fresh, or by Home; not when the flow brings the
   // visitor back from a place, not for `/#atlas`, not for a still held at a stop. Begin (or the
@@ -287,6 +294,8 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
     const onKey = (event: KeyboardEvent) => {
       if (event.ctrlKey || event.metaKey || event.altKey || flowBusy() || phaseRef.current !== "atlas") return;
       if ((event.target as HTMLElement).closest("input, textarea, select, [contenteditable]")) return;
+      if (document.querySelector("dialog[open]")) return; // the note past the Omniverse is up
+      if (event.key === "Escape" && levelAt(getSceneInput().zoom) === ZOOM_MAX) return; // Escape only closes it
       const { zoom, yaw, pitch } = getSceneInput();
       if (event.key === "+" || event.key === "=") setSceneInput({ zoom: zoom - KEY_ZOOM });
       else if (event.key === "-" || event.key === "_") setSceneInput({ zoom: zoom + KEY_ZOOM });
@@ -359,10 +368,11 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
         </ul>
       </div>
 
+      <BeyondNote open={beyond} onClose={() => setBeyond(false)} />
       <DragHint live={live && stop !== 3} />
       {live ? (
         <div className={styles.controls}>
-          <button type="button" className={styles.control} onClick={back} aria-disabled={level === ZOOM_MAX}>
+          <button type="button" className={styles.control} onClick={back}>
             <i className={styles.icon} aria-hidden="true">
               <ZoomOutIcon />
             </i>
@@ -372,5 +382,30 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
         </div>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * Past the Omniverse (D-185): Zoom Out there opens this note, the owner's words, instead of moving.
+ * A real dialog: it takes focus, Escape or Close or a click outside closes it.
+ */
+function BeyondNote({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const dialog = ref.current;
+    if (!dialog) return;
+    if (open && !dialog.open) dialog.showModal();
+    else if (!open && dialog.open) dialog.close();
+  }, [open]);
+  return (
+    <dialog ref={ref} className={styles.note} aria-label="Beyond the Omniverse" onClose={onClose} onClick={(event) => event.target === event.currentTarget && onClose()}>
+      <div className={styles.noteBody}>
+        <p>Who knows what lurks out there in the dark&hellip;</p>
+        <p>But if you believe in God, one day you may find out, and you have nothing to fear from His creation.</p>
+        <button type="button" className={styles.control} onClick={onClose} autoFocus>
+          Close
+        </button>
+      </div>
+    </dialog>
   );
 }

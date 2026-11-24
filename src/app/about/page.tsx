@@ -3,7 +3,7 @@ import { AboutView } from "@/components/screen/AboutView";
 import { VERSES, VERSES_LINE, VERSES_TITLE } from "@/content/verses";
 import { jsonLd, ogImage, pageMetadata, SITE_NAME, SITE_URL } from "@/lib/site";
 
-/* About (D-184): the site, how to travel it, and Islam and Space (D-179), over the Omniverse. Static. */
+/* About (D-184): the site, how to travel it, and Islam and Space (D-179), over the cosmic web. Static. */
 
 const DESCRIPTION = "About Cosmic Atlas, a journey through the universe drawn live in your browser, and a few verses from the Quran on the heavens.";
 
@@ -11,7 +11,7 @@ export const metadata: Metadata = pageMetadata({
   title: "About",
   description: DESCRIPTION,
   path: "/about",
-  image: ogImage("about", "Our own illustration of the omniverse: bubble universes of cosmic web floating in a violet haze."),
+  image: ogImage("about", "Our own illustration of the cosmic web: countless galaxies strung along threads of light."),
 });
 
 const structured = {

@@ -4,18 +4,17 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useMemo, useState, type KeyboardEvent, type MouseEvent } from "react";
 import type { MenuFlight, MenuGroup, MenuPlace } from "@/lib/content/menu";
-import { musicUnlocked, setMusicMode, toggleSound, unlockMusic, useSound } from "@/lib/sound";
+import { toggleSound, useSound } from "@/lib/sound";
 import { flowBusy, jumpTo } from "@/scene/host/flow";
 import { Dock } from "./Dock";
-import { Emblem, MusicIcon, SearchIcon } from "./icons";
+import { Emblem, SearchIcon } from "./icons";
 import styles from "./SiteHeader.module.css";
 
 /*
   The header (D-107, D-116, D-139): the emblem and the spaced wordmark on the left (it leads home,
   to the start page); in the middle the menu, the flared glass dock; search and Sound on the right.
-  Search finds a place by name and flies there. Typed in full, "Music" shows a switch beside the
-  field that turns the owner's music on or off (hidden Music mode, D-139). The first time, the
-  switch asks for the owner's music key in place of the search field (D-183).
+  Search finds a place by name and flies there. (The owner's music needs no switch: it plays where
+  this browser holds their key, D-185.)
   On a phone the menu and search fold away; the wordmark and Sound stay.
 */
 
@@ -29,15 +28,11 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
   const pathname = usePathname();
   const router = useRouter();
   const on = useSound((s) => s.enabled);
-  const musicOn = useSound((s) => s.music);
   const [query, setQuery] = useState("");
-  const [askKey, setAskKey] = useState(false);
-  const [wrongKey, setWrongKey] = useState(false);
   const places = useMemo(() => groups.flatMap((group) => group.places), [groups]);
 
   const asked = query.trim().toLowerCase();
-  const musicWord = asked === "music";
-  const matches = asked && !musicWord ? places.filter((place) => bare(place.name).includes(asked) || place.name.toLowerCase().includes(asked)).slice(0, 6) : [];
+  const matches = asked ? places.filter((place) => bare(place.name).includes(asked) || place.name.toLowerCase().includes(asked)).slice(0, 6) : [];
 
   const home = (event: MouseEvent) => {
     if (pathname !== "/" || event.metaKey || event.ctrlKey || event.shiftKey) return;
@@ -49,25 +44,6 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
     setQuery("");
     (document.activeElement as HTMLElement | null)?.blur();
     jumpTo((href) => router.push(href), `/${place.id}`, place.veil);
-  };
-  const musicSwitch = () => {
-    if (musicOn) setMusicMode(false);
-    else if (musicUnlocked()) setMusicMode(true);
-    else setAskKey((open) => !open);
-  };
-  const onKeyField = async (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Escape") setAskKey(false);
-    if (event.key !== "Enter") return;
-    event.preventDefault();
-    const field = event.currentTarget;
-    if (await unlockMusic(field.value)) {
-      setAskKey(false);
-      setWrongKey(false);
-      setQuery("");
-    } else {
-      setWrongKey(true);
-      field.value = "";
-    }
   };
   const onKey = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Escape") setQuery("");
@@ -92,21 +68,7 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
 
       <div className={styles.tools}>
         <div className={styles.finder}>
-          {askKey && musicWord ? (
-            <label key="music-key" className={styles.search}>
-              <MusicIcon />
-              <input
-                type="password"
-                placeholder={wrongKey ? "Wrong key, try again" : "Music key"}
-                aria-label="Music key"
-                aria-invalid={wrongKey || undefined}
-                autoComplete="current-password"
-                autoFocus
-                onKeyDown={onKeyField}
-              />
-            </label>
-          ) : (
-          <label key="search" className={styles.search}>
+          <label className={styles.search}>
             <SearchIcon />
             <input
               type="search"
@@ -119,7 +81,6 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
               onKeyDown={onKey}
             />
           </label>
-          )}
           {matches.length ? (
             <ul className={styles.results} aria-label="Places found">
               {matches.map((place) => (
@@ -141,11 +102,6 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
             </ul>
           ) : null}
         </div>
-        {musicWord ? (
-          <button type="button" className={styles.sound} onClick={musicSwitch} data-on={musicOn ? "" : undefined} aria-pressed={musicOn} aria-label="Music" title={musicOn ? "Music on" : "Music off"}>
-            <MusicIcon />
-          </button>
-        ) : null}
         <button type="button" className={styles.sound} onClick={toggleSound} data-sound-toggle data-on={on ? "" : undefined} aria-pressed={on} aria-label="Sound" title={on ? "Sound on" : "Sound off"}>
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
             <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" />

@@ -381,11 +381,18 @@ try {
     const toMultiverse = toUniverse && (await atMultiverse()) && (await zoomOut.getAttribute("aria-disabled")) === "false";
     await page.keyboard.press("Enter");
     await page.waitForTimeout(300);
-    const out = toMultiverse && (await atOmniverse()) && (await zoomOut.getAttribute("aria-disabled")) === "true";
+    // past the Omniverse, Zoom Out opens the owner's note (D-185); Escape closes it
+    const noteOpen = () => page.evaluate(() => document.querySelector("dialog[open]") !== null);
+    await page.keyboard.press("Enter");
+    await page.waitForTimeout(300);
+    const note = await noteOpen();
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(200);
+    const out = toMultiverse && (await atOmniverse()) && note && !(await noteOpen());
     for (let i = 0; i < 24; i++) await page.keyboard.press("+");
     await page.waitForTimeout(300);
     const backIn = !(await atWeb());
-    check("keyboard", "Zoom Out glides to the web, the supervoid, the universe, the Multiverse, then the Omniverse (dimmed there); + zooms back in", out && backIn);
+    check("keyboard", "Zoom Out glides to the web, the supervoid, the universe, the Multiverse, the Omniverse, then opens the note past it; + zooms back in", out && backIn);
     for (let i = 0; i < 8; i++) await page.keyboard.press("-"); // out to the web again
     await page.waitForTimeout(2500); // the camera eases out and the web's places appear
     let onPlace = false;

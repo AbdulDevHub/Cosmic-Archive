@@ -9,12 +9,12 @@
  * (`holdMusic`, `playMusic`): the owner wants Begin to be what starts it. The header's Sound button turns it all off
  * and on; the choice is remembered. Nothing plays while the tab is hidden.
  *
- * Hidden Music mode (D-139): the owner's music is theirs alone. By default the scenes play a soft
- * noise made here in the browser (filtered, like the hush of deep space) under the same effects;
- * typing "Music" in search shows a switch that turns the real music on, remembered in this browser.
- * Since D-183 the music is also protected: the loops live in the private `Private-Assets` submodule
- * and `/api/music/` serves them only to a browser holding the owner's key (asked for once, kept in
- * a cookie). Without it, or if a loop will not load, the noise bed plays.
+ * The owner's music is theirs alone (D-139, D-183, D-185). By default the scenes play a soft noise
+ * made here in the browser (filtered, like the hush of deep space) under the same effects. The loops
+ * live in the private `Private-Assets` submodule and `/api/music/` serves them only to a browser
+ * whose cookie holds the owner's key. The owner keeps the key in this browser's localStorage under
+ * `Music`; where it is, the music is simply on (the key is copied to the cookie on load). Without
+ * it, or with a wrong one, or if a loop will not load, the noise bed plays.
  *
  * Client only. Imports nothing.
  */
@@ -22,7 +22,8 @@
 import { useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "cosmic-archive:sound";
-const MUSIC_KEY = "cosmic-archive:music";
+/** Where the owner keeps their music key in this browser (D-185). */
+const OWNER_KEY = "Music";
 /** The noise bed's level inside the music's gain: softer than the music. */
 const NOISE_LEVEL = 0.55;
 const MUSIC_VOLUME = 0.32;
@@ -50,7 +51,7 @@ const TRACKS: Record<string, string> = {
 };
 /** The cookie that carries the owner's music key to `/api/music/` (the same name in its route). */
 const KEY_COOKIE = "cosmic-atlas-music";
-const hasKey = () => typeof document !== "undefined" && document.cookie.split("; ").some((part) => part.startsWith(`${KEY_COOKIE}=`));
+
 const SWAP_OUT = 0.9; // seconds: the old track fades out, then the new one fades in
 const SWAP_IN = 2.2;
 let track = "galaxy";
@@ -66,7 +67,7 @@ interface SoundState {
   enabled: boolean;
   /** True once the music (or the noise bed) is actually playing (after the first gesture). */
   playing: boolean;
-  /** The owner's music instead of the noise bed (D-139). */
+  /** The owner's music instead of the noise bed: this browser holds the key (D-185). */
   music: boolean;
 }
 
@@ -183,24 +184,6 @@ function toNoise(): void {
   if (state.playing) fade(musicGain.gain, MUSIC_VOLUME, SWAP_IN);
 }
 
-/**
- * The hidden Music switch asks for the owner's key once (D-183). It is kept in a cookie for a year
- * and checked with `/api/music/key`; a right key turns the music on, a wrong one is forgotten.
- */
-export async function unlockMusic(key: string): Promise<boolean> {
-  const secure = location.protocol === "https:" ? "; Secure" : "";
-  document.cookie = `${KEY_COOKIE}=${encodeURIComponent(key.trim())}; path=/; max-age=31536000; SameSite=Strict${secure}`;
-  const ok = await fetch("/api/music/key", { cache: "no-store" }).then((response) => response.ok, () => false);
-  if (ok) setMusicMode(true);
-  else document.cookie = `${KEY_COOKIE}=; path=/; max-age=0`;
-  return ok;
-}
-
-/** True once this browser holds a music key (it may still be wrong; the server decides). */
-export function musicUnlocked(): boolean {
-  return hasKey();
-}
-
 function fade(gain: AudioParam, to: number, seconds: number): void {
   if (!ctx) return;
   const now = ctx.currentTime;
@@ -313,49 +296,6 @@ export function toggleSound(): void {
 }
 
 /**
- * Hidden Music mode (D-139): the owner's music on or off, remembered. While sound plays, the old
- * bed fades out and the new one fades in.
- */
-export function setMusicMode(on: boolean): void {
-  if (on === state.music) return;
-  set({ music: on });
-  try {
-    localStorage.setItem(MUSIC_KEY, on ? "on" : "off");
-  } catch {
-    // storage blocked: the choice holds for this page view
-  }
-  if (!music || !musicGain || !noiseGate || !ctx) return;
-  const gate = noiseGate.gain;
-  if (!state.playing) {
-    gate.value = on ? 0 : NOISE_LEVEL;
-    if (on) music.src = srcOf(track); // ready for when sound starts
-    else music.pause();
-    return;
-  }
-  swapping = true;
-  fade(musicGain.gain, 0, SWAP_OUT);
-  setTimeout(() => {
-    gate.value = state.music ? 0 : NOISE_LEVEL;
-    if (!music || !musicGain || !state.playing) {
-      if (!state.music) music?.pause();
-      swapping = false;
-      return;
-    }
-    if (state.music) {
-      music.src = srcOf(track);
-      void music.play().then(
-        () => fade(musicGain!.gain, MUSIC_VOLUME, SWAP_IN),
-        () => undefined,
-      );
-    } else {
-      music.pause();
-      fade(musicGain.gain, MUSIC_VOLUME, SWAP_IN);
-    }
-    setTimeout(() => (swapping = false), SWAP_IN * 1000);
-  }, SWAP_OUT * 1000 + 50);
-}
-
-/**
  * One of the owner's effects (D-114). Called from a gesture, it may build the audio graph itself,
  * so a click can sound before the music has started (the music still waits for Begin). If the
  * effect is still loading it plays when ready, unless that is more than a moment late. The music
@@ -392,8 +332,15 @@ export function playSample(name: Sample): void {
 
 if (typeof window !== "undefined") {
   try {
-    // Music mode needs the key too (D-183): without it the switch is off, whatever was remembered
-    state = { ...state, enabled: localStorage.getItem(STORAGE_KEY) !== "off", music: localStorage.getItem(MUSIC_KEY) === "on" && hasKey() };
+    // the owner's key (D-185): where it is kept, the music is on, and the route reads it from a cookie
+    const key = localStorage.getItem(OWNER_KEY)?.trim();
+    if (key) {
+      const secure = location.protocol === "https:" ? "; Secure" : "";
+      document.cookie = `${KEY_COOKIE}=${encodeURIComponent(key)}; path=/; max-age=31536000; SameSite=Strict${secure}`;
+    } else {
+      document.cookie = `${KEY_COOKIE}=; path=/; max-age=0`;
+    }
+    state = { ...state, enabled: localStorage.getItem(STORAGE_KEY) !== "off", music: !!key };
   } catch {
     // storage blocked: on by default
   }

@@ -1,4 +1,7 @@
-/* About (D-184), with Islam and Space (D-179): the words sit on the left over the Omniverse, no panel behind them. */
+/*
+  About (D-184, D-185), with Islam and Space (D-179): two columns of words over the cosmic web, no
+  panel behind them; on a phone one column that scrolls. Back stays in the corner.
+*/
 
 .screen {
   position: absolute;
@@ -9,13 +12,23 @@
 
 .words {
   position: relative;
-  max-width: min(36rem, calc(100vw - 2 * var(--gutter)));
-  margin-left: var(--gutter);
+  display: grid;
+  gap: clamp(28px, 5vh, 48px);
+  margin: 0 var(--gutter);
   padding-top: clamp(104px, 14vh, 132px);
-  padding-bottom: clamp(28px, 6vh, 64px);
+  padding-bottom: clamp(96px, 14vh, 140px); /* room for Back */
   text-shadow:
     0 0 18px oklch(0.13 0.04 275 / 0.95),
     0 0 4px oklch(0.13 0.04 275 / 0.85);
+}
+
+/* the laptop: About on the left, Islam and Space on the right */
+@media (min-width: 1000px) {
+  .words {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(48px, 6vw, 112px);
+    align-items: start;
+  }
 }
 
 .words h1 {
@@ -31,10 +44,10 @@
 
 .about {
   display: grid;
-  gap: 0.7rem;
-  margin-top: clamp(14px, 2.6vh, 24px);
-  font-size: clamp(1rem, 1.15vw, 1.1rem);
-  line-height: 1.55;
+  gap: 0.8rem;
+  margin-top: clamp(16px, 3vh, 28px);
+  font-size: clamp(1rem, 1.15vw, 1.12rem);
+  line-height: 1.6;
 }
 
 .about p {
@@ -46,9 +59,8 @@
 }
 
 .section {
-  margin-top: clamp(28px, 5vh, 48px);
-  font-size: clamp(1.5rem, 2.6vw, 2.2rem);
-  line-height: 1.1;
+  font-size: clamp(2rem, 4.2vw, 3.6rem);
+  line-height: 1;
 }
 
 .verses {
@@ -56,7 +68,7 @@
   margin: clamp(16px, 3vh, 28px) 0 0;
   padding: 0;
   display: grid;
-  gap: clamp(14px, 2.6vh, 24px);
+  gap: clamp(14px, 2.4vh, 22px);
 }
 
 .verses blockquote,
@@ -66,7 +78,7 @@
 
 .verses blockquote {
   font-style: italic;
-  font-size: clamp(1rem, 1.25vw, 1.18rem);
+  font-size: clamp(1rem, 1.2vw, 1.14rem);
   line-height: 1.45;
 }
 
@@ -84,8 +96,14 @@
   text-decoration: underline;
 }
 
-.back {
-  display: inline-block;
-  margin-top: clamp(16px, 3vh, 28px);
-  color: var(--beacon);
+/* Back (D-185): Zoom Out's glass pill, held in the corner while the words scroll */
+.leave {
+  position: fixed;
+  right: var(--gutter);
+  bottom: clamp(28px, 7vh, 72px);
+  z-index: 5;
+}
+
+.leave svg {
+  transform: scaleX(-1);
 }

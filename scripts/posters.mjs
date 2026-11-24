@@ -20,11 +20,13 @@ const NARROW = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 };
 const POSTERS = [
   { file: "atlas-start-wide.webp", path: "/?shot=1&t=12&tier=high", ...WIDE, quality: 0.8 },
   { file: "atlas-start-narrow.webp", path: "/?shot=1&t=12&tier=low", ...NARROW, quality: 0.8 },
-  // The Multiverse, and the Omniverse behind the About page (D-184)
+  // The Multiverse and the Omniverse (D-184), and the cosmic web behind the About page (D-185)
   { file: "multiverse-wide.webp", path: "/?shot=1&t=12&tier=high&zoom=5", ...WIDE, quality: 0.8 },
   { file: "multiverse-narrow.webp", path: "/?shot=1&t=12&tier=low&zoom=5", ...NARROW, quality: 0.8 },
   { file: "omniverse-wide.webp", path: "/?shot=1&t=12&tier=high&zoom=6", ...WIDE, quality: 0.8 },
   { file: "omniverse-narrow.webp", path: "/?shot=1&t=12&tier=low&zoom=6", ...NARROW, quality: 0.8 },
+  { file: "about-wide.webp", path: "/?shot=1&t=12&tier=high&zoom=2", ...WIDE, quality: 0.8 },
+  { file: "about-narrow.webp", path: "/?shot=1&t=12&tier=low&zoom=2", ...NARROW, quality: 0.8 },
   // Places: `<scene id>-wide` and `<scene id>-narrow`, the names the place page asks for.
   ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter", "molecular-cloud", "red-giant", "planetary-nebula", "white-dwarf", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy", "starbase", "warp-drive", "programmable-matter", "higher-dimensions", "quantum-foam", "quarks", "vacuum-decay", "bubble-universes", "pocket-dimensions", "cosmic-strings", "string-theory", "dyson-swarm", "ringworld", "oneill-cylinder", "matrioshka-brain", "generation-ship", "stellar-engine", "von-neumann-probes", "space-elevator", "star-lifter"].flatMap((id) => [
     { file: `${id}-wide.webp`, path: `/${id}?shot=1&t=12&tier=high`, ...WIDE, quality: 0.8 },
@@ -33,7 +35,7 @@ const POSTERS = [
   // Open Graph images (O7, D-088): 1200x630 JPEG crops of the same frames, into public/og/.
   ...[
     ["atlas", "/?shot=1&t=12&tier=high"],
-    ["about", "/?shot=1&t=12&tier=high&zoom=6"],
+    ["about", "/?shot=1&t=12&tier=high&zoom=2"],
     ["black-hole", "/black-hole?shot=1&t=12&tier=high"],
     ["nebula", "/nebula?shot=1&t=12&tier=high"],
     ["quasar", "/quasar?shot=1&t=12&tier=high"],

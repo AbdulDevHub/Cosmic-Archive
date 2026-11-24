@@ -48,7 +48,7 @@ import { POINT_FRAGMENT, POINT_VERTEX, SPRITE_FRAGMENT, SPRITE_VERTEX } from "..
 import { SKY_CHUNK } from "../../shaders/sky.glsl";
 import { isPhone, KEYS_DESK, KEYS_PHONE, placeCamera } from "./camera";
 import { FOAM_CHUNK } from "./foam";
-import { fieldLayout, multiverse, omniverse, rowLayout, type Row } from "./multiverse";
+import { fieldLayout, multiverse, omniverse, rowLayout, type Field, type Row } from "./multiverse";
 import { StartProps } from "./start";
 import { armAngle, buildAtlas, COUNTS, joinClouds, mix, OUTER, SPIN, sstep, TAU, type Cloud, type Vec3 } from "./model";
 
@@ -140,7 +140,7 @@ const ANCHORS: Record<string, Anchor> = {
   voidspot: { web: "home" },
   /** The observable universe, seen from the Multiverse (D-184): the small ball at the line's left end. */
   ball: { web: "home" },
-  /** The Multiverse, seen from the Omniverse (D-184): the line, shrunk to a small row of lights. */
+  /** The Multiverse, seen from the Omniverse (D-185): the line, shrunk to a dot inside one bubble. */
   multi: { web: "home" },
 };
 
@@ -597,8 +597,10 @@ export class AtlasWorld {
   private readonly multiverseLayer = multiverse();
   private readonly omniverseLayer = omniverse();
   /** The line of universes this frame (units from the window's middle), and the Omniverse's bubbles. */
-  private row: Row = rowLayout(1, 1, false, 0);
-  private field: Vector4[] = [];
+  private row: Row = rowLayout(1, 1, false, 0, [0, 0]);
+  private field: Field = { balls: [], host: 0 };
+  /** Where the Omniverse's bubbles stand this frame (units), after their drift and the drag. */
+  private readonly drifted: Vector4[] = [];
   /** Scene time the visitor came out to the supervoid, or null while they are not there. */
   private voidSince: number | null = null;
   /** The universe's turn with the drag (D-131) and where its supervoid falls on screen (x, y, facing). */
@@ -820,9 +822,11 @@ export class AtlasWorld {
     this.homeDot.alpha = shown * stays;
     this.quasarDot.alpha = shown * stays;
     this.frameVoid(camera, t, view, width, height, sstep(2.05, 2.75, zoom) * (1 - sstep(3.15, 3.7, zoom)));
-    this.row = rowLayout(width, height, isPhone(width, height), zoom);
+    this.driftField(t, view);
+    const host = this.drifted[this.field.host];
+    this.row = rowLayout(width, height, isPhone(width, height), zoom, host ? [host.x, host.y] : [0, 0]);
     this.frameUniverse(camera, t, view, width, height, sstep(3.0, 3.35, zoom));
-    this.frameBeyond(t, view, sstep(4.35, 4.5, zoom), sstep(5.05, 5.75, zoom));
+    this.frameBeyond(t, sstep(4.35, 4.5, zoom), sstep(5.05, 5.75, zoom));
 
     this.report(camera, t, zoom, width, height, out);
   }
@@ -904,7 +908,17 @@ export class AtlasWorld {
    * Out past the universe (D-184): the other universes of the line grow in beside ours, and on out
    * to the Omniverse the line shrinks into a small row of lights among many more bubbles.
    */
-  private frameBeyond(t: number, view: SceneInput, multiAlpha: number, omniAlpha: number): void {
+  /** The Omniverse's bubbles where they stand this frame: a slow drift, and the near ones slide further with a drag. */
+  private driftField(t: number, view: SceneInput): void {
+    const balls = this.field.balls;
+    while (this.drifted.length < balls.length) this.drifted.push(new Vector4());
+    this.drifted.length = balls.length;
+    balls.forEach((b, i) => {
+      this.drifted[i].set(b.x + 0.012 * Math.sin(t * 0.07 + i * 1.7) - view.yaw * 0.25 * b.w, b.y + 0.012 * Math.cos(t * 0.06 + i * 2.3) + view.pitch * 0.25 * b.w, b.z, b.w);
+    });
+  }
+
+  private frameBeyond(t: number, multiAlpha: number, omniAlpha: number): void {
     const unit = this.bufferHeight / 2;
     const midX = this.bufferWidth / 2;
     const midY = this.bufferHeight / 2;
@@ -925,15 +939,9 @@ export class AtlasWorld {
       const balls = u.uB.value as Vector4[];
       const grow = mix(0.35, 1, omniAlpha);
       for (let i = 0; i < balls.length; i++) {
-        const b = this.field[i];
-        if (!b) {
-          balls[i].set(0, 0, 0, 0);
-          continue;
-        }
-        // they drift a little, and the near ones slide further with a drag (parallax)
-        const x = b.x + 0.012 * Math.sin(t * 0.07 + i * 1.7) - view.yaw * 0.25 * b.w;
-        const y = b.y + 0.012 * Math.cos(t * 0.06 + i * 2.3) + view.pitch * 0.25 * b.w;
-        balls[i].set(midX + x * unit, midY + y * unit, b.z * unit * grow, b.w);
+        const b = this.drifted[i];
+        if (b) balls[i].set(midX + b.x * unit, midY + b.y * unit, b.z * unit * grow, b.w);
+        else balls[i].set(0, 0, 0, 0);
       }
       u.uTime.value = t;
       u.uAlpha.value = omniAlpha;
@@ -955,7 +963,7 @@ export class AtlasWorld {
       point.y = (-v.y * 0.5 + 0.5) * height;
     }
     // out past the universe (D-184): ours is the small ball at the line's left end, and from the
-    // Omniverse the line is a small row of lights
+    // Omniverse the line is a dot inside one bubble (D-185)
     if (zoom > 4.4) {
       const ball = out.points.ball;
       ball.x = width / 2 + this.row.x[0] * (height / 2);

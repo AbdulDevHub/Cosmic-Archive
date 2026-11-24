@@ -1,15 +1,18 @@
 /**
  * Out past the observable universe (D-184, replacing D-174's Seven Heavens).
  *
- * The Multiverse (stop 5): our universe, shrunk to a small ball at the far left, and to its right a
- * line of other universes, each larger than the last, the last running off the edge. Each one is a
- * universe as the observable universe is drawn: a ball of cosmic web, threads and knots of galaxies,
- * under a glassy lilac rim. Each has its own colours and its own size of cell, for in this idea each
- * may have its own physical constants. Ours is the universe layer itself (world.ts moves it into the
- * line); this layer draws the others, growing one after another as the zoom arrives.
+ * The Multiverse (stop 5): seven universes in a line (seven, a quiet nod to the Seven Heavens it
+ * replaced, D-185): ours, shrunk to a small ball at the far left, and to its right six more, each
+ * larger than the last, the last running off the edge. Each is a universe as the observable universe
+ * is drawn: a ball of cosmic web under a glassy rim, in the heavens' colours from indigo through
+ * violet, rose, ember and gold to warm white, each with its own size of cell, for in this idea each
+ * may have its own physical constants. Ours is the universe layer itself (world.ts moves it into
+ * the line); this layer draws the others, growing one after another as the zoom arrives.
  *
- * The Omniverse (stop 6), after the owner's reference: the line shrinks to a small row of lights and
- * round it float many more such bubbles, large and near or small, far and soft, in a violet haze.
+ * The Omniverse (stop 6), after the owner's reference: so far out that the whole line is a dot
+ * inside one bubble among many: milky lavender glass, each filled with a fine orange web and white
+ * specks of galaxies, large and near or small, far and soft, in a violet haze. They are drawn their
+ * own way, not as the Multiverse's balls.
  *
  * Our own illustration, as everywhere: full-screen triangles, never a drawn line (D-094).
  */
@@ -18,15 +21,16 @@ import { BufferAttribute, BufferGeometry, CustomBlending, AddEquation, Mesh, One
 import { FOAM_CHUNK } from "./foam";
 
 /** How many universes stand in the line, ours first. */
-export const ROW = 6;
+export const ROW = 7;
 /** Their radii, smallest (ours) to largest, before the line is fitted to the window. */
-const RADII = [0.07, 0.11, 0.17, 0.26, 0.4, 0.62];
-const GAP = 0.07;
-/** At the Omniverse the line shrinks to this fraction of itself, about this point (units). */
-const SHRINK = 0.16;
-const CLUSTER = { wide: [0.22, -0.6], narrow: [0.0, 0.05] } as const;
+const RADII = [0.06, 0.085, 0.12, 0.17, 0.24, 0.34, 0.5];
+const GAP = 0.06;
+/** At the Omniverse the line shrinks to this fraction of itself: a dot inside its bubble. */
+const SHRINK = 0.012;
+/** Where the Omniverse wants the bubble that holds the line (units): it takes the near one closest. */
+const HOST = { wide: [0.45, -0.3], narrow: [0.0, 0.05] } as const;
 /** How many bubbles float in the Omniverse. */
-const FIELD = 28;
+export const FIELD = 48;
 
 const sstep = (a: number, b: number, x: number) => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
@@ -38,17 +42,17 @@ export interface Row {
   x: number[];
   y: number[];
   r: number[];
-  /** Where the line gathers at the Omniverse, for its hotspot. */
+  /** Where the line gathers at the Omniverse (the middle of the bubble that holds it), for its hotspot. */
   cluster: [number, number];
 }
 
 /**
  * The line for this window and zoom: laid along the window's width (on a phone, down its height),
  * fitted so ours sits near the left edge and the last runs a little off the right; the others grow
- * in one after another on the way out to stop 5, and the whole line shrinks to a small row of lights
- * on the way out to stop 6.
+ * in one after another on the way out to stop 5, and the whole line shrinks to a dot inside the
+ * Omniverse's `host` bubble (its middle now, in units) on the way out to stop 6.
  */
-export function rowLayout(width: number, height: number, narrow: boolean, zoom: number): Row {
+export function rowLayout(width: number, height: number, narrow: boolean, zoom: number, host: [number, number]): Row {
   const aspect = width / height;
   const span = RADII[0] + RADII[ROW - 1] + 2 * RADII.slice(1, ROW - 1).reduce((a, b) => a + b, 0) + GAP * (ROW - 1);
   const x: number[] = [];
@@ -76,10 +80,10 @@ export function rowLayout(width: number, height: number, narrow: boolean, zoom: 
     }
   }
   // the others grow in, one after another, as the zoom arrives at the multiverse
-  for (let i = 1; i < ROW; i++) r[i] *= sstep(4.38 + 0.07 * i, 4.68 + 0.07 * i, zoom);
-  // out to the omniverse the whole line shrinks about its middle, and gathers at the cluster's place
-  const cluster = (narrow ? CLUSTER.narrow : CLUSTER.wide) as [number, number];
-  const out = sstep(5, 6, zoom);
+  for (let i = 1; i < ROW; i++) r[i] *= sstep(4.38 + 0.055 * i, 4.66 + 0.055 * i, zoom);
+  // out to the omniverse the whole line shrinks about its middle into a dot in the host bubble
+  const cluster = host;
+  const out = sstep(5, 5.9, zoom);
   if (out > 0) {
     const k = Math.exp(Math.log(SHRINK) * out);
     const cx = narrow ? 0 : (x[0] - r[0] + x[ROW - 1] + r[ROW - 1]) / 2;
@@ -105,34 +109,51 @@ function seeded(seed: number) {
   };
 }
 
+/** The Omniverse's bubbles, and which one holds the Multiverse. */
+export interface Field {
+  /** Each bubble: middle (units from the window's middle, y up), radius, depth 0 far to 1 near; sorted far to near. */
+  balls: Vector4[];
+  /** The index of the near bubble the line shrinks into. */
+  host: number;
+}
+
 /**
- * The omniverse's bubbles for this window's shape (units from the middle, y up; radius; depth 0 far
- * to 1 near), sorted far to near. A few large and near, more middling, many small and far; none
- * on the line's cluster, and the big ones clear of the words on the left and of each other.
+ * The omniverse's bubbles for this window's shape. A few large and near, more middling, many small
+ * and far; the big and middling ones clear of the left third, where the words stand (the stop's name),
+ * of the header's dock, and of each other.
  */
-export function fieldLayout(width: number, height: number, narrow: boolean): Vector4[] {
+export function fieldLayout(width: number, height: number, narrow: boolean): Field {
   const aspect = width / height;
   const rand = seeded(20261124);
-  const cluster = narrow ? CLUSTER.narrow : CLUSTER.wide;
-  const big = narrow ? 0.5 : 1;
+  const scale = narrow ? 0.5 : 1;
   const out: Vector4[] = [];
   let tries = 0;
-  while (out.length < FIELD && tries++ < 4000) {
+  while (out.length < FIELD && tries++ < 8000) {
     const n = out.length;
-    const r = (n < 4 ? 0.3 + rand() * 0.28 : n < 11 ? 0.11 + rand() * 0.12 : 0.025 + rand() * 0.06) * big;
+    const r = (n < 4 ? 0.28 + rand() * 0.24 : n < 14 ? 0.1 + rand() * 0.12 : 0.02 + rand() * 0.065) * scale;
     const x = (rand() * 2 - 1) * (aspect + r * 0.6);
     const y = (rand() * 2 - 1) * (1 + r * 0.6);
-    if (Math.hypot(x - cluster[0], y - cluster[1]) < r + 0.32) continue;
-    // the big ones keep clear of the left third, where the words stand (the stop's name, and the
-    // About page over this scene), and of the header's dock (top middle)
-    if (r > 0.1 && !narrow && x - r < -aspect + 1.5) continue;
-    if (r > 0.1 && !narrow && Math.abs(x) < 0.75 && y + r > 0.78) continue;
-    if (r > 0.1 && out.some((b) => b.z > 0.1 && Math.hypot(b.x - x, b.y - y) < (b.z + r) * 0.9)) continue;
+    if (r > 0.09 && !narrow && x - r < -aspect + 1.5) continue;
+    if (r > 0.09 && !narrow && Math.abs(x) < 0.75 && y + r > 0.78) continue;
+    if (r > 0.09 && out.some((b) => b.z > 0.09 && Math.hypot(b.x - x, b.y - y) < (b.z + r) * 0.92)) continue;
     out.push(new Vector4(x, y, r, 0));
   }
   const most = Math.max(...out.map((b) => b.z));
   for (const b of out) b.w = Math.sqrt(b.z / most);
-  return out.sort((a, b) => a.w - b.w);
+  out.sort((a, b) => a.w - b.w);
+  // the bubble that holds the Multiverse: a near, middling one, closest to where the view wants it
+  const want = narrow ? HOST.narrow : HOST.wide;
+  let host = out.length - 1;
+  let best = Infinity;
+  out.forEach((b, i) => {
+    if (b.w <= 0.55 || b.z > 0.3 * scale) return;
+    const d = Math.hypot(b.x - want[0], b.y - want[1]);
+    if (d < best) {
+      best = d;
+      host = i;
+    }
+  });
+  return { balls: out, host };
 }
 
 const VERTEX = /* glsl */ `
@@ -184,13 +205,15 @@ uniform int uDetail;
 ${FOAM_CHUNK}
 ${BUBBLE_CHUNK}
 
-/* each other universe its own colours: its own physics */
+/* each other universe its own colours (its own physics), in the seven heavens' order: indigo,
+   violet, rose, ember, gold, warm white */
 vec3 tintOf(int i){
-  if (i == 1) return vec3(1.2, 0.85, 0.75);
-  if (i == 2) return vec3(0.7, 1.15, 1.1);
-  if (i == 3) return vec3(1.2, 0.72, 1.05);
-  if (i == 4) return vec3(1.25, 0.95, 0.6);
-  return vec3(0.85, 0.92, 1.25);
+  if (i == 1) return vec3(0.7, 0.8, 1.35);
+  if (i == 2) return vec3(1.0, 0.75, 1.3);
+  if (i == 3) return vec3(1.3, 0.72, 1.0);
+  if (i == 4) return vec3(1.35, 0.78, 0.6);
+  if (i == 5) return vec3(1.3, 1.0, 0.62);
+  return vec3(1.2, 1.12, 1.0);
 }
 
 void main(){
@@ -223,12 +246,42 @@ uniform float uTime;
 uniform float uAlpha;
 uniform int uDetail;
 ${FOAM_CHUNK}
-${BUBBLE_CHUNK}
 
-vec3 tintAt(float k){
-  vec3 a = vec3(1.0, 0.95, 1.05), b = vec3(1.15, 0.82, 1.1), c = vec3(0.85, 0.95, 1.2), d = vec3(1.2, 0.9, 0.75);
-  float x = fract(k * 7.31) * 3.0;
-  return x < 1.0 ? mix(a, b, x) : x < 2.0 ? mix(b, c, x - 1.0) : mix(c, d, x - 2.0);
+/* one near bubble of the omniverse, after the owner's reference: milky lavender glass, a fine,
+   wandering orange web over dark plum, white specks, a broad pale rim (premultiplied) */
+vec4 omniBall(vec2 d, float seed, int detail, float t, float soft){
+  float r = length(d);
+  float inside = 1.0 - smoothstep(1.0 - soft, 1.0, r);
+  float z = sqrt(max(1.0 - r * r, 0.0));
+  vec2 q = d / (0.5 + 0.5 * z) + vec2(seed * 11.3 + t * 0.003, seed * 5.9);
+  // the web wanders, as in the reference: no straight cell walls
+  q += 0.2 * vec2(noise3(vec3(q * 2.2, seed * 3.0)), noise3(vec3(q * 2.2 + 5.0, seed * 3.0))) - 0.1;
+  vec2 c = cellEdge(q * 4.6);
+  float grain = noise3(vec3(q * 18.0, seed * 7.0));
+  // the threads, and a wide warm glow round them, broken into clumps
+  float web = exp(-c.x * c.x / 0.004) * (0.25 + 1.0 * grain);
+  float glow = exp(-c.x * c.x / 0.03) * (0.3 + 0.7 * grain);
+  if (detail > 0) {
+    vec2 c2 = cellEdge(q * 9.5 + 3.0);
+    web += exp(-c2.x * c2.x / 0.002) * 0.35 * grain;
+  }
+  float n = noise3(vec3(q * 1.8, seed * 9.0));
+  vec3 col = mix(vec3(0.1, 0.04, 0.16), vec3(0.3, 0.12, 0.36), n);   // dark plum between the threads
+  col += vec3(0.95, 0.38, 0.22) * glow * 0.28;
+  col += mix(vec3(1.0, 0.5, 0.22), vec3(1.0, 0.78, 0.5), grain) * web * 0.85;
+  // white specks of galaxies, thick everywhere
+  vec2 g = q * 34.0;
+  float sp = step(0.93, hash3(vec3(floor(g), seed * 17.0))) * exp(-length(fract(g) - 0.5) * 7.0);
+  col += vec3(1.0, 0.97, 1.0) * sp * 0.9;
+  // glass: a little lavender over the face, a pale rim, a wide soft highlight
+  col = mix(col, vec3(0.55, 0.45, 0.85), 0.1);
+  float fres = pow(1.0 - z, 2.4);
+  col = mix(col, vec3(0.88, 0.82, 1.0), fres * 0.65);
+  vec2 h = d - vec2(-0.35, 0.4);
+  col += vec3(1.0, 0.97, 1.0) * exp(-dot(h, h) * 5.0) * 0.12;
+  col *= inside;
+  col += vec3(0.7, 0.55, 1.0) * exp(-max(r - 1.0, 0.0) * 10.0) * step(1.0, r) * 0.12;
+  return vec4(col, inside * 0.8);
 }
 
 void main(){
@@ -241,9 +294,8 @@ void main(){
   vec3 col = vec3(0.035, 0.015, 0.09) + vec3(0.42, 0.18, 0.95) * band * 0.42 + vec3(0.6, 0.35, 1.0) * band2 * 0.22;
   col += vec3(0.25, 0.1, 0.5) * 0.12 * exp(-dot(uv, uv) * 0.5);
 
-  // the bubbles, far to near: far ones small and soft, as if out of focus, drawn as they come; of
-  // the near ones only the nearest covering this pixel is drawn, once, after the loop (one copy of
-  // the ball's code, so the shader compiles quickly)
+  // far to near: far ones out of focus, drawn as they come (cheap); of the near ones only the
+  // nearest whose body covers this pixel is drawn, once, after the loop (so it compiles quickly)
   int hit = -1;
   vec4 hb = vec4(0.0);
   bool body = false;
@@ -255,7 +307,6 @@ void main(){
     if (q > 1.5) continue;
     float near = b.w;
     if (near > 0.55) {
-      // the nearest ball whose body covers the pixel wins; a glow just outside one only where no body does
       if (q < 1.0) {
         hit = i;
         hb = b;
@@ -266,18 +317,16 @@ void main(){
       }
       continue;
     }
-    // far: no threads to see, only a hazy glow of web and a pale rim
-    float soft = mix(0.35, 0.02, near) + 1.5 / b.z;
-    float r = length(d);
-    float inside = 1.0 - smoothstep(1.0 - soft, 1.0 + soft * 0.3, r);
-    float z = sqrt(max(1.0 - r * r, 0.0));
-    float m = noise3(vec3(d * 3.0, float(i)));
-    vec3 c = mix(vec3(0.5, 0.3, 0.9), vec3(1.0, 0.6, 0.45), m * 0.5) * (0.3 + 0.3 * m) + vec3(0.8, 0.7, 1.0) * pow(1.0 - z, 2.0) * 0.5;
-    col = col * (1.0 - inside * 0.8) + c * inside * mix(0.45, 1.0, near);
+    // far: a soft lavender glow with a warm blur of web at its heart and a paler edge
+    float soft = mix(0.4, 0.08, near) + 1.5 / b.z;
+    float r = sqrt(q);
+    float inside = 1.0 - smoothstep(1.0 - soft, 1.0 + soft * 0.2, r);
+    float m = 0.5 + 0.5 * sin(d.x * 4.0 + float(i) * 1.3) * sin(d.y * 3.5 - float(i) * 2.1); // cheap: no noise in the loop
+    vec3 c = mix(vec3(0.45, 0.28, 0.7), vec3(0.85, 0.5, 0.5), m * (1.0 - r) * 0.8) + vec3(0.75, 0.68, 0.95) * smoothstep(0.5, 1.0, r) * 0.35;
+    col = col * (1.0 - inside * 0.7) + c * inside * mix(0.4, 0.85, near);
   }
   if (hit >= 0) {
-    float k = float(hit) * 0.137;
-    vec4 ball = universeBall((gl_FragCoord.xy - hb.xy) / hb.z, k, uDetail, t, tintAt(k), 0.02 + 1.5 / hb.z);
+    vec4 ball = omniBall((gl_FragCoord.xy - hb.xy) / hb.z, float(hit) * 0.137, uDetail, t, 0.015 + 1.5 / hb.z);
     col = col * (1.0 - ball.a) + ball.rgb;
   }
   col = col / (1.0 + max(col - 0.9, 0.0) * 0.9);
@@ -312,7 +361,7 @@ function fullScreen(fragment: string, uniforms: ShaderMaterial["uniforms"], orde
 
 /** The other universes of the line (stop 5); drawn over the universe layer's darkness. */
 export function multiverse(): Mesh<BufferGeometry, ShaderMaterial> {
-  const seeds = [0, 0.21, 0.47, 0.63, 0.82, 0.95];
+  const seeds = [0, 0.21, 0.47, 0.63, 0.82, 0.95, 0.38];
   return fullScreen(
     MULTIVERSE_FRAGMENT,
     {

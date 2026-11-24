@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { noteAboutFrom } from "@/lib/about";
 import type { MenuFlight, MenuGroup } from "@/lib/content/menu";
 import { startFlight } from "@/lib/flight";
 import { SHIPS, setShip, useShip } from "@/lib/ship";
@@ -101,7 +102,14 @@ export function Dock({ groups, flights }: { groups: MenuGroup[]; flights: MenuFl
       <Item label="Ship" icon={<ShipIcon />} expanded={open === "ship"} controls="dock-ship" onClick={() => toggle("ship")} keep={(el) => {
         toggles.current.ship = el;
       }} />
-      <Link className={styles.item} href="/about" onClick={() => setOpen(null)}>
+      <Link
+        className={styles.item}
+        href="/about"
+        onClick={() => {
+          noteAboutFrom(); // About's Back returns here (D-185)
+          setOpen(null);
+        }}
+      >
         <BookIcon />
         <span>About</span>
       </Link>
