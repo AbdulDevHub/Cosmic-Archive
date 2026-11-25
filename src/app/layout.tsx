@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Google_Sans_Flex, Hanken_Grotesk } from "next/font/google";
+import { Google_Sans_Flex, Hanken_Grotesk, Syncopate } from "next/font/google";
 import Script from "next/script";
 import type { ReactNode } from "react";
 import { FirstLoad } from "@/components/FirstLoad";
@@ -19,6 +19,15 @@ const display = Google_Sans_Flex({
   variable: "--font-display-face",
   adjustFontFallback: false, // Next has no metrics for this face yet; system-ui stands in while it loads
   display: "swap",
+});
+
+/* The wordmark alone (D-203): Syncopate, wide geometric capitals with a space-age feel, only the letters it spells. */
+const logo = Syncopate({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-logo",
+  display: "swap",
+  preload: true,
 });
 
 const hanken = Hanken_Grotesk({
@@ -49,7 +58,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en" data-motion="on" className={`${display.variable} ${hanken.variable}`} suppressHydrationWarning>
+    <html lang="en" data-motion="on" className={`${display.variable} ${hanken.variable} ${logo.variable}`} suppressHydrationWarning>
       <body>
         {/* sets data-motion before the page hydrates; next/script, since React 19 warns about a raw <script> in a component */}
         <Script id="motion-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: motionInitScript }} />

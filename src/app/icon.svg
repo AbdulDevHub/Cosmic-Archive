@@ -1,29 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
-    <radialGradient id="bg" cx="50%" cy="45%" r="70%">
-      <stop offset="0" stop-color="#1d1846"/>
-      <stop offset="1" stop-color="#080818"/>
-    </radialGradient>
-    <linearGradient id="arm" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#8ec5ff"/>
-      <stop offset="0.55" stop-color="#a98bff"/>
-      <stop offset="1" stop-color="#e08cff"/>
-    </linearGradient>
-    <radialGradient id="core" cx="50%" cy="50%" r="50%">
-      <stop offset="0" stop-color="#fffaf0"/>
-      <stop offset="0.3" stop-color="#ffd9a0"/>
-      <stop offset="0.65" stop-color="#c79bff" stop-opacity="0.55"/>
-      <stop offset="1" stop-color="#7a5cff" stop-opacity="0"/>
-    </radialGradient>
+    <radialGradient id="bg" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#1d1846"/><stop offset="1" stop-color="#080818"/></radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#d58bff" stop-opacity="0.75"/><stop offset="0.45" stop-color="#8f6bff" stop-opacity="0.28"/><stop offset="1" stop-color="#5b4bff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="ray" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bfe0ff"/><stop offset="0.5" stop-color="#c9b8ff"/><stop offset="1" stop-color="#e7a6ff"/></linearGradient>
+    <linearGradient id="orbit" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8ec5ff"/><stop offset="0.5" stop-color="#efeaff"/><stop offset="1" stop-color="#d08cff"/></linearGradient>
+    <radialGradient id="core" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff"/><stop offset="0.35" stop-color="#ffd3ff"/><stop offset="0.7" stop-color="#d36bff"/><stop offset="1" stop-color="#8a4dff" stop-opacity="0"/></radialGradient>
   </defs>
   <rect width="64" height="64" rx="14" fill="url(#bg)"/>
-  <g transform="rotate(-24 32 32)">
-    <g transform="translate(32 32) scale(1.12 0.82) translate(-32 -32)">
-      <path fill="url(#arm)" d="M31 33 C 36 19, 55 19, 57 33 C 58.5 44, 48 52, 36 50 C 46 46, 51 40, 49 33 C 47 25, 37 24, 31 33 Z"/>
-      <path fill="url(#arm)" d="M33 31 C 28 45, 9 45, 7 31 C 5.5 20, 16 12, 28 14 C 18 18, 13 24, 15 31 C 17 39, 27 40, 33 31 Z"/>
+  <g transform="translate(32 32) scale(0.9) translate(-32 -32)">
+    <circle cx="32" cy="32" r="24" fill="url(#glow)"/>
+    <path d="M32 1.5L34.4 23.5L32 26.5L29.6 23.5ZM39.46 13.98L36.64 24.72L34.1 26.92L33.87 23.57ZM50.03 13.97L39.42 27.4L35.89 28.11L36.6 24.58ZM50.02 24.54L40.43 30.13L37.08 29.9L39.28 27.36ZM62.5 32L40.5 34.4L37.5 32L40.5 29.6ZM50.02 39.46L39.28 36.64L37.08 34.1L40.43 33.87ZM50.03 50.03L36.6 39.42L35.89 35.89L39.42 36.6ZM39.46 50.02L33.87 40.43L34.1 37.08L36.64 39.28ZM32 62.5L29.6 40.5L32 37.5L34.4 40.5ZM24.54 50.02L27.36 39.28L29.9 37.08L30.13 40.43ZM13.97 50.03L24.58 36.6L28.11 35.89L27.4 39.42ZM13.98 39.46L23.57 33.87L26.92 34.1L24.72 36.64ZM1.5 32L23.5 29.6L26.5 32L23.5 34.4ZM13.98 24.54L24.72 27.36L26.92 29.9L23.57 30.13ZM13.97 13.97L27.4 24.58L28.11 28.11L24.58 27.4ZM24.54 13.98L30.13 23.57L29.9 26.92L27.36 24.72Z" fill="url(#ray)" opacity="0.92"/>
+    <g fill="none" stroke="url(#orbit)" stroke-width="1.8">
+      <ellipse cx="32" cy="32" rx="20" ry="7.5" transform="rotate(-30 32 32)"/>
+      <ellipse cx="32" cy="32" rx="20" ry="7.5" transform="rotate(34 32 32)" opacity="0.8"/>
     </g>
+    <circle cx="32" cy="32" r="9" fill="url(#core)"/>
+    <circle cx="32" cy="32" r="3.2" fill="#fff"/>
+    <circle cx="49.2" cy="22" r="2.2" fill="#efeaff"/>
   </g>
-  <circle cx="32" cy="32" r="12" fill="url(#core)"/>
-  <circle cx="32" cy="32" r="3.8" fill="#fffaf0"/>
-  <circle cx="50" cy="15" r="1.6" fill="#dfe8ff"/>
 </svg>

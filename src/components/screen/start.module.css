@@ -73,24 +73,15 @@
   align-items: center;
   gap: 16px;
   font: 400 clamp(12px, 0.98vw, 15px) / 1 var(--font-display);
-  letter-spacing: 0.13em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: oklch(0.93 0.015 270);
-}
-
-.eyebrow span:nth-of-type(2) {
-  color: oklch(0.84 0.07 285);
-}
-
-.eyebrow span:nth-of-type(3) {
-  color: oklch(0.8 0.11 295);
-}
-
-.eyebrow i {
-  font-style: normal;
-  font-size: 0.8em;
-  color: oklch(0.8 0.12 285);
-  text-shadow: 0 0 8px oklch(0.7 0.18 285 / 0.9);
+  /* D-203: the line reads from star-white into the headline's violet */
+  background: linear-gradient(90deg, oklch(0.95 0.015 270), oklch(0.84 0.08 285) 60%, oklch(0.8 0.12 300));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  width: fit-content;
 }
 
 /* D-199: a short glowing rule leads into the eyebrow */
@@ -127,13 +118,6 @@
   to {
     background-position: -200% 0;
   }
-}
-
-.line {
-  margin: 24px 0 0 4px;
-  max-width: 36rem;
-  font: 300 clamp(1.08rem, 1.4vw, 1.4rem) / 1.6 var(--font-display);
-  color: oklch(0.9 0.02 270); /* D-199: brighter, so it reads over the stars */
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -180,6 +164,60 @@
 
 .begin svg {
   transition: transform var(--dur-base) var(--ease-out);
+}
+
+/* D-203: the button's word turns, Explore, Discover, Be Inspired, three seconds each. All three
+   share one grid cell, so the button keeps the widest word's width and never jumps. */
+.words {
+  display: grid;
+  min-width: 6.2em;
+  text-align: left;
+}
+
+.words > span {
+  grid-area: 1 / 1;
+  animation: word 9s var(--ease-out) infinite both;
+}
+
+.words > span:nth-child(2) { animation-delay: 3s; }
+.words > span:nth-child(3) { animation-delay: 6s; }
+
+@keyframes word {
+  0% {
+    opacity: 0;
+    transform: translateY(0.7em);
+    filter: blur(4px);
+  }
+  5%,
+  30% {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+  35%,
+  100% {
+    opacity: 0;
+    transform: translateY(-0.7em);
+    filter: blur(4px);
+  }
+}
+
+/* still: Explore alone */
+@media (prefers-reduced-motion: reduce) {
+  .words > span {
+    animation: none;
+  }
+  .words > span + span {
+    visibility: hidden;
+  }
+}
+
+:global(html[data-motion="paused"]) .words > span {
+  animation: none;
+}
+
+:global(html[data-motion="paused"]) .words > span + span {
+  visibility: hidden;
 }
 
 /* ---- "Scroll to explore": a mouse and a falling line ---- */
@@ -251,10 +289,6 @@
 /* ---- phone: the words lower, over the planet's glow; no scroll hint ---- */
 
 @media (max-width: 860px) {
-  .wide {
-    display: none;
-  }
-
   .title {
     white-space: normal;
   }
@@ -270,10 +304,6 @@
     gap: 8px;
     margin-bottom: 16px;
     letter-spacing: 0.18em;
-  }
-
-  .line {
-    margin-top: 16px;
   }
 
   .begin {

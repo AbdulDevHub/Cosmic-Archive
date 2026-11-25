@@ -120,33 +120,48 @@ export const ArrowIcon = () => (
   </Icon>
 );
 
-/** The wordmark's emblem: a small spiral galaxy of our own, in the start page's violet and blue. */
+/**
+ * The wordmark's emblem (D-203): a stellar astrolabe of our own. A burst of long and short rays
+ * around a glowing violet star, held in two crossing orbits with a small moon on one, in the
+ * start page's violet and blue. The browser tab's icon (src/app/icon.svg) is the same mark on a tile.
+ */
+export const EMBLEM_RAYS = "M32 1.5L34.4 23.5L32 26.5L29.6 23.5ZM39.46 13.98L36.64 24.72L34.1 26.92L33.87 23.57ZM50.03 13.97L39.42 27.4L35.89 28.11L36.6 24.58ZM50.02 24.54L40.43 30.13L37.08 29.9L39.28 27.36ZM62.5 32L40.5 34.4L37.5 32L40.5 29.6ZM50.02 39.46L39.28 36.64L37.08 34.1L40.43 33.87ZM50.03 50.03L36.6 39.42L35.89 35.89L39.42 36.6ZM39.46 50.02L33.87 40.43L34.1 37.08L36.64 39.28ZM32 62.5L29.6 40.5L32 37.5L34.4 40.5ZM24.54 50.02L27.36 39.28L29.9 37.08L30.13 40.43ZM13.97 50.03L24.58 36.6L28.11 35.89L27.4 39.42ZM13.98 39.46L23.57 33.87L26.92 34.1L24.72 36.64ZM1.5 32L23.5 29.6L26.5 32L23.5 34.4ZM13.98 24.54L24.72 27.36L26.92 29.9L23.57 30.13ZM13.97 13.97L27.4 24.58L28.11 28.11L24.58 27.4ZM24.54 13.98L30.13 23.57L29.9 26.92L27.36 24.72Z";
+
 export function Emblem({ size = 44 }: { size?: number }) {
   return (
-    // D-199: the same mark as the browser tab's icon (src/app/icon.svg), without its tile
-    <svg viewBox="4 4 56 56" width={size} height={size} aria-hidden="true">
+    <svg viewBox="0 0 64 64" width={size} height={size} aria-hidden="true" overflow="visible">
       <defs>
-        <linearGradient id="emblem-arm" x1="0" y1="0" x2="1" y2="1">
+        <radialGradient id="emblem-glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stopColor="#d58bff" stopOpacity="0.75" />
+          <stop offset="0.45" stopColor="#8f6bff" stopOpacity="0.28" />
+          <stop offset="1" stopColor="#5b4bff" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="emblem-ray" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#bfe0ff" />
+          <stop offset="0.5" stopColor="#c9b8ff" />
+          <stop offset="1" stopColor="#e7a6ff" />
+        </linearGradient>
+        <linearGradient id="emblem-orbit" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0" stopColor="#8ec5ff" />
-          <stop offset="0.55" stopColor="#a98bff" />
-          <stop offset="1" stopColor="#e08cff" />
+          <stop offset="0.5" stopColor="#efeaff" />
+          <stop offset="1" stopColor="#d08cff" />
         </linearGradient>
         <radialGradient id="emblem-core" cx="50%" cy="50%" r="50%">
-          <stop offset="0" stopColor="#fffaf0" />
-          <stop offset="0.3" stopColor="#ffd9a0" />
-          <stop offset="0.65" stopColor="#c79bff" stopOpacity="0.55" />
-          <stop offset="1" stopColor="#7a5cff" stopOpacity="0" />
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="0.35" stopColor="#ffd3ff" />
+          <stop offset="0.7" stopColor="#d36bff" />
+          <stop offset="1" stopColor="#8a4dff" stopOpacity="0" />
         </radialGradient>
       </defs>
-      <g transform="rotate(-24 32 32)">
-        <g transform="translate(32 32) scale(1.12 0.82) translate(-32 -32)" fill="url(#emblem-arm)">
-          <path d="M31 33 C 36 19, 55 19, 57 33 C 58.5 44, 48 52, 36 50 C 46 46, 51 40, 49 33 C 47 25, 37 24, 31 33 Z" />
-          <path d="M33 31 C 28 45, 9 45, 7 31 C 5.5 20, 16 12, 28 14 C 18 18, 13 24, 15 31 C 17 39, 27 40, 33 31 Z" />
-        </g>
+      <circle cx="32" cy="32" r="24" fill="url(#emblem-glow)" />
+      <path d={EMBLEM_RAYS} fill="url(#emblem-ray)" opacity="0.92" />
+      <g fill="none" stroke="url(#emblem-orbit)" strokeWidth="1.5">
+        <ellipse cx="32" cy="32" rx="20" ry="7.5" transform="rotate(-30 32 32)" />
+        <ellipse cx="32" cy="32" rx="20" ry="7.5" transform="rotate(34 32 32)" opacity="0.8" />
       </g>
-      <circle cx="32" cy="32" r="12" fill="url(#emblem-core)" />
-      <circle cx="32" cy="32" r="3.8" fill="#fffaf0" />
-      <circle cx="50" cy="15" r="1.6" fill="#dfe8ff" />
+      <circle cx="32" cy="32" r="9" fill="url(#emblem-core)" />
+      <circle cx="32" cy="32" r="3.2" fill="#ffffff" />
+      <circle cx="49.2" cy="22" r="2" fill="#efeaff" />
     </svg>
   );
 }

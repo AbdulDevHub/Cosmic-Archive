@@ -2,13 +2,13 @@
 
 import type { KeyboardEvent } from "react";
 import { SHIPS, setShip, useShip } from "@/lib/ship";
-import { ShipSilhouette } from "../LoaderShip";
+import { ShipClassIcon } from "./ShipClassIcon";
 import styles from "./ShipDock.module.css";
 
 /*
   The ship dock (D-201): the start page's flared glass dock from start-page-mockup.png, back at the
   bottom where the mockup has it (it hung in the header since D-116). It holds the fleet (D-118): one
-  button per ship, its silhouette over its name; the chosen one glows and flies in the scene. The
+  button per ship, an icon for its class (D-203) over its name; the chosen one glows and flies in the scene. The
   choice is remembered (`setShip`). On a phone it folds away, as the header's menu does.
 */
 
@@ -55,7 +55,7 @@ export function ShipDock() {
             onClick={() => setShip(ship.id)}
             data-tip={ship.role}
           >
-            <ShipSilhouette ship={ship.id} width={74} />
+            <ShipClassIcon ship={ship.id} size={34} />
             <span>{ship.name}</span>
           </button>
         ))}
