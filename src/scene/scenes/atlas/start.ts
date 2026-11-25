@@ -102,46 +102,39 @@ void main(){
   vec3 fill = mix(vec3(0.22, 0.12, 0.42), vec3(0.12, 0.22, 0.48), n.x * 0.5 + 0.5) * 0.18;
   vec3 col;
   if (uKind == 0) {
-    // D-199: a finer world seen low across its horizon: a lit crescent and a sunset band along the
-    // horizon, night below with warm city lights, ragged coasts, swirling cloud, a thin line of air.
-    // Only a thin cap of so huge a planet shows, every point of it seen at a low angle (checked by
-    // drawing its normals), so a plain limb term washed the whole face: "toward the horizon" is
-    // measured on that cap instead (g, 0 at the horizon to 1 deep in the cap).
+    // D-205: an ocean world under cloud, as in the owner's start-page-mockup.png: no land, no city
+    // lights. Deep navy sea, banded cloud lit warm by the galaxy along the horizon and cooling to
+    // blue-white deeper in, and a bright line of air. Only a thin cap of so huge a planet shows,
+    // every point of it seen at a low angle, so "toward the horizon" is measured on that cap
+    // (g, 0 at the horizon to 1 deep in the cap; D-199).
     vec3 p = normalize(vO);
-    vec3 nf = n;
-    float g = clamp(dot(nf, v) / 0.55, 0.0, 1.0);
-    float ndlp = 0.74 - g * 0.86;                 // the light comes from beyond the horizon (D-204: most of the cap in daylight, night only deep in)
+    float g = clamp(dot(n, v) / 0.55, 0.0, 1.0);
+    float lit = 1.0 - smoothstep(0.0, 1.15, g);      // the light comes from beyond the horizon
     vec3 w = vec3(fbm3(p * 6.0 + 3.0), fbm3(p * 6.0 + 9.0), fbm3(p * 6.0 + 15.0)) - 0.5;
-    float h = fbm3(p * 9.0 + w * 1.6 + 1.3) + 0.12 * (fbm3(p * 40.0 + w * 3.0) - 0.5) + 0.05 * (n3(p * 140.0) - 0.5);
-    float land = smoothstep(0.545, 0.556, h);
-    float shelf = smoothstep(0.5, 0.545, h) * (1.0 - land);
-    vec3 ocean = mix(vec3(0.02, 0.07, 0.18), vec3(0.06, 0.2, 0.42), smoothstep(0.3, 0.54, h)); // D-204: brighter seas
-    ocean = mix(ocean, vec3(0.05, 0.26, 0.4), shelf * 0.55);
-    float detail = fbm3(p * 60.0);
-    vec3 ground = mix(vec3(0.12, 0.25, 0.1), vec3(0.5, 0.42, 0.27), smoothstep(0.35, 0.75, detail + 0.3 * (h - 0.6)));
-    vec3 surface = mix(ocean, ground, land);
-    vec3 cp = p + vec3(uTime * 0.0008, 0.0, 0.0);
+    float depth = fbm3(p * 9.0 + w * 1.6 + 1.3);
+    vec3 sea = mix(vec3(0.008, 0.025, 0.1), vec3(0.04, 0.13, 0.38), smoothstep(0.3, 0.7, depth));
+    sea *= 0.75 + 1.1 * lit;
+    sea += vec3(0.22, 0.45, 0.9) * pow(lit, 2.5) * 0.55;          // the sea's sheen toward the light
+    // cloud: broad swirls, and long streaks stretched along the planet's turn
+    vec3 cp = p; // D-205: the planet and its clouds hold still
     vec3 cw = vec3(fbm3(cp * 7.0 + 21.0), fbm3(cp * 7.0 + 31.0), 0.0) - 0.5;
-    float cloud = smoothstep(0.55, 0.8, fbm3(cp * 13.0 + cw * 2.2 + 40.0));
-    cloud = clamp(cloud + smoothstep(0.62, 0.86, fbm3(cp * 45.0 + cw * 3.0 + 50.0)) * 0.5 * (1.0 - cloud), 0.0, 1.0);
-    float day = smoothstep(-0.06, 0.3, ndlp);
-    vec3 dayCol = mix(surface, vec3(0.9, 0.93, 0.98), cloud * 0.9) * (0.06 + 1.2 * day);
-    // D-200: the night side is not black: the galaxy's violet-blue light shows its clouds, seas and coasts
-    dayCol += mix(surface * 2.2, vec3(0.42, 0.45, 0.62), cloud * 0.8) * vec3(0.55, 0.6, 1.0) * 0.38 * (1.0 - day); // D-204: lighter (was 0.22)
-    // the sunset band along the terminator, strongest on the clouds
-    float twilight = exp(-pow((ndlp - 0.0) / 0.13, 2.0));
-    dayCol += vec3(1.0, 0.46, 0.18) * twilight * (0.15 + 0.9 * cloud) * 0.85;
-    // the night side: cities in warm points and soft glows, dimmed under cloud
-    float night = smoothstep(0.0, -0.12, ndlp) * land * (1.0 - cloud * 0.85);
-    float town = step(0.82, h3(floor(p * 1400.0))) * smoothstep(0.5, 0.75, fbm3(p * 30.0 + 60.0));
-    float sprawl = smoothstep(0.6, 0.85, fbm3(p * 30.0 + 60.0)) * 0.2;
-    col = dayCol + vec3(1.0, 0.7, 0.36) * night * (town * 1.2 + sprawl) + fill * 0.15;
+    float cloud = smoothstep(0.5, 0.78, fbm3(cp * 12.0 + cw * 2.4 + 40.0));
+    float streak = smoothstep(0.52, 0.82, fbm3(cp * vec3(8.0, 30.0, 8.0) + cw * 3.0 + 70.0));
+    cloud = clamp(cloud + streak * 0.75 * (1.0 - cloud), 0.0, 1.0);
+    cloud = clamp(cloud + smoothstep(0.62, 0.86, fbm3(cp * 45.0 + cw * 3.0 + 50.0)) * 0.4 * (1.0 - cloud), 0.0, 1.0);
+    vec3 cool = vec3(0.62, 0.7, 0.9);
+    vec3 warm = vec3(1.0, 0.74, 0.5);
+    vec3 cloudCol = mix(cool, warm, pow(lit, 2.2)) * (0.55 + 1.05 * lit);
+    col = mix(sea, cloudCol, cloud * 0.92);
+    // the sunset glow on the cloud tops nearest the horizon
+    col += vec3(1.0, 0.52, 0.24) * pow(lit, 4.0) * cloud * 0.7;
+    col += fill * 0.15;
     // the air: a thin bright line at the very horizon, a faint blue haze just inside it
     float limb = pow(1.0 - g, 60.0);
     float haze = pow(1.0 - g, 6.0);
-    col = mix(col, vec3(0.3, 0.6, 1.0) * 0.5, haze * 0.35);
+    col = mix(col, vec3(0.35, 0.65, 1.0) * 0.7, haze * 0.4);
     col += vec3(0.5, 0.78, 1.0) * limb * 1.6;
-    col += vec3(1.0, 0.55, 0.3) * haze * twilight * 0.35;
+    col += vec3(1.0, 0.6, 0.35) * haze * cloud * 0.25;
   } else if (uKind == 1) {
     vec3 p = normalize(vO);
     float rock = fbm3(p * 4.0);
@@ -517,7 +510,7 @@ export class StartProps {
     const pr = (narrow ? 1.6 : 3.4) * (1 + go * 0.8); // D-199: larger (3.05), a flatter horizon
     this.at(camera, narrow ? -0.35 : -1.3, (narrow ? -2.42 : -3.78) - go * 2.2, pd, this.planet.position); // D-199: lower (-3.3)
     this.planet.scale.setScalar(this.size(camera, pr, pd));
-    this.planet.rotation.set(0.35, t * 0.004, 0.2);
+    this.planet.rotation.set(0.35, 0, 0.2); // D-205: held still, as in the mockup
     this.halo.position.copy(this.planet.position);
     this.halo.scale.setScalar(this.planet.scale.x * 1.008); // D-199: a thin shell of air (was 1.045)
 
