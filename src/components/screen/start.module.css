@@ -110,7 +110,6 @@
 .gradient {
   /* D-199: the gradient drifts slowly, a light passing across the words, and glows a little;
      D-208: brighter stops, so the words read as lit rather than pastel */
-  position: relative;
   background: linear-gradient(90deg, oklch(0.84 0.13 232), oklch(0.78 0.15 262) 30%, oklch(0.76 0.19 300) 50%, oklch(0.78 0.15 262) 70%, oklch(0.84 0.13 232));
   background-size: 200% 100%;
   -webkit-background-clip: text;
@@ -121,41 +120,15 @@
   animation: drift 9s linear infinite;
 }
 
-/* D-208: starlight: a thin glint of white crosses the words every eight seconds, as if a star caught them */
-.gradient::after {
-  content: attr(data-text);
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(105deg, transparent 42%, oklch(1 0 0 / 0.95) 50%, transparent 58%);
-  background-size: 300% 100%;
-  background-position: 150% 0;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  pointer-events: none;
-  animation: glint 8s ease-in-out 2.4s infinite;
-}
-
 @keyframes drift {
   to {
     background-position: -200% 0;
   }
 }
 
-@keyframes glint {
-  0% {
-    background-position: 150% 0;
-  }
-  22%,
-  100% {
-    background-position: -50% 0;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .copy > *,
-  .gradient,
-  .gradient::after {
+  .gradient {
     animation: none;
   }
 }
@@ -166,7 +139,6 @@
   margin-top: 34px;
   display: grid;
   justify-items: start;
-  gap: 46px; /* the words sit below the orbit ring */
 }
 
 .begin {
@@ -244,10 +216,11 @@
 .orbitBack,
 .orbitFront {
   position: absolute;
-  left: -52px;
-  top: -46px;
-  width: calc(100% + 104px);
-  height: calc(100% + 92px);
+  /* D-208: drawn close round the pill, so it takes little room */
+  left: -24px;
+  top: -18px;
+  width: calc(100% + 48px);
+  height: calc(100% + 36px);
   overflow: visible;
   pointer-events: none;
   filter: drop-shadow(0 0 4px oklch(0.85 0.12 280 / 0.9));
@@ -332,7 +305,7 @@
 .begin:hover .orbitFront,
 .begin:focus-visible .orbitBack,
 .begin:focus-visible .orbitFront {
-  transform: scale(0.94) translateY(-2px);
+  transform: translateY(-2px); /* rises with the pill; already close, so it does not tighten */
 }
 
 .begin:hover ellipse,
@@ -417,46 +390,7 @@
   }
 }
 
-/* D-203, D-208: the words under it turn, Explore, Discover, Be Inspired, three seconds each; all
-   three share one grid cell, so nothing shifts */
-.words {
-  display: grid;
-  margin: 0 0 0 30px;
-  font: 500 12px / 1 var(--font-display);
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: oklch(0.84 0.08 285);
-}
-
-.words > span {
-  grid-area: 1 / 1;
-  animation: word 9s var(--ease-out) infinite both;
-}
-
-.words > span:nth-child(2) { animation-delay: 3s; }
-.words > span:nth-child(3) { animation-delay: 6s; }
-
-@keyframes word {
-  0% {
-    opacity: 0;
-    transform: translateY(0.7em);
-    filter: blur(4px);
-  }
-  5%,
-  30% {
-    opacity: 1;
-    transform: none;
-    filter: none;
-  }
-  35%,
-  100% {
-    opacity: 0;
-    transform: translateY(-0.7em);
-    filter: blur(4px);
-  }
-}
-
-/* still: no sweep, no orbiting, no specks or streaks; Explore alone */
+/* still: no sweep, no orbiting, no specks or streaks */
 @media (prefers-reduced-motion: reduce) {
   .core::before,
   .specks,
@@ -465,12 +399,8 @@
   }
   .orbitBack ellipse,
   .orbitFront ellipse,
-  .words > span,
   .start[data-leaving] .core {
     animation: none;
-  }
-  .words > span + span {
-    visibility: hidden;
   }
 }
 
@@ -480,14 +410,8 @@
 }
 
 :global(html[data-motion="paused"]) .orbitBack ellipse,
-:global(html[data-motion="paused"]) .orbitFront ellipse,
-:global(html[data-motion="paused"]) .gradient::after,
-:global(html[data-motion="paused"]) .words > span {
+:global(html[data-motion="paused"]) .orbitFront ellipse {
   animation: none;
-}
-
-:global(html[data-motion="paused"]) .words > span + span {
-  visibility: hidden;
 }
 
 /* ---- "Scroll to explore": a mouse and a falling line ---- */

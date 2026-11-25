@@ -12,8 +12,8 @@ import styles from "./start.module.css";
   glowing button. D-208: the button is a warp core, from the owner's pick of four concepts: a pill
   with a light sweeping across it, a ring of star dots orbiting it (passing behind and in front),
   specks of starlight drawn in toward it, and on Begin a flare and streaks of light shooting off
-  toward the galaxy. It always reads "Begin Your Journey"; Explore, Discover and Be Inspired turn
-  under it (CSS only; calm motion holds them on Explore). Pointing at it powers up the ship's
+  toward the galaxy. It reads "Begin Your Journey" (the turning Explore, Discover, Be Inspired were
+  taken off: too much). Pointing at it powers up the ship's
   engines in the scene (`setStartCharge`). The button is Begin, the way in: the click that is
   allowed to start the music, and the start of the flight into the galaxy. "Scroll to explore"
   says the wheel (or a swipe) does the same.
@@ -62,7 +62,7 @@ export function StartScreen({ phase, onBegin }: { phase: StartPhase; onBegin: ()
       <div className={styles.copy}>
         <p className={styles.eyebrow}>Where Every Star Tells A Story</p>
         <h1 className={styles.title}>
-          The <span className={styles.gradient} data-text="Universe Awaits">Universe Awaits</span>
+          The <span className={styles.gradient}>Universe Awaits</span>
         </h1>
         <div className={styles.launch}>
           <button
@@ -96,11 +96,6 @@ export function StartScreen({ phase, onBegin }: { phase: StartPhase; onBegin: ()
               ))}
             </span>
           </button>
-          <p className={styles.words}>
-            <span>Explore</span>
-            <span>Discover</span>
-            <span>Be Inspired</span>
-          </p>
         </div>
       </div>
 
