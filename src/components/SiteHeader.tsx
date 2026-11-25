@@ -6,20 +6,17 @@ import { useMemo, useState, type KeyboardEvent, type MouseEvent } from "react";
 import type { MenuFlight, MenuGroup, MenuPlace } from "@/lib/content/menu";
 import { toggleSound, useSound } from "@/lib/sound";
 import { flowBusy, jumpTo } from "@/scene/host/flow";
-import { Dock } from "./Dock";
+import { HOME_EVENT, Menu } from "./Menu";
 import { Emblem, SearchIcon } from "./icons";
 import styles from "./SiteHeader.module.css";
 
 /*
-  The header (D-107, D-116, D-139): the emblem and the spaced wordmark on the left (it leads home,
-  to the start page); in the middle the menu, the flared glass dock; search and Sound on the right.
+  The header (D-107, D-139, D-201): the emblem and the spaced wordmark on the left (it leads home,
+  to the start page); in the middle the menu, the mockup's flat row; search and Sound on the right.
   Search finds a place by name and flies there. (The owner's music needs no switch: it plays where
   this browser holds their key, D-185.)
   On a phone the menu and search fold away; the wordmark and Sound stay.
 */
-
-/** Asks the atlas to fly back out to its start page, when Home is pressed on `/` itself. */
-export const HOME_EVENT = "cosmic:home";
 
 /** A place's name without "A", "An", "The" or "Its" in front, for matching. */
 const bare = (name: string) => name.toLowerCase().replace(/^(a|an|the|its)\s+/, "");
@@ -63,7 +60,7 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
       </Link>
 
       <div className={styles.bar}>
-        <Dock groups={groups} flights={flights} />
+        <Menu groups={groups} flights={flights} />
       </div>
 
       <div className={styles.tools}>

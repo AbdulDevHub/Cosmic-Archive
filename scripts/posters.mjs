@@ -20,6 +20,9 @@ const NARROW = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 };
 const POSTERS = [
   { file: "atlas-start-wide.webp", path: "/?shot=1&t=12&tier=high", ...WIDE, quality: 0.8 },
   { file: "atlas-start-narrow.webp", path: "/?shot=1&t=12&tier=low", ...NARROW, quality: 0.8 },
+  // D-201: the galaxy close in, the atlas's still once Begin has been pressed
+  { file: "atlas-wide.webp", path: "/?shot=1&t=12&tier=high&zoom=0", ...WIDE, quality: 0.8 },
+  { file: "atlas-narrow.webp", path: "/?shot=1&t=12&tier=low&zoom=0", ...NARROW, quality: 0.8 },
   // The Multiverse and the Omniverse (D-184), and the cosmic web behind the About page (D-185)
   { file: "multiverse-wide.webp", path: "/?shot=1&t=12&tier=high&zoom=5", ...WIDE, quality: 0.8 },
   { file: "multiverse-narrow.webp", path: "/?shot=1&t=12&tier=low&zoom=5", ...NARROW, quality: 0.8 },

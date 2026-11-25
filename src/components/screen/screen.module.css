@@ -33,6 +33,22 @@
     0 0 4px oklch(0.13 0.04 275 / 0.8);
 }
 
+/* D-201: with no scene drawn (the poster, and the places as a list), a soft dark pool behind the
+   words and the list, so they read over the poster's brightest light */
+.screen:not([data-live]) .caption {
+  isolation: isolate;
+}
+
+.screen:not([data-live]) .caption::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -18% -30% -18% -40%;
+  background: radial-gradient(closest-side, oklch(0.1 0.04 275 / 0.78), oklch(0.1 0.04 275 / 0.45) 60%, transparent);
+  filter: blur(14px);
+  pointer-events: none;
+}
+
 .caption h1 {
   font-size: clamp(2rem, 4.2vw, 3.6rem);
   line-height: 1;

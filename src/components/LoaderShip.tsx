@@ -79,6 +79,28 @@ const LOOKS: Record<ShipClass, Look> = {
   },
 };
 
+/** A ship alone, its hull in its own colours, for the start page's ship dock (D-201). */
+export function ShipSilhouette({ ship, width = 64 }: { ship: ShipClass; width?: number }) {
+  const look = LOOKS[ship];
+  const id = `ship-hull-${ship}`;
+  return (
+    <svg viewBox="0 0 120 60" width={width} height={width / 2} aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={look.hull[0]} />
+          <stop offset="1" stopColor={look.hull[1]} />
+        </linearGradient>
+      </defs>
+      <g fill={`url(#${id})`} stroke={look.trim ?? "none"} strokeWidth={look.trim ? 0.9 : 0}>
+        {look.body}
+      </g>
+      {look.engines.map(([x, y]) => (
+        <circle key={`${x}-${y}`} cx={x} cy={y} r="3.6" fill="#8fcaff" />
+      ))}
+    </svg>
+  );
+}
+
 export function LoaderShip({ ship }: { ship: ShipClass }) {
   const look = LOOKS[ship];
   return (

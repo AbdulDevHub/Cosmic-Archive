@@ -21,7 +21,7 @@ import {
 } from "@/scene/host/store";
 import { ZoomOutIcon } from "../icons";
 import { VideoButton } from "./VideoButton";
-import { HOME_EVENT } from "../SiteHeader";
+import { HOME_EVENT } from "../Menu";
 import { DragHint } from "./DragHint";
 import { setVia } from "@/lib/via";
 import styles from "./screen.module.css";
@@ -58,7 +58,10 @@ export interface Spot {
   veil: string;
 }
 
-const POSTERS = { wide: "/posters/atlas-start-wide.webp", narrow: "/posters/atlas-start-narrow.webp" };
+/* the start page's still, and (D-201) the galaxy's, shown past Begin when the scene is not drawn: the
+   start still there showed the planet and rocks under the galaxy's words */
+const START_POSTERS = { wide: "/posters/atlas-start-wide.webp", narrow: "/posters/atlas-start-narrow.webp" };
+const GALAXY_POSTERS = { wide: "/posters/atlas-wide.webp", narrow: "/posters/atlas-narrow.webp" };
 
 const STEP_MS = 1900;
 const BEGIN_MS = 3800; // the flight from the start page to the galaxy
@@ -341,7 +344,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
 
   return (
     <div ref={stage} className={styles.screen} data-live={live ? "" : undefined} data-moving={moving ? "" : undefined} data-start={phase !== "atlas" ? "" : undefined} data-web={level >= 2 ? "" : undefined} data-void={level === 3 ? "" : undefined} data-universe={level === 4 ? "" : undefined} data-multiverse={level === 5 ? "" : undefined} data-omniverse={level === 6 ? "" : undefined}>
-      <SceneSlot id="atlas" mode="atlas" posters={POSTERS} opening={opening} />
+      <SceneSlot id="atlas" mode="atlas" posters={phase === "atlas" ? GALAXY_POSTERS : START_POSTERS} opening={opening} />
       <StartScreen phase={phase} onBegin={begin} />
 
       <div className={styles.caption}>

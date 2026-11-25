@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { holdMusic } from "@/lib/sound";
 import { ArrowIcon } from "../icons";
+import { ShipDock } from "./ShipDock";
 import styles from "./start.module.css";
 
 /*
@@ -12,8 +13,8 @@ import styles from "./start.module.css";
   allowed to start the music, and the start of the flight into the galaxy. "Scroll to explore"
   says the wheel (or a swipe) does the same.
 
-  The menu that was the dock at the bottom now hangs in the header (D-116). The fleet (D-118)
-  that took its place has moved into the dock's Ship panel (D-139).
+  D-201: the flared dock is back at the bottom, as in the mockup, and holds the fleet (D-118):
+  the ship that flies in this scene is chosen there. The header has the mockup's flat menu.
 */
 
 export type StartPhase = "start" | "leaving" | "atlas";
@@ -53,6 +54,8 @@ export function StartScreen({ phase, onBegin }: { phase: StartPhase; onBegin: ()
         <span className={styles.mouse} />
         <span>Scroll to explore</span>
       </p>
+
+      <ShipDock />
 
     </div>
   );
