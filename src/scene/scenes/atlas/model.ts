@@ -222,7 +222,8 @@ function buildDust(rng: Rng, n: number): Cloud {
     if (rand() > 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(th * 5 + arm * 2.1))) continue; // patchy, not a painted stripe
     const rr = r - (0.03 + 0.05 * r) + gauss() * 0.008;
     const k = (0.6 + rand() * 0.4) * sstep(0.25, 0.4, r) * (1 - sstep(0.7, 0.93, r)); // thins toward core and rim
-    put(rng, d, rr * Math.cos(th), gauss() * 0.004, rr * Math.sin(th), [0.62 * k, 0.78 * k, 0.95 * k], 5 + rand() * 8); // takes more blue than red
+    // D-198: takes more green than red or blue, so what shows through is a deep violet shadow, not brown-black
+    put(rng, d, rr * Math.cos(th), gauss() * 0.004, rr * Math.sin(th), [0.5 * k, 0.78 * k, 0.45 * k], 5 + rand() * 8);
   }
   return d;
 }
@@ -410,7 +411,7 @@ function buildFineDust(n: number): Cloud {
       const rr = r / GAL_R;
       const th = th0 + u;
       const k = (0.5 + rand() * 0.5) * sstep(0.14, 0.3, rr) * (1 - sstep(0.85, 1.0, rr));
-      put(rng, d, r * Math.cos(th) + gauss() * 0.004, gauss() * 0.003, r * Math.sin(th) + gauss() * 0.004, [0.6 * k, 0.75 * k, 0.95 * k], 2.2 + rand() * 3.5);
+      put(rng, d, r * Math.cos(th) + gauss() * 0.004, gauss() * 0.003, r * Math.sin(th) + gauss() * 0.004, [0.5 * k, 0.75 * k, 0.45 * k], 2.2 + rand() * 3.5);
     }
   }
   return d;

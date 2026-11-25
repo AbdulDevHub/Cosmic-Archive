@@ -53,9 +53,9 @@ import { StartProps } from "./start";
 import { armAngle, buildAtlas, COUNTS, joinClouds, mix, OUTER, SPIN, sstep, TAU, type Cloud, type Vec3 } from "./model";
 
 // base strengths, faded out together at the far zoom
-const A = { haze: 0.05, body: 0.02, dust: 0.1, core: 0.2, halo: 0.8 };
+const A = { haze: 0.05, body: 0.02, dust: 0.065, core: 0.2, halo: 0.8 }; // dust softened in D-198 (was 0.1)
 // S2 (D-111): the disc's new layers, at the `high` counts
-const S2 = { filaments: 0.45, clusterStars: 0.85, clusterGlow: 0.09, clouds: 0.04, fineDust: 0.16, heart: 0.035, webStrands: 0.42, webGlow: 0.26 };
+const S2 = { filaments: 0.45, clusterStars: 0.85, clusterGlow: 0.09, clouds: 0.04, fineDust: 0.1, heart: 0.035, webStrands: 0.42, webGlow: 0.26 };
 /** D-112: how fast the black hole's disc and its feeding streams turn (radians per second), and their strength. */
 const NUCLEUS_SPIN = 0.22;
 const NUCLEUS = { glow: 1.6 };
