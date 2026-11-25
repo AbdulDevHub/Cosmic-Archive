@@ -1,9 +1,9 @@
 /**
  * Programmable Matter (D-154): our own illustration of matter made of millions of tiny units that
  * arrange themselves into forms on command (Carnegie Mellon's "catoms"), an idea inside the
- * Starbase. A body of small silver cells, light glowing cyan in the seams between them, slowly
- * reshapes itself: a sphere, then a ring, then a rounded block, and back, each change a few
- * seconds long; loose cells drift just off its surface on their way to new places. Ray-marched in
+ * Starbase. A body of small silver cells, light glowing cyan in the seams between them,
+ * reshapes itself: a sphere, then a ring, then a rounded block, and back, every six seconds, each change
+ * about three seconds long, as it turns; loose cells drift just off its surface on their way to new places. Ray-marched in
  * one full-screen shader: one draw call, no particles. Its own colour family: silver, cyan and
  * coral.
  */
@@ -26,7 +26,7 @@ const vec3 SILVER = vec3(0.78, 0.82, 0.88);
 const vec3 CYAN = vec3(0.3, 0.95, 1.0);
 const vec3 CORAL = vec3(1.0, 0.5, 0.42);
 const float CELL = 0.085;   // one unit's size, in radii
-const float CYCLE = 14.0;   // seconds per form
+const float CYCLE = 6.0;    // seconds per form (D-192: was 14)
 
 float sphereF(vec3 p){ return length(p) - 0.85; }
 float ringF(vec3 p){ vec2 q = vec2(length(p.xz) - 0.68, p.y); return length(q) - 0.3; }
@@ -36,7 +36,7 @@ float blockF(vec3 p){ vec3 q = abs(p) - vec3(0.55); return length(max(q, 0.0)) +
 float form(vec3 p){
   float k = uTime / CYCLE;
   float i = mod(floor(k), 3.0);
-  float f = smoothstep(0.7, 1.0, fract(k));
+  float f = smoothstep(0.55, 1.0, fract(k));
   float a = i < 0.5 ? sphereF(p) : (i < 1.5 ? ringF(p) : blockF(p));
   float b = i < 0.5 ? ringF(p) : (i < 1.5 ? blockF(p) : sphereF(p));
   return mix(a, b, f);
@@ -82,7 +82,7 @@ void main(){
   col += CYAN * 0.05 * exp(-r * 1.2) + CORAL * 0.03 * exp(-length(u - vec2(0.9, -0.6)) * 1.5);
 
   // the camera: turned slowly and by the drag
-  mat3 view = turnX(0.35 - uPitch) * turnY(uYaw + t * 0.05);
+  mat3 view = turnX(0.35 - uPitch) * turnY(uYaw + t * 0.12);
   vec3 ro = view * vec3(0.0, 0.0, 4.0);
   vec3 rd = view * normalize(vec3(u, -4.0));
   vec3 L = normalize(vec3(-0.5, 0.7, 0.6));
