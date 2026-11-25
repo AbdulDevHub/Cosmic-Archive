@@ -35,6 +35,7 @@ import {
 } from "three";
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import { getShip, type ShipClass } from "@/lib/ship";
+import { getStartCharge } from "../../host/store";
 import { mix, sstep } from "./model";
 import { buildShip, type Vec3 as ShipPoint } from "./ships";
 
@@ -388,6 +389,9 @@ export class StartProps {
   private readonly v = new Vector3();
   private readonly w = new Vector3();
   private readonly s = new Vector3();
+  /** D-208: how powered up the ship is, eased toward Begin's charge (1 under the pointer). */
+  private charge = 0;
+  private lastT: number | null = null;
 
   constructor(private readonly narrow: boolean) {
     const body = (kind: number, extra: ShaderMaterialParameters = {}) => {
@@ -577,12 +581,16 @@ export class StartProps {
     this.ship.scale.setScalar((narrow ? 0.62 : 0.92) * this.shipSize);
     this.ship.updateMatrixWorld();
 
-    // its engines: a glow at each nozzle and a trail behind, longer and brighter in flight
+    // its engines: a glow at each nozzle and a trail behind, longer and brighter in flight, and
+    // (D-208) brighter and longer while Begin is pointed at, as if powering up for the jump
+    const dt = this.lastT === null ? 0 : Math.min(0.1, Math.max(0, t - this.lastT));
+    this.lastT = t;
+    this.charge += (getStartCharge() * (1 - go) - this.charge) * (dt > 0 ? Math.min(1, dt * 4) : 1);
     const material = this.engines.material;
-    material.uniforms.uPower.value = 1 + go * 1.5;
+    material.uniforms.uPower.value = (1 + go * 1.5) * (1 + 0.9 * this.charge);
     const positions = this.engines.geometry.getAttribute("position") as BufferAttribute;
     const back = this.w.clone().negate();
-    const trail = (0.9 + go * 2.5) * this.ship.scale.x;
+    const trail = (0.9 + go * 2.5 + this.charge * 0.9) * this.ship.scale.x;
     const quad = (index: number, from: Vector3, to: Vector3, w0: number, w1: number) => {
       const dx = to.x - from.x;
       const dy = to.y - from.y;

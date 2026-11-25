@@ -9,7 +9,8 @@
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  animation: start-in 1.2s var(--ease-out) both;
+  /* backwards, not both (D-208): a held end state would pin the opacity and cut the fade on Begin */
+  animation: start-in 1.2s var(--ease-out) backwards;
   transition: opacity 900ms ease-in;
 }
 
@@ -96,22 +97,43 @@
 
 .title {
   margin: 0;
-  font: 500 clamp(3rem, 5.2vw, 5.9rem) / 1.04 var(--font-display); /* D-199: larger, a touch heavier */
+  /* D-199: larger, a touch heavier; D-208: heavier again, with a soft light of its own */
+  font: 560 clamp(3rem, 5.2vw, 5.9rem) / 1.04 var(--font-display);
   letter-spacing: -0.03em;
   white-space: nowrap;
-  color: oklch(0.97 0.01 270);
+  color: oklch(0.98 0.012 85);
+  text-shadow:
+    0 0 24px oklch(0.13 0.04 275 / 0.85),
+    0 0 42px oklch(0.75 0.08 280 / 0.25);
 }
 
 .gradient {
-  /* D-199: the gradient drifts slowly, a light passing across the words, and glows a little */
-  background: linear-gradient(90deg, oklch(0.8 0.12 235), oklch(0.74 0.14 268) 30%, oklch(0.72 0.17 298) 50%, oklch(0.74 0.14 268) 70%, oklch(0.8 0.12 235));
+  /* D-199: the gradient drifts slowly, a light passing across the words, and glows a little;
+     D-208: brighter stops, so the words read as lit rather than pastel */
+  position: relative;
+  background: linear-gradient(90deg, oklch(0.84 0.13 232), oklch(0.78 0.15 262) 30%, oklch(0.76 0.19 300) 50%, oklch(0.78 0.15 262) 70%, oklch(0.84 0.13 232));
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   text-shadow: none;
-  filter: drop-shadow(0 0 18px oklch(0.62 0.17 280 / 0.45));
+  filter: drop-shadow(0 0 20px oklch(0.66 0.19 280 / 0.55));
   animation: drift 9s linear infinite;
+}
+
+/* D-208: starlight: a thin glint of white crosses the words every eight seconds, as if a star caught them */
+.gradient::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 42%, oklch(1 0 0 / 0.95) 50%, transparent 58%);
+  background-size: 300% 100%;
+  background-position: 150% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  pointer-events: none;
+  animation: glint 8s ease-in-out 2.4s infinite;
 }
 
 @keyframes drift {
@@ -120,58 +142,290 @@
   }
 }
 
+@keyframes glint {
+  0% {
+    background-position: 150% 0;
+  }
+  22%,
+  100% {
+    background-position: -50% 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .copy > *,
-  .gradient {
+  .gradient,
+  .gradient::after {
     animation: none;
   }
 }
 
+/* ---- D-208: Begin, a warp core ---- */
+
+.launch {
+  margin-top: 34px;
+  display: grid;
+  justify-items: start;
+  gap: 46px; /* the words sit below the orbit ring */
+}
+
 .begin {
-  margin-top: 32px;
+  position: relative;
+  display: inline-grid;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: 500 clamp(1rem, 1.15vw, 1.12rem) / 1 var(--font-display);
+  letter-spacing: 0.01em;
+  color: white;
+  cursor: pointer;
+  isolation: isolate;
+}
+
+/* the pill: violet into electric blue, a white-hot core behind the words, a bright rim, a bloom */
+.core {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  min-height: 50px; /* D-205: smaller now its word is short */
-  padding: 0 24px 0 28px;
-  border: 0;
+  min-height: 54px;
+  padding: 0 26px 0 30px;
   border-radius: 999px;
-  font: 500 clamp(0.95rem, 1.1vw, 1.08rem) / 1 var(--font-display);
-  letter-spacing: 0.005em;
-  color: white;
-  cursor: pointer;
-  background: linear-gradient(90deg, oklch(0.66 0.19 298), oklch(0.66 0.16 272) 50%, oklch(0.72 0.14 245));
+  overflow: hidden;
+  background:
+    radial-gradient(60% 120% at 42% 50%, oklch(0.95 0.06 290 / 0.5), transparent 70%),
+    linear-gradient(90deg, oklch(0.55 0.22 300), oklch(0.6 0.2 275) 50%, oklch(0.68 0.17 240));
   box-shadow:
-    0 0 0 1.5px oklch(0.88 0.08 260 / 0.55) inset,
-    0 0 22px oklch(0.66 0.18 280 / 0.6),
-    0 0 60px oklch(0.62 0.16 260 / 0.35);
+    0 0 0 1.5px oklch(0.92 0.08 270 / 0.7) inset,
+    0 1px 0 oklch(1 0 0 / 0.35) inset,
+    0 0 26px oklch(0.66 0.2 285 / 0.7),
+    0 0 70px oklch(0.62 0.18 265 / 0.45);
+  text-shadow: 0 0 12px oklch(1 0 0 / 0.55);
   transition:
     transform var(--dur-base) var(--ease-out),
-    box-shadow var(--dur-base) var(--ease-out);
+    box-shadow var(--dur-base) var(--ease-out),
+    filter var(--dur-base) var(--ease-out);
 }
 
-.begin:hover {
+/* a streak of light sweeps across it every few seconds */
+.core::before {
+  content: "";
+  position: absolute;
+  inset: -20% auto -20% 0;
+  width: 38%;
+  background: linear-gradient(100deg, transparent, oklch(1 0 0 / 0.55) 50%, transparent);
+  transform: translateX(-140%) skewX(-18deg);
+  animation: sweep 4.6s ease-in-out 1.2s infinite;
+  pointer-events: none;
+}
+
+@keyframes sweep {
+  0% {
+    transform: translateX(-140%) skewX(-18deg);
+  }
+  38%,
+  100% {
+    transform: translateX(380%) skewX(-18deg);
+  }
+}
+
+.core > * {
+  position: relative;
+}
+
+.star {
+  color: oklch(0.98 0.04 90);
+  filter: drop-shadow(0 0 6px oklch(1 0 0 / 0.9));
+  transition: transform 600ms var(--ease-out);
+}
+
+/* the orbit: a ring of star dots round the pill, its back half behind it and its front half before it */
+.orbitBack,
+.orbitFront {
+  position: absolute;
+  left: -52px;
+  top: -46px;
+  width: calc(100% + 104px);
+  height: calc(100% + 92px);
+  overflow: visible;
+  pointer-events: none;
+  filter: drop-shadow(0 0 4px oklch(0.85 0.12 280 / 0.9));
+  transition:
+    transform 700ms var(--ease-out),
+    opacity 500ms ease-out;
+}
+
+.orbitBack {
+  z-index: 0;
+  opacity: 0.55;
+  clip-path: inset(0 0 50% 0);
+}
+
+.orbitFront {
+  z-index: 2;
+  clip-path: inset(50% 0 0 0);
+}
+
+.orbitBack ellipse,
+.orbitFront ellipse {
+  animation: orbit 14s linear infinite;
+}
+
+@keyframes orbit {
+  to {
+    stroke-dashoffset: -216;
+  }
+}
+
+/* specks of starlight drawn in toward the core */
+.specks {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.specks i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  margin: -1.5px;
+  border-radius: 50%;
+  background: oklch(0.96 0.04 270);
+  box-shadow: 0 0 6px 1px oklch(0.85 0.12 280 / 0.9);
+  opacity: 0;
+  animation: pulled 3.6s ease-in infinite;
+}
+
+@keyframes pulled {
+  0% {
+    transform: translate(var(--x), var(--y)) scale(0.6);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(0, 0) scale(0.2);
+    opacity: 0;
+  }
+}
+
+/* under the pointer: the core brightens, the ring tightens and speeds, the star turns, the pull quickens */
+.begin:hover .core,
+.begin:focus-visible .core {
   transform: translateY(-2px);
+  filter: brightness(1.12) saturate(1.1);
   box-shadow:
-    0 0 0 1px oklch(0.9 0.1 280 / 0.6) inset,
-    0 0 36px oklch(0.66 0.2 290 / 0.7),
-    0 0 90px oklch(0.6 0.18 270 / 0.4);
+    0 0 0 1.5px oklch(0.96 0.08 270 / 0.85) inset,
+    0 1px 0 oklch(1 0 0 / 0.45) inset,
+    0 0 36px oklch(0.7 0.22 290 / 0.85),
+    0 0 100px oklch(0.64 0.2 265 / 0.55);
 }
 
-.begin:hover svg {
-  transform: translateX(3px);
+.begin:hover .orbitBack,
+.begin:hover .orbitFront,
+.begin:focus-visible .orbitBack,
+.begin:focus-visible .orbitFront {
+  transform: scale(0.94) translateY(-2px);
 }
 
-.begin svg {
-  transition: transform var(--dur-base) var(--ease-out);
+.begin:hover ellipse,
+.begin:focus-visible ellipse {
+  animation-duration: 5s;
 }
 
-/* D-203: the button's word turns, Explore, Discover, Be Inspired, three seconds each. All three
-   share one grid cell, so the button keeps the widest word's width and never jumps. */
+.begin:hover .star,
+.begin:focus-visible .star {
+  transform: rotate(90deg) scale(1.15);
+}
+
+.begin:hover .specks i,
+.begin:focus-visible .specks i {
+  animation-duration: 1.6s;
+}
+
+.begin:focus-visible {
+  outline: none;
+}
+
+.begin:focus-visible .core {
+  outline: 2px solid var(--beacon);
+  outline-offset: 4px;
+}
+
+/* ignition: on Begin the core flares and stretches, the ring flies out, and streaks of light shoot toward the galaxy */
+.streaks {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.streaks i {
+  position: absolute;
+  left: 0;
+  height: 2px;
+  width: 0;
+  border-radius: 2px;
+  background: linear-gradient(90deg, oklch(1 0 0 / 0.95), oklch(0.8 0.14 250 / 0.6), transparent);
+  box-shadow: 0 0 8px oklch(0.8 0.14 260 / 0.9);
+  opacity: 0;
+}
+
+.start[data-leaving] .core {
+  animation: ignite 700ms var(--ease-out) forwards;
+}
+
+.start[data-leaving] .orbitBack,
+.start[data-leaving] .orbitFront {
+  transform: scale(2.4);
+  opacity: 0;
+}
+
+.start[data-leaving] .streaks i {
+  animation: streak 750ms var(--ease-out) forwards;
+}
+
+@keyframes ignite {
+  40% {
+    transform: scaleX(1.08);
+    filter: brightness(2.1) saturate(0.7);
+  }
+  100% {
+    transform: scaleX(1.18);
+    filter: brightness(1.6);
+  }
+}
+
+@keyframes streak {
+  15% {
+    opacity: 1;
+  }
+  100% {
+    width: 52vw;
+    opacity: 0;
+    transform: translateX(10vw);
+  }
+}
+
+/* D-203, D-208: the words under it turn, Explore, Discover, Be Inspired, three seconds each; all
+   three share one grid cell, so nothing shifts */
 .words {
   display: grid;
-  min-width: 5.6em;
-  text-align: left;
+  margin: 0 0 0 30px;
+  font: 500 12px / 1 var(--font-display);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: oklch(0.84 0.08 285);
 }
 
 .words > span {
@@ -202,9 +456,17 @@
   }
 }
 
-/* still: Explore alone */
+/* still: no sweep, no orbiting, no specks or streaks; Explore alone */
 @media (prefers-reduced-motion: reduce) {
-  .words > span {
+  .core::before,
+  .specks,
+  .streaks {
+    display: none;
+  }
+  .orbitBack ellipse,
+  .orbitFront ellipse,
+  .words > span,
+  .start[data-leaving] .core {
     animation: none;
   }
   .words > span + span {
@@ -212,6 +474,14 @@
   }
 }
 
+:global(html[data-motion="paused"]) .core::before,
+:global(html[data-motion="paused"]) .specks {
+  display: none;
+}
+
+:global(html[data-motion="paused"]) .orbitBack ellipse,
+:global(html[data-motion="paused"]) .orbitFront ellipse,
+:global(html[data-motion="paused"]) .gradient::after,
 :global(html[data-motion="paused"]) .words > span {
   animation: none;
 }
@@ -306,9 +576,8 @@
     letter-spacing: 0.18em;
   }
 
-  .begin {
+  .launch {
     margin-top: 26px;
-    min-height: 54px;
   }
 
   .scroll {

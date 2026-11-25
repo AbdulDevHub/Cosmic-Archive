@@ -161,6 +161,20 @@ const tweens = new Map<SceneNumber, SceneTween>();
 const clampInput = (key: SceneNumber, value: number) =>
   key === "zoom" ? Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, value)) : key === "pitch" ? Math.min(PITCH_LIMIT, Math.max(-PITCH_LIMIT, value)) : key === "dive" || key === "arrive" || key === "intro" ? Math.min(1, Math.max(0, value)) : value;
 
+// ---- D-208: the start page's Begin, held under the pointer or focus: the ship powers up ----
+
+let startCharge = 0;
+
+/** 1 while Begin is pointed at or focused, 0 otherwise; the start page's props ease toward it. */
+export function setStartCharge(value: number): void {
+  startCharge = Math.min(1, Math.max(0, value));
+  inputListener?.(); // with the loop stopped (calm motion) the change still draws a frame
+}
+
+export function getStartCharge(): number {
+  return startCharge;
+}
+
 export function getSceneInput(): Readonly<SceneInput> {
   return input;
 }
