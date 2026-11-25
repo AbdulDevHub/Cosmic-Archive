@@ -28,7 +28,7 @@ const POSTERS = [
   { file: "about-wide.webp", path: "/?shot=1&t=12&tier=high&zoom=2", ...WIDE, quality: 0.8 },
   { file: "about-narrow.webp", path: "/?shot=1&t=12&tier=low&zoom=2", ...NARROW, quality: 0.8 },
   // Places: `<scene id>-wide` and `<scene id>-narrow`, the names the place page asks for.
-  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter", "molecular-cloud", "red-giant", "planetary-nebula", "white-dwarf", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy", "starbase", "warp-drive", "programmable-matter", "higher-dimensions", "quantum-foam", "quarks", "vacuum-decay", "bubble-universes", "pocket-dimensions", "cosmic-strings", "string-theory", "dyson-swarm", "ringworld", "oneill-cylinder", "matrioshka-brain", "generation-ship", "stellar-engine", "von-neumann-probes", "space-elevator", "star-lifter", "last-civilization", "human-cell", "dna", "carbon-atom", "carbon-nucleus"].flatMap((id) => [
+  ...["black-hole", "nebula", "quasar", "neutron-star", "star", "strange-star", "dyson-sphere", "wormhole", "gravastar", "supernova-remnant", "magnetar", "black-hole-merger", "comet", "ringed-giant", "dark-matter", "molecular-cloud", "red-giant", "planetary-nebula", "white-dwarf", "quasi-star", "solar-system", "blue-world", "moon", "asteroid", "quasar-galaxy", "starbase", "warp-drive", "programmable-matter", "higher-dimensions", "quantum-foam", "quarks", "vacuum-decay", "bubble-universes", "pocket-dimensions", "cosmic-strings", "string-theory", "dyson-swarm", "ringworld", "oneill-cylinder", "matrioshka-brain", "generation-ship", "stellar-engine", "von-neumann-probes", "space-elevator", "star-lifter", "last-civilization", "human-cell", "dna", "carbon-atom", "carbon-nucleus", "pocket-universe"].flatMap((id) => [
     { file: `${id}-wide.webp`, path: `/${id}?shot=1&t=12&tier=high`, ...WIDE, quality: 0.8 },
     { file: `${id}-narrow.webp`, path: `/${id}?shot=1&t=12&tier=low`, ...NARROW, quality: 0.8 },
   ]),
@@ -86,6 +86,7 @@ const POSTERS = [
     ["dna", "/dna?shot=1&t=12&tier=high"],
     ["carbon-atom", "/carbon-atom?shot=1&t=12&tier=high"],
     ["carbon-nucleus", "/carbon-nucleus?shot=1&t=12&tier=high"],
+    ["pocket-universe", "/pocket-universe?shot=1&t=12&tier=high"],
   ].map(([name, path]) => ({ file: `${name}.jpg`, dir: join("public", "og"), path, viewport: { width: 1440, height: 900 }, crop: { x: 0, y: 72, w: 1440, h: 756 }, out: 1200, quality: 0.82, type: "image/jpeg" })),
 ];
 

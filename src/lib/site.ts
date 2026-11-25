@@ -60,6 +60,7 @@ export const PLACE_OG: Readonly<Record<string, { name: string; alt: string }>> =
   dna: { name: "dna", alt: "Our own illustration of DNA: a turning double helix of glowing atoms, its base pairs in colour." },
   "carbon-atom": { name: "carbon-atom", alt: "Our own illustration of a carbon atom: a tiny bright nucleus inside glowing clouds of electrons." },
   "carbon-nucleus": { name: "carbon-nucleus", alt: "Our own illustration of a carbon nucleus: six protons and six neutrons in a warm haze." },
+  "pocket-universe": { name: "pocket-universe", alt: "Our own illustration of a newborn pocket universe: emerald and gold gas and young galaxies rushing outward." },
   "last-civilization": { name: "last-civilization", alt: "Our own illustration of an imagined hibernating civilization: a dark shell of panels round a dim white dwarf, ringed by a glowing store of energy." },
   "space-elevator": { name: "space-elevator", alt: "Our own illustration of a space elevator: a silver ribbon rising from a blue world at sunrise into orbit." },
   "von-neumann-probes": { name: "von-neumann-probes", alt: "Our own illustration of self-copying probes: a front of mint light spreading across a spiral galaxy." },

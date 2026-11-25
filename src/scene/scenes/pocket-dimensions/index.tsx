@@ -4,7 +4,8 @@
  * of its own swirling inside it in emerald and gold, its own stars and gas turning; it is joined
  * to our space below by a narrowing throat of streaming light that pinches as it thins. The stars
  * behind are bent round the bulb. One full-screen shader, one draw call, no particles. Its own
- * colour family: emerald, gold and deep teal.
+ * colour family: emerald, gold and deep teal. The bulb is a way in: a dive into it arrives in The
+ * Pocket Universe (D-192).
  */
 
 import type { SceneBudget, SceneProps } from "../../host/types";
@@ -89,6 +90,9 @@ const CONFIG: OrbConfig = {
   close: 1.3,
   arriveFrom: 0.3,
   detail: { low: 0, medium: 1, high: 2 },
+  // the bulb is a way in (D-192): The Pocket Universe is inside it
+  bodies: () => [{ name: "babyverse", x: 0, y: 0.12, z: 0.46 }],
+  diveScale: 6,
 };
 
 export default function PocketDimensionsScene(props: SceneProps) {

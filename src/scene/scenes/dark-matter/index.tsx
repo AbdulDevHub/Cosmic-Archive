@@ -1,16 +1,15 @@
 /**
- * The dark matter web (D-147): our own illustration of what the cosmic web would look like if its
- * dark matter shone. At first only the galaxies show, small gold sparks strung through the dark;
- * then the unseen matter they sit in glows up round them: long ghostly filaments of teal and
- * indigo, swelling into round halos where they meet, the galaxies gathered thickest there. Three
- * depths of web drift past at different speeds, so it reads as deep; a drag looks round it. The
- * filaments are the edges of a cell pattern (as the web is, in the simulations), worked out per
- * pixel. One draw call, no particles. Its own colour family: ghost teal, indigo and gold. Mounted
- * by the host through the registry; never imported by a page.
+ * The dark matter web (D-147, redrawn in D-192): our own illustration of matter that gives off no
+ * light. The screen is nearly black. Far behind, a faint field of distant galaxies; in front, gold
+ * galaxies gather in a few clusters and along the strands between them. The dark matter itself is
+ * never lit: it shows only by what its gravity does, bending the far galaxies' light into thin arcs
+ * round each unseen clump, and as a ghost of deep indigo that slowly swells and fades round the
+ * clumps and strands, the only hint of how much is there. A drag looks round. One draw call, no
+ * particles. Its own colour family: near black, deep indigo and gold. Mounted by the host through
+ * the registry; never imported by a page.
  */
 
 import type { SceneBudget, SceneProps } from "../../host/types";
-import { SKY_CHUNK } from "../../shaders/sky.glsl";
 import { ORB_COMMON, useOrbScene, type OrbConfig } from "../shared/orb";
 
 export const budget: SceneBudget = {
@@ -20,80 +19,117 @@ export const budget: SceneBudget = {
 
 const FRAGMENT = /* glsl */ `
 ${ORB_COMMON}
-#define SKY_LAYERS 3
-${SKY_CHUNK}
 
-const vec3 TEAL = vec3(0.3, 0.9, 0.86);
-const vec3 INDIGO = vec3(0.36, 0.3, 0.95);
+const vec3 INDIGO = vec3(0.3, 0.24, 0.85);
 const vec3 GOLD = vec3(1.0, 0.82, 0.55);
+const vec3 PALE = vec3(0.75, 0.82, 1.0);
 const vec3 WHITE = vec3(1.0, 0.98, 0.95);
 
 vec2 hash2(vec2 p){
   return fract(sin(vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)))) * 43758.5453);
 }
 
-/* the three nearest cell centres' distances: on an edge the first two match; at a corner, all three */
-vec3 cells(vec2 p){
-  vec2 i = floor(p), f = fract(p);
-  vec3 d = vec3(9.0);
-  for (int y = -1; y <= 1; y++)
-  for (int x = -1; x <= 1; x++) {
-    vec2 g = vec2(float(x), float(y));
-    vec2 o = hash2(i + g);
-    float l = length(g + o - f);
-    if (l < d.x) { d.z = d.y; d.y = d.x; d.x = l; }
-    else if (l < d.y) { d.z = d.y; d.y = l; }
-    else if (l < d.z) d.z = l;
-  }
+/* the unseen clumps: where they sit (x, y) and how much each weighs (z) */
+vec3 clump(int i){
+  if (i == 0) return vec3(0.18, 0.08, 0.06);
+  if (i == 1) return vec3(0.72, 0.36, 0.022);
+  if (i == 2) return vec3(-0.42, 0.36, 0.024);
+  if (i == 3) return vec3(0.6, -0.32, 0.03);
+  return vec3(-0.02, -0.36, 0.016);
+}
+
+float segment(vec2 p, vec2 a, vec2 b){
+  vec2 pa = p - a, ba = b - a;
+  float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+  return length(pa - ba * h);
+}
+
+/* the strands between the clumps, and out past the frame */
+float strands(vec2 p){
+  float d = 9.0;
+  d = min(d, segment(p, clump(0).xy, clump(1).xy));
+  d = min(d, segment(p, clump(0).xy, clump(2).xy));
+  d = min(d, segment(p, clump(0).xy, clump(3).xy));
+  d = min(d, segment(p, clump(0).xy, clump(4).xy));
+  d = min(d, segment(p, clump(1).xy, clump(3).xy));
+  d = min(d, segment(p, clump(2).xy, clump(4).xy));
+  d = min(d, segment(p, clump(1).xy, vec2(1.2, 1.3)));
+  d = min(d, segment(p, clump(2).xy, vec2(-1.8, 1.0)));
+  d = min(d, segment(p, clump(3).xy, vec2(1.9, -0.7)));
+  d = min(d, segment(p, clump(4).xy, vec2(-1.7, -0.8)));
+  d = min(d, segment(p, clump(3).xy, vec2(0.5, -1.4)));
   return d;
+}
+
+/* the far galaxies: small faint smudges, each its own shape and tilt */
+vec3 farField(vec2 s, float freq, float seed){
+  vec2 g = s * freq;
+  vec2 i = floor(g);
+  vec2 h = hash2(i + seed);
+  vec2 o = 0.3 + 0.4 * hash2(i + seed + 2.0);
+  vec2 d = fract(g) - o;
+  float a = h.y * TAU;
+  d = vec2(cos(a) * d.x + sin(a) * d.y, -sin(a) * d.x + cos(a) * d.y);
+  float shape = exp(-(d.x * d.x / 0.012 + d.y * d.y / 0.003));
+  float present = step(0.55, h.x);
+  return mix(PALE, WHITE, h.y) * shape * present * (0.16 + 0.4 * h.x);
 }
 
 void main(){
   vec2 css = vec2(gl_FragCoord.x, uResolution.y - gl_FragCoord.y) / uDpr;
   vec2 q = css - uCentre;
   q.y = -q.y;
-  vec2 u = q / uScale;
   float t = uTime;
-  vec2 size = uResolution / uDpr;
+  vec2 u = q / uScale + vec2(-uYaw, uPitch) * 0.45 + vec2(t * 0.004, 0.0);
 
-  vec2 v = (css - size * 0.5) / size.y;
-  vec3 col = skyDeep(normalize(vec3(v * 1.4, -1.0)), 0.35) * 0.6;
+  // ---- the far galaxies, their light bent round each unseen clump ----
+  vec2 src = u;
+  for (int i = 0; i < 5; i++) {
+    vec3 c = clump(i);
+    vec2 d = u - c.xy;
+    float r2 = dot(d, d);
+    src -= c.z * d / (r2 + 0.002);
+  }
+  vec3 col = farField(src, 11.0, 1.0) + farField(src, 19.0, 5.0) * 0.7;
+  // a few faint stars of our own galaxy, unbent, so the dark is not empty
+  vec2 sg = u * 40.0;
+  vec2 sh = hash2(floor(sg) + 11.0);
+  col += WHITE * step(0.985, sh.x) * exp(-length(fract(sg) - 0.5) * 14.0) * 0.5;
 
-  // the dark matter shows itself a few seconds after arrival
-  float reveal = smoothstep(1.0, 5.0, t);
-  vec2 look = vec2(uYaw, -uPitch) * 0.6;
+  // ---- the dark matter: never lit, only a ghost of deep indigo that swells and fades ----
+  float breath = smoothstep(1.0, 6.0, t) * (0.55 + 0.45 * sin(t * 0.35 - 1.2));
+  vec2 wu = u + 0.08 * vec2(fbm3(vec3(u * 1.5, 1.0)), fbm3(vec3(u * 1.5, 4.0))) - 0.04;
+  float sd = strands(wu);
+  float width = 0.05 + 0.05 * fbm3(vec3(u * 2.0, 7.0));
+  float broken = smoothstep(0.3, 0.65, fbm3(vec3(u * 1.2, 9.0)));
+  float strand = exp(-sd / width) * (0.4 + 0.6 * broken);
+  float halo = 0.0;
+  for (int i = 0; i < 5; i++) {
+    vec3 c = clump(i);
+    halo += exp(-length(wu - c.xy) / (1.6 * sqrt(c.z))) * (0.5 + 10.0 * c.z);
+  }
+  float lump = fbm3(vec3(u * 3.0, t * 0.02));
+  col += INDIGO * (strand * 0.12 + halo * 0.16) * (0.5 + 0.8 * lump) * breath;
 
-  for (int k = 0; k < 3; k++) {
+  // ---- the galaxies we can see: gold, gathered in the clumps and strung along the strands ----
+  // where the galaxies live: close in round each clump, and thinly along the strands
+  float home = 0.0;
+  for (int i = 0; i < 5; i++) home += exp(-length(u - clump(i).xy) / (0.7 * sqrt(clump(i).z)));
+  home = clamp(home + exp(-sd / 0.03) * 0.5 * broken, 0.0, 1.0);
+  for (int k = 0; k < 2; k++) {
     float fk = float(k);
-    float depth = 1.0 / (1.0 + fk * 0.9);           // 1 near, smaller far
-    float scale = 1.05 + fk * 1.25;
-    vec2 p = u * scale + look * depth * 2.0 + vec2(t * 0.012 * depth, t * 0.004) + fk * 17.3;
-    // a gentle warp, so the filaments bend as the web's do
-    p += 0.35 * vec2(fbm3(vec3(p * 0.35, fk)), fbm3(vec3(p * 0.35 + 9.0, fk))) - 0.17;
-    vec3 c = cells(p);
-
-    float edge = c.y - c.x;
-    float corner = c.z - c.x;
-    float width = 0.06 + 0.1 * fbm3(vec3(p * 0.8, 3.0 + fk));
-    // many strands fade away, so the web is broken and uneven, as in the simulations
-    float strand = smoothstep(0.38, 0.72, fbm3(vec3(p * 0.45, 11.0 + fk)));
-    float filament = exp(-edge / width) * strand;
-    float halo = exp(-corner / 0.22) * exp(-c.x * 1.1) * (0.4 + 0.6 * strand);
-    float core = exp(-corner / 0.05) * exp(-c.x * 2.5) * strand;
-    float fade = 0.35 + 0.65 * depth;
-
-    vec3 tint = mix(INDIGO, TEAL, smoothstep(0.35, 0.7, fbm3(vec3(p * 0.4, 7.0 + fk))));
-    vec3 dm = tint * (filament * 0.42 + halo * 1.1) + mix(TEAL, WHITE, 0.5) * core * 0.5;
-    col += dm * fade * reveal * (0.55 + 0.25 * depth);
-
-    // the galaxies: sparks gathered along the filaments and thickest in the halos
-    vec2 g = p * 9.0;
+    vec2 g = u * (30.0 + fk * 22.0);
     vec2 gi = floor(g);
-    vec2 go = hash2(gi + 3.1 * fk);
-    float spark = exp(-dot(fract(g) - go, fract(g) - go) * 900.0 * depth);
-    float home = smoothstep(0.2, 0.9, filament + halo * 2.0);
-    float keep = step(0.55, go.x * home + home * 0.2);
-    col += mix(GOLD, WHITE, go.y * 0.5) * spark * keep * fade * 1.6;
+    vec2 go = hash2(gi + 3.1 + fk * 9.0);
+    vec2 d = fract(g) - (0.2 + 0.6 * go);
+    float keep = step(1.0 - home * 0.55, hash2(gi + 7.7 + fk).x);
+    col += mix(GOLD, WHITE, go.y * 0.5) * exp(-dot(d, d) * (220.0 + fk * 260.0)) * keep * (1.4 - fk * 0.5);
+  }
+  // each clump's brightest galaxy, a soft gold oval at its heart
+  for (int i = 0; i < 5; i++) {
+    vec3 c = clump(i);
+    vec2 d = u - c.xy;
+    col += GOLD * exp(-(d.x * d.x / 0.0006 + d.y * d.y / 0.0003)) * (0.5 + 12.0 * c.z);
   }
 
   col = col / (1.0 + max(col - 0.85, 0.0) * 0.9);

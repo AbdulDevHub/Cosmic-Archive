@@ -43,7 +43,7 @@ const SCENES = [
   "programmable-matter", "higher-dimensions", "quantum-foam", "quarks", "vacuum-decay",
   "bubble-universes", "pocket-dimensions", "omniverse", "cosmic-strings", "string-theory",
   "dyson-swarm", "ringworld", "oneill-cylinder", "matrioshka-brain", "generation-ship",
-  "stellar-engine", "von-neumann-probes", "space-elevator", "star-lifter", "last-civilization", "human-cell", "dna", "carbon-atom", "carbon-nucleus", "wormhole",
+  "stellar-engine", "von-neumann-probes", "space-elevator", "star-lifter", "last-civilization", "human-cell", "dna", "carbon-atom", "carbon-nucleus", "pocket-universe", "wormhole",
 ] as const;
 const TRACKS: Record<string, string> = {
   galaxy: "/api/music/magical-space",
@@ -51,6 +51,8 @@ const TRACKS: Record<string, string> = {
   // the owner's swap (D-188): the cosmic web plays the supervoid's loop, and the supervoid the web's
   web: "/api/music/supervoid",
   supervoid: "/api/music/web",
+  // no loop of its own yet (D-192): the pocket universe carries on with its doorway's
+  "pocket-universe": "/api/music/pocket-dimensions",
 };
 /** The cookie that carries the owner's music key to `/api/music/` (the same name in its route). */
 const KEY_COOKIE = "cosmic-atlas-music";

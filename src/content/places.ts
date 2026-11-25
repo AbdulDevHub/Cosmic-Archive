@@ -32,10 +32,10 @@ export interface Stop {
   video?: string;
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy" | "starbase" | "warp-drive" | "programmable-matter" | "higher-dimensions" | "quantum-foam" | "vacuum-decay" | "bubble-universes" | "quarks" | "pocket-dimensions" | "cosmic-strings" | "string-theory" | "dyson-swarm" | "ringworld" | "oneill-cylinder" | "matrioshka-brain" | "generation-ship" | "stellar-engine" | "von-neumann-probes" | "space-elevator" | "star-lifter" | "last-civilization" | "human-cell" | "dna" | "carbon-atom" | "carbon-nucleus";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy" | "starbase" | "warp-drive" | "programmable-matter" | "higher-dimensions" | "quantum-foam" | "vacuum-decay" | "bubble-universes" | "quarks" | "pocket-dimensions" | "cosmic-strings" | "string-theory" | "dyson-swarm" | "ringworld" | "oneill-cylinder" | "matrioshka-brain" | "generation-ship" | "stellar-engine" | "von-neumann-probes" | "space-elevator" | "star-lifter" | "last-civilization" | "human-cell" | "dna" | "carbon-atom" | "carbon-nucleus" | "pocket-universe";
 export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi" | "dark" | "cloud" | "redgiant" | "planetary";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
-export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant" | "dwarf" | "starbase" | "warp" | "matter" | "dims" | "pocket" | "bubbles" | "vacuum" | "foam" | "strings" | "quarks" | "stringtheory" | "swarm" | "ringworld" | "oneill" | "matrioshka" | "generation" | "engine" | "probes" | "elevator" | "lifter" | "hibernator" | "cell" | "dna" | "atom" | "nucleus";
+export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant" | "dwarf" | "starbase" | "warp" | "matter" | "dims" | "pocket" | "bubbles" | "vacuum" | "foam" | "strings" | "quarks" | "stringtheory" | "swarm" | "ringworld" | "oneill" | "matrioshka" | "generation" | "engine" | "probes" | "elevator" | "lifter" | "hibernator" | "cell" | "dna" | "atom" | "nucleus" | "babyverse";
 
 export interface Place {
   id: PlaceId;
@@ -328,7 +328,7 @@ export const SOURCES: readonly Source[] = [
     title: "From Black Holes to Baby Universes: Exploring the Possibility of Creating a Cosmos in the Laboratory",
     publisher: "arXiv (S. Ansoldi, Z. Merali, E. I. Guendelman; Bulgarian Journal of Physics, 2018)",
     url: "https://arxiv.org/abs/1801.04539",
-    checked: "2026-11-23",
+    checked: "2026-11-24",
   },
   {
     id: "arxiv-tegmark-parallel-universes",
@@ -1146,6 +1146,19 @@ export const PLACES: readonly Place[] = [
     inside: "carbon-atom",
     veil: "#0b0305",
     video: "rcOFV4y5z8c",
+  },
+  {
+    // D-192: inside the Pocket Dimensions bulb. The source (the paper's text): regions "which causally disconnect
+    // from us and inflate, becoming self-contained cosmoses" (section 1); "the baby universe creating its own space,
+    // and causally disconnecting from the parent spacetime" (section 4). Still hypothetical, so "would"
+    id: "pocket-universe",
+    name: "The Pocket Universe",
+    line: "Once cut off from ours, it would inflate into a self-contained cosmos.",
+    sources: ["arxiv-baby-universes"],
+    anchor: "babyverse",
+    stop: 2,
+    inside: "pocket-dimensions",
+    veil: "#020d08",
   },
 ];
 
