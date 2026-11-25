@@ -8,7 +8,7 @@ import { Veil } from "@/components/screen/Veil";
 import { SiteHeader } from "@/components/SiteHeader";
 import { menuFlights, menuGroups } from "@/lib/content/menu";
 import { motionInitScript } from "@/lib/motion";
-import { DEFAULT_OG, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
+import { DEFAULT_OG, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/site";
 import { SceneHostLoader } from "@/scene/host/SceneHostLoader";
 import "./globals.css";
 
@@ -41,13 +41,17 @@ const hanken = Hanken_Grotesk({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME}: The Universe to Look At`,
+    default: SITE_TITLE,
     template: `%s · ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
-  keywords: ["universe", "space", "galaxy", "black hole", "nebula", "quasar", "cosmic web", "3D", "WebGL", "multiverse", "omniverse"],
-  robots: { index: true, follow: true },
+  keywords: ["interactive universe", "3D space explorer", "universe simulation", "galaxy", "black hole", "nebula", "quasar", "solar system", "cosmic web", "space in the browser", "WebGL", "multiverse", "omniverse"],
+  category: "science",
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } },
+  // D-207: Google Search Console's HTML-tag check. Set NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION in Vercel to the
+  // `content` value Search Console gives (the tag is left out until then)
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } } : {}),
   openGraph: { type: "website", siteName: SITE_NAME, locale: "en_GB", images: [DEFAULT_OG] },
   twitter: { card: "summary_large_image", images: [DEFAULT_OG.url] },
 };

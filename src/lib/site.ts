@@ -9,7 +9,11 @@
 import type { Metadata } from "next";
 
 export const SITE_NAME = "Cosmic Atlas";
-export const SITE_DESCRIPTION = "The universe, to look at: click from the cosmic web into a galaxy, a nebula, a black hole and a quasar.";
+// D-207: written for search results (about 155 characters): what it is, what is in it, that it is free and in the browser
+export const SITE_DESCRIPTION = "Fly through an interactive 3D universe in your browser: a spiral galaxy, black holes, nebulae, quasars, a solar system and more than 50 places, drawn live.";
+
+/** The home page's title in search results (D-207). */
+export const SITE_TITLE = `${SITE_NAME}: Explore an Interactive 3D Universe`;
 
 // On Vercel, the project's production domain stands in when the variable is not set (D-179).
 const VERCEL_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined;
@@ -27,7 +31,8 @@ export function ogImage(name: string, alt: string) {
   return { url: `/og/${name}.jpg`, width: 1200, height: 630, alt };
 }
 
-export const DEFAULT_OG = ogImage("atlas", "Our own illustration of a spiral galaxy.");
+// D-207: a designed card (scripts/social.mjs), not a bare still: the name, the line and four places
+export const DEFAULT_OG = ogImage("atlas", "Cosmic Atlas: The Universe Awaits. Our own illustration of a spiral galaxy, with a black hole, a nebula, a solar system and a ringworld.");
 
 /** Open Graph images for the places, by place id. */
 export const PLACE_OG: Readonly<Record<string, { name: string; alt: string }>> = {

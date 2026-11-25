@@ -20,7 +20,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const place = getPlace((await params).place);
   if (!place) return {};
   const og = PLACE_OG[place.id];
-  return pageMetadata({ title: place.name, description: place.line, path: `/${place.id}`, image: og ? ogImage(og.name, og.alt) : undefined });
+  // D-207: the line alone is short for a search result: a sentence about the site follows it
+  return pageMetadata({ title: place.name, description: `${place.line} Fly there in ${SITE_NAME}, an interactive 3D universe drawn live in your browser.`, path: `/${place.id}`, image: og ? ogImage(og.name, og.alt) : undefined });
 }
 
 export default async function PlacePage({ params }: Props) {

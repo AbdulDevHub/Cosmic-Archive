@@ -1,19 +1,34 @@
 import type { Metadata } from "next";
 import { AtlasView, type Spot, type StopWords } from "@/components/screen/AtlasView";
 import { PLACES, STOPS } from "@/lib/content/places";
-import { jsonLd, pageMetadata, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
+import { DEFAULT_OG, jsonLd, pageMetadata, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/site";
 
-export const metadata: Metadata = pageMetadata({ description: SITE_DESCRIPTION, path: "/" });
+export const metadata: Metadata = { ...pageMetadata({ description: SITE_DESCRIPTION, path: "/" }), title: { absolute: SITE_TITLE } };
 
-/** The site, for search engines (schema.org WebSite). */
-const WEBSITE = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: SITE_NAME,
-  url: SITE_URL,
-  description: SITE_DESCRIPTION,
-  inLanguage: "en",
-};
+/** The site, for search engines (schema.org): the WebSite, and (D-207) what it is, a free web app that runs in the browser. */
+const WEBSITE = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    url: SITE_URL,
+    description: SITE_DESCRIPTION,
+    inLanguage: "en",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: SITE_NAME,
+    url: SITE_URL,
+    description: SITE_DESCRIPTION,
+    image: `${SITE_URL}${DEFAULT_OG.url}`,
+    applicationCategory: "EducationalApplication",
+    operatingSystem: "Any",
+    browserRequirements: "Requires JavaScript and WebGL 2.",
+    isAccessibleForFree: true,
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+  },
+];
 
 const STOP_WORDS: StopWords[] = STOPS.map(({ zoom, name, line, video }) => ({ zoom, name, line, video }));
 
