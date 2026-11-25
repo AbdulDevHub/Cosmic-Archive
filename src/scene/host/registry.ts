@@ -45,6 +45,7 @@ export const SCENES: Record<SceneId, () => Promise<SceneModule>> = {
   "carbon-atom": () => import("../scenes/carbon-atom"),
   "carbon-nucleus": () => import("../scenes/carbon-nucleus"),
   "pocket-universe": () => import("../scenes/pocket-universe"),
+  "quasi-star-black-hole": () => import("../scenes/quasi-star-black-hole"),
   "space-elevator": () => import("../scenes/space-elevator"),
   "von-neumann-probes": () => import("../scenes/von-neumann-probes"),
   "stellar-engine": () => import("../scenes/stellar-engine"),

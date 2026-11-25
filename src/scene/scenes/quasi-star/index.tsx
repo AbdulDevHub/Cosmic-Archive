@@ -3,7 +3,8 @@
  * vast, swollen envelope of gas held up by the light of a black hole feeding at its heart. Huge
  * red and orange cells churn across its face; between them, deep cracks show the white-gold heat
  * pouring up from the middle, brightest toward the centre where the hole lies hidden; its ragged
- * edge smokes off into a wide, dark-red haze. One draw call, no particles. Mounted by the host
+ * edge smokes off into a wide, dark-red haze. The heart is a way in (D-196): a dive arrives at Its
+ * Black Hole. One draw call, no particles. Mounted by the host
  * through the registry; never imported by a page.
  */
 
@@ -56,8 +57,10 @@ void main(){
 
     // vast convection cells, churning slowly; a second, finer layer rolling over them
     vec3 flow = vec3(fbm3(b * 1.6 + t * 0.02), fbm3(b * 1.6 + 7.0 - t * 0.02), fbm3(b * 1.6 + 13.0)) - 0.5;
-    float cells = fbm3(b * 2.6 + flow * 1.8);
-    float fine = fbm3(b * 8.0 + flow * 3.0 + vec3(0.0, t * 0.05, 0.0));
+    float cells = fbm3(b * 3.6 + flow * 1.8);
+    float fine = fbm3(b * 11.0 + flow * 3.0 + vec3(0.0, t * 0.05, 0.0));
+    // a fine grain of smaller cells, so the face holds up close (D-196)
+    float grain = fbm3(b * 24.0 + flow * 5.0 + vec3(t * 0.03, 0.0, 0.0));
     // cracks: thin bright seams where the cells part and the heat below shows through
     float seam = 1.0 - smoothstep(0.0, 0.05, abs(cells - 0.45));
     float crack = seam * smoothstep(0.35, 0.7, fine);
@@ -70,7 +73,7 @@ void main(){
     // the heart: the hole's light pressing up through the middle, a broad glow
     surf += mix(ORANGE, GOLD, depth) * 0.6 * pow(depth, 5.0);
     // limb darkening toward a deep red edge that glows rather than goes black
-    surf *= 0.45 + 0.65 * pow(mu, 0.5);
+    surf *= (0.45 + 0.65 * pow(mu, 0.5)) * (0.68 + 0.6 * grain);
     surf = mix(RED * 0.7, surf, smoothstep(0.0, 0.25, mu));
     col = mix(col, surf, smoothstep(R + 0.004, R - 0.025, r));
   }
@@ -89,8 +92,12 @@ void main(){
 
 const CONFIG: OrbConfig = {
   fragment: FRAGMENT,
-  // at its framing a whole swollen disc; all the way in it fills the window
-  framing: (width, height) => Math.min(height * 0.24, width * 0.16),
+  // vast (D-196): at its framing nearly the whole height of a laptop's window, larger than the red
+  // giant; all the way in it fills the window
+  framing: (width, height) => Math.min(height * 0.47, width * 0.32),
+  // its black hole, hidden at its heart (D-196): a hotspot that dives into Its Black Hole
+  bodies: () => [{ name: "seed", x: 0, y: 0, z: 1 }],
+  diveScale: 7,
   close: 1.3,
   arriveFrom: 0.3,
   detail: { low: 0, medium: 1, high: 2 },

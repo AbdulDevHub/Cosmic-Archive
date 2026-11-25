@@ -16,7 +16,7 @@ Cosmic Atlas is a website for looking at the universe rather than reading about 
 
 Every scene is drawn live in the browser with WebGL shaders, with no photos or downloaded images, so it stays original and small. Each view has only a name and one short line, and every line is checked against a real source. Under every scene plays a soft hush of deep space. If 3D can't run, every page still shows a still image and works as plain HTML.
 
-**Status:** live at https://the-cosmic-atlas.vercel.app, still being polished. 6 zoom levels, 51 places, three guided flights and a hands-off tour are built. What's next is in `context/PROGRESS_TRACKER.md`.
+**Status:** live at https://the-cosmic-atlas.vercel.app, still being polished. 6 zoom levels, 52 places, three guided flights and a hands-off tour are built. What's next is in `context/PROGRESS_TRACKER.md`.
 
 ## Ideas That Shape It
 

@@ -32,10 +32,10 @@ export interface Stop {
   video?: string;
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy" | "starbase" | "warp-drive" | "programmable-matter" | "higher-dimensions" | "quantum-foam" | "vacuum-decay" | "bubble-universes" | "quarks" | "pocket-dimensions" | "cosmic-strings" | "string-theory" | "dyson-swarm" | "ringworld" | "oneill-cylinder" | "matrioshka-brain" | "generation-ship" | "stellar-engine" | "von-neumann-probes" | "space-elevator" | "star-lifter" | "last-civilization" | "human-cell" | "dna" | "carbon-atom" | "carbon-nucleus" | "pocket-universe";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy" | "starbase" | "warp-drive" | "programmable-matter" | "higher-dimensions" | "quantum-foam" | "vacuum-decay" | "bubble-universes" | "quarks" | "pocket-dimensions" | "cosmic-strings" | "string-theory" | "dyson-swarm" | "ringworld" | "oneill-cylinder" | "matrioshka-brain" | "generation-ship" | "stellar-engine" | "von-neumann-probes" | "space-elevator" | "star-lifter" | "last-civilization" | "human-cell" | "dna" | "carbon-atom" | "carbon-nucleus" | "pocket-universe" | "quasi-star-black-hole";
 export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi" | "dark" | "cloud" | "redgiant" | "planetary";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
-export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant" | "dwarf" | "starbase" | "warp" | "matter" | "dims" | "pocket" | "bubbles" | "vacuum" | "foam" | "strings" | "quarks" | "stringtheory" | "swarm" | "ringworld" | "oneill" | "matrioshka" | "generation" | "engine" | "probes" | "elevator" | "lifter" | "hibernator" | "cell" | "dna" | "atom" | "nucleus" | "babyverse";
+export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant" | "dwarf" | "starbase" | "warp" | "matter" | "dims" | "pocket" | "bubbles" | "vacuum" | "foam" | "strings" | "quarks" | "stringtheory" | "swarm" | "ringworld" | "oneill" | "matrioshka" | "generation" | "engine" | "probes" | "elevator" | "lifter" | "hibernator" | "cell" | "dna" | "atom" | "nucleus" | "babyverse" | "seed";
 
 export interface Place {
   id: PlaceId;
@@ -90,7 +90,7 @@ export const SOURCES: readonly Source[] = [
     title: "Neutron Stars",
     publisher: "NASA Goddard Space Flight Center, Imagine the Universe!",
     url: "https://imagine.gsfc.nasa.gov/science/objects/neutron_stars1.html",
-    checked: "2026-11-21",
+    checked: "2026-11-24",
   },
   {
     id: "nasa-sun-facts",
@@ -576,8 +576,9 @@ export const PLACES: readonly Place[] = [
   {
     id: "neutron-star",
     name: "Neutron Star",
-    // the source: "One sugar cube of neutron star material would weigh about 1 trillion kilograms (or 1 billion tons) on Earth"
-    line: "So dense a sugar cube of it weighs about a billion tons.",
+    // the source: "These stellar remnants measure about 20 kilometers (12.5 miles) across."; "One sugar cube of neutron
+    // star material would weigh about 1 trillion kilograms (or 1 billion tons) on Earth" (D-196: the line says it is small)
+    line: "About 20 km across; a sugar-cube-sized piece weighs about a billion tons.",
     sources: ["nasa-imagine-neutron-stars"],
     anchor: "pulsar",
     stop: 1,
@@ -776,6 +777,18 @@ export const PLACES: readonly Place[] = [
     stop: 1,
     veil: "#160604",
     video: "aeWyp2vXxqA",
+  },
+  {
+    // D-196: inside the quasi-star, at its heart. The source (abstract): "a natal BH accretes mass from and energetically
+    // sustains (through accretion) an overlying gaseous envelope"; natal is newborn, the envelope is the star round it
+    id: "quasi-star-black-hole",
+    name: "Its Black Hole",
+    line: "A newborn black hole, feeding on and powering the star around it.",
+    sources: ["arxiv-quasi-stars"],
+    anchor: "seed",
+    stop: 1,
+    inside: "quasi-star",
+    veil: "#0c0302",
   },
   {
     // D-132: the galaxy's Yellow Star, Earth and Moon became one place with places inside it

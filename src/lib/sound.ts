@@ -43,7 +43,7 @@ const SCENES = [
   "programmable-matter", "higher-dimensions", "quantum-foam", "quarks", "vacuum-decay",
   "bubble-universes", "pocket-dimensions", "omniverse", "cosmic-strings", "string-theory",
   "dyson-swarm", "ringworld", "oneill-cylinder", "matrioshka-brain", "generation-ship",
-  "stellar-engine", "von-neumann-probes", "space-elevator", "star-lifter", "last-civilization", "human-cell", "dna", "carbon-atom", "carbon-nucleus", "pocket-universe", "wormhole",
+  "stellar-engine", "von-neumann-probes", "space-elevator", "star-lifter", "last-civilization", "human-cell", "dna", "carbon-atom", "carbon-nucleus", "pocket-universe", "quasi-star-black-hole", "wormhole",
 ] as const;
 const TRACKS: Record<string, string> = {
   galaxy: "/api/music/magical-space",
@@ -53,6 +53,8 @@ const TRACKS: Record<string, string> = {
   supervoid: "/api/music/web",
   // the pocket universe shares its doorway's loop (D-192, the owner's choice in D-193)
   "pocket-universe": "/api/music/pocket-dimensions",
+  // the quasi-star's black hole shares the quasi-star's loop (D-196)
+  "quasi-star-black-hole": "/api/music/quasi-star",
 };
 /** The cookie that carries the owner's music key to `/api/music/` (the same name in its route). */
 const KEY_COOKIE = "cosmic-atlas-music";

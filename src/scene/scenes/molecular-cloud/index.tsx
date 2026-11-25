@@ -4,7 +4,11 @@
  * their tops eaten ragged and rimmed with ember light from hot young stars above the frame; behind
  * them, glowing steel-blue gas. Deep in the pillars' tips, baby stars burn through the dust as
  * ember-red points, a few throwing thin jets out of both poles. The dust drifts very slowly; a drag
- * looks round it, the pillars moving more than the gas behind. One draw call, no particles. Its
+ * looks round it, the pillars moving more than the gas behind, and the baby stars staying in their
+ * pillars (D-196: they drifted off them). D-196 also gave it depth: the pillars are shaded as
+ * solid columns lit from above and to the left, their heads boil off in glowing gold streamers,
+ * a few hot young stars blaze just above the frame, the gas behind billows with lit edges, and a
+ * dark wisp of nearer dust drifts across a corner. One draw call, no particles. Its
  * own colour family: umber, ember and steel blue. Mounted by the host through the registry; never
  * imported by a page.
  */
@@ -71,23 +75,53 @@ void main(){
   vec2 v = (css - size * 0.5) / size.y;
   vec3 col = skyDeep(normalize(vec3(v * 1.4, -1.0)), 0.4) * 0.5;
 
-  // ---- the glowing gas behind, lit from above ----
+  // ---- the glowing gas behind, lit from above: billows whose upper edges catch the light ----
   vec2 g = u + look * 0.4;
   float gas = fbm3(vec3(g * 1.1, 2.0 + t * 0.003));
+  float gasUp = fbm3(vec3((g + vec2(0.0, 0.04)) * 1.1, 2.0 + t * 0.003));
   float wisp = fbm3(vec3(g * 3.0 + gas, 4.0));
   float light = smoothstep(-1.2, 1.0, g.y);
-  col += mix(STEEL, TEAL_GAS, wisp) * (0.22 + 0.85 * gas * gas) * (0.4 + 0.9 * light);
-  col += GOLD * 0.22 * exp(-pow((g.x - 0.2) / 0.9, 2.0)) * smoothstep(0.0, 1.3, g.y);
+  float edgeLit = clamp((gas - gasUp) * 9.0, 0.0, 1.0);
+  col += mix(STEEL, TEAL_GAS, wisp) * (0.1 + 1.3 * gas * gas * gas * 1.6) * (0.35 + 1.0 * light);
+  col += mix(TEAL_GAS, GOLD, 0.5) * edgeLit * light * 0.35;
+  col += GOLD * 0.26 * exp(-pow((g.x - 0.2) / 0.9, 2.0)) * smoothstep(0.0, 1.3, g.y);
+  // the hot young stars that light it all, blazing high in the frame
+  for (int k = 0; k < 3; k++) {
+    float fk = float(k);
+    vec2 sp = (k == 0 ? vec2(-0.45, 0.48) : (k == 1 ? vec2(0.45, 0.52) : vec2(1.0, 0.35))) - look * 0.4;
+    vec2 se = (u - sp) * uScale;
+    float sr = length(se);
+    float bright = 1.0 - 0.3 * fk;
+    col += vec3(0.85, 0.92, 1.0) * (exp(-sr * sr / 20.0) * 1.6 + exp(-sr / 60.0) * 0.3 + exp(-sr / 220.0) * 0.12) * bright;
+    // faint spikes, as a lens would draw them
+    col += vec3(0.8, 0.9, 1.0) * (exp(-abs(se.x) / 1.5) * exp(-abs(se.y) / 70.0) + exp(-abs(se.y) / 1.5) * exp(-abs(se.x) / 70.0)) * 0.3 * bright;
+  }
 
   // ---- the dust, in front, and the light caught on its edges ----
   vec2 p = u + look;
   float d = dust(p, t);
   float above = dust(p + vec2(0.0, 0.012), t);      // the dust just toward the light
+  float toLight = dust(p + vec2(-0.035, 0.035), t);  // further toward it, for the columns' round shading
   float rim = clamp((d - above) * 5.0, 0.0, 1.0) * smoothstep(0.2, 0.5, d) * (1.0 - smoothstep(0.7, 1.1, d));
   float through = exp(-max(d - 0.25, 0.0) * 3.5);
   col *= through;
-  col += UMBER * smoothstep(0.3, 0.9, d) * (0.4 + 0.6 * fbm3(vec3(p * 5.0, 8.0))) * 0.35;
-  col += mix(EMBER, GOLD, 0.4) * rim * 0.9;
+  // the columns' bodies: brighter where they face the light, deep brown where they turn away
+  float facing = clamp((d - toLight) * 3.0 + 0.35, 0.0, 1.0);
+  float grit = fbm3(vec3(p * 5.0, 8.0));
+  vec3 lit = mix(UMBER * 0.45, mix(UMBER * 3.4, EMBER * 0.9, 0.4), facing * facing);
+  col += lit * smoothstep(0.3, 0.9, d) * (0.4 + 0.8 * grit) * 0.65;
+  col += mix(EMBER, GOLD, 0.4) * rim * 1.1;
+
+  // ---- the heads boil off: gold streamers of gas rising from each pillar's top ----
+  for (int i = 0; i < 3; i++) {
+    vec3 pl = pillar(i);
+    float above_ = p.y - pl.z;
+    float dx = p.x - pillarX(pl, pl.z);
+    float spread = 0.1 + 0.25 * max(above_, 0.0);
+    float streak = fbm3(vec3(dx * 9.0 / (1.0 + above_ * 2.0), (p.y - t * 0.015) * 3.0, float(i) * 5.0));
+    float plume = exp(-dx * dx / (spread * spread)) * smoothstep(-0.06, 0.04, above_) * exp(-max(above_, 0.0) * 3.2);
+    col += mix(EMBER, GOLD, 0.6) * plume * smoothstep(0.35, 0.8, streak) * (1.0 - smoothstep(0.3, 0.7, d)) * 0.9;
+  }
 
   // ---- baby stars burning through the pillars' tips, a few with jets ----
   for (int i = 0; i < 4; i++) {
@@ -95,7 +129,8 @@ void main(){
     // just inside each pillar's head, and one more low in the middle pillar
     vec3 pl = pillar(i < 3 ? i : 1);
     float y = i < 3 ? pl.z - 0.12 : pl.z - 0.55;
-    vec2 at = vec2(pillarX(pl, y) + (i < 3 ? 0.0 : 0.03), y) + look;
+    // the dust is drawn at u + look, so a point fixed in the dust sits at its place minus look
+    vec2 at = vec2(pillarX(pl, y) + (i < 3 ? 0.0 : 0.03), y) - look;
     vec2 e = u - at;
     float r = length(e) * uScale;                      // CSS pixels
     float burn = 0.75 + 0.25 * sin(t * (0.6 + fi * 0.2) + fi);
@@ -111,6 +146,12 @@ void main(){
       col += mix(EMBER, GOLD, 0.5) * jet * 0.4;
     }
   }
+
+  // ---- a dark wisp of nearer dust across the lower right corner, moving most in a drag ----
+  vec2 nf = u + look * 1.8;
+  float near = smoothstep(0.45, 0.75, fbm3(vec3(nf * 1.6 + vec2(t * 0.004, 0.0), 21.0))) * smoothstep(0.2, 1.2, nf.x - nf.y * 0.6);
+  col *= 1.0 - 0.85 * near;
+  col += EMBER * 0.05 * near * smoothstep(0.6, 0.0, near);
 
   col = col / (1.0 + max(col - 0.85, 0.0) * 0.9);
   gl_FragColor = vec4(col, 1.0);

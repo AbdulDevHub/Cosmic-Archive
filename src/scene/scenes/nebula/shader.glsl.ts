@@ -7,6 +7,9 @@
  * into space. The gas is warped fractal noise; the columns are rounded segments, roughened by
  * the same warp. The colours are the place's palette (DESIGN_SPEC.md 3), not real filters.
  *
+ * D-196: more drama. Long dark lanes of dust wind through the glow, their edges that face the
+ * heart lit gold and rose, the threads are finer and brighter, and the haze round the heart is thinner, so the darks are deeper.
+ *
  * Nothing is drawn over it: no contours, no rings (D-094).
  *
  * Units: one unit is `uScale` CSS pixels; the cluster sits at the origin, y up.
@@ -133,7 +136,7 @@ void main(){
   // the cloud's form: it fills the frame, thinning far from its glowing heart
   float body = smoothstep(30.0, 5.0, rad + (dens - 0.5) * 16.0);
   // S4: a higher threshold, so the gas has dark gaps between its billows (contrast)
-  float gas = smoothstep(0.42, 0.9, dens * 0.78 + detail * 0.36) * body;
+  float gas = smoothstep(0.45, 0.9, dens * 0.78 + detail * 0.36) * body;
 
   // ---- light from the heart: the cloud's edges that face it glow (density falls toward it) ----
   vec2 toHeart = -p / max(rad, 0.001);
@@ -152,11 +155,11 @@ void main(){
   vec3 light = tint * gas * (0.2 + 1.2 * near) * (0.45 + 1.0 * detail);
   light += mix(warm, vec3(1.0, 0.86, 0.62), 0.45) * rim * (0.35 + 1.8 * near);
   // fine bright filaments threading the gas
-  float thread = pow(1.0 - abs(2.0 * fbm(r * 3.4 + w2 * 2.0 + 17.0) - 1.0), 9.0) * gas;
-  light += mix(tint, vec3(1.0), 0.35) * thread * (0.25 + 0.7 * near);
+  float thread = pow(1.0 - abs(2.0 * fbm(r * 3.4 + w2 * 2.0 + 17.0) - 1.0), 12.0) * gas;
+  light += mix(tint, vec3(1.0), 0.45) * thread * (0.4 + 0.9 * near);
   // the heart itself: hot white-gold, wrapped in a pink and blue haze
   light += vec3(1.0, 0.84, 0.64) * exp(-rad * 0.5) * 0.65;
-  light += mix(vec3(0.45, 0.6, 1.0), vec3(1.0, 0.6, 0.85), 0.5) * exp(-rad * 0.2) * 0.2;
+  light += mix(vec3(0.45, 0.6, 1.0), vec3(1.0, 0.6, 0.85), 0.5) * exp(-rad * 0.2) * 0.1;
 
   // ---- S4: a far layer of cool gas behind the cloud; it moves about half as much in a drag ----
   vec2 pf = (q + uPan * 0.55) / (uScale * 1.25);
@@ -172,6 +175,18 @@ void main(){
   float dust = smoothstep(0.52, 0.8, broad(p * 0.12 + w2 * 2.6 + 50.0)) * smoothstep(3.0, 10.0, rad);
   float nearDust = smoothstep(0.6, 0.85, broad(pn * 0.08 + 90.0)) * smoothstep(5.0, 14.0, rad);
   col *= (1.0 - dust * 0.8) * (1.0 - nearDust * 0.65);
+
+  // ---- D-196: long dark lanes of dust winding through the glow, lit gold where they face the heart ----
+  vec2 lp = p * 0.19 + w1 * 1.6 + w2 * 0.9;
+  float laneR = 1.0 - abs(2.0 * broad(lp + 120.0) - 1.0);
+  float laneAheadR = 1.0 - abs(2.0 * broad(lp + toHeart * 0.02 + 120.0) - 1.0);
+  float keep = smoothstep(0.3, 0.6, broad(p * 0.06 + 140.0)) * smoothstep(2.5, 6.0, rad);
+  float rag = fbm(r * 5.0 + 70.0) - 0.5;
+  float lane = smoothstep(0.8, 0.99, laneR + 0.22 * rag) * keep * (0.55 + 0.6 * smoothstep(0.3, 0.7, broad(p * 0.35 + 160.0)));
+  float laneAhead = smoothstep(0.8, 0.99, laneAheadR + 0.22 * rag) * keep * (0.55 + 0.6 * smoothstep(0.3, 0.7, broad(p * 0.35 + 160.0)));
+  float laneRim = clamp((lane - laneAhead) * 2.5, 0.0, 1.0);
+  col *= 1.0 - 0.8 * clamp(lane, 0.0, 1.0);
+  col += mix(vec3(1.0, 0.45, 0.6), GOLD, 0.55) * laneRim * (0.25 + 1.2 * near) * (0.4 + gas);
 
   // ---- the stars the cloud is making: the bright cluster at the heart, and others scattered in it ----
   for (int i = 0; i < STARS; i++) {

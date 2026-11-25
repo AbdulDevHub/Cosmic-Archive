@@ -32,8 +32,8 @@ vec3 hash33(vec3 p){
 }
 
 /* the giant's boiling cells, in 3D on its turning surface (no poles to pinch): bright middles, dark lanes */
-float cellsAt(vec3 b, float t){
-  vec3 p = b * 1.35;
+float cellsAt(vec3 b, float t, float scale){
+  vec3 p = b * scale;
   vec3 i = floor(p), f = fract(p);
   float d1 = 9.0, d2 = 9.0;
   for (int z = -1; z <= 1; z++)
@@ -78,10 +78,12 @@ void main(){
     vec3 n = vec3(u / edge, sqrt(max(1.0 - re * re, 0.0)));
     vec3 b = transpose(view) * n;
     float mu = n.z;
-    float cell = cellsAt(b + 0.12 * (vec3(fbm3(b * 3.0), fbm3(b * 3.0 + 4.0), fbm3(b * 3.0 + 8.0)) - 0.5), t);
+    float cell = cellsAt(b + 0.12 * (vec3(fbm3(b * 3.0), fbm3(b * 3.0 + 4.0), fbm3(b * 3.0 + 8.0)) - 0.5), t, 1.35);
+    // up close (D-196), smaller cells boil inside the giant ones, with dark lanes between
+    float small = cellsAt(b * 1.0 + 0.05 * (vec3(fbm3(b * 9.0), fbm3(b * 9.0 + 4.0), fbm3(b * 9.0 + 8.0)) - 0.5), t * 2.0, 5.5);
     float fine = fbm3(b * 9.0 + vec3(0.0, t * 0.01, 0.0));
     float spots = fbm3(b * 2.0 + vec3(t * 0.004, 0.0, 3.0));
-    float heat = (0.35 + 0.65 * cell) * (0.6 + 0.6 * fine) * (0.7 + 0.5 * spots);
+    float heat = (0.35 + 0.65 * cell) * (0.55 + 0.6 * small) * (0.7 + 0.5 * fine) * (0.7 + 0.5 * spots) * 1.15;
     vec3 surface = mix(GARNET, ORANGE, smoothstep(0.15, 0.85, heat));
     surface = mix(surface, AMBER, smoothstep(0.75, 1.0, heat) * 0.6);
     // a giant's face darkens hard toward its edge
@@ -97,7 +99,8 @@ void main(){
 
 const CONFIG: OrbConfig = {
   fragment: FRAGMENT,
-  framing: (width, height) => Math.min(height * 0.24, width * 0.16),
+  // swollen (D-196): about four fifths of a laptop's height across
+  framing: (width, height) => Math.min(height * 0.4, width * 0.27),
   close: 1.3,
   arriveFrom: 0.2,
   detail: { low: 0, medium: 1, high: 2 },
