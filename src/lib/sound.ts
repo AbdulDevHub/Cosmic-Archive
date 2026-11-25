@@ -51,7 +51,7 @@ const TRACKS: Record<string, string> = {
   // the owner's swap (D-188): the cosmic web plays the supervoid's loop, and the supervoid the web's
   web: "/api/music/supervoid",
   supervoid: "/api/music/web",
-  // no loop of its own yet (D-192): the pocket universe carries on with its doorway's
+  // the pocket universe shares its doorway's loop (D-192, the owner's choice in D-193)
   "pocket-universe": "/api/music/pocket-dimensions",
 };
 /** The cookie that carries the owner's music key to `/api/music/` (the same name in its route). */

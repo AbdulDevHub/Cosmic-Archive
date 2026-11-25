@@ -3,8 +3,10 @@
  * light. The screen is nearly black. Far behind, a faint field of distant galaxies; in front, gold
  * galaxies gather in a few clusters and along the strands between them. The dark matter itself is
  * never lit: it shows only by what its gravity does, bending the far galaxies' light into thin arcs
- * round each unseen clump, and as a ghost of deep indigo that slowly swells and fades round the
- * clumps and strands, the only hint of how much is there. A drag looks round. One draw call, no
+ * round each unseen clump, and as a ghost of deep indigo that slowly swells, fades and turns round
+ * the clumps and strands, the only hint of how much is there. It moves (D-193): the far galaxies
+ * drift, so their arcs slide round the clumps; each clump's galaxies orbit its heart, the inner ones
+ * faster, neighbouring clumps turning opposite ways. A drag looks round. One draw call, no
  * particles. Its own colour family: near black, deep indigo and gold. Mounted by the host through
  * the registry; never imported by a page.
  */
@@ -90,6 +92,8 @@ void main(){
     float r2 = dot(d, d);
     src -= c.z * d / (r2 + 0.002);
   }
+  // the far galaxies drift slowly behind, so their bent light slides and flows round each clump
+  src += vec2(t * 0.008, t * 0.003);
   vec3 col = farField(src, 11.0, 1.0) + farField(src, 19.0, 5.0) * 0.7;
   // a few faint stars of our own galaxy, unbent, so the dark is not empty
   vec2 sg = u * 40.0;
@@ -106,16 +110,20 @@ void main(){
   float halo = 0.0;
   for (int i = 0; i < 5; i++) {
     vec3 c = clump(i);
-    halo += exp(-length(wu - c.xy) / (1.6 * sqrt(c.z))) * (0.5 + 10.0 * c.z);
+    vec2 d = wu - c.xy;
+    // each clump's ghost turns slowly, some one way, some the other
+    float fi = float(i);
+    float a = t * (0.12 + 0.03 * fi) * (mod(fi, 2.0) < 0.5 ? 1.0 : -1.0);
+    vec2 rd = vec2(cos(a) * d.x - sin(a) * d.y, sin(a) * d.x + cos(a) * d.y);
+    float swirl = fbm3(vec3(rd * 5.0, fi * 3.0));
+    halo += exp(-length(d) / (1.6 * sqrt(c.z))) * (0.5 + 10.0 * c.z) * (0.45 + 1.1 * swirl);
   }
   float lump = fbm3(vec3(u * 3.0, t * 0.02));
   col += INDIGO * (strand * 0.12 + halo * 0.16) * (0.5 + 0.8 * lump) * breath;
 
   // ---- the galaxies we can see: gold, gathered in the clumps and strung along the strands ----
   // where the galaxies live: close in round each clump, and thinly along the strands
-  float home = 0.0;
-  for (int i = 0; i < 5; i++) home += exp(-length(u - clump(i).xy) / (0.7 * sqrt(clump(i).z)));
-  home = clamp(home + exp(-sd / 0.03) * 0.5 * broken, 0.0, 1.0);
+  float home = clamp(exp(-sd / 0.03) * 0.5 * broken, 0.0, 1.0);
   for (int k = 0; k < 2; k++) {
     float fk = float(k);
     vec2 g = u * (30.0 + fk * 22.0);
@@ -125,11 +133,33 @@ void main(){
     float keep = step(1.0 - home * 0.55, hash2(gi + 7.7 + fk).x);
     col += mix(GOLD, WHITE, go.y * 0.5) * exp(-dot(d, d) * (220.0 + fk * 260.0)) * keep * (1.4 - fk * 0.5);
   }
-  // each clump's brightest galaxy, a soft gold oval at its heart
+  // in each clump, galaxies orbit its heart, the inner ones faster; its brightest galaxy, a soft
+  // gold oval at the heart, turns slowly
   for (int i = 0; i < 5; i++) {
     vec3 c = clump(i);
     vec2 d = u - c.xy;
-    col += GOLD * exp(-(d.x * d.x / 0.0006 + d.y * d.y / 0.0003)) * (0.5 + 12.0 * c.z);
+    float fi = float(i);
+    float R = 1.3 * sqrt(c.z);
+    if (length(d) < R * 1.3) {
+      for (int j = 0; j < 36; j++) {
+        float fj = float(j);
+        vec2 h = hash2(vec2(fi * 31.0 + fj, fi + fj * 0.37));
+        vec2 h2 = hash2(vec2(fj * 5.1 + 2.0, fi * 7.7));
+        float rad = R * (0.12 + 0.88 * pow(h.x, 0.8));
+        float spin = (mod(fi, 2.0) < 0.5 ? 1.0 : -1.0) * 0.05 / sqrt(rad);
+        float ang = h.y * TAU + t * spin;
+        vec2 gp = vec2(cos(ang), sin(ang)) * rad * vec2(1.0, 0.75 + 0.25 * h2.x);
+        vec2 e = d - gp;
+        // a small oval, lying along its orbit
+        vec2 along = vec2(-sin(ang), cos(ang));
+        float ea = dot(e, along), er = dot(e, vec2(along.y, -along.x));
+        float size = 0.000008 + 0.00003 * h2.y * h2.y;
+        col += mix(GOLD, WHITE, h2.x * 0.5) * exp(-(ea * ea / (size * 2.2) + er * er / size)) * (0.3 + 0.8 * h2.y);
+      }
+    }
+    float a = t * 0.08 * (mod(fi, 2.0) < 0.5 ? 1.0 : -1.0) + fi;
+    vec2 bd = vec2(cos(a) * d.x - sin(a) * d.y, sin(a) * d.x + cos(a) * d.y);
+    col += GOLD * exp(-(bd.x * bd.x / 0.0006 + bd.y * bd.y / 0.0003)) * (0.5 + 12.0 * c.z);
   }
 
   col = col / (1.0 + max(col - 0.85, 0.0) * 0.9);
