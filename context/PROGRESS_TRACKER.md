@@ -16,7 +16,7 @@ Four megastructures are polished (D-176), the ships are refined (D-177), and the
 
 ## In Progress
 
-- Item 13 below: the owner's checks on the deployed site.
+- Item 14 below: the finish. A new session starts with the owner's final refinement, then the checks, the README and the deploy. Since D-203 (2026-11-25): new logo and wordmark (Syncopate), ship-class icons in the dock, an ocean planet held still, a still galaxy on the start page, Begin as a warp core, places locked until visited with hints, the first-visit shader freeze fixed, the music submodule in `src/private-assets/`, search readiness.
 
 ## Next Steps
 
@@ -59,9 +59,18 @@ Agreed with the owner on 2026-11-22 (D-136). Work down the list and commit after
     - Test health (done 2026-11-24, D-178: `sceneSettled` is 90 s, the pinch on a phone counts a finger on a marker, the touch check is fixed, `/star` is clean in axe; a full `npm run a11y` run passed all 96 checks on 2026-11-24, D-179, after the scan learned to wait for the drag hint to finish fading in).
     - Phone pass (D-110), including the nebula's dust bank on phones (done 2026-11-24, D-179: the nebula reads well on a phone; the start page's hidden galaxy words no longer show over the wordmark before the scene is live).
     - Set `NEXT_PUBLIC_SITE_URL` (done 2026-11-24, D-179: Vercel's production domain is the fallback; set the variable only for a custom domain).
-    - The owner's checks: look at the new scenes on the laptop; arXiv as a source (Wormhole, Gravastar, Quasi-Star); frame rate and touch on real hardware; scene routes at about 145 KB against the 140 KB limit (D-047).
+    - The owner's checks: look at the new scenes on the laptop (done 2026-11-25, the owner); arXiv as a source for the Wormhole, Gravastar and Quasi-Star (accepted 2026-11-25, the owner); still open: frame rate and touch on real hardware; scene routes at about 145 KB against the 140 KB limit (D-047).
+    - Google Search Console verified, the sitemap submitted and the GitHub social preview uploaded (done 2026-11-25, the owner, D-207).
     - An "Islam and Space" page and a verse about those who ponder the signs at the end of the README (fetch the verse) (done 2026-11-24, D-179: `/islam-and-space`, linked from the Seven Heavens; README ends with 3:190).
     - Deploy only when the owner says so (done 2026-11-24, D-179: the owner said so; Vercel project `cosmic-archive`).
+
+14. [ ] **Finish** (listed 2026-11-25 at the owner's "what is left before total completion"; the owner has one last refinement to bring first, in a new session):
+    - The owner's final refinement (not yet named).
+    - Run the full checks once, one at a time: `npm run build`, `npm run shots`, `npm run a11y`, `npm run fallbacks` (none has run since D-203 to D-209).
+    - Refresh the README's overview and screenshot for the new logo, ocean planet, warp core and locked places.
+    - Push, then the owner deploys from their own checkout (`vercel deploy --prod`): Vercel's GitHub builds cannot fetch the private music submodule ("Failed to fetch one or more git submodules"), so the build live since 2026-11-25 plays only the noise bed. Claude's deploy command is blocked by auto mode.
+    - Optional, the owner's to pick: a YouTube video for each of the 33 places without one (Nebula, the Starbase and its ideas, the megastructures, the Comet, the Red Giant and others); without one the video button simply does not show.
+    - Optional, the owner's: frame rate and touch on a real phone; the scene routes' 145 KB against 140 KB; whether the ships need a Blender pass (D-177).
 
 **Dropped (2026-11-22):** the hypothetical tag, share images per place, a suggestion form, galaxy collision, a cluster stop, the CMB, kilonova, Wolf-Rayet, binary stars, tidal disruption, exoplanets, auroras, first stars, photo mode.
 
