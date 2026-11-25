@@ -12,7 +12,7 @@
 
 import type { PlaceId } from "./places";
 
-export type FlightId = "star-life" | "black-hole-to-quasar" | "grand-tour";
+export type FlightId = "star-life" | "black-hole-to-quasar" | "into-the-smallest" | "grand-tour";
 
 export interface Flight {
   id: FlightId;
@@ -36,6 +36,13 @@ export const FLIGHTS: readonly Flight[] = [
     name: "Black Hole to Quasar",
     kind: "guided",
     places: ["black-hole", "black-hole-merger", "quasar-galaxy", "quasar"],
+  },
+  {
+    // D-190: from the Starbase down through a cell to strings, each place inside the one before
+    id: "into-the-smallest",
+    name: "Into the Smallest",
+    kind: "guided",
+    places: ["starbase", "human-cell", "dna", "carbon-atom", "carbon-nucleus", "quarks", "string-theory"],
   },
   {
     // the hands-off tour: from a world like ours outward to the web the galaxies hang in

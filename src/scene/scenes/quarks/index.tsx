@@ -103,6 +103,8 @@ const CONFIG: OrbConfig = {
   close: 1.3,
   arriveFrom: 0.3,
   detail: { low: 0, medium: 1, high: 2 },
+  // D-190: the junction at the middle, where the colours cancel, leads on down to String Theory
+  bodies: (t) => [{ name: "stringtheory", x: 0.06 * Math.sin(t * 0.37), y: 0.06 * Math.cos(t * 0.29), z: 0.2 }],
 };
 
 export default function QuarksScene(props: SceneProps) {

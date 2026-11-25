@@ -3,7 +3,8 @@
  * ideas that space scenes cannot show (D-136). A great wheel, like the rotating settlements NASA
  * studied in 1975: a gunmetal ring, ribbed and panelled, turning slowly about a hub on three spokes,
  * lit blue-white from one side by the galaxy's quasar, its inner face strung with warm amber windows.
- * Round its outer rim stand ten bays (the Omniverse left for the atlas, D-184), each glowing in the colour of the idea it leads to; the
+ * Round its outer rim stand nine bays (the Omniverse left for the atlas, D-184; Quarks and String
+ * Theory went down the cell's journey, D-190), each glowing in the colour of the idea it leads to; the
  * galaxy's bright band and its quasar lie behind. Ray-marched in one full-screen shader: one draw
  * call, no particles. Its own colour family: gunmetal, amber and quasar blue.
  *
@@ -23,7 +24,7 @@ export const budget: SceneBudget = {
 const TUBE = 0.13;
 const BAY_R = 1 + TUBE + 0.02;
 /** The bays, in order round the rim: the anchors of the ideas inside the Starbase. */
-export const BAYS = ["warp", "matter", "dims", "pocket", "bubbles", "vacuum", "foam", "strings", "quarks", "stringtheory"] as const;
+export const BAYS = ["warp", "matter", "dims", "pocket", "bubbles", "vacuum", "foam", "strings", "cell"] as const;
 /** The wheel turns this fast, in radians a second: a full turn in about seventeen minutes. */
 const SPIN = 0.006;
 /** The camera's distance, in radii, and how far above the ring's plane it looks down. */
@@ -73,8 +74,7 @@ vec3 bayColour(int i){
   if (i == 5) return vec3(1.0, 0.3, 0.25);    // vacuum decay
   if (i == 6) return vec3(0.4, 0.95, 1.0);    // quantum foam
   if (i == 7) return vec3(1.0, 0.8, 0.35);    // cosmic strings
-  if (i == 8) return vec3(0.6, 1.0, 0.35);    // quarks
-  return vec3(0.7, 0.5, 1.0);                 // string theory
+  return vec3(0.6, 1.0, 0.35);                // a human cell, and the journey down from it (D-190)
 }
 
 float spinAngle(){ return uTime * SPIN + uYaw; }

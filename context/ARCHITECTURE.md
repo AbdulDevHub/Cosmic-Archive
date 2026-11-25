@@ -100,7 +100,7 @@ src/
 | `/quasar` | `quasar` (the black-hole shader seen from far off) | `place` |
 | `/solar-system` | `solar-system`: holds `/star` and `/blue-world`, which holds `/moon`, which holds `/asteroid` (D-132, D-133) | `place` |
 | `/quasar-galaxy` | `quasar-galaxy`: found at the web and through `/wormhole`; holds `/quasar`, `/dyson-sphere`, `/starbase` and the nine megastructures (D-133, D-152, D-164) | `place` |
-| `/starbase` | `starbase`: a ray-marched wheel station whose ten bays lead to the Starbase's ideas (`/warp-drive`, `/programmable-matter`, `/higher-dimensions`, `/quantum-foam`, `/quarks`, `/vacuum-decay`, `/bubble-universes`, `/pocket-dimensions`, `/omniverse`, `/cosmic-strings`, `/string-theory`) (D-152) | `place` |
+| `/starbase` | `starbase`: a ray-marched wheel station whose nine bays lead to the Starbase's ideas (`/warp-drive`, `/programmable-matter`, `/higher-dimensions`, `/pocket-dimensions`, `/bubble-universes`, `/vacuum-decay`, `/quantum-foam`, `/cosmic-strings`, and `/human-cell`, the start of the chain down to `/dna`, `/carbon-atom`, `/carbon-nucleus`, `/quarks` and `/string-theory`, D-190) | `place` |
 
 All routes are static (`generateStaticParams` for `[place]`, `dynamicParams = false`). No server runtime, no API routes. The routes of v1 (`/explore`, `/subjects/*`, `/journeys/*`, `/archive`) and then `/about` were removed before anything was deployed, so they have no redirects (D-093, D-095, D-099). The 404 page is the one page without a scene.
 

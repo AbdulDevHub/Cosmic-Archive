@@ -40,3 +40,4 @@ Dropped on 2026-11-22 or never picked. Revive them only with the owner.
 
 - **Blender:** use it only when code can't reach the look (ships, the Starbase). Export optimized `.glb` files for the web, keep the editable `.blend` sources out of the site, prove it with a small test first, and always keep a still fallback.
 - **Lines to reuse after sourcing:** "Where gravity reshapes our view of space and time." (black holes) and "Some of the brightest beacons in the distant universe." (quasars).
+- **Into the smallest** (built, D-190): the Starbase's cell bay leads down through DNA, a carbon atom and its nucleus to Quarks and String Theory.

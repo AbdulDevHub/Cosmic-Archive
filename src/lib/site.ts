@@ -56,6 +56,10 @@ export const PLACE_OG: Readonly<Record<string, { name: string; alt: string }>> =
   "asteroid": { name: "asteroid", alt: "Our own illustration of an asteroid: a lumpy, cratered rock lit hard from one side, a blue planet far behind it." },
   "quasar-galaxy": { name: "quasar-galaxy", alt: "Our own illustration of a quasar galaxy: a tilted spiral with a blinding heart and two jets along its axis." },
   "star-lifter": { name: "star-lifter", alt: "Our own illustration of star lifting: plumes of glowing gas drawn off a ruby star toward small collectors." },
+  "human-cell": { name: "human-cell", alt: "Our own illustration of a human cell: a violet nucleus, amber mitochondria and a rose membrane." },
+  dna: { name: "dna", alt: "Our own illustration of DNA: a turning double helix of glowing atoms, its base pairs in colour." },
+  "carbon-atom": { name: "carbon-atom", alt: "Our own illustration of a carbon atom: a tiny bright nucleus inside glowing clouds of electrons." },
+  "carbon-nucleus": { name: "carbon-nucleus", alt: "Our own illustration of a carbon nucleus: six protons and six neutrons in a warm haze." },
   "last-civilization": { name: "last-civilization", alt: "Our own illustration of an imagined hibernating civilization: a dark shell of panels round a dim white dwarf, ringed by a glowing store of energy." },
   "space-elevator": { name: "space-elevator", alt: "Our own illustration of a space elevator: a silver ribbon rising from a blue world at sunrise into orbit." },
   "von-neumann-probes": { name: "von-neumann-probes", alt: "Our own illustration of self-copying probes: a front of mint light spreading across a spiral galaxy." },
@@ -75,7 +79,7 @@ export const PLACE_OG: Readonly<Record<string, { name: string; alt: string }>> =
   "higher-dimensions": { name: "higher-dimensions", alt: "Our own illustration of a fourth dimension: the shifting 3D slice of a turning tesseract, a violet crystal." },
   "programmable-matter": { name: "programmable-matter", alt: "Our own illustration of programmable matter: a body of tiny silver units with cyan light in their seams, reshaping itself." },
   "warp-drive": { name: "warp-drive", alt: "Our own illustration of a warp bubble: calm space inside, stars squeezed blue ahead and stretched red behind." },
-  "starbase": { name: "starbase", alt: "Our own illustration of an imagined starbase: a great turning wheel with warm windows and eleven glowing bays." },
+  "starbase": { name: "starbase", alt: "Our own illustration of an imagined starbase: a great turning wheel with warm windows and nine glowing bays." },
   "moon": { name: "moon", alt: "Our own illustration of a moon: grey, cratered, with dark lava plains, lit hard from one side." },
 };
 

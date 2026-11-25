@@ -32,10 +32,10 @@ export interface Stop {
   video?: string;
 }
 
-export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy" | "starbase" | "warp-drive" | "programmable-matter" | "higher-dimensions" | "quantum-foam" | "vacuum-decay" | "bubble-universes" | "quarks" | "pocket-dimensions" | "cosmic-strings" | "string-theory" | "dyson-swarm" | "ringworld" | "oneill-cylinder" | "matrioshka-brain" | "generation-ship" | "stellar-engine" | "von-neumann-probes" | "space-elevator" | "star-lifter" | "last-civilization";
+export type PlaceId = "black-hole" | "nebula" | "quasar" | "neutron-star" | "star" | "strange-star" | "dyson-sphere" | "wormhole" | "gravastar" | "supernova-remnant" | "magnetar" | "black-hole-merger" | "comet" | "ringed-giant" | "dark-matter" | "molecular-cloud" | "red-giant" | "planetary-nebula" | "white-dwarf" | "quasi-star" | "solar-system" | "blue-world" | "moon" | "asteroid" | "quasar-galaxy" | "starbase" | "warp-drive" | "programmable-matter" | "higher-dimensions" | "quantum-foam" | "vacuum-decay" | "bubble-universes" | "quarks" | "pocket-dimensions" | "cosmic-strings" | "string-theory" | "dyson-swarm" | "ringworld" | "oneill-cylinder" | "matrioshka-brain" | "generation-ship" | "stellar-engine" | "von-neumann-probes" | "space-elevator" | "star-lifter" | "last-civilization" | "human-cell" | "dna" | "carbon-atom" | "carbon-nucleus";
 export type AtlasAnchor = "core" | "arm" | "quasar" | "home" | "pulsar" | "sun" | "strange" | "wormhole" | "gravastar" | "remnant" | "merger" | "quasi" | "dark" | "cloud" | "redgiant" | "planetary";
 /** Bodies a place's own scene names, where the places inside it stand (D-132). */
-export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant" | "dwarf" | "starbase" | "warp" | "matter" | "dims" | "pocket" | "bubbles" | "vacuum" | "foam" | "strings" | "quarks" | "stringtheory" | "swarm" | "ringworld" | "oneill" | "matrioshka" | "generation" | "engine" | "probes" | "elevator" | "lifter" | "hibernator";
+export type InnerAnchor = "star" | "planet" | "moon" | "asteroid" | "core" | "dyson" | "throat" | "heart" | "comet" | "giant" | "dwarf" | "starbase" | "warp" | "matter" | "dims" | "pocket" | "bubbles" | "vacuum" | "foam" | "strings" | "quarks" | "stringtheory" | "swarm" | "ringworld" | "oneill" | "matrioshka" | "generation" | "engine" | "probes" | "elevator" | "lifter" | "hibernator" | "cell" | "dna" | "atom" | "nucleus";
 
 export interface Place {
   id: PlaceId;
@@ -399,6 +399,48 @@ export const SOURCES: readonly Source[] = [
     publisher: "arXiv (Axel Kowald; Journal of the British Interplanetary Society, 2015)",
     url: "https://arxiv.org/abs/1605.02169",
     checked: "2026-11-23",
+  },
+  {
+    id: "nhgri-cell",
+    title: "Cell (Talking Glossary of Genomic and Genetic Terms)",
+    publisher: "National Human Genome Research Institute (NIH)",
+    url: "https://www.genome.gov/genetics-glossary/Cell",
+    checked: "2026-11-24",
+  },
+  {
+    id: "nhgri-dna",
+    title: "Deoxyribonucleic Acid (DNA) (Talking Glossary of Genomic and Genetic Terms)",
+    publisher: "National Human Genome Research Institute (NIH)",
+    url: "https://www.genome.gov/genetics-glossary/Deoxyribonucleic-Acid",
+    checked: "2026-11-24",
+  },
+  {
+    id: "doe-electrons",
+    title: "DOE Explains...Electrons",
+    publisher: "US Department of Energy, Office of Science",
+    url: "https://www.energy.gov/science/doe-explainselectrons",
+    checked: "2026-11-24",
+  },
+  {
+    id: "doe-nuclei",
+    title: "DOE Explains...Nuclei",
+    publisher: "US Department of Energy, Office of Science",
+    url: "https://www.energy.gov/science/doe-explainsnuclei",
+    checked: "2026-11-24",
+  },
+  {
+    id: "doe-protons",
+    title: "DOE Explains...Protons",
+    publisher: "US Department of Energy, Office of Science",
+    url: "https://www.energy.gov/science/doe-explainsprotons",
+    checked: "2026-11-24",
+  },
+  {
+    id: "doe-strong-force",
+    title: "DOE Explains...The Strong Force",
+    publisher: "US Department of Energy, Office of Science",
+    url: "https://www.energy.gov/science/doe-explainsthe-strong-force",
+    checked: "2026-11-24",
   },
   {
     id: "dyson-time-without-end",
@@ -852,7 +894,7 @@ export const PLACES: readonly Place[] = [
     sources: ["cern-early-universe", "cern-standard-model"],
     anchor: "quarks",
     stop: 2,
-    inside: "starbase",
+    inside: "carbon-nucleus", // D-190: the fifth step down, inside one proton of the nucleus
     veil: "#100410",
   },
 
@@ -918,7 +960,7 @@ export const PLACES: readonly Place[] = [
     sources: ["space-string-theory"],
     anchor: "stringtheory",
     stop: 2,
-    inside: "starbase",
+    inside: "quarks", // D-190: the last step down, at the heart of the proton
     veil: "#08061a",
   },
   {
@@ -1051,6 +1093,59 @@ export const PLACES: readonly Place[] = [
     inside: "quasar-galaxy",
     veil: "#030409",
     video: "VMm-U2pHrXE",
+  },
+  {
+    // D-190: the first step of the journey down from the Starbase to strings. The source: "A cell is the basic building
+    // block of living things."; "An adult human body is estimated to contain between 10 and 100 trillion cells."
+    id: "human-cell",
+    name: "A Human Cell",
+    line: "Life's basic building block; an adult holds 10 to 100 trillion.",
+    sources: ["nhgri-cell"],
+    anchor: "cell",
+    stop: 2,
+    inside: "starbase",
+    veil: "#07040c",
+    video: "QImCld9YubE",
+  },
+  {
+    // D-190: inside the cell's nucleus. The source: DNA is "the molecule that carries genetic information for the
+    // development and functioning of an organism"; "two linked strands that wind around each other to resemble a twisted
+    // ladder — a shape known as a double helix"
+    id: "dna",
+    name: "DNA",
+    line: "A double helix carrying the genetic information to build and run you.",
+    sources: ["nhgri-dna"],
+    anchor: "dna",
+    stop: 2,
+    inside: "human-cell",
+    veil: "#02050d",
+    video: "TYPFenJQciw",
+  },
+  {
+    // D-190: one atom of the DNA's backbone. The sources: "scientists now believe electrons surround nuclei in a cloud
+    // divided into shells" (Electrons); "The nucleus makes up much less than .01% of the volume of the atom." (Nuclei)
+    id: "carbon-atom",
+    name: "A Carbon Atom",
+    line: "A cloud of electrons round a nucleus under 0.01% of its volume.",
+    sources: ["doe-electrons", "doe-nuclei"],
+    anchor: "atom",
+    stop: 2,
+    inside: "dna",
+    veil: "#04030a",
+    video: "_lNF3_30lUE",
+  },
+  {
+    // D-190: the atom's nucleus. The sources: "carbon has six protons and six neutrons" (Protons); "the strong force
+    // holds protons and neutrons together to form atomic nuclei" (The Strong Force)
+    id: "carbon-nucleus",
+    name: "Its Nucleus",
+    line: "Six protons and six neutrons, held together by the strong force.",
+    sources: ["doe-protons", "doe-strong-force"],
+    anchor: "nucleus",
+    stop: 2,
+    inside: "carbon-atom",
+    veil: "#0b0305",
+    video: "rcOFV4y5z8c",
   },
 ];
 

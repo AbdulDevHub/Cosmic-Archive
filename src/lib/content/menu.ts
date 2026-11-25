@@ -29,7 +29,8 @@ function root(place: Place): Place {
 
 function groupOf(place: Place): string {
   // the Starbase's ideas are many: they get their own group, the Starbase leading it (D-174)
-  if (place.id === "starbase" || place.inside === "starbase") return "The Starbase";
+  // (and the journey down from it, D-190: a cell, its DNA, an atom, its nucleus, quarks, strings)
+  for (let at: Place | undefined = place; at; at = at.inside ? byId.get(at.inside) : undefined) if (at.id === "starbase") return "The Starbase";
   const top = root(place);
   if (top.id === "solar-system" || top.id === "quasar-galaxy") return top.name;
   return top.stop >= 2 ? "The Cosmic Web" : "A Spiral Galaxy";
