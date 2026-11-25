@@ -6,7 +6,9 @@
  * flowing, and a broad, curving, pale-gold one of dust. D-196: the head sits right of the middle
  * so the tails sweep the whole frame; the dust tail curves well away from the gas tail and is
  * fanned into fine striations; the gas tail kinks and streams; the coma is compact and a little
- * green, glowing over the nucleus too. One draw call, no particles. Its own colour family: ice
+ * green, glowing over the nucleus too. D-197: it hurtles: the nucleus tumbles, the stars stream
+ * past the other way, slightly drawn out, close grains of dust flash by, and the gas tail flows
+ * faster; a drag only shifts the view a little, it no longer swings the star and tails round. One draw call, no particles. Its own colour family: ice
  * blue, pale gold, white and a touch of green. Mounted by the host through the registry; never
  * imported by a page.
  */
@@ -41,16 +43,33 @@ void main(){
   vec2 size = uResolution / uDpr;
   // D-196: the head sits right of the middle and a little low, so the tails sweep the whole frame
   vec2 head = vec2(0.3, -0.12) * size.y / uScale;
-  vec2 u = q / uScale - head;   // the nucleus's radii, y up, from the nucleus
+  // D-197: a drag no longer swings the star round; it only shifts the view a little
+  vec2 pan = vec2(-uYaw, uPitch) * 0.08 * size.y / uScale;
+  vec2 u = q / uScale - head + pan;   // the nucleus's radii, y up, from the nucleus
   float r = length(u);
-  // a drag swings the star round a little, and the tails with it
-  float swing = uYaw * 0.5;
-  vec2 sun = vec2(cos(swing) * SUN.x - sin(swing) * SUN.y, sin(swing) * SUN.x + cos(swing) * SUN.y);
+  vec2 sun = SUN;
   vec2 away = -sun;
   vec2 side = vec2(-away.y, away.x);
 
   vec2 v = (css - size * 0.5) / size.y;
-  vec3 col = skyDeep(normalize(vec3(v * 1.4, -1.0)), 0.7) * 0.85;
+  // ---- hurtling (D-197): the stars stream past the other way, drawn out a little by the speed ----
+  vec2 travel = normalize(sun * 0.55 + vec2(-sun.y, sun.x) * 0.85);   // its way along its orbit, across the frame
+  vec2 sv = v + travel * t * 0.025 + vec2(uYaw, -uPitch) * 0.04;
+  vec3 col = vec3(0.0);
+  for (int k = 0; k < 4; k++) {
+    col += skyDeep(normalize(vec3((sv + travel * float(k) * 0.0025) * 1.4, -1.0)), 0.7);
+  }
+  col *= 0.85 / 4.0;
+  // grains of dust it passes, close by, flashing past as streaks
+  for (int k = 0; k < 2; k++) {
+    float fk = float(k);
+    vec2 gp = (v + travel * t * (0.35 + 0.25 * fk)) * (9.0 + 7.0 * fk);
+    vec2 gi = floor(gp);
+    float pick = step(0.93, hash3(vec3(gi, 4.0 + fk)));
+    vec2 gf = fract(gp) - 0.5 - (vec2(hash3(vec3(gi, 1.0)), hash3(vec3(gi, 2.0))) - 0.5) * 0.6;
+    float sa = dot(gf, travel), sc = dot(gf, vec2(-travel.y, travel.x));
+    col += mix(ICE, DUST, hash3(vec3(gi, 3.0))) * pick * exp(-sc * sc * 9000.0) * exp(-sa * sa * 60.0) * (0.35 - 0.12 * fk);
+  }
 
   float along = dot(u, away);
   float across = dot(u, side);
@@ -74,8 +93,8 @@ void main(){
     float ac = across - kink;
     float w = 0.25 + 0.045 * max(along, 0.0);
     float body = exp(-pow(ac / w, 2.0));
-    float streaks = fbm3(vec3(ac / w * 3.0, along * 0.04 - t * 0.15, 3.0));
-    float knots = fbm3(vec3(ac * 0.6, along * 0.1 - t * 0.4, 7.0));
+    float streaks = fbm3(vec3(ac / w * 3.0, along * 0.04 - t * 0.3, 3.0));
+    float knots = fbm3(vec3(ac * 0.6, along * 0.1 - t * 0.8, 7.0));
     float len = smoothstep(-0.5, 2.0, along) * exp(-max(along, 0.0) / 55.0);
     col += ION * body * len * (0.12 + 0.75 * smoothstep(0.45, 0.8, streaks) + 0.3 * knots);
     col += mix(ION, WHITE, 0.5) * exp(-pow(ac / (w * 0.18), 2.0)) * len * 0.25;
@@ -98,12 +117,14 @@ void main(){
   }
 
   // ---- the nucleus: a dark, lumpy body, lit from the star ----
-  float lump = 1.0 + 0.32 * (fbm3(vec3(cos(a) * 1.2, sin(a) * 1.2, t * 0.01)) - 0.5) * 2.0;
+  // it tumbles as it flies (D-197): its outline and face turn together
+  mat3 tumble = turnY(t * 0.45) * turnX(t * 0.31);
+  float lump = 1.0 + 0.32 * (fbm3(tumble * vec3(cos(a) * 1.2, sin(a) * 1.2, 0.0)) - 0.5) * 2.0;
   float rn = r / lump;
   float solid = smoothstep(1.0, 0.94, rn);   // 1 on the nucleus
   if (rn < 1.0) {
     vec3 n = vec3(u / lump, sqrt(1.0 - rn * rn));
-    vec3 p = turnY(t * 0.03) * n;
+    vec3 p = tumble * n;
     float crag = fbm3(p * 4.0);
     n = normalize(n + vec3((crag - 0.5) * 0.9, (fbm3(p * 4.0 + 7.0) - 0.5) * 0.9, 0.0));
     vec3 L = normalize(vec3(sun, 0.35));

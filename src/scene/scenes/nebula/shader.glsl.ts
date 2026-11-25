@@ -10,6 +10,12 @@
  * D-196: more drama. Long dark lanes of dust wind through the glow, their edges that face the
  * heart lit gold and rose, the threads are finer and brighter, and the haze round the heart is thinner, so the darks are deeper.
  *
+ * D-197: depth. The cluster's light streams out through the cloud in rays, and the dust between a
+ * point and the heart casts it into shadow, so the gas reads as a volume lit from inside; near dust
+ * frames the edges darker and drifts slowly across, faster than the gas behind. Across the bottom
+ * rises a near wall of billowing gas and dust (a cliff, as in Carina's), its crest lit rose-gold by
+ * the cluster above, its body dark, steam rising off its edge; it moves most in a drag.
+ *
  * Nothing is drawn over it: no contours, no rings (D-094).
  *
  * Units: one unit is `uScale` CSS pixels; the cluster sits at the origin, y up.
@@ -102,6 +108,13 @@ float broad(vec2 p){
   return (noise(p) * 0.5 + noise(TURN * p + 17.1) * 0.25 + noise(TURN * TURN * p + 31.7) * 0.125) / 0.875;
 }
 
+/* the dust that blocks the cluster's light, cheap enough to sample along a ray toward the heart */
+float shade(vec2 p){
+  vec2 w = vec2(broad(p * 0.07 + 3.0), broad(p * 0.07 + 9.0)) - 0.5;
+  float lanes = 1.0 - abs(2.0 * broad(p * 0.19 + w * 1.6 + 120.0) - 1.0);
+  return smoothstep(0.45, 0.75, broad(p * 0.22 + w * 2.6 + 50.0)) + smoothstep(0.8, 0.97, lanes) * 0.8;
+}
+
 /* distance to a column of dust: a segment from its foot to its tip, thinning toward the tip */
 float column(vec2 p, vec2 foot, vec2 tip, float wide, float narrow){
   vec2 pa = p - foot, ba = tip - foot;
@@ -171,10 +184,23 @@ void main(){
 
   // ---- dust: soft dark drifts in front, never near the heart, never thin lines; the nearest
   // ones move more than the cloud in a drag (S4) ----
-  vec2 pn = (q - uPan * 0.35) / uScale;
+  vec2 pn = (q - uPan * 0.35) / uScale + vec2(t * 4.0, t * 1.2);
   float dust = smoothstep(0.52, 0.8, broad(p * 0.12 + w2 * 2.6 + 50.0)) * smoothstep(3.0, 10.0, rad);
   float nearDust = smoothstep(0.6, 0.85, broad(pn * 0.08 + 90.0)) * smoothstep(5.0, 14.0, rad);
-  col *= (1.0 - dust * 0.8) * (1.0 - nearDust * 0.65);
+  col *= (1.0 - dust * 0.8) * (1.0 - nearDust * 0.82);
+
+  // ---- D-197: the cluster's light through the cloud: shadows cast outward by the dust between
+  // here and the heart, and rays where the light gets through ----
+  float occ = 0.0;
+  for (int i = 1; i <= 12; i++) {
+    float f = float(i) / 12.0;
+    occ += shade(p * (1.0 - f * 0.9));
+  }
+  float trans = exp(-occ * 0.55);
+  float reach = exp(-rad * 0.09);
+  col *= 0.2 + 0.8 * mix(1.0, trans, smoothstep(1.5, 5.0, rad));
+  vec3 rayCol = mix(vec3(1.0, 0.62, 0.78), GOLD, 0.45);
+  col += rayCol * trans * reach * (0.18 + 0.4 * gas) * smoothstep(1.0, 4.0, rad);
 
   // ---- D-196: long dark lanes of dust winding through the glow, lit gold where they face the heart ----
   vec2 lp = p * 0.19 + w1 * 1.6 + w2 * 0.9;
@@ -220,6 +246,30 @@ void main(){
     float size = mix(0.8, 2.0, hash21(cell + 5.0));
     col += mix(HOT, vec3(1.0, 0.7, 0.85), hash21(cell + 2.0)) * (smoothstep(size * 1.5, 0.0, d) * 1.3 + size * size / (d * d + size * size * 3.0) * 0.5);
   }
+
+  // ---- D-197: the near cliff across the bottom, crest lit by the cluster, steam rising off it ----
+  vec2 pc = (q - uPan * 0.6) / uScale + vec2(t * 2.0, 0.0);
+  float crest = -3.0 + 1.7 * (broad(vec2(pc.x * 0.14, 3.0)) - 0.5) * 2.0 + 0.8 * (broad(vec2(pc.x * 0.5, 8.0)) - 0.5) * 2.0 + 0.9 * pow(broad(vec2(pc.x * 0.3, 15.0)), 4.0);
+  vec2 cw = vec2(broad(pc * 0.45 + 200.0), broad(pc * 0.45 + 210.0)) - 0.5;
+  float billow = fbm(pc * 0.7 + cw * 1.5 + 220.0);
+  float e = pc.y - crest + 0.9 * (billow - 0.5);          // above the crest > 0, inside the cliff < 0
+  float solid = smoothstep(0.12, -0.12, e);
+  // inside: dark dust with a little texture, lit only near its top
+  float depthIn = clamp(-e, 0.0, 4.0);
+  vec3 cliffBody = mix(vec3(0.05, 0.02, 0.05), vec3(0.32, 0.1, 0.22), exp(-depthIn * 1.3)) * (0.6 + 0.8 * fbm(pc * 1.6 + 240.0));
+  cliffBody += mix(vec3(1.0, 0.5, 0.62), GOLD, 0.5) * exp(-depthIn * 3.5) * 0.35 * billow;
+  // billows inside the wall, each rounded top catching the light from above
+  float lump = fbm(pc * 0.9 + 280.0);
+  float lumpBelow = fbm(pc * 0.9 + vec2(0.0, -0.18) + 280.0);
+  float lumpLit = clamp((lump - lumpBelow) * 7.0, 0.0, 1.0) * smoothstep(0.4, 0.65, lump);
+  cliffBody += mix(vec3(0.75, 0.3, 0.45), GOLD * 0.8, 0.3) * lumpLit * exp(-depthIn * 0.7) * 0.55;
+  col = mix(col, cliffBody, solid);
+  // the crest's lit edge, brightest facing the cluster
+  float lit = exp(-abs(e) / 0.14) * (0.6 + 0.8 * billow) * (0.5 + 0.5 * smoothstep(-6.0, 0.0, -abs(pc.x - 0.5)));
+  col += mix(vec3(1.0, 0.45, 0.62), GOLD, 0.6) * lit * 0.9;
+  // steam rising off the crest
+  float steam = fbm(vec2(pc.x * 1.4, pc.y * 0.5 - t * 6.0) + 260.0);
+  col += mix(vec3(1.0, 0.55, 0.75), vec3(0.6, 0.55, 1.0), 0.4) * smoothstep(0.5, 0.85, steam) * exp(-max(e, 0.0) / 0.9) * step(0.0, e) * 0.35;
 
   // a soft roll-off instead of a hard clip at white
   col = col / (1.0 + max(col - 0.8, 0.0) * 0.9);
