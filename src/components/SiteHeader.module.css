@@ -37,7 +37,7 @@
 
 .bar {
   display: flex;
-  align-self: start;
+  align-self: center; /* D-200: on the same line as the wordmark, search and Sound */
 }
 
 /* ---- search and Sound ---- */

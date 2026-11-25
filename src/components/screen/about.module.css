@@ -1,6 +1,9 @@
 /*
   About (D-184, D-185), with Islam and Space (D-179): two columns of words over the cosmic web, no
   panel behind them; on a phone one column that scrolls. Back stays in the corner.
+  D-200: a calmer layout: the web dimmed behind the words, the columns held to a comfortable width
+  well below the header, a faint rule between them, smaller headings, and each verse set off by a
+  thin gold line at its left.
 */
 
 .screen {
@@ -10,13 +13,22 @@
   overflow-y: auto; /* a page of words: it scrolls where it does not fit */
 }
 
+.dim {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 55%, oklch(0.11 0.035 275 / 0.72), oklch(0.11 0.035 275 / 0.45) 70%, oklch(0.11 0.035 275 / 0.3)),
+    linear-gradient(oklch(0.11 0.035 275 / 0.55), transparent 22%);
+}
+
 .words {
   position: relative;
   display: grid;
-  gap: clamp(28px, 5vh, 48px);
-  margin: 0 var(--gutter);
-  padding-top: clamp(104px, 14vh, 132px);
-  padding-bottom: clamp(96px, 14vh, 140px); /* room for Back */
+  gap: clamp(36px, 6vh, 56px);
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(150px, 20vh, 196px) var(--gutter) clamp(110px, 16vh, 160px); /* clear of the header; room for Back */
   text-shadow:
     0 0 18px oklch(0.13 0.04 275 / 0.95),
     0 0 4px oklch(0.13 0.04 275 / 0.85);
@@ -25,15 +37,30 @@
 /* the laptop: About on the left, Islam and Space on the right */
 @media (min-width: 1000px) {
   .words {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: clamp(48px, 6vw, 112px);
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(56px, 7vw, 120px);
     align-items: start;
+  }
+
+  /* a faint rule between the columns */
+  .words > section + section {
+    position: relative;
+  }
+
+  .words > section + section::before {
+    content: "";
+    position: absolute;
+    left: calc(clamp(56px, 7vw, 120px) / -2);
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    background: linear-gradient(transparent, oklch(0.85 0.05 280 / 0.28) 15%, oklch(0.85 0.05 280 / 0.28) 85%, transparent);
   }
 }
 
 .words h1 {
-  font-size: clamp(2rem, 4.2vw, 3.6rem);
-  line-height: 1;
+  font-size: clamp(2rem, 3.4vw, 3rem);
+  line-height: 1.05;
 }
 
 .line {
@@ -44,10 +71,12 @@
 
 .about {
   display: grid;
-  gap: 0.8rem;
-  margin-top: clamp(16px, 3vh, 28px);
-  font-size: clamp(1rem, 1.15vw, 1.12rem);
-  line-height: 1.6;
+  gap: 1.1rem;
+  margin-top: clamp(20px, 3.4vh, 32px);
+  max-width: 34rem;
+  font-size: clamp(1rem, 1.12vw, 1.1rem);
+  line-height: 1.7;
+  color: oklch(0.93 0.015 270);
 }
 
 .about p {
@@ -59,16 +88,21 @@
 }
 
 .section {
-  font-size: clamp(2rem, 4.2vw, 3.6rem);
-  line-height: 1;
+  font-size: clamp(2rem, 3.4vw, 3rem);
+  line-height: 1.05;
 }
 
 .verses {
   list-style: none;
-  margin: clamp(16px, 3vh, 28px) 0 0;
+  margin: clamp(20px, 3.4vh, 32px) 0 0;
   padding: 0;
   display: grid;
-  gap: clamp(14px, 2.4vh, 22px);
+  gap: clamp(16px, 2.6vh, 24px);
+}
+
+.verses li {
+  padding-left: 18px;
+  border-left: 1.5px solid oklch(0.82 0.12 80 / 0.55);
 }
 
 .verses blockquote,
@@ -78,13 +112,14 @@
 
 .verses blockquote {
   font-style: italic;
-  font-size: clamp(1rem, 1.2vw, 1.14rem);
-  line-height: 1.45;
+  font-size: clamp(1rem, 1.12vw, 1.1rem);
+  line-height: 1.55;
+  color: oklch(0.94 0.015 270);
 }
 
 .cite {
   display: inline-block;
-  margin-top: 0.15rem;
+  margin-top: 0.35rem;
   font-size: 0.82rem;
   letter-spacing: 0.04em;
   color: var(--beacon);
@@ -102,6 +137,7 @@
   right: var(--gutter);
   bottom: clamp(28px, 7vh, 72px);
   z-index: 5;
+  background: oklch(0.15 0.045 280 / 0.88); /* D-200: words scrolling under it never show through */
 }
 
 .leave svg {

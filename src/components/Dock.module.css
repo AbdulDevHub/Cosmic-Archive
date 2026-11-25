@@ -8,11 +8,10 @@
   width: 540px;
   height: 98px;
   padding: 0 34px 4px;
-  /* D-123: a little smaller, and off the window's edge (it no longer hangs from it); D-199: smaller
-     again (0.84 to 0.7), its labels and icons drawn larger inside so they still read */
-  margin-top: -10px;
-  scale: 0.7;
-  transform-origin: top center;
+  /* D-123: a little smaller, and off the window's edge; D-199: smaller again; D-200: sized with zoom,
+     not scale, so its layout box is its drawn size and it centres on the same line as the wordmark,
+     search and Sound (a scaled box kept its full height and sat high) */
+  zoom: 0.72;
   isolation: isolate;
 }
 
@@ -41,12 +40,12 @@
   position: relative;
   display: grid;
   justify-items: center;
-  gap: 8px;
+  gap: 7px;
   min-width: 112px;
   padding: 2px 14px;
   border: 0;
   background: none;
-  font: 400 17px / 1 var(--font-display);
+  font: 400 15.5px / 1 var(--font-display);
   color: oklch(0.95 0.01 270);
   text-decoration: none; /* About is a link (D-184) */
   cursor: default;
@@ -63,8 +62,9 @@
 }
 
 .item svg {
-  width: 31px;
-  height: 31px;
+  /* D-200: the icons lead, larger than the labels */
+  width: 40px;
+  height: 40px;
   stroke: url(#dock-ink);
   stroke-width: 1.4;
   color: oklch(0.78 0.13 285);
@@ -109,8 +109,7 @@
   top: calc(100% + 10px);
   left: 50%;
   translate: -50% 0;
-  scale: 1.2; /* D-199: the panel keeps its size (0.7 x 1.2 = 0.84, as before) */
-  transform-origin: top center;
+  zoom: 1.17; /* D-199, D-200: the panel keeps its size (0.72 x 1.17 = 0.84, as before) */
   display: grid;
   grid-template-columns: repeat(5, max-content); /* D-174: the Starbase has its own group */
   max-height: calc(100vh - 150px);

@@ -28,6 +28,8 @@ export function AboutView({ versesTitle, versesLine, verses }: { versesTitle: st
   return (
     <div className={styles.screen}>
       <SceneSlot id="atlas" mode="atlas" posters={POSTERS} opening={() => ({ zoom: WEB })} />
+      {/* D-200: a soft dark wash over the web behind the words, so they read */}
+      <div className={styles.dim} aria-hidden="true" />
       <div className={styles.words}>
         <section>
           <h1>About</h1>
@@ -37,12 +39,12 @@ export function AboutView({ versesTitle, versesLine, verses }: { versesTitle: st
               Cosmic Atlas is a journey you click through, from a spiral galaxy out to the edge of everything. Every scene is drawn live in your browser,
               and every picture is our own illustration, never a photograph.
             </p>
-            <p>Each view has a name and one line, and every line is checked against a real source.</p>
-            <p>Click a light to fly into it, press Zoom Out to pull back, and drag to look around.</p>
+            {/* D-200: the last three sentences are one paragraph */}
             <p>
-              Cosmic Atlas is open source.{" "}
+              Each view has a name and one line, and every line is checked against a real source. Click a light to fly into it, press Zoom Out to pull
+              back, and drag to look around. Cosmic Atlas is open source:{" "}
               <a href={REPO} target="_blank" rel="noopener noreferrer">
-                See the code on GitHub
+                see the code on GitHub
               </a>
               .
             </p>

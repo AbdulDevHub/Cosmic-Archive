@@ -110,7 +110,7 @@ void main(){
     vec3 p = normalize(vO);
     vec3 nf = n;
     float g = clamp(dot(nf, v) / 0.55, 0.0, 1.0);
-    float ndlp = 0.3 - g * 0.75;                  // the light comes from beyond the horizon
+    float ndlp = 0.46 - g * 0.8;                  // the light comes from beyond the horizon (D-200: more of it lit)
     vec3 w = vec3(fbm3(p * 6.0 + 3.0), fbm3(p * 6.0 + 9.0), fbm3(p * 6.0 + 15.0)) - 0.5;
     float h = fbm3(p * 9.0 + w * 1.6 + 1.3) + 0.12 * (fbm3(p * 40.0 + w * 3.0) - 0.5) + 0.05 * (n3(p * 140.0) - 0.5);
     float land = smoothstep(0.545, 0.556, h);
@@ -124,11 +124,13 @@ void main(){
     vec3 cw = vec3(fbm3(cp * 7.0 + 21.0), fbm3(cp * 7.0 + 31.0), 0.0) - 0.5;
     float cloud = smoothstep(0.55, 0.8, fbm3(cp * 13.0 + cw * 2.2 + 40.0));
     cloud = clamp(cloud + smoothstep(0.62, 0.86, fbm3(cp * 45.0 + cw * 3.0 + 50.0)) * 0.5 * (1.0 - cloud), 0.0, 1.0);
-    float day = smoothstep(-0.04, 0.22, ndlp);
-    vec3 dayCol = mix(surface, vec3(0.9, 0.93, 0.98), cloud * 0.9) * (0.05 + 1.0 * day);  // a little galaxy light on the night side
+    float day = smoothstep(-0.06, 0.3, ndlp);
+    vec3 dayCol = mix(surface, vec3(0.9, 0.93, 0.98), cloud * 0.9) * (0.04 + 1.05 * day);
+    // D-200: the night side is not black: the galaxy's violet-blue light shows its clouds, seas and coasts
+    dayCol += mix(surface * 2.2, vec3(0.42, 0.45, 0.62), cloud * 0.8) * vec3(0.55, 0.6, 1.0) * 0.22 * (1.0 - day);
     // the sunset band along the terminator, strongest on the clouds
-    float twilight = exp(-pow((ndlp - 0.0) / 0.1, 2.0));
-    dayCol += vec3(1.0, 0.46, 0.18) * twilight * (0.1 + 0.85 * cloud) * 0.6;
+    float twilight = exp(-pow((ndlp - 0.0) / 0.13, 2.0));
+    dayCol += vec3(1.0, 0.46, 0.18) * twilight * (0.15 + 0.9 * cloud) * 0.85;
     // the night side: cities in warm points and soft glows, dimmed under cloud
     float night = smoothstep(0.0, -0.12, ndlp) * land * (1.0 - cloud * 0.85);
     float town = step(0.82, h3(floor(p * 1400.0))) * smoothstep(0.5, 0.75, fbm3(p * 30.0 + 60.0));
@@ -146,6 +148,22 @@ void main(){
     float crater = smoothstep(0.62, 0.7, fbm3(p * 9.0 + 4.0));
     vec3 grey = mix(vec3(0.32, 0.31, 0.34), vec3(0.6, 0.58, 0.6), rock) * (1.0 - crater * 0.35);
     col = grey * (0.04 + 1.0 * diff) + fill + vec3(0.5, 0.6, 1.0) * fres * wrap * 0.35;
+  } else if (uKind == 4) {
+    // D-200: the great rock in the corner: craggy, pitted, warm brown, its upper edges lit by the
+    // galaxy and rimmed in its violet-blue glow
+    float grain = fbm3(vO * 3.0);
+    float fine = fbm3(vO * 14.0);
+    float pits = smoothstep(0.62, 0.78, fbm3(vO * 7.0 + 5.0));
+    vec3 stone = mix(vec3(0.13, 0.095, 0.085), vec3(0.5, 0.36, 0.28), grain) * (0.65 + 0.7 * fine) * (1.0 - 0.6 * pits);
+    // craggy relief too fine for its mesh: the normal roughened at two scales
+    vec3 bump = vec3(fbm3(vO * 9.0), fbm3(vO * 9.0 + 3.0), fbm3(vO * 9.0 + 7.0)) - 0.5;
+    bump += (vec3(fbm3(vO * 26.0), fbm3(vO * 26.0 + 5.0), fbm3(vO * 26.0 + 9.0)) - 0.5) * 0.6;
+    vec3 nb = normalize(n + bump * 1.1);
+    vec3 Lc = normalize(vec3(-0.45, 0.75, 0.5));   // the galaxy is up and to its left
+    float lit = max(dot(nb, Lc), 0.0);
+    float rim = pow(1.0 - max(dot(n, v), 0.0), 3.0);
+    col = stone * (0.05 + 1.25 * pow(lit, 1.8)) + fill * 0.6;
+    col += mix(vec3(1.0, 0.72, 0.5), vec3(0.6, 0.7, 1.0), 0.5) * rim * (0.3 + 0.9 * clamp(dot(n, Lc) * 0.5 + 0.5, 0.0, 1.0)) * 0.6;
   } else if (uKind == 2) {
     float grain = fbm3(vO * 5.0);
     vec3 stone = mix(vec3(0.18, 0.14, 0.12), vec3(0.42, 0.33, 0.27), grain);
@@ -293,6 +311,31 @@ function rockGeometry(): BufferGeometry {
   return g;
 }
 
+/** D-200: the great rock in the lower right corner, from the mockup: a big, craggy, lumpy boulder. */
+function cragGeometry(): BufferGeometry {
+  let g: BufferGeometry = new IcosahedronGeometry(1, 7); // fine enough that no facet shows this close
+  g.deleteAttribute("normal");
+  g.deleteAttribute("uv");
+  g = mergeVertices(g);
+  const p = g.getAttribute("position");
+  const v = new Vector3();
+  const ridge = (x: number) => 1 - Math.abs(Math.sin(x));
+  for (let i = 0; i < p.count; i++) {
+    v.fromBufferAttribute(p, i);
+    // broad lumps, then sharp ridges and knobs at three scales, so its outline is jagged
+    let k = 1 + 0.22 * Math.sin(v.x * 2.1 + v.y * 1.3) * Math.cos(v.z * 1.7 - v.x * 0.6);
+    k += 0.12 * ridge(v.x * 4.3 + v.z * 2.9 + 1.1) * ridge(v.y * 3.7 - v.x * 2.2);
+    k += 0.09 * ridge(v.y * 9.1 + v.z * 7.3) * ridge(v.x * 6.7 - v.z * 5.1) + 0.05 * Math.sin(v.x * 17.0 + v.y * 13.0 - v.z * 11.0);
+    k += 0.03 * ridge(v.x * 31.0 - v.y * 27.0 + v.z * 23.0) + 0.015 * Math.sin(v.y * 53.0 + v.z * 47.0);
+    v.multiplyScalar(k);
+    v.x *= 1.5; // long, lying along the corner
+    p.setXYZ(i, v.x, v.y, v.z);
+  }
+  g.computeVertexNormals();
+  g.setAttribute("aPart", new BufferAttribute(new Float32Array(p.count), 1));
+  return g;
+}
+
 function sphere(segments: number): BufferGeometry {
   const g = new SphereGeometry(1, segments, Math.round(segments * 0.66));
   g.setAttribute("aPart", new BufferAttribute(new Float32Array(g.getAttribute("position").count), 1));
@@ -321,6 +364,7 @@ export class StartProps {
   private readonly halo: Mesh;
   private readonly moons: InstancedMesh;
   private readonly rocks: InstancedMesh;
+  private readonly crag: Mesh;
   private readonly ship: Mesh;
   /** The class on show and its engine nozzles (D-118): the visitor may switch it on the start page. */
   private shipClass: ShipClass;
@@ -366,6 +410,7 @@ export class StartProps {
     this.moons = new InstancedMesh(sphere(40), body(1), 2);
     this.rocks = new InstancedMesh(rockGeometry(), body(2), ROCKS);
     this.rocks.instanceMatrix.setUsage(DynamicDrawUsage);
+    this.crag = new Mesh(cragGeometry(), body(4));
     this.shipClass = getShip();
     const model = buildShip(this.shipClass);
     this.nozzles = model.nozzles;
@@ -396,7 +441,7 @@ export class StartProps {
     engineGeometry.setAttribute("aKind", new BufferAttribute(new Float32Array(kind), 1));
     this.engines = new Mesh(engineGeometry, engineMaterial);
 
-    for (const object of [this.planet, this.halo, this.moons, this.rocks, this.ship, this.engines] as Object3D[]) {
+    for (const object of [this.planet, this.halo, this.moons, this.rocks, this.crag, this.ship, this.engines] as Object3D[]) {
       object.frustumCulled = false;
       this.root.add(object);
     }
@@ -405,6 +450,7 @@ export class StartProps {
     this.halo.renderOrder = 21;
     this.moons.renderOrder = 20;
     this.rocks.renderOrder = 22;
+    this.crag.renderOrder = 22;
     this.ship.renderOrder = 23;
     this.engines.renderOrder = 24;
 
@@ -412,8 +458,9 @@ export class StartProps {
     for (let i = 0; i < ROCKS; i++) {
       // most in the lower left over the planet's edge and the lower right; a few higher, far off
       const zone = r();
-      const x = zone < 0.35 ? mix(-1.15, -0.75, r()) : zone < 0.8 ? mix(0.45, 1.15, r()) : mix(-0.6, 0.3, r());
-      const y = zone < 0.35 ? mix(-1.05, -0.7, r()) : zone < 0.8 ? mix(-1.05, -0.25, r()) : mix(0.45, 0.72, r());
+      // D-200: the lower right ones keep clear of the great rock in the corner
+      const x = zone < 0.35 ? mix(-1.15, -0.75, r()) : zone < 0.8 ? mix(0.3, 1.1, r()) : mix(-0.6, 0.3, r());
+      const y = zone < 0.35 ? mix(-1.05, -0.7, r()) : zone < 0.8 ? mix(-0.9, -0.15, r()) : mix(0.45, 0.72, r());
       const depth = mix(4, 18, r() * r());
       this.rockList.push({
         x,
@@ -497,6 +544,13 @@ export class StartProps {
       this.rocks.setMatrixAt(i, this.m.compose(this.v, this.q, this.s));
     }
     this.rocks.instanceMatrix.needsUpdate = true;
+
+    // D-200: the great rock in the lower right corner, close, turning very slowly; in flight it sweeps
+    // off past the corner
+    const cd = 6 * (1 - go * 0.6);
+    this.at(camera, (narrow ? 0.98 : 1.04) + go * 1.2, (narrow ? -1.05 : -1.06) - go * 1.0, cd, this.crag.position);
+    this.crag.scale.setScalar(this.size(camera, narrow ? 0.2 : 0.46, 6));
+    this.crag.rotation.set(0.5, -0.4 + t * 0.006, 0.35);
 
     // the ship: crossing toward the galaxy; in flight it speeds away into the distance
     const sd = 7 + go * go * 260;
