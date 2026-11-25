@@ -4,18 +4,22 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { noteAboutFrom } from "@/lib/about";
-import type { MenuFlight, MenuGroup } from "@/lib/content/menu";
+import type { MenuFlight, MenuGroup, MenuPlace } from "@/lib/content/menu";
 import { startFlight } from "@/lib/flight";
-import { flowBusy, jumpTo } from "@/scene/host/flow";
+import { accessOf, setHint, useVisited, type Access } from "@/lib/progress";
+import { flowBusy, jumpTo, pullOut } from "@/scene/host/flow";
 import { getSceneInput } from "@/scene/host/store";
-import { BookIcon, ChevronIcon, HomeIcon, PlanetIcon, SparkIcon } from "./icons";
+import { BookIcon, ChevronIcon, HintIcon, HomeIcon, LockIcon, PlanetIcon, SparkIcon } from "./icons";
 import styles from "./Menu.module.css";
 
 /*
   The menu (D-201): the flat row from start-page-mockup.png, in the header's middle. The flared dock
   that hung here (D-116) is back at the bottom of the start page, holding the ships.
   - Home: back to the start page (on `/` itself it asks the atlas to fly back out).
-  - Places: every place, grouped by where it is found; a choice flies there (`jumpTo`).
+  - Places: every place, grouped by where it is found (D-206: in three states, `lib/progress`). A
+    visited place is unlocked: a choice flies there (`jumpTo`). One whose parent scene is open (the
+    atlas, or a visited place) is a hint: a choice flies to that parent (`followHint`) and lights
+    the place's beacon there. The rest are locked: shown, but not a way in yet.
   - Flights (D-151): the guided flights and the hands-off tour; a choice starts one (`startFlight`).
   - About (D-184): the About page, with Islam and Space.
   The page you are on sits in a glass pill, as Home does in the mockup. Places and Flights open a
@@ -25,6 +29,32 @@ import styles from "./Menu.module.css";
 
 /** Asks the atlas to fly back out to its start page, when Home is pressed on `/` itself. */
 export const HOME_EVENT = "cosmic:home";
+
+/** Asks the atlas to glide to a zoom (its detail) for a hint, when the hinted place's parent is the atlas on screen (D-206). */
+export const HINT_EVENT = "cosmic:hint";
+
+/**
+ * A hint (D-206): light the place's beacon, then go where it is found, as its own Zoom Out would come
+ * back there (the parent opens dived into its body and pulls back to show it). If that scene is
+ * already on screen, nothing moves but the atlas's glide to the beacon's stop.
+ */
+export function followHint(place: MenuPlace, push: (href: string) => void): void {
+  if (flowBusy()) return;
+  setHint(place.id);
+  if (location.pathname === place.outTo) {
+    if (place.outTo === "/") window.dispatchEvent(new CustomEvent(HINT_EVENT, { detail: place.outZoom }));
+    return;
+  }
+  pullOut(push, place.outTo, place.anchor, place.outZoom, place.outVeil);
+}
+
+/** What a choice of a place does in its state: fly there, follow the hint, or nothing (locked). */
+export function choosePlace(place: MenuPlace, access: Access, push: (href: string) => void): boolean {
+  if (access === "locked" || flowBusy()) return false;
+  if (access === "hint") followHint(place, push);
+  else jumpTo(push, `/${place.id}`, place.veil);
+  return true;
+}
 
 type Panel = "places" | "flights" | null;
 
@@ -55,10 +85,10 @@ export function Menu({ groups, flights }: { groups: MenuGroup[]; flights: MenuFl
   }, [open]);
 
   const toggle = (panel: Exclude<Panel, null>) => setOpen((now) => (now === panel ? null : panel));
-  const go = (id: string, veil: string) => {
-    if (flowBusy()) return; // a flight is under way: the panel stays open for another try
-    setOpen(null);
-    jumpTo((href) => router.push(href), `/${id}`, veil);
+  const found = useVisited();
+  const go = (place: MenuPlace, access: Access) => {
+    // a flight under way, or a locked place: the panel stays open
+    if (choosePlace(place, access, (href) => router.push(href))) setOpen(null);
   };
   const fly = (flight: MenuFlight) => {
     if (flowBusy()) return;
@@ -105,22 +135,37 @@ export function Menu({ groups, flights }: { groups: MenuGroup[]; flights: MenuFl
             <div key={group.name} className={styles.group}>
               <p className={styles.groupName} id={`menu-group-${group.name.replace(/\W+/g, "-")}`}>{group.name}</p>
               <ul aria-labelledby={`menu-group-${group.name.replace(/\W+/g, "-")}`}>
-                {group.places.map((place) => (
-                  <li key={place.id}>
-                    <a
-                      data-travel
-                      className={styles.choice}
-                      href={`/${place.id}`}
-                      onClick={(event) => {
-                        if (event.metaKey || event.ctrlKey || event.shiftKey) return;
-                        event.preventDefault();
-                        go(place.id, place.veil);
-                      }}
-                    >
-                      {place.name}
-                    </a>
-                  </li>
-                ))}
+                {group.places.map((place) => {
+                  const access = accessOf(place.id, place.parent, found);
+                  return (
+                    <li key={place.id}>
+                      {access === "locked" ? (
+                        <span className={styles.choice} data-access="locked" title="Locked: find the place it is inside first">
+                          <LockIcon />
+                          <span>{place.name}</span>
+                          <span className={styles.hidden}> (locked: find the place it is inside first)</span>
+                        </span>
+                      ) : (
+                        <a
+                          data-travel
+                          className={styles.choice}
+                          data-access={access}
+                          href={access === "hint" ? place.outTo : `/${place.id}`}
+                          title={access === "hint" ? "Not found yet: show me where it is" : undefined}
+                          onClick={(event) => {
+                            if (event.metaKey || event.ctrlKey || event.shiftKey) return;
+                            event.preventDefault();
+                            go(place, access);
+                          }}
+                        >
+                          {access === "hint" ? <HintIcon /> : null}
+                          <span>{place.name}</span>
+                          {access === "hint" ? <span className={styles.hidden}> (not found yet: shows where it is)</span> : null}
+                        </a>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}

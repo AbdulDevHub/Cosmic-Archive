@@ -5,15 +5,17 @@ import { usePathname, useRouter } from "next/navigation";
 import { useMemo, useState, type KeyboardEvent, type MouseEvent } from "react";
 import type { MenuFlight, MenuGroup, MenuPlace } from "@/lib/content/menu";
 import { toggleSound, useSound } from "@/lib/sound";
-import { flowBusy, jumpTo } from "@/scene/host/flow";
-import { HOME_EVENT, Menu } from "./Menu";
+import { accessOf, useVisited } from "@/lib/progress";
+import { flowBusy } from "@/scene/host/flow";
+import { choosePlace, HOME_EVENT, Menu } from "./Menu";
 import { Emblem, SearchIcon } from "./icons";
 import styles from "./SiteHeader.module.css";
 
 /*
   The header (D-107, D-139, D-201): the emblem and the spaced wordmark on the left (it leads home,
   to the start page); in the middle the menu, the mockup's flat row; search and Sound on the right.
-  Search finds a place by name and flies there. (The owner's music needs no switch: it plays where
+  Search finds a place by name and flies there; as in the Places menu (D-206), a place not found
+  yet shows where it is, and a locked one is left out. (The owner's music needs no switch: it plays where
   this browser holds their key, D-185.)
   On a phone the menu and search fold away; the wordmark and Sound stay.
 */
@@ -26,7 +28,8 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
   const router = useRouter();
   const on = useSound((s) => s.enabled);
   const [query, setQuery] = useState("");
-  const places = useMemo(() => groups.flatMap((group) => group.places), [groups]);
+  const found = useVisited();
+  const places = useMemo(() => groups.flatMap((group) => group.places).filter((place) => accessOf(place.id, place.parent, found) !== "locked"), [groups, found]);
 
   const asked = query.trim().toLowerCase();
   const matches = asked ? places.filter((place) => bare(place.name).includes(asked) || place.name.toLowerCase().includes(asked)).slice(0, 6) : [];
@@ -40,7 +43,7 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
     if (flowBusy()) return; // a flight is under way: the query stays for another try
     setQuery("");
     (document.activeElement as HTMLElement | null)?.blur();
-    jumpTo((href) => router.push(href), `/${place.id}`, place.veil);
+    choosePlace(place, accessOf(place.id, place.parent, found), (href) => router.push(href));
   };
   const onKey = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Escape") setQuery("");
@@ -87,7 +90,7 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
                 <a
                   data-travel
                   className={styles.result}
-                  href={`/${place.id}`}
+                  href={accessOf(place.id, place.parent, found) === "hint" ? place.outTo : `/${place.id}`}
                   onClick={(event) => {
                     if (event.metaKey || event.ctrlKey || event.shiftKey) return;
                     event.preventDefault();

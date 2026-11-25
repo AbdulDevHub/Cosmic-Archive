@@ -21,7 +21,8 @@ import {
 } from "@/scene/host/store";
 import { ZoomOutIcon } from "../icons";
 import { VideoButton } from "./VideoButton";
-import { HOME_EVENT } from "../Menu";
+import { HINT_EVENT, HOME_EVENT } from "../Menu";
+import { dropHintOnLeave, useHint } from "@/lib/progress";
 import { DragHint } from "./DragHint";
 import { setVia } from "@/lib/via";
 import styles from "./screen.module.css";
@@ -100,6 +101,9 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
   const stage = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLUListElement>(null);
   const live = useSceneState(sceneIsLive);
+  const hint = useHint();
+  // a hint shown here is done once the visitor leaves the atlas without taking it (`dropHintOnLeave`)
+  useEffect(() => dropHintOnLeave(spots.map((spot) => spot.id)), [spots]);
   const moving = useFlow((s) => s.phase !== "idle");
   const router = useRouter();
   const routerRef = useRef(router);
@@ -215,9 +219,18 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
         glideRef.current(OPENS_AT[window.location.hash]);
       }
     };
+    // D-206: a hint from the Places menu for a place in the atlas, while the atlas is up: past the
+    // start page, and out to the stop its beacon shows at
+    const hinted = (event: Event) => {
+      const zoom = (event as CustomEvent<number>).detail;
+      if (phaseRef.current === "start") beginRef.current();
+      glideRef.current(zoom);
+    };
     window.addEventListener(HOME_EVENT, home);
+    window.addEventListener(HINT_EVENT, hinted);
     window.addEventListener("hashchange", hash);
     return () => {
+      window.removeEventListener(HINT_EVENT, hinted);
       window.removeEventListener(HOME_EVENT, home);
       window.removeEventListener("hashchange", hash);
       clearTimeout(leaving.current);
@@ -356,7 +369,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
           {spots.map((spot) => (
             <li key={spot.id}>
               {spot.href ? (
-                <a className={styles.spot} href={spot.href} data-anchor={spot.anchor}>
+                <a className={styles.spot} href={spot.href} data-anchor={spot.anchor} data-hint={hint === spot.id ? "" : undefined}>
                   <i className={styles.mark} aria-hidden="true" />
                   <span className={styles.name}>{spot.name}</span>
                 </a>

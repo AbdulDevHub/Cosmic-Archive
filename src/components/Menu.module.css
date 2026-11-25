@@ -152,6 +152,49 @@
   outline: none;
 }
 
+/* D-206: the places in their three states. Unlocked: as any choice. A hint: a small beacon before
+   the name, in the beacon's gold. Locked: dim, a lock before it, not a way in yet. */
+.choice[data-access] {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.choice[data-access] > svg {
+  flex: none;
+}
+
+.choice[data-access="hint"] {
+  color: oklch(0.86 0.04 275);
+}
+
+.choice[data-access="hint"] > svg {
+  color: var(--beacon);
+  filter: drop-shadow(0 0 5px oklch(0.85 0.13 82 / 0.7));
+}
+
+.choice[data-access="locked"] {
+  color: oklch(0.62 0.03 275);
+  cursor: default;
+}
+
+.choice[data-access="locked"] > svg {
+  color: oklch(0.55 0.04 275);
+}
+
+.choice[data-access="locked"]:hover {
+  background: none;
+}
+
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 /* the flights (D-151): two groups side by side */
 .flights {
   grid-template-columns: repeat(2, max-content);

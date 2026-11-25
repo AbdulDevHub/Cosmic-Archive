@@ -303,6 +303,77 @@
   border-radius: 50%;
 }
 
+/* D-206: the place a hint from the Places menu points at: its beacon swells and pulses, and its
+   name stays shown, until it is clicked */
+.spot[data-hint] .mark::before {
+  width: 20px;
+  height: 20px;
+  background: oklch(0.85 0.13 82 / 0.35);
+  box-shadow:
+    0 0 0 1.5px oklch(0.13 0.04 275 / 0.75),
+    0 0 18px 4px oklch(0.85 0.13 82 / 0.75),
+    0 0 46px 10px oklch(0.85 0.13 82 / 0.35);
+  animation: hint 1.6s ease-in-out infinite;
+}
+
+.spot[data-hint] .mark::after {
+  width: 6px;
+  height: 6px;
+  animation: breathe 1.6s ease-in-out infinite;
+}
+
+/* a ripple: a gold ring with a dark edge spreading out from the beacon, so it shows even on the bright core */
+.spot[data-hint] .mark {
+  border-radius: 50%;
+  animation: ripple 1.6s ease-out infinite;
+}
+
+@keyframes ripple {
+  0% {
+    box-shadow:
+      0 0 0 0 oklch(0.85 0.13 82 / 0.95),
+      0 0 0 0 oklch(0.13 0.04 275 / 0.6);
+  }
+  100% {
+    box-shadow:
+      0 0 0 26px oklch(0.85 0.13 82 / 0),
+      0 0 0 30px oklch(0.13 0.04 275 / 0);
+  }
+}
+
+.spots[data-live] .spot[data-hint] .name {
+  opacity: 1;
+  color: var(--beacon);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: oklch(0.13 0.04 275 / 0.78);
+  box-shadow: 0 0 0 1px oklch(0.85 0.13 82 / 0.45);
+}
+
+@keyframes hint {
+  50% {
+    transform: translate(-50%, -50%) scale(1.35);
+    box-shadow:
+      0 0 0 1.5px oklch(0.13 0.04 275 / 0.75),
+      0 0 26px 8px oklch(0.85 0.13 82 / 0.9),
+      0 0 70px 18px oklch(0.85 0.13 82 / 0.45);
+  }
+}
+
+:global(html[data-motion="paused"]) .spot[data-hint] .mark,
+:global(html[data-motion="paused"]) .spot[data-hint] .mark::before,
+:global(html[data-motion="paused"]) .spot[data-hint] .mark::after {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spot[data-hint] .mark,
+  .spot[data-hint] .mark::before,
+  .spot[data-hint] .mark::after {
+    animation: none;
+  }
+}
+
 /* ---- phone ---- */
 
 @media (max-width: 720px) {

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { setMusic } from "@/lib/sound";
+import { dropHintOnLeave, markVisited, useHint } from "@/lib/progress";
 import { readVia, setVia } from "@/lib/via";
 import { diveInto, flowBusy, pullOut } from "@/scene/host/flow";
 import { SceneSlot } from "@/scene/host/SceneSlot";
@@ -90,6 +91,11 @@ export function PlaceView({ place, inner = [] }: { place: PlaceWords; inner?: re
   const further = leave;
   // each place has its own music (D-116)
   useEffect(() => setMusic(place.scene), [place.scene]);
+  // D-206: found for good; its name unlocks in the Places menu
+  useEffect(() => markVisited(place.scene), [place.scene]);
+  const hint = useHint();
+  // a hint shown here is done once the visitor leaves this place without taking it (`dropHintOnLeave`)
+  useEffect(() => dropHintOnLeave(inner.map((spot) => spot.id)), [inner]);
   const actions = useRef({ zoomTo });
   useEffect(() => {
     actions.current = { zoomTo };
@@ -211,7 +217,7 @@ export function PlaceView({ place, inner = [] }: { place: PlaceWords; inner?: re
           <ul ref={spotList} className={styles.spots} data-live={live ? "" : undefined} aria-label="Places">
             {inner.map((spot) => (
               <li key={spot.id}>
-                <a className={styles.spot} href={spot.href} data-anchor={spot.anchor}>
+                <a className={styles.spot} href={spot.href} data-anchor={spot.anchor} data-hint={hint === spot.id ? "" : undefined}>
                   <i className={styles.mark} aria-hidden="true" />
                   <span className={styles.name}>{spot.name}</span>
                 </a>

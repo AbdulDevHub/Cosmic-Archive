@@ -114,6 +114,22 @@ export const ZoomOutIcon = () => (
   </Icon>
 );
 
+/** D-206: a place in the Places menu not reachable yet. */
+export const LockIcon = () => (
+  <Icon size={14}>
+    <rect x="5" y="10.5" width="14" height="10" rx="2.5" />
+    <path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" />
+  </Icon>
+);
+
+/** D-206: a place that can be found: a small beacon, a ring round a light. */
+export const HintIcon = () => (
+  <Icon size={14}>
+    <circle cx="12" cy="12" r="6.5" />
+    <circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none" />
+  </Icon>
+);
+
 export const ArrowIcon = () => (
   <Icon size={20}>
     <path d="M5 12h14M13.5 6.5L19 12l-5.5 5.5" />
