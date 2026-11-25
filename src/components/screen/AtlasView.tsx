@@ -22,7 +22,8 @@ import {
 import { ZoomOutIcon } from "../icons";
 import { VideoButton } from "./VideoButton";
 import { HINT_EVENT, HOME_EVENT } from "../Menu";
-import { dropHintOnLeave, useHint } from "@/lib/progress";
+import { dropHintOnLeave, markVisited, useHint } from "@/lib/progress";
+import { ATLAS_GALAXY, ATLAS_WEB } from "@/lib/content/menu";
 import { DragHint } from "./DragHint";
 import { setVia } from "@/lib/via";
 import styles from "./screen.module.css";
@@ -154,6 +155,13 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
   // wheel, or a swipe) is the way in: the music may start, and the camera flies to the galaxy.
   const [phase, setPhase] = useState<StartPhase>("start");
   const phaseRef = useRef<StartPhase>("start");
+  // D-207: the galaxy is found once the visitor is past the start page, the web once they reach it;
+  // the places in each then show as hints in the Places menu
+  useEffect(() => {
+    if (phase !== "atlas") return;
+    if (stop === 1) markVisited(ATLAS_GALAXY);
+    if (stop === 2) markVisited(ATLAS_WEB);
+  }, [phase, stop]);
   const setStartPhase = (next: StartPhase) => {
     phaseRef.current = next;
     setPhase(next);
@@ -362,7 +370,8 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
 
       <div className={styles.caption}>
         <div key={words.zoom} className={live ? styles.words : undefined}>
-          <h1>{words.name}</h1>
+          {/* D-207: one main heading per page: while the start page is up its headline is it, so the stop's name waits as a second-level one */}
+          {phase === "atlas" ? <h1>{words.name}</h1> : <h2>{words.name}</h2>}
           <p>{words.line}</p>
         </div>
         <ul ref={list} className={styles.spots} data-live={live ? "" : undefined} aria-label="Places">

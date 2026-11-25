@@ -2,8 +2,9 @@
  * What the visitor has found (D-206): the places they have visited, remembered in this browser,
  * and the one place a hint is pointing at right now. The Places menu reads it: a visited place is
  * unlocked (a choice flies there), one whose parent scene is open to them is a hint (a choice flies
- * to that parent and lights the place's beacon there), the rest are locked. The atlas is always
- * open, so the places found in it start as hints. Client only.
+ * to that parent and lights the place's beacon there), the rest are locked. The atlas's levels count
+ * as places too (D-207): the galaxy once the visitor is past Begin, the cosmic web once they reach
+ * it, so nothing is a hint before they have been there. Client only.
  */
 
 import { useSyncExternalStore } from "react";
@@ -90,8 +91,8 @@ export function useHint(): string | null {
 
 export type Access = "unlocked" | "hint" | "locked";
 
-/** A place's state in the menu: `parent` is the place it is found inside, or null for the atlas (always open). */
-export function accessOf(id: string, parent: string | null, found: ReadonlySet<string>): Access {
+/** A place's state in the menu: `parent` is the place or atlas level (`atlas:galaxy`, `atlas:web`) it is found in. */
+export function accessOf(id: string, parent: string, found: ReadonlySet<string>): Access {
   if (found.has(id)) return "unlocked";
-  return parent === null || found.has(parent) ? "hint" : "locked";
+  return found.has(parent) ? "hint" : "locked";
 }

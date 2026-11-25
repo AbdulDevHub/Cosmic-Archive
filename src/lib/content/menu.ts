@@ -13,14 +13,19 @@ export interface MenuPlace {
   veil: string;
   /**
    * Where a hint leads (D-206): the scene the place is found in, as its own Zoom Out goes there.
-   * `parent` is the place it is inside, or null for the atlas; `anchor` is its body there.
+   * `parent` is the place it is inside, or the atlas level it is found at (`ATLAS_GALAXY`, `ATLAS_WEB`,
+   * D-207); `anchor` is its body there.
    */
-  parent: PlaceId | null;
+  parent: string;
   outTo: string;
   outZoom: number;
   outVeil: string;
   anchor: string;
 }
+
+/** The atlas's levels as parents (D-207): open once the visitor has been to the galaxy (past Begin) or out to the web. */
+export const ATLAS_GALAXY = "atlas:galaxy";
+export const ATLAS_WEB = "atlas:web";
 
 /** --space: the atlas's own darkness (as in the place page's Zoom Out). */
 const ATLAS_VEIL = "#090a1c";
@@ -58,7 +63,7 @@ export function menuGroups(): MenuGroup[] {
     // the group's own place (the solar system, the quasar galaxy) leads its list
     const parent = place.inside ? byId.get(place.inside) : undefined;
     const out = parent ? { outTo: `/${parent.id}`, outZoom: 1, outVeil: parent.veil } : { outTo: "/", outZoom: place.stop === 2 ? 2 : 1, outVeil: ATLAS_VEIL }; // a hint opens on the whole galaxy or the web, where the beacon shows
-    const entry: MenuPlace = { id: place.id, name: place.name, veil: place.veil, parent: parent?.id ?? null, anchor: place.anchor, ...out };
+    const entry: MenuPlace = { id: place.id, name: place.name, veil: place.veil, parent: parent?.id ?? (place.stop === 2 ? ATLAS_WEB : ATLAS_GALAXY), anchor: place.anchor, ...out };
     if ((root(place) === place && name === place.name) || place.id === "starbase") list.unshift(entry);
     else list.push(entry);
     groups.set(name, list);
