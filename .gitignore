@@ -19,5 +19,5 @@ screenshots/
 next-env.d.ts
 *.tsbuildinfo
 
-# The owner's music never goes in public/ (D-183): it lives in the private-assets submodule
+# The owner's music never goes in public/ (D-183): it lives in the private-assets submodule at src/private-assets/ (D-207)
 public/audio/music/

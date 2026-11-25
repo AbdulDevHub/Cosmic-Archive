@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
   },
   // D-183: the owner's music is read from the private submodule at request time, so ship it with its route
   outputFileTracingIncludes: {
-    "/api/music/*": ["./private-assets/cosmic-atlas/music/**/*"],
+    "/api/music/*": ["./src/private-assets/cosmic-atlas/music/**/*"],
   },
 };
 

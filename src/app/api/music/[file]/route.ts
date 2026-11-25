@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
 
 /*
   The owner's music, for the owner alone (D-183). The loops live in the private `Private-Assets`
-  repo, a submodule at `private-assets/`, and are never in `public/`. This route hands a loop only
+  repo, a submodule at `src/private-assets/` (D-207), and are never in `public/`. This route hands a loop only
   to a browser whose cookie holds the key in `MUSIC_KEY` (set once through the hidden Music switch);
   everyone else gets 401 and the soft noise bed. `/api/music/key` answers whether the key is right.
   Range requests are answered, so the audio element can seek and loop.
@@ -13,7 +13,7 @@ import type { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const DIR = join(process.cwd(), "private-assets", "cosmic-atlas", "music");
+const DIR = join(process.cwd(), "src", "private-assets", "cosmic-atlas", "music");
 const MUSIC_COOKIE = "cosmic-atlas-music"; // the same name in src/lib/sound.ts
 const FILE = /^[a-z0-9-]+\.(ogg|m4a)$/;
 const TYPES = { ogg: "audio/ogg", m4a: "audio/mp4" } as const;

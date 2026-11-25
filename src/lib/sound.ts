@@ -31,7 +31,7 @@ const MUSIC_VOLUME = 0.32;
 /**
  * Each scene's music (D-116, D-183): the owner's "Magical Space" for the start page and the galaxy,
  * and a loop of its own for every other atlas stop and every place, cut from the owner's chosen
- * tracks (copyrighted, so private: `private-assets/cosmic-atlas/music/`, served by `/api/music/`).
+ * tracks (copyrighted, so private: `src/private-assets/cosmic-atlas/music/`, served by `/api/music/`).
  * A missing loop falls back to Magical Space.
  */
 const SCENES = [
