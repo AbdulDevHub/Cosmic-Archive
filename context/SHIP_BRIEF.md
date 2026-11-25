@@ -12,8 +12,8 @@ Which reference each ship follows (files in `context/reference-images/`):
 |---|---|---|
 | Sovereign | `fleet-page-mockup.png` | Saucer and twin nacelles, as close to the sheet as possible (owner's call, replacing D-118's "role, not shape"). |
 | Predator | `fleet-page-mockup.png` | The flat, angular blade cruiser, not V2's crescent wings. |
-| Celestial | `fleet-lineup.png` + `ship-celestial-concept.jpg` | V2's flowing gold yacht; ship-celestial-concept.jpg for the rings and gold craftsmanship. |
-| Discovery | `ship-discovery-concept.jpg` | Chunky modules, round engines, tall fins; its orange recoloured to the brief's white, silver and blue. |
+| Celestial | `Celestial Starship.png` (final, 2026-11-25, D-210) | Slender bow with manta wings; pearl shells over gold machinery, a raised loop, a fan of six glowing pods. Replaces `fleet-lineup.png` + `ship-celestial-concept.jpg`. |
+| Discovery | `Discovery Starship.png` (final, 2026-11-25, D-210) | Long faceted shuttle, dark snout and canopy, four round pods, swept wings, tall fins, in the image's **cream, orange and charcoal** (overrides the white, silver and blue below). |
 | Colossus | `fleet-lineup.png` | The long, layered fortress with no tower and engines built into the rear. |
 
 **Build method:** richer procedural geometry in code for now (lathed and extruded hulls, panel lines and lights in a shader). **Future path:** model the ships in Blender and load them as `.glb` with three's `GLTFLoader` (no new npm package), when the procedural versions stop being enough.
@@ -178,7 +178,7 @@ The ships must be recognizable from their silhouettes alone.
 | Sovereign | Saucer-shaped flagship with twin nacelles |
 | Predator | Aggressive vessel with sweeping curved wings |
 | Celestial | Flowing, luxurious spacecraft yacht |
-| Discovery | Compact, boxier exploration shuttle |
+| Discovery | Long, faceted exploration shuttle with four round pods |
 | Colossus | Massive, broad mobile fortress |
 
 Do not make the five designs feel like the same underlying ship with different wings, colours, or engine arrangements.
@@ -188,7 +188,7 @@ Do not make the five designs feel like the same underlying ship with different w
 - Sovereign: Silver, white, and blue.
 - Predator: Dark metallic and graphite.
 - Celestial: Pearl-white and gold.
-- Discovery: White, silver, and blue.
+- Discovery: Cream, orange, and charcoal (the owner's final image, D-210; was white, silver, and blue).
 - Colossus: Steel, silver, deep navy, and blue.
 
 Gold should remain strongly associated with the Celestial.

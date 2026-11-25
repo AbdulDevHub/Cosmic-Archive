@@ -6,7 +6,11 @@ import type { ShipClass } from "@/lib/ship";
   each class's colours; plain SVG, no three.
 */
 
-type Look = { hull: [string, string]; trim?: string; engines: [number, number][]; body: React.ReactNode };
+/** An engine's light: its trail's hot start, the trail's colour, the glow's colour, and what both fade into. */
+type Flame = [string, string, string, string];
+type Look = { hull: [string, string]; trim?: string; engines: [number, number][]; flame?: Flame; body: React.ReactNode };
+
+const BLUE: Flame = ["#bfe2ff", "#5aa8ff", "#9fd2ff", "#3a6cff"];
 
 const LOOKS: Record<ShipClass, Look> = {
   sovereign: {
@@ -37,30 +41,47 @@ const LOOKS: Record<ShipClass, Look> = {
     ),
   },
   celestial: {
+    // D-210: a fine bow with manta wings, shells round a gold-filled loop, a fan of six pods
     hull: ["#fbf8f1", "#d6d0c4"],
     trim: "#e0b45a",
-    engines: [[18, 27], [18, 33]],
+    engines: [[6, 22.4], [6, 37.6], [10.3, 10.2], [10.3, 49.8], [8.8, 18.6], [8.8, 41.4]],
+    flame: ["#d9e0ff", "#7f8cff", "#b4c0ff", "#5a5cff"],
     body: (
       <>
-        <path d="M84 27 Q66 8 30 3 Q48 15 48 27 Z M84 33 Q66 52 30 57 Q48 45 48 33 Z" />
-        <path d="M118 30 Q84 20 34 24 L22 30 L34 36 Q84 40 118 30 Z" />
-        <ellipse cx="44" cy="30" rx="11" ry="13" fill="none" stroke="#e0b45a" strokeWidth="1.6" />
-        <ellipse cx="84" cy="30" rx="13" ry="2.6" fill="#1b2340" />
+        <path d="M92 25 Q79 15 60 6 Q66 15 62 25 Z M92 35 Q79 45 60 54 Q66 45 62 35 Z" />
+        <ellipse cx="44" cy="30" rx="27" ry="19" />
+        {[10.2, 49.8, 18.6, 41.4, 22.4, 37.6].map((y, i) => (
+          <ellipse key={y} cx={i < 2 ? 31 : i < 4 ? 29.5 : 28.5} cy={y} rx={i < 2 ? 21 : i < 4 ? 20.5 : 23} ry="3.6" />
+        ))}
+        <path d="M117 30 Q90 24 62 20 L58 30 L62 40 Q90 36 117 30 Z" />
+        <ellipse cx="49" cy="30" rx="16.5" ry="11.4" />
+        <ellipse cx="49" cy="30" rx="11.5" ry="7.4" fill="#e0b45a" />
+        <ellipse cx="88" cy="30" rx="5" ry="1.4" fill="#1b2340" />
       </>
     ),
   },
   discovery: {
-    hull: ["#f3f6fb", "#b3bccb"],
-    engines: [[16, 13], [16, 47]],
+    // D-210: a faceted cream shuttle behind a charcoal snout, four round pods banded orange, swept wings
+    hull: ["#fbf3e2", "#cbbfa6"],
+    engines: [[25.4, 17.4], [25.4, 42.6], [38.4, 7.7], [38.4, 52.3]],
+    flame: ["#ffe2bf", "#ff9a3a", "#ffc27a", "#ff6a1a"],
     body: (
       <>
-        <path d="M52 22 L34 6 L28 6 L36 22 Z M52 38 L34 54 L28 54 L36 38 Z" />
-        <rect x="30" y="20" width="62" height="20" rx="3" />
-        <path d="M92 20 L106 22 L114 30 L106 38 L92 40 Z" fill="#7d8799" />
-        <path d="M99 21 L104 21.7 L104 38.3 L99 39 Z" fill="#1b2a44" />
-        <rect x="16" y="8" width="36" height="10" rx="5" fill="#3f6fd8" />
-        <rect x="16" y="42" width="36" height="10" rx="5" fill="#3f6fd8" />
-        <rect x="46" y="27" width="34" height="6" rx="1" fill="#3f6fd8" />
+        <path d="M67 37 L54 54.5 L38.4 59.5 L33.4 58.1 L38.4 37 Z M67 23 L54 5.5 L38.4 0.5 L33.4 1.9 L38.4 23 Z" />
+        <path d="M44 51 L33.4 58.1 L38.4 59.5 Z M44 9 L33.4 1.9 L38.4 0.5 Z" fill="#f08c24" />
+        <rect x="38.4" y="2.7" width="21.6" height="10" rx="3" />
+        <rect x="38.4" y="47.3" width="21.6" height="10" rx="3" />
+        <rect x="27" y="20.6" width="48" height="18.8" rx="3" />
+        <rect x="25.4" y="12.4" width="21.6" height="10" rx="3" />
+        <rect x="25.4" y="37.6" width="21.6" height="10" rx="3" />
+        {[[46.3, 2.7], [46.3, 47.3], [33.3, 12.4], [33.3, 37.6]].map(([x, y]) => (
+          <rect key={`${x}-${y}`} x={x} y={y} width="5.8" height="10" fill="#f08c24" />
+        ))}
+        <path d="M74 20.5 L88 21.5 L95 25 L98 30 L95 35 L88 38.5 L74 39.5 Z" fill="#55565c" />
+        <ellipse cx="76" cy="30" rx="11.5" ry="3.1" fill="#121826" />
+        <path d="M53 30 L49.5 25.7 L41 25.7 L44 30 L41 34.3 L49.5 34.3 Z" fill="#f08c24" />
+        <rect x="27" y="24.3" width="18.6" height="1.6" fill="#f08c24" />
+        <rect x="27" y="34.1" width="18.6" height="1.6" fill="#f08c24" />
       </>
     ),
   },
@@ -95,7 +116,7 @@ export function ShipSilhouette({ ship, width = 64 }: { ship: ShipClass; width?: 
         {look.body}
       </g>
       {look.engines.map(([x, y]) => (
-        <circle key={`${x}-${y}`} cx={x} cy={y} r="3.6" fill="#8fcaff" />
+        <circle key={`${x}-${y}`} cx={x} cy={y} r="3.6" fill={look.flame ? look.flame[2] : "#8fcaff"} />
       ))}
     </svg>
   );
@@ -103,6 +124,7 @@ export function ShipSilhouette({ ship, width = 64 }: { ship: ShipClass; width?: 
 
 export function LoaderShip({ ship }: { ship: ShipClass }) {
   const look = LOOKS[ship];
+  const [core, trail, glow, edge] = look.flame ?? BLUE;
   return (
     <svg viewBox="-60 0 180 60" width="300" height="100" aria-hidden="true">
       <defs>
@@ -111,14 +133,14 @@ export function LoaderShip({ ship }: { ship: ShipClass }) {
           <stop offset="1" stopColor={look.hull[1]} />
         </linearGradient>
         <linearGradient id="loader-trail" x1="1" y1="0" x2="0" y2="0">
-          <stop offset="0" stopColor="#bfe2ff" stopOpacity="0.95" />
-          <stop offset="0.25" stopColor="#5aa8ff" stopOpacity="0.55" />
-          <stop offset="1" stopColor="#3a6cff" stopOpacity="0" />
+          <stop offset="0" stopColor={core} stopOpacity="0.95" />
+          <stop offset="0.25" stopColor={trail} stopOpacity="0.55" />
+          <stop offset="1" stopColor={edge} stopOpacity="0" />
         </linearGradient>
         <radialGradient id="loader-glow">
           <stop offset="0" stopColor="#ffffff" />
-          <stop offset="0.35" stopColor="#9fd2ff" />
-          <stop offset="1" stopColor="#3a8cff" stopOpacity="0" />
+          <stop offset="0.35" stopColor={glow} />
+          <stop offset="1" stopColor={edge} stopOpacity="0" />
         </radialGradient>
       </defs>
       <g data-trails>

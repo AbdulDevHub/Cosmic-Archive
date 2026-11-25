@@ -37,7 +37,7 @@ import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import { getShip, type ShipClass } from "@/lib/ship";
 import { getStartCharge } from "../../host/store";
 import { mix, sstep } from "./model";
-import { buildShip, type Vec3 as ShipPoint } from "./ships";
+import { buildShip, FLAME, type Vec3 as ShipPoint } from "./ships";
 
 // ---------- shaders ----------
 
@@ -181,16 +181,19 @@ void main(){
   {
     // the fleet (D-120): ids in ships.ts
     float id = floor(vPart + 0.5);
-    if (id == 5.0 || id == 6.0 || id == 13.0) {
-      // lights: blue running strips, red wingtip lights, the soft blue glow of a deflector or a nacelle cap
-      col = id == 5.0 ? vec3(0.45, 0.8, 1.0) * 2.3 : id == 6.0 ? vec3(1.0, 0.25, 0.2) * 2.0 : vec3(0.35, 0.7, 1.0) * (1.6 + fres * 1.4);
+    if (id == 5.0 || id == 6.0 || id == 13.0 || id == 16.0) {
+      // lights: blue running strips, red wingtip lights, the soft blue glow of a deflector or a
+      // nacelle cap, and the Discovery's amber intakes and lamps
+      col = id == 5.0 ? vec3(0.45, 0.8, 1.0) * 2.3 : id == 6.0 ? vec3(1.0, 0.25, 0.2) * 2.0
+        : id == 16.0 ? vec3(1.0, 0.48, 0.1) * (1.4 + fres * 1.2)
+        : vec3(0.35, 0.7, 1.0) * (1.6 + fres * 1.4);
     } else if (id == 1.0) {
       // glass: dark, catching the light and the sky
       col = vec3(0.04, 0.08, 0.16) + vec3(0.5, 0.85, 1.0) * (spec * 1.6 + fres * 0.6);
-    } else if (id == 2.0) {
-      // engine housings: dark, the faces turned back glowing blue
+    } else if (id == 2.0 || id == 17.0) {
+      // engine housings: dark, the faces turned back glowing blue (amber on the Discovery)
       float rim = smoothstep(0.2, 0.85, -normalize(vNo).x);
-      col = vec3(0.16, 0.17, 0.22) * (0.15 + diff) + fill + vec3(0.3, 0.7, 1.0) * rim * 2.2;
+      col = vec3(0.16, 0.17, 0.22) * (0.15 + diff) + fill + (id == 17.0 ? vec3(1.0, 0.5, 0.15) : vec3(0.3, 0.7, 1.0)) * rim * 2.2;
     } else {
       // hull: silver, gold, gunmetal, pearl, blue paint, white paint, steel, deep navy or graphite
       vec3 base = id == 0.0 ? vec3(0.76, 0.79, 0.86)
@@ -201,10 +204,13 @@ void main(){
         : id == 9.0 ? vec3(0.9, 0.92, 0.95)
         : id == 10.0 ? vec3(0.58, 0.62, 0.7)
         : id == 11.0 ? vec3(0.13, 0.17, 0.3)
+        : id == 14.0 ? vec3(0.96, 0.9, 0.77)
+        : id == 15.0 ? vec3(0.96, 0.56, 0.14)
+        : id == 18.0 ? vec3(0.36, 0.36, 0.37)
         : vec3(0.15, 0.16, 0.19);
       // how mirror-like: gold and the metals reflect, paint and pearl are softer
       float metalness = id == 3.0 ? 0.9 : id == 0.0 || id == 10.0 ? 0.55 : id == 4.0 || id == 12.0 || id == 11.0 ? 0.45 : 0.2;
-      float shine = id == 3.0 ? 1.6 : id == 7.0 || id == 9.0 ? 0.8 : 0.9;
+      float shine = id == 3.0 ? 1.6 : id == 7.0 || id == 9.0 || id == 14.0 ? 0.8 : 0.9;
       // plating: staggered rows of plates of two sizes, fine dark seams, each plate a shade of its
       // own, a few darker access hatches, and a faint grime over the whole hull
       vec3 q = vO * vec3(24.0, 30.0, 17.0);
@@ -266,6 +272,7 @@ const ENGINE_FRAGMENT = /* glsl */ `
 uniform float uTime;
 uniform float uPower;
 uniform float uAlpha;
+uniform vec3 uFlame;
 varying vec2 vUv;
 varying float vKind;
 void main(){
@@ -275,10 +282,10 @@ void main(){
     float core = exp(-pow((vUv.y - 0.5) * 11.0, 2.0));
     float along = pow(1.0 - vUv.x, 1.6);
     float flicker = 0.88 + 0.12 * sin(uTime * 23.0 + vUv.x * 30.0);
-    light = (vec3(0.2, 0.5, 1.0) * across + vec3(0.85, 0.95, 1.0) * core * (1.0 - vUv.x)) * along * flicker;
+    light = (uFlame * across + mix(uFlame, vec3(1.0), vec3(0.8125, 0.9, 0.9)) * core * (1.0 - vUv.x)) * along * flicker;
   } else {
     float r = length(vUv - 0.5) * 2.0;
-    light = vec3(0.6, 0.85, 1.0) * exp(-r * r * 6.0) * 1.4 + vec3(1.0) * exp(-r * r * 40.0);
+    light = mix(uFlame, vec3(1.0), vec3(0.5, 0.7, 0.5)) * exp(-r * r * 6.0) * 1.4 + vec3(1.0) * exp(-r * r * 40.0);
   }
   gl_FragColor = vec4(light * uPower * uAlpha, 1.0);
 }
@@ -297,8 +304,8 @@ function rand(seed: number): () => number {
   };
 }
 
-/** Engine glows and trails drawn at most: the fleet's largest has four (D-118). */
-const ENGINES = 4;
+/** Engine glows and trails drawn at most: the Celestial has six (D-210). */
+const ENGINES = 6;
 
 /** How far the ship rolls about its heading: enough to show its top, wings spread (D-109). */
 const SHIP_BANK = 1.0;
@@ -436,7 +443,7 @@ export class StartProps {
     const engineMaterial = new ShaderMaterial({
       vertexShader: ENGINE_VERTEX,
       fragmentShader: ENGINE_FRAGMENT,
-      uniforms: { uTime: { value: 0 }, uPower: { value: 1 }, uAlpha: { value: 1 } },
+      uniforms: { uTime: { value: 0 }, uPower: { value: 1 }, uAlpha: { value: 1 }, uFlame: { value: new Vector3(...(model.flame ?? FLAME)) } },
       blending: AdditiveBlending,
       transparent: true,
       depthTest: false,
@@ -444,7 +451,7 @@ export class StartProps {
     });
     this.materials.push(engineMaterial);
     const engineGeometry = new BufferGeometry();
-    // eight quads: up to four trails, then their four nozzle glows; positions are written each frame
+    // two quads per engine: the trails first, then their nozzle glows; positions are written each frame
     engineGeometry.setAttribute("position", new BufferAttribute(new Float32Array(ENGINES * 2 * 6 * 3), 3).setUsage(DynamicDrawUsage));
     const uv: number[] = [];
     const kind: number[] = [];
@@ -514,6 +521,7 @@ export class StartProps {
       this.glow = model.glow;
       this.shipSize = model.size;
       this.shipClass = wanted;
+      (this.engines.material.uniforms.uFlame.value as Vector3).set(...(model.flame ?? FLAME));
     }
     this.root.position.copy(camera.position);
     this.root.quaternion.copy(camera.quaternion);

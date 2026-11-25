@@ -12,12 +12,15 @@
  *   0 silver metal   1 canopy glass   2 engine housing   3 gold        4 gunmetal
  *   5 blue light     6 red light      7 pearl white      8 blue paint  9 white paint
  *   10 steel         11 deep navy     12 graphite        13 blue glow
+ *   14 cream         15 orange paint  16 amber light     17 engine housing, amber
+ *   18 charcoal
  */
 
 import {
   BoxGeometry,
   BufferAttribute,
   CatmullRomCurve3,
+  Path,
   CylinderGeometry,
   ExtrudeGeometry,
   LatheGeometry,
@@ -44,10 +47,15 @@ export interface ShipModel {
   glow: number;
   /** How large the ship is drawn, relative to the first fleet's. */
   size: number;
+  /** The colour of its engines' glow and trails (blue when left out). */
+  flame?: Vec3;
 }
 
+/** The fleet's engine light: blue. */
+export const FLAME: Vec3 = [0.2, 0.5, 1.0];
+
 /** Material ids (see the header). */
-const SILVER = 0, GLASS = 1, ENGINE = 2, GOLD = 3, GUNMETAL = 4, BLUE = 5, RED = 6, PEARL = 7, PAINT = 8, WHITE = 9, STEEL = 10, NAVY = 11, GRAPHITE = 12, GLOW = 13;
+const SILVER = 0, GLASS = 1, ENGINE = 2, GOLD = 3, GUNMETAL = 4, BLUE = 5, RED = 6, PEARL = 7, STEEL = 10, NAVY = 11, GRAPHITE = 12, GLOW = 13, CREAM = 14, ORANGE = 15, EMBER = 16, FORGE = 17, CHARCOAL = 18;
 
 const ALONG_X = new Matrix4().makeRotationZ(-Math.PI / 2); // lathes and cylinders stand on y; lay them along x (+y becomes +x)
 const FLAT = new Matrix4().makeRotationX(Math.PI / 2); // extruded outlines lie in x-y; lay them in x-z
@@ -89,6 +97,25 @@ function fin(points: P2[], thick: number, which: number, z: number, tilt = 0, pi
 function hull(profile: P2[], segments: number, which: number, at: Vec3, scaleY = 1, scaleZ = 1, lit = false): BufferGeometry {
   const g = new LatheGeometry(profile.map(([r, a]) => new Vector2(r, a)), segments).applyMatrix4(ALONG_X).scale(1, scaleY, scaleZ);
   return part(g, which, at, undefined, lit);
+}
+
+/** A faceted hull (`sides` flat faces, one of them on top), turned like `hull`. */
+function prism(profile: P2[], sides: number, which: number, at: Vec3, scaleY = 1, scaleZ = 1, lit = false): BufferGeometry {
+  const g = new LatheGeometry(profile.map(([r, a]) => new Vector2(r, a)), sides, Math.PI / sides).applyMatrix4(ALONG_X).scale(1, scaleY, scaleZ);
+  return part(g, which, at, undefined, lit);
+}
+
+/** Points round an ellipse in the x-z plane, centred on x = `cx`. */
+function ellipse(cx: number, a: number, b: number, n = 48): P2[] {
+  return Array.from({ length: n }, (_, i): P2 => [cx + a * Math.cos((i / n) * Math.PI * 2), b * Math.sin((i / n) * Math.PI * 2)]);
+}
+
+/** A flat ring: a plate from `outer` with `inner` cut out of it, its top at `y`. */
+function ring(outer: P2[], inner: P2[], depth: number, which: number, y: number): BufferGeometry {
+  const s = shape(outer);
+  s.holes.push(new Path(inner.map(([a, b]) => new Vector2(a, b))));
+  const g = new ExtrudeGeometry(s, { depth, bevelEnabled: true, bevelThickness: depth * 0.3, bevelSize: Math.min(depth * 0.4, 0.008), bevelSegments: 2, curveSegments: 4 });
+  return part(g, which, [0, y, 0], FLAT);
 }
 
 /** A straight strut from `a` to `b`, its chord along x where it can be. */
@@ -229,68 +256,164 @@ function predator(): ShipModel {
 }
 
 /**
- * Celestial, the legendary vessel (V2 sheet and ship-celestial-concept.jpg): a long pearl hull drawn to a fine
- * point, a glass streak along its back, two sets of crescent blades sweeping back, gold trim on
- * every edge, and a gold halo ringing its stern.
+ * Celestial, the legendary vessel (the owner's `Celestial Starship.png`, D-210): a slender pearl
+ * bow drawn to a fine point with manta wings drooping from it, then a great flowing stern: pearl
+ * shells sweeping round a core of gold machinery, a pearl loop over it holding a glass dome, and a
+ * fan of six long pods, each with a slot of blue-violet light down its flank, trailing light.
  */
 function celestial(): ShipModel {
-  const bladeEdge: P2[] = [[0.16, 0.06], ...bend([0.16, 0.06], [0.02, 0.33], [-0.52, 0.43], 12)];
-  const upperEdge: P2[] = [[0.02, 0.05], ...bend([0.02, 0.05], [-0.12, 0.2], [-0.46, 0.26], 10)];
-  const blade: P2[] = [...bladeEdge, ...bend([-0.52, 0.43], [-0.22, 0.2], [-0.32, 0.07], 10)];
-  const upper: P2[] = [...upperEdge, ...bend([-0.46, 0.26], [-0.26, 0.12], [-0.34, 0.04], 8)];
+  const droop = (a: number) => new Matrix4().makeRotationX(a);
+  // the manta wings off the bow: a leading edge bowed out to a point swept back, curving in again
+  const wingEdge: P2[] = [[0.4, 0.06], ...bend([0.4, 0.06], [0.22, 0.2], [-0.02, 0.34], 12)];
+  const wing: P2[] = [...wingEdge, ...bend([-0.02, 0.34], [0.06, 0.2], [0.0, 0.07], 10)];
+  const underWing: P2[] = [[0.3, 0.06], ...bend([0.3, 0.06], [0.14, 0.18], [-0.06, 0.27], 10), ...bend([-0.06, 0.27], [0.0, 0.16], [-0.04, 0.06], 8)];
+  // the stern's shells: crescents bowing out past the core, the upper broad, the lower wrapping under
+  const shellEdge: P2[] = [[0.1, 0.06], ...bend([0.1, 0.06], [-0.1, 0.34], [-0.52, 0.22], 14)];
+  const shell: P2[] = [...shellEdge, ...bend([-0.52, 0.22], [-0.3, 0.08], [0.02, 0.03], 12)];
+  const lowerShell: P2[] = [[0.02, 0.07], ...bend([0.02, 0.07], [-0.16, 0.3], [-0.46, 0.2], 12), ...bend([-0.46, 0.2], [-0.24, 0.14], [-0.04, 0.05], 10)];
+  // the loop over the stern, and the glass dome it holds
+  const loopOuter = ellipse(-0.17, 0.22, 0.15);
+  const loopInner = ellipse(-0.175, 0.16, 0.098);
+  /**
+   * A long, slender pod, its tail at `tail`, its nose turned `yaw` toward the keel so the fan opens
+   * toward the stern: drawn fine at both ends, ringed in gold, a long oval of light in its flank.
+   */
+  const pod = (tail: Vec3, length: number, r: number, side: number, yaw: number): BufferGeometry[] => {
+    const m = new Matrix4().makeRotationY(side * yaw).setPosition(...tail);
+    const slot = new SphereGeometry(1, 24, 12).scale(length * 0.2, r * 0.5, r * 0.5);
+    return [
+      hull([[r * 0.6, 0], [r * 0.88, 0.03], [r, 0.11], [r, length * 0.5], [r * 0.82, length * 0.7], [r * 0.45, length * 0.88], [r * 0.12, length * 0.98], [0, length]], 28, PEARL, [0, 0, 0]),
+      part(slot, GLOW, [length * 0.26, r * 0.42, side * r * 0.62]),
+      part(new TorusGeometry(r * 1.02, 0.005, 6, 32).rotateY(Math.PI / 2), GOLD, [length * 0.5, 0, 0]),
+      part(new TorusGeometry(r * 0.62, 0.006, 6, 32).rotateY(Math.PI / 2), GOLD, [0.002, 0, 0]),
+      part(new CylinderGeometry(r * 0.58, r * 0.62, 0.02, 20), ENGINE, [0.006, 0, 0], ALONG_X),
+    ].map((g) => g.applyMatrix4(m));
+  };
+  const pods: [Vec3, number, number, number][] = [
+    // tail, length, radius, how far it fans out
+    [[-0.74, 0.12, 0.1], 0.6, 0.05, 0.06],
+    [[-0.68, 0.025, 0.26], 0.56, 0.046, 0.14],
+    [[-0.7, -0.085, 0.15], 0.54, 0.044, 0.09],
+  ];
+  // the loop is raised toward the stern, as if swept back by speed
+  const lift = new Matrix4().makeTranslation(-0.17, 0, 0).multiply(new Matrix4().makeRotationZ(-0.22)).multiply(new Matrix4().makeTranslation(0.17, 0, 0));
   const parts = [
-    hull([[0, -0.58], [0.04, -0.56], [0.075, -0.46], [0.1, -0.3], [0.11, -0.12], [0.1, 0.06], [0.08, 0.23], [0.05, 0.41], [0.022, 0.55], [0, 0.64]], 48, PEARL, [0, 0, 0], 0.55, 1, true),
-    part(new SphereGeometry(0.05, 24, 12).scale(3.4, 0.38, 0.75), GLASS, [0.16, 0.05, 0]),
-    // the gold halo round the stern, and a gold keel line
-    part(new TorusGeometry(0.17, 0.011, 8, 72).rotateX(Math.PI / 2).scale(1.35, 1, 1), GOLD, [-0.3, 0.005, 0]),
-    tube([[0.5, 0.012, 0], [0.2, 0.06, 0], [-0.1, 0.064, 0], [-0.45, 0.04, 0]], 0.006, GOLD),
+    // the bow: flat, keeled and drawn to a fine point, a raised spine along its top
+    hull([[0.0, -0.06], [0.13, 0.0], [0.135, 0.12], [0.11, 0.26], [0.075, 0.42], [0.04, 0.56], [0.014, 0.66], [0, 0.7]], 48, PEARL, [0.06, 0, 0], 0.4, 1, true),
+    plate(sym([[0.62, 0], [0.4, 0.035], [0.1, 0.055], [-0.06, 0.05], [-0.06, 0]]), 0.03, PEARL, 0.07),
+    // glass slits and warm lit windows along the bow
+    part(new SphereGeometry(0.05, 20, 10).scale(1.2, 0.22, 0.4), GLASS, [0.42, 0.058, 0]),
+    ...[0.3, 0.18].map((x) => part(new BoxGeometry(0.05, 0.006, 0.07), EMBER, [x, 0.072, 0])),
+    // the gold core: ribbed machinery under the shells
+    hull([[0, -0.66], [0.07, -0.64], [0.1, -0.58], [0.085, -0.54], [0.12, -0.5], [0.12, -0.42], [0.095, -0.39], [0.13, -0.34], [0.13, -0.22], [0.1, -0.19], [0.12, -0.14], [0.11, 0.02], [0.06, 0.08], [0, 0.1]], 32, GOLD, [0, 0.0, 0], 0.9, 1.25),
+    ...[-0.56, -0.46, -0.36, -0.26, -0.16].map((x) => part(new TorusGeometry(0.12, 0.008, 6, 40).rotateY(Math.PI / 2).scale(1, 0.9, 1.25), GOLD, [x, 0, 0])),
+    // the loop over the stern, rimmed in gold, holding a dome of gold machinery
+    ring(loopOuter, loopInner, 0.02, PEARL, 0.13).applyMatrix4(lift),
+    tube(loopOuter.map(([x, z]): Vec3 => [x, 0.133, z]), 0.005, GOLD, true).applyMatrix4(lift),
+    tube(loopInner.map(([x, z]): Vec3 => [x, 0.133, z]), 0.004, GOLD, true).applyMatrix4(lift),
+    part(new SphereGeometry(1, 32, 12).scale(0.165, 0.055, 0.1), GOLD, [-0.175, 0.1, 0]).applyMatrix4(lift),
+    ...[[0.1, 0.06], [0.06, 0.036]].map(([a, b]) => part(new TorusGeometry(1, 0.06, 6, 40).rotateX(Math.PI / 2).scale(a, 0.08, b), GOLD, [-0.175, 0.14, 0]).applyMatrix4(lift)),
+    part(new SphereGeometry(0.02, 16, 8), GLOW, [-0.175, 0.155, 0]).applyMatrix4(lift),
     ...[1, -1].flatMap((side) => {
       const s = (points: P2[]) => (side > 0 ? points : flipZ(points));
       return [
-        plate(s(blade), 0.016, PEARL, -0.008),
-        plate(s(upper), 0.014, PEARL, 0.03),
-        // gold along each blade's leading edge (the same curves) and down the hull's flanks
-        tube(bladeEdge.map(([x, z]): Vec3 => [x, -0.006, side * z]), 0.007, GOLD),
-        tube(upperEdge.map(([x, z]): Vec3 => [x, 0.028, side * z]), 0.006, GOLD),
-        tube([[0.52, 0.006, side * 0.03], [0.3, 0.014, side * 0.07], [0.05, 0.016, side * 0.1], [-0.25, 0.012, side * 0.1], [-0.52, 0.004, side * 0.055]], 0.005, GOLD),
-        // engines cased in gold at the stern
-        part(new CylinderGeometry(0.026, 0.032, 0.14, 20), GOLD, [-0.53, 0, side * 0.07], ALONG_X),
+        // the manta wings, drooping, with a second, narrower layer beneath
+        plate(s(wing), 0.016, PEARL, 0.0, true).applyMatrix4(droop(side * 0.32)),
+        tube(wingEdge.map(([x, z]): Vec3 => [x, 0.002, side * z]), 0.005, GOLD).applyMatrix4(droop(side * 0.32)),
+        plate(s(underWing), 0.014, PEARL, -0.03).applyMatrix4(droop(side * 0.55)),
+        // gold trim down the bow's flanks
+        tube([[0.72, 0.004, 0], [0.56, 0.018, side * 0.035], [0.34, 0.03, side * 0.07], [0.12, 0.036, side * 0.1], [-0.02, 0.03, side * 0.11]], 0.004, GOLD),
+        // the stern's shells, wrapping down over the core
+        plate(s(shell), 0.024, PEARL, 0.105, true).applyMatrix4(droop(side * 0.3)),
+        tube(shellEdge.map(([x, z]): Vec3 => [x, 0.107, side * z]), 0.0055, GOLD).applyMatrix4(droop(side * 0.3)),
+        plate(s(lowerShell), 0.02, PEARL, -0.02).applyMatrix4(droop(side * 0.95)),
+        // gold machinery along the core's flanks, ribbed, showing between the shells and the pods
+        part(new CylinderGeometry(0.03, 0.03, 0.36, 16), GOLD, [-0.36, 0.05, side * 0.17], ALONG_X),
+        ...[-0.48, -0.4, -0.32, -0.24].map((x) => part(new TorusGeometry(0.034, 0.007, 6, 20).rotateY(Math.PI / 2), GOLD, [x, 0.05, side * 0.17])),
+        // the fan of pods
+        ...pods.flatMap(([tail, length, r, yaw]) => pod([tail[0], tail[1], side * tail[2]], length, r, side, yaw)),
       ];
     }),
   ];
-  return { geometry: merge(parts), nozzles: [[-0.61, 0, 0.07], [-0.61, 0, -0.07]], glow: 0.75, size: 0.88 };
+  const nozzles = pods.flatMap(([tail]): Vec3[] => [[tail[0] - 0.01, tail[1], tail[2]], [tail[0] - 0.01, tail[1], -tail[2]]]);
+  return { geometry: merge(parts), nozzles, glow: 0.7, size: 0.74, flame: [0.38, 0.45, 1.0] };
 }
 
 /**
- * Discovery, the experimental explorer (ship-discovery-concept.jpg, recoloured white, silver and blue): a
- * chunky shuttle body behind a six-sided steel prow ringed with windows (D-177), two big round engine pods, narrow swept wings and
- * twin tall fins leaning outward.
+ * Discovery, the experimental explorer (the owner's `Discovery Starship.png`, D-210): a long,
+ * faceted cream fuselage behind a blunt gunmetal snout lit amber, a long dark canopy, bands of
+ * gunmetal and orange livery, four round engine pods with glowing amber intakes (an upper pair
+ * by the spine, a lower pair out on the wings), swept wings with turned-down tips, and two tall
+ * swept fins.
  */
 function discovery(): ShipModel {
-  const wing: P2[] = [[-0.06, 0.11], [-0.32, 0.33], [-0.4, 0.33], [-0.34, 0.11]];
-  const parts = [
-    // the nose: a six-sided prow in bare steel, a band of windows wrapped round its taper
-    hull([[0.13, 0], [0.13, 0.12], [0.11, 0.24], [0.065, 0.33], [0.02, 0.38], [0, 0.385]], 6, STEEL, [0.2, 0.0, 0], 0.72, 0.95),
-    hull([[0.136, 0.13], [0.114, 0.235]], 6, GLASS, [0.2, 0.0, 0], 0.72, 0.95),
-    // the long body, its upper module and a rear module
-    part(new BoxGeometry(0.6, 0.16, 0.22), WHITE, [-0.08, 0, 0], undefined, true),
-    part(new BoxGeometry(0.42, 0.07, 0.16), WHITE, [-0.1, 0.115, 0]),
-    part(new BoxGeometry(0.36, 0.006, 0.06), PAINT, [-0.1, 0.152, 0]),
-    part(new BoxGeometry(0.1, 0.12, 0.18), SILVER, [-0.43, 0.01, 0]),
-    ...[1, -1].flatMap((side) => [
-      // blue panels on the flanks
-      part(new BoxGeometry(0.26, 0.06, 0.008), PAINT, [0.02, 0.02, side * 0.112]),
-      plate(side > 0 ? wing : flipZ(wing), 0.014, WHITE, -0.06),
-      // the round engine pods on short pylons, rimmed dark at the back
-      hull([[0.056, 0], [0.07, 0.02], [0.074, 0.06], [0.074, 0.26], [0.058, 0.33], [0.03, 0.35], [0, 0.355]], 28, PAINT, [-0.5, -0.02, side * 0.18]),
-      part(new CylinderGeometry(0.058, 0.058, 0.03, 24, 1, true), ENGINE, [-0.505, -0.02, side * 0.18], ALONG_X),
-      part(new BoxGeometry(0.2, 0.03, 0.07), SILVER, [-0.3, -0.02, side * 0.13]),
-      // twin fins leaning outward, blue at the tips
-      fin([[-0.25, 0.14], [-0.42, 0.32], [-0.48, 0.32], [-0.45, 0.14]], 0.014, WHITE, side * 0.075, side * 0.28, 0.14),
-      fin([[-0.4, 0.28], [-0.42, 0.32], [-0.48, 0.32], [-0.47, 0.28]], 0.018, PAINT, side * 0.075, side * 0.28, 0.14),
-    ]),
+  const wing: P2[] = [[0.1, 0.1], [-0.08, 0.34], [-0.3, 0.41], [-0.37, 0.39], [-0.3, 0.1]];
+  const wingTip: P2[] = [[-0.2, 0.375], [-0.3, 0.41], [-0.37, 0.39], [-0.24, 0.36]];
+  const wingPanel: P2[] = [[0.02, 0.15], [-0.08, 0.28], [-0.2, 0.3], [-0.2, 0.15]];
+  /** A round engine pod, its tail at `tail`: cream, an orange band, a gunmetal lip round an amber intake. */
+  const pod = (tail: Vec3): BufferGeometry[] => [
+    hull([[0.046, 0], [0.06, 0.02], [0.068, 0.06], [0.07, 0.24], [0.066, 0.29], [0.062, 0.3]], 28, CREAM, tail),
+    hull([[0.0725, 0.11], [0.0725, 0.19]], 28, ORANGE, tail),
+    part(new TorusGeometry(0.062, 0.01, 8, 32).rotateY(Math.PI / 2), CHARCOAL, [tail[0] + 0.3, tail[1], tail[2]]),
+    part(new CylinderGeometry(0.056, 0.056, 0.03, 28, 1, true), CHARCOAL, [tail[0] + 0.285, tail[1], tail[2]], ALONG_X),
+    part(new CylinderGeometry(0.054, 0.054, 0.004, 28), EMBER, [tail[0] + 0.275, tail[1], tail[2]], ALONG_X),
+    part(new CylinderGeometry(0.044, 0.048, 0.03, 24), FORGE, [tail[0] - 0.005, tail[1], tail[2]], ALONG_X),
   ];
-  return { geometry: merge(parts), nozzles: [[-0.52, -0.02, 0.18], [-0.52, -0.02, -0.18]], glow: 1.2, size: 0.86 };
+  const upper: Vec3 = [-0.48, 0.055, 0.175];
+  const lower: Vec3 = [-0.3, -0.06, 0.31];
+  const parts = [
+    // the fuselage: long and eight-sided, windowed, a gunmetal keel beneath
+    prism([[0, -0.46], [0.1, -0.455], [0.125, -0.4], [0.13, -0.1], [0.13, 0.2], [0.132, 0.22]], 8, CREAM, [0, 0, 0], 0.75, 1, true),
+    part(new BoxGeometry(0.56, 0.04, 0.13), CHARCOAL, [-0.12, -0.09, 0]),
+    // the blunt, faceted snout in gunmetal, two amber lamps across its face and blue ones above
+    prism([[0.136, 0], [0.136, 0.05], [0.122, 0.14], [0.1, 0.23], [0.075, 0.29], [0.052, 0.315], [0, 0.32]], 8, CHARCOAL, [0.2, 0, 0], 0.75, 1),
+    ...[1, -1].flatMap((side) => [
+      part(new BoxGeometry(0.012, 0.012, 0.045), EMBER, [0.505, -0.01, side * 0.03]),
+      part(new BoxGeometry(0.03, 0.006, 0.01), BLUE, [0.42, 0.075, side * 0.06]),
+    ]),
+    // the long dark canopy, ribbed, over the front of the body
+    part(new SphereGeometry(0.05, 28, 12).scale(3.2, 0.6, 0.85), GLASS, [0.22, 0.08, 0]),
+    part(new BoxGeometry(0.3, 0.012, 0.008), CREAM, [0.21, 0.108, 0]),
+    ...[0.13, 0.27].map((x) => part(new BoxGeometry(0.01, 0.012, 0.085), CHARCOAL, [x, 0.1, 0])),
+    // gunmetal bands round the body
+    ...[0.0, -0.22].map((x) => prism([[0.138, 0], [0.138, 0.04]], 8, CHARCOAL, [x, 0, 0], 0.75, 1)),
+    // the spine behind the canopy: a cream module, banded, with orange livery on top
+    part(new BoxGeometry(0.4, 0.05, 0.15), CREAM, [-0.2, 0.105, 0]),
+    ...[-0.06, -0.33].map((x) => part(new BoxGeometry(0.04, 0.056, 0.156), CHARCOAL, [x, 0.106, 0])),
+    plate(sym([[-0.1, 0], [-0.15, 0.06], [-0.27, 0.06], [-0.22, 0]]), 0.006, ORANGE, 0.134),
+    // the stern block between the pods
+    part(new BoxGeometry(0.03, 0.07, 0.12), CHARCOAL, [-0.465, 0.0, 0]),
+    ...[1, -1].flatMap((side) => {
+      const s = (points: P2[]) => (side > 0 ? points : flipZ(points));
+      return [
+        // orange livery down the flanks
+        part(new BoxGeometry(0.18, 0.035, 0.006), ORANGE, [0.04, 0.005, side * 0.124]),
+        part(new BoxGeometry(0.1, 0.035, 0.006), CHARCOAL, [-0.14, 0.005, side * 0.124]),
+        // the wings: swept, an orange tip and a gunmetal panel, the tips turned down
+        plate(s(wing), 0.02, CREAM, -0.07),
+        plate(s(wingTip), 0.006, ORANGE, -0.066),
+        plate(s(wingPanel), 0.006, CHARCOAL, -0.066),
+        fin([[-0.24, -0.075], [-0.37, -0.075], [-0.41, -0.15], [-0.32, -0.15]], 0.016, CREAM, side * 0.4),
+        // the pods: the upper pair on pylons beside the spine, the lower pair on the wings
+        part(new BoxGeometry(0.2, 0.04, 0.08), CREAM, [-0.33, 0.045, side * 0.12]),
+        ...pod([upper[0], upper[1], side * upper[2]]),
+        ...pod([lower[0], lower[1], side * lower[2]]),
+        // two tall swept fins, leaning a little outward, their tips orange
+        fin([[-0.2, 0.12], [-0.39, 0.36], [-0.46, 0.37], [-0.44, 0.12]], 0.016, CREAM, side * 0.07, side * 0.12, 0.12),
+        fin([[-0.33, 0.27], [-0.39, 0.36], [-0.46, 0.37], [-0.45, 0.27]], 0.02, ORANGE, side * 0.07, side * 0.12, 0.12),
+      ];
+    }),
+  ];
+  return {
+    geometry: merge(parts),
+    nozzles: [
+      [upper[0] - 0.02, upper[1], upper[2]], [upper[0] - 0.02, upper[1], -upper[2]],
+      [lower[0] - 0.02, lower[1], lower[2]], [lower[0] - 0.02, lower[1], -lower[2]],
+    ],
+    glow: 0.85,
+    size: 0.86,
+    flame: [1.0, 0.45, 0.1],
+  };
 }
 
 /**
