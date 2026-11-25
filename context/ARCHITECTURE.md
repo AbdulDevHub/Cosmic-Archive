@@ -184,11 +184,12 @@ The governor walks a ladder of five rungs built from these tiers (D-038): `high`
 
 | What | Budget (gzip) |
 |---|---|
-| First-load JS on a route with no scene | 140 KB (raised from 130 KB by the owner, D-033) |
+| First-load JS on a route with no scene | 160 KB (D-212; was 140 KB, D-033) |
+| First-load JS on a scene route | 170 KB (D-212) |
 | Host + three + R3F chunk | 220 KB |
 | One scene's own chunk | 40 KB |
 
-Scene routes carry their page code above the no-scene figure (D-047). Targets: 60 fps on `medium` on an integrated-GPU laptop; 30 fps floor on `low` on a mid-range phone; LCP under 2.5 s on 4G (the poster); CLS 0 (the canvas is fixed).
+Targets: 60 fps on `medium` on an integrated-GPU laptop; 30 fps floor on `low` on a mid-range phone; LCP under 2.5 s on 4G (the poster); CLS 0 (the canvas is fixed).
 
 ## 4. Atlas scene
 

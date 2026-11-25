@@ -4,7 +4,7 @@ A spectacle of the cosmos you click through: real-time scenes from a spiral gala
 
 **[Fly through it live](https://the-cosmic-atlas.vercel.app)** · real-time WebGL · Next.js · React Three Fiber
 
-![Cosmic Atlas: The Universe to Look At, over a spiral galaxy drawn live in the browser, with a black hole, a nebula, a ringworld and the omniverse below](.github/social-preview.png)
+![Cosmic Atlas: The Universe to Look At, over a spiral galaxy drawn live in the browser, with a black hole, a nebula, a solar system and a ringworld below](.github/social-preview.png)
 
 | A Black Hole | A Nebula | A Quasar |
 |---|---|---|
@@ -12,7 +12,7 @@ A spectacle of the cosmos you click through: real-time scenes from a spiral gala
 
 ## Project Overview
 
-Cosmic Atlas is a website for looking at the universe rather than reading about it. Pick a ship, press Begin and fly into a galaxy. Click a glowing point to dive into a black hole, a nebula or a solar system, or Zoom Out through the cosmic web and the observable universe to a line of other universes and beyond. A wormhole leads to a stranger galaxy of quasars, megastructures and big ideas, and guided flights and a hands-off tour show you around.
+Cosmic Atlas is a website for looking at the universe rather than reading about it. Pick a ship from the dock, press Begin Your Journey and fly into a galaxy. Click a glowing point to dive into a black hole, a nebula or a solar system, or Zoom Out through the cosmic web and the observable universe to a line of other universes and beyond. A wormhole leads to a stranger galaxy of quasars, megastructures and big ideas, and guided flights and a hands-off tour show you around. Places unlock as you find them; until then the menu hints where to look.
 
 Every scene is drawn live in the browser with WebGL shaders, with no photos or downloaded images, so it stays original and small. Each view has only a name and one short line, and every line is checked against a real source. Under every scene plays a soft hush of deep space. If 3D can't run, every page still shows a still image and works as plain HTML.
 
