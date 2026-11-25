@@ -56,7 +56,7 @@ export function SiteHeader({ groups, flights }: { groups: MenuGroup[]; flights: 
   return (
     <header className={styles.top} data-menu>
       <Link className={styles.wordmark} href="/" onClick={home}>
-        <Emblem size={56} />
+        <Emblem size={46} />
         <span className={styles.letters}>
           <span>Cosmic</span> <span>Atlas</span>
         </span>

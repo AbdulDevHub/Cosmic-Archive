@@ -131,25 +131,30 @@ export const ArrowIcon = () => (
 /** The wordmark's emblem: a small spiral galaxy of our own, in the start page's violet and blue. */
 export function Emblem({ size = 44 }: { size?: number }) {
   return (
-    <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden="true">
+    // D-199: the same mark as the browser tab's icon (src/app/icon.svg), without its tile
+    <svg viewBox="4 4 56 56" width={size} height={size} aria-hidden="true">
       <defs>
-        <radialGradient id="emblem-core" cx="50%" cy="50%" r="50%">
-          <stop offset="0" stopColor="#fff6e6" />
-          <stop offset="0.35" stopColor="#c9a8ff" />
-          <stop offset="1" stopColor="#6d5bff" stopOpacity="0" />
-        </radialGradient>
         <linearGradient id="emblem-arm" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#8fb6ff" />
-          <stop offset="1" stopColor="#b57bff" />
+          <stop offset="0" stopColor="#8ec5ff" />
+          <stop offset="0.55" stopColor="#a98bff" />
+          <stop offset="1" stopColor="#e08cff" />
         </linearGradient>
+        <radialGradient id="emblem-core" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stopColor="#fffaf0" />
+          <stop offset="0.3" stopColor="#ffd9a0" />
+          <stop offset="0.65" stopColor="#c79bff" stopOpacity="0.55" />
+          <stop offset="1" stopColor="#7a5cff" stopOpacity="0" />
+        </radialGradient>
       </defs>
-      <g transform="rotate(-28 24 24)" fill="none" stroke="url(#emblem-arm)" strokeLinecap="round">
-        <path d="M24 24c6-4 14-1 15 5s-6 11-14 10" strokeWidth="2.6" />
-        <path d="M24 24c-6 4-14 1-15-5s6-11 14-10" strokeWidth="2.6" />
-        <path d="M24 24c3-6 11-8 16-4" strokeWidth="1.2" opacity="0.7" />
-        <path d="M24 24c-3 6-11 8-16 4" strokeWidth="1.2" opacity="0.7" />
+      <g transform="rotate(-24 32 32)">
+        <g transform="translate(32 32) scale(1.12 0.82) translate(-32 -32)" fill="url(#emblem-arm)">
+          <path d="M31 33 C 36 19, 55 19, 57 33 C 58.5 44, 48 52, 36 50 C 46 46, 51 40, 49 33 C 47 25, 37 24, 31 33 Z" />
+          <path d="M33 31 C 28 45, 9 45, 7 31 C 5.5 20, 16 12, 28 14 C 18 18, 13 24, 15 31 C 17 39, 27 40, 33 31 Z" />
+        </g>
       </g>
-      <circle cx="24" cy="24" r="9" fill="url(#emblem-core)" />
+      <circle cx="32" cy="32" r="12" fill="url(#emblem-core)" />
+      <circle cx="32" cy="32" r="3.8" fill="#fffaf0" />
+      <circle cx="50" cy="15" r="1.6" fill="#dfe8ff" />
     </svg>
   );
 }

@@ -55,7 +55,8 @@ export const LAST_STOP = KEYS_DESK.length - 1;
  * `roll` turns the view about its axis so the galaxy rises to the upper right, its face opened
  * toward the ship coming from the lower left (D-109); it unwinds during the flight in.
  */
-export const START_DESK: Key & { roll: number } = { d: 4.3, el: 46, az: -0.35, sx: 0.34, sy: 0.12, roll: -0.42 };
+// D-199: closer (d 4.3 to 3.3), so the galaxy fills the upper right as the mockup's does
+export const START_DESK: Key & { roll: number } = { d: 3.3, el: 46, az: -0.35, sx: 0.3, sy: 0.15, roll: -0.42 };
 export const START_PHONE: Key & { roll: number } = { d: 9.5, el: 48, az: -0.35, sx: 0.0, sy: 0.34, roll: -0.3 };
 
 /** Phone compositions apply when the view is taller than 5:4 (the prototype's `phone()`). */
