@@ -184,12 +184,20 @@ export const SOURCES: readonly Source[] = [
     checked: "2026-11-22",
   },
   {
-    id: "nasa-asteroid-facts",
-    title: "Asteroid Facts",
-    publisher: "NASA Science",
-    url: "https://science.nasa.gov/solar-system/asteroids/facts/",
-    checked: "2026-11-22",
+    id: "nasa-neo-observations",
+    title: "Near-Earth Object Observations Program",
+    publisher: "NASA",
+    url: "https://www.nasa.gov/solar-system/near-earth-object-observations-program/",
+    checked: "2026-11-24",
   },
+  {
+    id: "nasa-meteor-crater",
+    title: "Arizona's Meteor Crater",
+    publisher: "NASA Earth Observatory",
+    url: "https://science.nasa.gov/earth/earth-observatory/arizonas-meteor-crater-148384/",
+    checked: "2026-11-24",
+  },
+
   {
     id: "nasa-habitable-zone",
     title: "The Habitable Zone",
@@ -810,9 +818,11 @@ export const PLACES: readonly Place[] = [
     // D-133: tumbling past the moon; since D-194 beside it, in the blue world's scene
     id: "asteroid",
     name: "An Asteroid",
-    // the source: Chicxulub, "causing the extinction of more than 70% of the living species on the planet, including the dinosaurs"
-    line: "One struck Earth and ended over 70% of its species, dinosaurs included.",
-    sources: ["nasa-asteroid-facts"],
+    // D-195, the owner's wording. The sources: Meteor Crater's asteroid was "likely in the range of 100 to 170 feet
+    // (30 to 50 meters) across", and "A similar-size impact event today could destroy a city the size of Kansas City";
+    // NASA calls 140 meters "larger than a small football stadium", so 30 to 50 meters is smaller than one
+    line: "One smaller than a football stadium could wipe out a whole city.",
+    sources: ["nasa-meteor-crater", "nasa-neo-observations"],
     anchor: "asteroid",
     stop: 1,
     inside: "blue-world",

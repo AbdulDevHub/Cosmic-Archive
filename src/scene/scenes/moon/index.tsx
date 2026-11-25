@@ -149,7 +149,8 @@ void main(){
 
 const CONFIG: OrbConfig = {
   fragment: FRAGMENT,
-  framing: (width, height) => Math.min(height * 0.25, width * 0.17),
+  // closer than the planet it circles (D-195): about three fifths of a laptop's height across
+  framing: (width, height) => Math.min(height * 0.3, width * 0.2),
   close: 1.45,
   arriveFrom: 0.3,
   detail: { low: 0, medium: 0, high: 1 },
