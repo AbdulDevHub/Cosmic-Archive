@@ -37,7 +37,7 @@ const POSTERS = [
   ]),
   // Open Graph images (O7, D-088): 1200x630 JPEG crops of the same frames, into public/og/.
   ...[
-    ["atlas", "/?shot=1&t=12&tier=high"],
+    // the home page's card (`og/atlas.jpg`) is drawn by scripts/social.mjs (D-207), not a bare still
     ["about", "/?shot=1&t=12&tier=high&zoom=2"],
     ["black-hole", "/black-hole?shot=1&t=12&tier=high"],
     ["nebula", "/nebula?shot=1&t=12&tier=high"],

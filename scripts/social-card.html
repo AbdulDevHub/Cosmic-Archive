@@ -1,5 +1,7 @@
 <!doctype html>
-<!-- The repo's share card (1280x640), rendered by scripts/social.mjs from the site's own scene stills. -->
+<!-- The share card, rendered by scripts/social.mjs from the site's own scene stills: the repo's (1280x640) and
+     the site's home Open Graph image (1200x630, D-207). It fills the window, so one layout serves both.
+     The Universe, the Multiverse and the Omniverse are kept off it: they are the surprises. -->
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -17,7 +19,7 @@
     --glass-edge: oklch(0.95 0.02 85 / 0.16);
   }
   * { box-sizing: border-box; margin: 0; }
-  html, body { width: 1280px; height: 640px; overflow: hidden; background: var(--space); }
+  html, body { width: 100vw; height: 100vh; overflow: hidden; background: var(--space); }
   body { position: relative; font-family: "Hanken Grotesk", system-ui, sans-serif; color: var(--ink); }
 
   .bg { position: absolute; inset: 0 0 0 330px; background: url("../public/posters/atlas-start-wide.webp") center / cover no-repeat; }
@@ -26,7 +28,10 @@
       linear-gradient(90deg, var(--space) 26%, oklch(0.13 0.04 275 / 0.82) 44%, oklch(0.13 0.04 275 / 0.1) 72%),
       linear-gradient(0deg, oklch(0.13 0.04 275 / 0.92) 0%, transparent 38%); }
 
-  .copy { position: absolute; left: 72px; top: 50px; width: 600px; }
+  .copy { position: absolute; left: 72px; top: 46px; width: 640px; }
+  .eyebrow { margin-top: 30px; font-family: "Google Sans Flex", sans-serif; font-size: 15px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: oklch(0.84 0.08 285); display: flex; align-items: center; gap: 14px; }
+  .eyebrow::before { content: ""; width: 34px; height: 1.5px; background: linear-gradient(90deg, transparent, oklch(0.78 0.12 240), oklch(0.72 0.17 298)); }
   .mark { display: flex; align-items: center; gap: 14px; font-family: "Google Sans Flex", sans-serif;
     font-size: 17px; letter-spacing: 0.42em; text-transform: uppercase; color: var(--ink-2); }
   .mark svg { width: 58px; height: 58px; filter: drop-shadow(0 0 8px oklch(0.68 0.2 310 / 0.55)); }
@@ -37,7 +42,7 @@
   .word i { font-style: normal; font-weight: 400; font-size: 11.5px; letter-spacing: 0.62em; color: oklch(0.86 0.06 275);
     display: flex; align-items: center; gap: 8px; }
   .word i::before, .word i::after { content: ""; flex: 1; height: 1px; background: oklch(0.8 0.13 290 / 0.8); }
-  h1 { margin-top: 28px; font-family: "Google Sans Flex", sans-serif; font-weight: 500; font-size: 84px;
+  h1 { margin-top: 14px; font-family: "Google Sans Flex", sans-serif; font-weight: 500; font-size: 84px;
     line-height: 0.98; letter-spacing: -0.03em; }
   h1 span { background: linear-gradient(90deg, var(--glow-blue), var(--glow-violet)); -webkit-background-clip: text;
     background-clip: text; color: transparent; }
@@ -48,6 +53,14 @@
     font-family: "Google Sans Flex", sans-serif; font-size: 16px; color: var(--ink); }
   .stats b { font-weight: 600; color: var(--beacon); margin-right: 5px; }
 
+  /* the 1200x630 Open Graph size: a little tighter so the stats clear the tiles */
+  @media (max-height: 635px) {
+    .copy { top: 38px; }
+    .eyebrow { margin-top: 22px; }
+    h1 { font-size: 76px; }
+    .lede { margin-top: 18px; font-size: 21px; }
+    .stats { margin-top: 18px; }
+  }
   .strip { position: absolute; left: 72px; right: 72px; bottom: 44px; display: flex; align-items: flex-end; gap: 14px; }
   .tile { width: 138px; }
   .tile i { display: block; height: 78px; border-radius: 12px; background-size: cover; background-position: center;
@@ -72,10 +85,11 @@
       </svg>
       <span class="word"><b>Cosmic</b><i>Atlas</i></span>
     </div>
-    <h1>The <span>Universe</span><br />to Look At</h1>
-    <p class="lede">Real-time scenes you click through, from a spiral galaxy out to the omniverse.</p>
+    <p class="eyebrow">Where Every Star Tells A Story</p>
+    <h1>The <span>Universe</span><br />Awaits</h1>
+    <p class="lede">Real-time scenes you fly through: black holes, nebulae, living worlds and wonders yet to be built.</p>
     <div class="stats">
-      <div><b>50</b>Places</div>
+      <div><b>52</b>Places</div>
       <div><b>6</b>Zoom Levels</div>
       <div>Drawn Live in WebGL</div>
     </div>
@@ -84,8 +98,8 @@
   <div class="strip">
     <div class="tile"><i style="background-image:url('../public/posters/black-hole-wide.webp')"></i><p>A Black Hole</p></div>
     <div class="tile"><i style="background-image:url('../public/posters/nebula-wide.webp')"></i><p>A Nebula</p></div>
+    <div class="tile"><i style="background-image:url('../public/posters/solar-system-wide.webp')"></i><p>A Solar System</p></div>
     <div class="tile"><i style="background-image:url('../public/posters/ringworld-wide.webp')"></i><p>A Ringworld</p></div>
-    <div class="tile"><i style="background-image:url('../public/posters/omniverse-wide.webp')"></i><p>The Omniverse</p></div>
     <div class="url"><p>Open Source · Next.js · Three.js</p><strong>the-cosmic-atlas.vercel.app</strong></div>
   </div>
 </body>
