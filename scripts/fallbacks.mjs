@@ -365,20 +365,20 @@ try {
     const atVoid = () => page.evaluate(() => document.querySelector("[data-void]") !== null);
     await page.keyboard.press("Enter");
     await page.waitForTimeout(300);
-    const web = (await atWeb()) && !(await atVoid()) && (await zoomOut.getAttribute("aria-disabled")) === "false";
+    const web = (await atWeb()) && !(await atVoid()) && (await zoomOut.isEnabled());
     await page.keyboard.press("Enter");
     await page.waitForTimeout(300);
-    const toVoid = web && (await atVoid()) && (await zoomOut.getAttribute("aria-disabled")) === "false";
+    const toVoid = web && (await atVoid()) && (await zoomOut.isEnabled());
     // once more out to the observable universe (D-130), then the Multiverse and the Omniverse (D-184), where it is dimmed
     const atUniverse = () => page.evaluate(() => document.querySelector("[data-universe]") !== null);
     const atMultiverse = () => page.evaluate(() => document.querySelector("[data-multiverse]") !== null);
     const atOmniverse = () => page.evaluate(() => document.querySelector("[data-omniverse]") !== null);
     await page.keyboard.press("Enter");
     await page.waitForTimeout(300);
-    const toUniverse = toVoid && (await atUniverse()) && (await zoomOut.getAttribute("aria-disabled")) === "false";
+    const toUniverse = toVoid && (await atUniverse()) && (await zoomOut.isEnabled());
     await page.keyboard.press("Enter");
     await page.waitForTimeout(300);
-    const toMultiverse = toUniverse && (await atMultiverse()) && (await zoomOut.getAttribute("aria-disabled")) === "false";
+    const toMultiverse = toUniverse && (await atMultiverse()) && (await zoomOut.isEnabled());
     await page.keyboard.press("Enter");
     await page.waitForTimeout(300);
     // past the Omniverse, Zoom Out opens the ending (D-185, D-187); Escape fades it out
