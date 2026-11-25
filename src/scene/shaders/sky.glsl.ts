@@ -48,9 +48,12 @@ float skyNoise(vec3 x){
     f.z);
 }
 
+// D-206: the octave count is a uniform (always 5), so the loop stays a loop: with a constant bound
+// Windows' shader compiler unrolled and inlined all seven sums, and took about 3 s over it
+uniform int uSkyOctaves;
 float skyFbm(vec3 p){
   float sum = 0.0, weight = 0.5;
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < uSkyOctaves; i++) {
     sum += weight * skyNoise(p);
     p = p * 2.03 + vec3(1.7, 9.2, 3.1);
     weight *= 0.5;

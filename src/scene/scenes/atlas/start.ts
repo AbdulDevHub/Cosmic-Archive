@@ -75,12 +75,19 @@ float n3(vec3 x){
   return mix(mix(mix(h3(i), h3(i + vec3(1,0,0)), f.x), mix(h3(i + vec3(0,1,0)), h3(i + vec3(1,1,0)), f.x), f.y),
              mix(mix(h3(i + vec3(0,0,1)), h3(i + vec3(1,0,1)), f.x), mix(h3(i + vec3(0,1,1)), h3(i + vec3(1,1,1)), f.x), f.y), f.z);
 }
-float fbm3(vec3 p){ float s = 0.0, w = 0.5; for (int i = 0; i < 5; i++){ s += w * n3(p); p = p * 2.07 + 1.7; w *= 0.5; } return s / 0.96875; }
+// D-206: the octave count is a uniform (always 5) so the loop is not unrolled into a huge program (see BODY_FRAGMENT)
+uniform int uOctaves;
+float fbm3(vec3 p){ float s = 0.0, w = 0.5; for (int i = 0; i < uOctaves; i++){ s += w * n3(p); p = p * 2.07 + 1.7; w *= 0.5; } return s / 0.96875; }
 `;
 
-/* kind 0 the planet, 1 a moon, 2 a rock, 3 the ship (aPart and aLit: see ships.ts) */
+/*
+  KIND 0 the planet, 1 a moon, 2 a rock, 3 the ship (aPart and aLit: see ships.ts), 4 the great rock.
+  D-206: each kind is its own program, picked by the preprocessor, not one program branching on a
+  uniform. As one program it held some twenty noise sums, and Windows' shader compiler (Chrome's
+  ANGLE on Direct3D) took about 18 s over it, twice (plain and instanced), with the page frozen on
+  a first visit until Chrome had cached the result.
+*/
 const BODY_FRAGMENT = /* glsl */ `
-uniform int uKind;
 uniform vec3 uLight;
 uniform float uTime;
 uniform float uAlpha;
@@ -101,7 +108,8 @@ void main(){
   // the galaxy's coloured light fills the shadows a little: violet from below, azure from the side
   vec3 fill = mix(vec3(0.22, 0.12, 0.42), vec3(0.12, 0.22, 0.48), n.x * 0.5 + 0.5) * 0.18;
   vec3 col;
-  if (uKind == 0) {
+#if KIND == 0
+  {
     // D-205: an ocean world under cloud, as in the owner's start-page-mockup.png: no land, no city
     // lights. Deep navy sea, banded cloud lit warm by the galaxy along the horizon and cooling to
     // blue-white deeper in, and a bright line of air. Only a thin cap of so huge a planet shows,
@@ -135,13 +143,17 @@ void main(){
     col = mix(col, vec3(0.35, 0.65, 1.0) * 0.7, haze * 0.4);
     col += vec3(0.5, 0.78, 1.0) * limb * 1.6;
     col += vec3(1.0, 0.6, 0.35) * haze * cloud * 0.25;
-  } else if (uKind == 1) {
+  }
+#elif KIND == 1
+  {
     vec3 p = normalize(vO);
     float rock = fbm3(p * 4.0);
     float crater = smoothstep(0.62, 0.7, fbm3(p * 9.0 + 4.0));
     vec3 grey = mix(vec3(0.32, 0.31, 0.34), vec3(0.6, 0.58, 0.6), rock) * (1.0 - crater * 0.35);
     col = grey * (0.04 + 1.0 * diff) + fill + vec3(0.5, 0.6, 1.0) * fres * wrap * 0.35;
-  } else if (uKind == 4) {
+  }
+#elif KIND == 4
+  {
     // D-200: the great rock in the corner: craggy, pitted, warm brown, its upper edges lit by the
     // galaxy and rimmed in its violet-blue glow
     float grain = fbm3(vO * 3.0);
@@ -157,11 +169,15 @@ void main(){
     float rim = pow(1.0 - max(dot(n, v), 0.0), 3.0);
     col = stone * (0.05 + 1.25 * pow(lit, 1.8)) + fill * 0.6;
     col += mix(vec3(1.0, 0.72, 0.5), vec3(0.6, 0.7, 1.0), 0.5) * rim * (0.3 + 0.9 * clamp(dot(n, Lc) * 0.5 + 0.5, 0.0, 1.0)) * 0.6;
-  } else if (uKind == 2) {
+  }
+#elif KIND == 2
+  {
     float grain = fbm3(vO * 5.0);
     vec3 stone = mix(vec3(0.18, 0.14, 0.12), vec3(0.42, 0.33, 0.27), grain);
     col = stone * (0.05 + 1.1 * diff) + fill * 0.8 + vec3(1.0, 0.7, 0.45) * pow(1.0 - max(dot(n, v), 0.0), 4.0) * wrap * 0.35;
-  } else {
+  }
+#else
+  {
     // the fleet (D-120): ids in ships.ts
     float id = floor(vPart + 0.5);
     if (id == 5.0 || id == 6.0 || id == 13.0) {
@@ -217,6 +233,7 @@ void main(){
       }
     }
   }
+#endif
   gl_FragColor = vec4(col, uAlpha);
 }
 `;
@@ -377,7 +394,8 @@ export class StartProps {
       const material = new ShaderMaterial({
         vertexShader: BODY_VERTEX,
         fragmentShader: BODY_FRAGMENT,
-        uniforms: { uKind: { value: kind }, uLight: { value: LIGHT }, uTime: { value: 0 }, uAlpha: { value: 1 } },
+        defines: { KIND: kind },
+        uniforms: { uLight: { value: LIGHT }, uTime: { value: 0 }, uAlpha: { value: 1 }, uOctaves: { value: 5 } },
         transparent: true,
         depthTest: true,
         depthWrite: true,

@@ -36,7 +36,7 @@ export function bakeSky(renderer: WebGLRenderer, core: Vector3 = new Vector3(0, 
   const material = new ShaderMaterial({
     vertexShader: VERTEX,
     fragmentShader: FRAGMENT,
-    uniforms: { uCore: { value: core.clone().normalize() }, uCoreAmount: { value: coreAmount } },
+    uniforms: { uCore: { value: core.clone().normalize() }, uCoreAmount: { value: coreAmount }, uSkyOctaves: { value: 5 } },
     side: BackSide,
     depthTest: false,
     depthWrite: false,

@@ -603,6 +603,9 @@ export class AtlasWorld {
   private readonly drifted: Vector4[] = [];
   /** Scene time the visitor came out to the supervoid, or null while they are not there. */
   private voidSince: number | null = null;
+  /** D-206: the galaxy's own clock, held while the start page is up (it does not turn there) and running on from where it stopped. */
+  private galaxyT = 0;
+  private lastT: number | null = null;
   /** The universe's turn with the drag (D-131) and where its supervoid falls on screen (x, y, facing). */
   private readonly spinEuler = new Euler();
   private readonly spinM4 = new Matrix4();
@@ -780,7 +783,11 @@ export class AtlasWorld {
   /** One frame at scene time `t` and the camera at `view`; the fade ranges are the prototype's `frame()`. */
   frame(camera: PerspectiveCamera, t: number, view: SceneInput, width: number, height: number, out: SceneFrame): void {
     const zoom = view.zoom;
-    const focus = view.focus && view.dive > 0 ? this.anchorAt(view.focus, t, this.focus) : null;
+    const step = this.lastT === null ? 0 : Math.max(0, t - this.lastT);
+    this.lastT = t;
+    this.galaxyT += step * (1 - sstep(0, 1, view.intro));
+    const gt = this.galaxyT;
+    const focus = view.focus && view.dive > 0 ? this.anchorAt(view.focus, gt, this.focus) : null;
     placeCamera(camera, zoom, width, height, view.yaw, view.pitch, focus, view.dive, view.intro);
     this.start.frame(camera, t, view.intro);
 
@@ -790,7 +797,7 @@ export class AtlasWorld {
     (sky.uInvProj.value as Matrix4).copy(camera.projectionMatrixInverse);
     (sky.uCamRot.value as Matrix3).setFromMatrix4(camera.matrixWorld);
     sky.uRich.value = mix(1, 0.45, far);
-    for (const layer of this.layers) layer.time = t;
+    for (const layer of this.layers) layer.time = gt;
     this.stars.alpha = mix(1, 0.12, far);
     this.wash.alpha = 0.05 * (1 - far);
     const glow = near * this.glowGain;
@@ -828,7 +835,7 @@ export class AtlasWorld {
     this.frameUniverse(camera, t, view, width, height, sstep(3.0, 3.35, zoom));
     this.frameBeyond(t, view, sstep(4.35, 4.5, zoom), sstep(5.05, 5.75, zoom));
 
-    this.report(camera, t, zoom, width, height, out);
+    this.report(camera, gt, zoom, width, height, out);
   }
 
   /** The supervoid's foam, pinned to our web's place on screen and scaled by the camera's distance. */

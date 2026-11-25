@@ -178,6 +178,7 @@ The governor walks a ladder of five rungs built from these tiers (D-038): `high`
 - The loop runs only while a slot is mounted, on screen, the tab is visible, and motion is not paused.
 - Per scene: fewer than 30 draw calls, no shadows, no real-time lights (all materials are unlit custom shaders), no texture downloads.
 - Particle attributes are built once on a tier change, never per frame. Animation happens in the vertex shader from the time uniform.
+- **Shader compile time (D-206):** on Windows, Chrome translates every shader to Direct3D and compiles it with the page frozen, and only caches the result on disk afterwards, so a first visit pays it all. Keep each program to what it draws: pick variants with `defines` and `#if`, never one program branching on a uniform, and give noise sums a loop bound from a uniform (`uOctaves`) so the compiler keeps a loop instead of unrolling it. The start page's props once took about 37 s this way; split and with uniform loop bounds they take under 2.
 
 ### 3.9 Bundle budgets
 
