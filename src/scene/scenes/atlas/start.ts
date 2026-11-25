@@ -110,24 +110,24 @@ void main(){
     vec3 p = normalize(vO);
     vec3 nf = n;
     float g = clamp(dot(nf, v) / 0.55, 0.0, 1.0);
-    float ndlp = 0.46 - g * 0.8;                  // the light comes from beyond the horizon (D-200: more of it lit)
+    float ndlp = 0.74 - g * 0.86;                 // the light comes from beyond the horizon (D-204: most of the cap in daylight, night only deep in)
     vec3 w = vec3(fbm3(p * 6.0 + 3.0), fbm3(p * 6.0 + 9.0), fbm3(p * 6.0 + 15.0)) - 0.5;
     float h = fbm3(p * 9.0 + w * 1.6 + 1.3) + 0.12 * (fbm3(p * 40.0 + w * 3.0) - 0.5) + 0.05 * (n3(p * 140.0) - 0.5);
     float land = smoothstep(0.545, 0.556, h);
     float shelf = smoothstep(0.5, 0.545, h) * (1.0 - land);
-    vec3 ocean = mix(vec3(0.008, 0.03, 0.09), vec3(0.03, 0.11, 0.28), smoothstep(0.3, 0.54, h));
+    vec3 ocean = mix(vec3(0.02, 0.07, 0.18), vec3(0.06, 0.2, 0.42), smoothstep(0.3, 0.54, h)); // D-204: brighter seas
     ocean = mix(ocean, vec3(0.05, 0.26, 0.4), shelf * 0.55);
     float detail = fbm3(p * 60.0);
-    vec3 ground = mix(vec3(0.08, 0.17, 0.07), vec3(0.4, 0.33, 0.21), smoothstep(0.35, 0.75, detail + 0.3 * (h - 0.6)));
+    vec3 ground = mix(vec3(0.12, 0.25, 0.1), vec3(0.5, 0.42, 0.27), smoothstep(0.35, 0.75, detail + 0.3 * (h - 0.6)));
     vec3 surface = mix(ocean, ground, land);
     vec3 cp = p + vec3(uTime * 0.0008, 0.0, 0.0);
     vec3 cw = vec3(fbm3(cp * 7.0 + 21.0), fbm3(cp * 7.0 + 31.0), 0.0) - 0.5;
     float cloud = smoothstep(0.55, 0.8, fbm3(cp * 13.0 + cw * 2.2 + 40.0));
     cloud = clamp(cloud + smoothstep(0.62, 0.86, fbm3(cp * 45.0 + cw * 3.0 + 50.0)) * 0.5 * (1.0 - cloud), 0.0, 1.0);
     float day = smoothstep(-0.06, 0.3, ndlp);
-    vec3 dayCol = mix(surface, vec3(0.9, 0.93, 0.98), cloud * 0.9) * (0.04 + 1.05 * day);
+    vec3 dayCol = mix(surface, vec3(0.9, 0.93, 0.98), cloud * 0.9) * (0.06 + 1.2 * day);
     // D-200: the night side is not black: the galaxy's violet-blue light shows its clouds, seas and coasts
-    dayCol += mix(surface * 2.2, vec3(0.42, 0.45, 0.62), cloud * 0.8) * vec3(0.55, 0.6, 1.0) * 0.22 * (1.0 - day);
+    dayCol += mix(surface * 2.2, vec3(0.42, 0.45, 0.62), cloud * 0.8) * vec3(0.55, 0.6, 1.0) * 0.38 * (1.0 - day); // D-204: lighter (was 0.22)
     // the sunset band along the terminator, strongest on the clouds
     float twilight = exp(-pow((ndlp - 0.0) / 0.13, 2.0));
     dayCol += vec3(1.0, 0.46, 0.18) * twilight * (0.15 + 0.9 * cloud) * 0.85;
