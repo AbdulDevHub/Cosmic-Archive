@@ -66,7 +66,7 @@ npm run dev
 
 ## Deploying
 
-The site is a Vercel project (`vercel deploy --prod`; `.vercelignore` keeps the docs and screenshots out of the upload). Canonical links, Open Graph tags, the sitemap and robots.txt use `NEXT_PUBLIC_SITE_URL` when it is set, and otherwise the Vercel project's production domain; a build anywhere else points them at a placeholder on `cosmic-atlas.example`.
+The site is a Vercel project: a push to `main` deploys it, or run `vercel deploy --prod` (`.vercelignore` keeps the docs and screenshots out of the upload). Before each build, `scripts/fetch-music.mjs` fetches the private music submodule when `MUSIC_REPO_TOKEN` is set in Vercel; without it the site plays its noise bed. Canonical links, Open Graph tags, the sitemap and robots.txt use `NEXT_PUBLIC_SITE_URL` when it is set, and otherwise the Vercel project's production domain; a build anywhere else points them at a placeholder on `cosmic-atlas.example`.
 
 All imagery is original illustration. Nothing here is a telescope photograph.
 

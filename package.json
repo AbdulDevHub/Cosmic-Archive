@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/fetch-music.mjs",
     "build": "next build",
     "start": "next start",
     "check": "next typegen && tsc --noEmit && eslint . && node scripts/check-content.mjs",

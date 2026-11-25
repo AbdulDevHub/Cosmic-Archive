@@ -14,7 +14,7 @@ Next.js 16 (App Router, static pages plus one route, `/api/music/`), React 19, T
 ## Commands
 
 - `npm install`, then `npm run dev` (http://localhost:3000).
-- The owner's music is the private submodule `src/private-assets/` (D-183; moved out of the root in D-207): clone with `--recurse-submodules`, or run `git submodule update --init`. Without access the site still runs; Music mode just plays the noise bed. Deploy with the Vercel CLI from a checkout that has it, with `MUSIC_KEY` set in Vercel.
+- The owner's music is the private submodule `src/private-assets/` (D-183; moved out of the root in D-207): clone with `--recurse-submodules`, or run `git submodule update --init`. Without access the site still runs; Music mode just plays the noise bed. A push to `main` deploys with the music: `npm run build`'s `prebuild` (`scripts/fetch-music.mjs`, D-211) fetches the submodule's pinned commit when `MUSIC_REPO_TOKEN` is set in Vercel (it does nothing when the music is already there, and the build fails if the token is set but the fetch does not work). `MUSIC_KEY` must be set in Vercel too.
 - Run `npm run shots`, `npm run a11y`, `npm run fallbacks` and `npm run posters` one at a time, with no server or build running: the machine runs short of memory.
 - In a cloud container whose Chromium does not match the pinned Playwright, set `PW_CHROMIUM` to the browser on the machine (e.g. `/opt/pw-browsers/chromium`) (D-151).
 
