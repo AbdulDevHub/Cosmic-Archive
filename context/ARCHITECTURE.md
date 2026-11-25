@@ -98,7 +98,7 @@ src/
 | `/black-hole` | `black-hole` | `place` |
 | `/nebula` | `nebula` | `place` |
 | `/quasar` | `quasar` (the black-hole shader seen from far off) | `place` |
-| `/solar-system` | `solar-system`: holds `/star` and `/blue-world`, which holds `/moon`, which holds `/asteroid` (D-132, D-133) | `place` |
+| `/solar-system` | `solar-system`: holds `/star` and `/blue-world`, which holds `/moon` and `/asteroid` (D-132, D-133, D-194) | `place` |
 | `/quasar-galaxy` | `quasar-galaxy`: found at the web and through `/wormhole`; holds `/quasar`, `/dyson-sphere`, `/starbase` and the nine megastructures (D-133, D-152, D-164) | `place` |
 | `/starbase` | `starbase`: a ray-marched wheel station whose nine bays lead to the Starbase's ideas (`/warp-drive`, `/programmable-matter`, `/higher-dimensions`, `/pocket-dimensions` (its bulb leads into `/pocket-universe`, D-192), `/bubble-universes`, `/vacuum-decay`, `/quantum-foam`, `/cosmic-strings`, and `/human-cell`, the start of the chain down to `/dna`, `/carbon-atom`, `/carbon-nucleus`, `/quarks` and `/string-theory`, D-190) | `place` |
 

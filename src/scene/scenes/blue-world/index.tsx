@@ -1,6 +1,6 @@
 /**
  * A Blue World (D-128, D-132: once Earth, now an Earthlike world of our own solar system, with its
- * moon hanging beside it, a hotspot): our own illustration of a blue planet, close up, after the start page's planet
+ * moon hanging beside it, a hotspot, and an asteroid tumbling past on the other side, another, D-194): our own illustration of a blue planet, close up, after the start page's planet
  * (`atlas/start.ts`) but much finer. Deep blue oceans with the Sun's glint on them, continents in
  * greens and tans under white polar ice, two layers of drifting cloud casting faint shadows, the
  * night side's cities in warm points of light, and a thin bright line of atmosphere along the
@@ -65,6 +65,22 @@ void main(){
     float mlit = max(dot(mn, L), 0.0);
     vec3 mcol = rock * (0.015 + 1.05 * pow(mlit, 0.85));
     col = mix(col, mcol, smoothstep(1.0, 0.97, mr));
+  }
+
+  // ---- an asteroid tumbling past, upper left (D-133, here since D-194): a lumpy dark rock, lit by the same sun ----
+  vec2 au = (u - uMark[1].xy) / 0.06;
+  float aa = atan(au.y, au.x);
+  float ar = length(au);
+  float lump = 1.0 + 0.22 * (noise3(vec3(cos(aa), sin(aa), t * 0.05) * 1.6) - 0.5) + 0.08 * (noise3(vec3(cos(aa), sin(aa), 3.0) * 5.0) - 0.5);
+  if (ar < lump) {
+    vec2 an = au / lump;
+    vec3 n3 = vec3(an, sqrt(max(1.0 - dot(an, an), 0.0)));
+    vec3 ap = turnY(t * 0.3) * turnX(t * 0.17) * n3;
+    n3 = normalize(n3 + 0.35 * (vec3(noise3(ap * 5.0), noise3(ap * 5.0 + 7.0), noise3(ap * 5.0 + 13.0)) - 0.5));
+    float pit = smoothstep(0.62, 0.8, noise3(ap * 8.0));
+    vec3 rock = vec3(0.42, 0.38, 0.34) * (0.75 + 0.4 * noise3(ap * 14.0)) * (1.0 - 0.4 * pit);
+    vec3 shade = rock * (0.02 + 1.2 * max(dot(n3, L), 0.0));
+    col = mix(col, shade, smoothstep(lump, lump - 0.06, ar));
   }
 
   if (r < 1.0) {
@@ -168,8 +184,12 @@ const CONFIG: OrbConfig = {
   fragment: FRAGMENT,
   // at its framing a whole globe; all the way in it fills most of the window
   framing: (width, height) => Math.min(height * 0.25, width * 0.17),
-  // its moon (D-132), drifting slowly on a short arc; a hotspot that dives into the Moon's page
-  bodies: (t) => [{ name: "moon", x: 1.55 + 0.05 * Math.sin(t * 0.03), y: 0.62 + 0.04 * Math.cos(t * 0.03), z: -0.4 }],
+  // its moon (D-132), drifting slowly on a short arc, and an asteroid tumbling past on the other side
+  // (D-194); each a hotspot that dives into its page
+  bodies: (t) => [
+    { name: "moon", x: 1.55 + 0.05 * Math.sin(t * 0.03), y: 0.62 + 0.04 * Math.cos(t * 0.03), z: -0.4 },
+    { name: "asteroid", x: -1.55 + 0.05 * Math.sin(t * 0.02), y: 0.7 + 0.04 * Math.cos(t * 0.025), z: 0.3 },
+  ],
   diveScale: 8,
   close: 1.45,
   arriveFrom: 0.3,

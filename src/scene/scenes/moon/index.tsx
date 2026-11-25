@@ -1,6 +1,6 @@
 /**
- * Its Moon (D-129; the Blue World's moon since D-132, with an asteroid tumbling past it, a hotspot,
- * D-133): our own illustration of a moon, grey and pitted, lit hard from one side
+ * Its Moon (D-129; the Blue World's moon since D-132; the asteroid that tumbled past it moved out
+ * beside it in D-194): our own illustration of a moon, grey and pitted, lit hard from one side
  * with no air to soften it. Dark maria lie across the bright, rugged highlands; craters of every
  * size crowd the surface, each with a shadowed floor, a lit far wall and a raised rim, a few young
  * ones throwing pale rays; the terminator is sharp, and the night side is all but black. One draw
@@ -105,22 +105,6 @@ void main(){
 
   vec3 col = sky(css);
 
-  // ---- an asteroid tumbling past (D-133): a lumpy dark rock, lit from the same side ----
-  vec2 au = (u - uMark[0].xy) / 0.085;
-  float aa = atan(au.y, au.x);
-  float ar = length(au);
-  float lump = 1.0 + 0.22 * (noise3(vec3(cos(aa), sin(aa), t * 0.05) * 1.6) - 0.5) + 0.08 * (noise3(vec3(cos(aa), sin(aa), 3.0) * 5.0) - 0.5);
-  if (ar < lump) {
-    vec2 an = au / lump;
-    vec3 n3 = vec3(an, sqrt(max(1.0 - dot(an, an), 0.0)));
-    vec3 ap = turnY(t * 0.3) * turnX(t * 0.17) * n3;
-    n3 = normalize(n3 + 0.35 * (vec3(noise3(ap * 5.0), noise3(ap * 5.0 + 7.0), noise3(ap * 5.0 + 13.0)) - 0.5));
-    float pit = smoothstep(0.62, 0.8, noise3(ap * 8.0));
-    vec3 rock = vec3(0.42, 0.38, 0.34) * (0.75 + 0.4 * noise3(ap * 14.0)) * (1.0 - 0.4 * pit);
-    vec3 shade = rock * (0.02 + 1.2 * max(dot(n3, L), 0.0));
-    col = mix(col, shade, smoothstep(lump, lump - 0.06, ar));
-  }
-
   if (r < 1.0) {
     vec3 n = vec3(u, sqrt(1.0 - r * r));
     mat3 back = transpose(view);
@@ -169,9 +153,6 @@ const CONFIG: OrbConfig = {
   close: 1.45,
   arriveFrom: 0.3,
   detail: { low: 0, medium: 0, high: 1 },
-  // an asteroid tumbling past, upper left (D-133): a hotspot that dives into the Asteroid's page
-  bodies: (t) => [{ name: "asteroid", x: -1.6 + 0.06 * Math.sin(t * 0.02), y: 0.72 + 0.04 * Math.cos(t * 0.025), z: 0.3 }],
-  diveScale: 9,
 };
 
 export default function MoonScene(props: SceneProps) {

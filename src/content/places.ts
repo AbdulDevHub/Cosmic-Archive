@@ -807,7 +807,7 @@ export const PLACES: readonly Place[] = [
     video: "lheapd7bgLA",
   },
   {
-    // D-133: inside the moon's scene, tumbling past it
+    // D-133: tumbling past the moon; since D-194 beside it, in the blue world's scene
     id: "asteroid",
     name: "An Asteroid",
     // the source: Chicxulub, "causing the extinction of more than 70% of the living species on the planet, including the dinosaurs"
@@ -815,7 +815,7 @@ export const PLACES: readonly Place[] = [
     sources: ["nasa-asteroid-facts"],
     anchor: "asteroid",
     stop: 1,
-    inside: "moon",
+    inside: "blue-world",
     veil: "#0a0908",
     video: "dKm7T13X7n4",
   },
