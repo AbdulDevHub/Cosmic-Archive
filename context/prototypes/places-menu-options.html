@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Places Menu: Three Options</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --ink: oklch(0.96 0.01 270); --ink-2: oklch(0.8 0.03 275); --label: oklch(0.78 0.1 285); }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #090a1c; color: var(--ink); font-family: "Google Sans Flex", system-ui, sans-serif; }
+  h1 { font: 500 28px/1.2 "Google Sans Flex", system-ui; margin: 32px 40px 4px; }
+  .intro { margin: 0 40px 24px; max-width: 900px; color: var(--ink-2); font-size: 15px; line-height: 1.45; }
+  section { position: relative; height: 700px; margin: 0 0 40px; background: url(../../public/posters/atlas-wide.webp) center/cover; overflow: hidden; }
+  section > h2 { position: absolute; left: 40px; bottom: 28px; margin: 0; font: 500 30px/1.1 "Google Sans Flex"; text-shadow: 0 0 18px #000; }
+  section > p.note { position: absolute; left: 40px; bottom: 70px; margin: 0; max-width: 560px; color: var(--ink-2); font-size: 15px; text-shadow: 0 0 12px #000; }
+  .panel { position: absolute; top: 40px; left: 50%; translate: -50% 0; padding: 14px; border-radius: 20px;
+    background: oklch(0.16 0.05 280 / 0.9); border: 1px solid oklch(0.85 0.04 280 / 0.28);
+    backdrop-filter: blur(18px); box-shadow: 0 0 34px oklch(0.5 0.18 285 / 0.28); }
+  .tile { padding: 12px 14px; border-radius: 14px; background: oklch(0.24 0.06 282 / 0.5); border: 1px solid oklch(0.85 0.04 280 / 0.1); }
+  .label { margin: 0 0 6px; font: 500 11px/1.2 "Google Sans Flex"; letter-spacing: 0.14em; text-transform: uppercase; color: var(--label); }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; column-gap: 18px; }
+  li { font: 400 14px/1.25 "Google Sans Flex"; padding: 6px 10px; margin: 0 -10px; border-radius: 10px; white-space: nowrap; cursor: pointer; }
+  li:hover { background: oklch(0.6 0.12 285 / 0.22); }
+  .c2 { grid-template-columns: repeat(2, max-content); }
+  .c3 { grid-template-columns: repeat(3, max-content); }
+
+  /* A: three columns of eight rows, the Solar System as a strip along the foot */
+  .a { display: grid; grid-template-columns: repeat(3, max-content); gap: 12px; }
+  .a .stack { display: grid; gap: 12px; align-content: start; }
+  .a .strip { grid-column: 1 / -1; display: flex; align-items: center; gap: 22px; }
+  .a .strip .label { margin: 0; flex: none; }
+  .a .strip ul { display: flex; gap: 22px; }
+
+  /* B: two rows of tiles, sized to fit their places */
+  .b { display: grid; gap: 12px; }
+  .b .row { display: flex; gap: 12px; }
+  .b .row > .tile { flex: 1 1 auto; }
+
+  /* C: a list of regions on the left, the one under the pointer shown on the right */
+  .c { display: grid; grid-template-columns: 220px 1fr; gap: 12px; width: 800px; min-height: 290px; }
+  .c .rail { display: grid; align-content: start; gap: 2px; padding: 6px; }
+  .c .rail button { all: unset; display: flex; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 10px; font: 400 14.5px/1.2 "Google Sans Flex"; color: var(--ink-2); cursor: pointer; }
+  .c .rail button span { color: oklch(0.7 0.05 280); font-size: 12px; }
+  .c .rail button[aria-selected="true"] { background: oklch(0.6 0.12 285 / 0.24); color: #fff; }
+  .c .view { padding: 14px 16px; }
+</style></head>
+<body>
+<h1>Places Menu: Three Options</h1>
+<p class="intro">A test page only, not on the site (D-215: option B was chosen; option C is kept for when the places outgrow it). Each option uses the real places. In all three, The Cosmic Web now holds A Quasar Galaxy and everything in it, since they are all found out at the web, so no tile has just one place. Hover the names to see the hover state; in option C, hover a region on the left.</p>
+
+<section>
+  <div class="panel a">
+    <div class="stack"><div class="tile"><p class="label">A Spiral Galaxy</p><ul class="c2" data-g="spiral"></ul></div></div>
+    <div class="stack"><div class="tile"><p class="label">The Cosmic Web</p><ul class="c2" data-g="web"></ul></div></div>
+    <div class="stack"><div class="tile"><p class="label">The Starbase</p><ul class="c2" data-g="starbase"></ul></div><div class="tile"><p class="label">A Human Cell</p><ul class="c2" data-g="cell"></ul></div></div>
+    <div class="tile strip"><p class="label">A Solar System</p><ul data-g="solar"></ul></div>
+  </div>
+  <p class="note">Three even columns of eight rows. The Solar System, with seven places, runs as one strip along the bottom.</p>
+  <h2>Option A: Three Columns and a Strip</h2>
+</section>
+
+<section>
+  <div class="panel b">
+    <div class="row">
+      <div class="tile"><p class="label">A Spiral Galaxy</p><ul class="c3" data-g="spiral"></ul></div>
+      <div class="tile"><p class="label">The Cosmic Web</p><ul class="c3" data-g="web"></ul></div>
+    </div>
+    <div class="row">
+      <div class="tile"><p class="label">A Solar System</p><ul class="c2" data-g="solar"></ul></div>
+      <div class="tile"><p class="label">The Starbase</p><ul class="c3" data-g="starbase"></ul></div>
+      <div class="tile"><p class="label">A Human Cell</p><ul class="c2" data-g="cell"></ul></div>
+    </div>
+  </div>
+  <p class="note">A bento of two rows. The two big regions sit on top in three columns each, and the three smaller ones share the row below.</p>
+  <h2>Option B: Two Rows of Tiles</h2>
+</section>
+
+<section>
+  <div class="panel c">
+    <div class="tile rail" role="tablist"></div>
+    <div class="tile view"><p class="label" id="c-label"></p><ul class="c3" id="c-list"></ul></div>
+  </div>
+  <p class="note">The smallest panel. Regions on the left with how many places each holds; the places of the one under the pointer show on the right.</p>
+  <h2>Option C: Regions and Places</h2>
+</section>
+
+<script>
+const G = {
+  spiral: ["Black Hole","Nebula","Neutron Star","Strange Star","Wormhole","Gravastar","A Supernova Remnant","A Magnetar","A Black Hole Merger","A Molecular Cloud","A Red Giant","A Planetary Nebula","A White Dwarf","Quasi-Star","Its Black Hole"],
+  solar: ["A Solar System","Yellow Star","A Comet","A Ringed Giant","A Blue World","Its Moon","An Asteroid"],
+  web: ["The Dark Matter Web","A Quasar Galaxy","Quasar","Dyson Sphere","Dyson Swarm","Ringworld","O’Neill Cylinder","Matrioshka Brain","Generation Ship","Stellar Engine","Von Neumann Probes","Space Elevator","Star Lifter","The Last Civilization"],
+  starbase: ["The Starbase","Warp Drive","Programmable Matter","Higher Dimensions","Quantum Foam","Vacuum Decay","Bubble Universes","Pocket Dimensions","Cosmic Strings","The Pocket Universe"],
+  cell: ["A Human Cell","DNA","A Carbon Atom","Its Nucleus","Quarks","String Theory"],
+};
+const NAMES = { spiral: "A Spiral Galaxy", solar: "A Solar System", web: "The Cosmic Web", starbase: "The Starbase", cell: "A Human Cell" };
+const fill = (ul, key) => { ul.innerHTML = G[key].map((n) => "<li>" + n + "</li>").join(""); };
+document.querySelectorAll("ul[data-g]").forEach((ul) => fill(ul, ul.dataset.g));
+const rail = document.querySelector(".c .rail");
+const show = (key) => {
+  document.getElementById("c-label").textContent = NAMES[key];
+  fill(document.getElementById("c-list"), key);
+  rail.querySelectorAll("button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.k === key)));
+};
+rail.innerHTML = Object.keys(NAMES).map((k) => '<button role="tab" data-k="' + k + '">' + NAMES[k] + "<span>" + G[k].length + "</span></button>").join("");
+rail.querySelectorAll("button").forEach((b) => { b.addEventListener("mouseenter", () => show(b.dataset.k)); b.addEventListener("focus", () => show(b.dataset.k)); });
+show("spiral");
+</script>
+</body></html>

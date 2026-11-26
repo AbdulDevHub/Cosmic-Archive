@@ -34,6 +34,7 @@ Dropped on 2026-11-22 or never picked. Revive them only with the owner.
 - **Engineering:** worldships, artificial habitats, shape-changing robots and modular matter (these may fold into Programmable Matter).
 - **Other flights from the vision docs:** galaxy to cosmic web, light to the observable universe, ordinary matter to dark matter, a stellar explosion to the elements it scatters.
 - **Interface ideas:** a tiny ship in every scene for scale, a hypothetical tag, share images per place, a suggestion or error form, photo mode, auroras on the Blue World.
+- **A Places menu for many more places (kept 2026-11-25, D-215):** a rail of regions with a count each, and the places of the one under the pointer beside it. Option C in `context/prototypes/places-menu-options.html` (open it in a browser); the tiled menu (option B) is used until the places outgrow it.
 - **Clashes with the spectacle direction (D-092):** subject pages, expandable depth, an archive with filters, About and method pages, evidence labels, telescope imagery, a scrolling homepage.
 
 ## Notes Kept From the Vision Docs
