@@ -82,7 +82,9 @@ void main(){
   vec2 q = css - uCentre;
   q.y = -q.y;
   float t = uTime;
-  vec2 u = q / uScale + vec2(-uYaw, uPitch) * 0.45 + vec2(t * 0.004, 0.0);
+  // a slow sway, never a drift: the clock runs for the whole visit, and a steady pan had carried the
+  // clumps off the screen by the time a visitor got here
+  vec2 u = q / uScale + vec2(-uYaw, uPitch) * 0.45 + vec2(0.03 * sin(t * 0.05), 0.0);
 
   // ---- the far galaxies, their light bent round each unseen clump ----
   vec2 src = u;
