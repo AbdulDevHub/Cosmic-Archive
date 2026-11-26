@@ -86,6 +86,9 @@ export const sceneIsLive = (s: SceneState): boolean =>
 
 // ---- for pages, through <SceneSlot> ----
 
+/** The token of the mounted scene once it has drawn its first frame (it may since serve other slots). */
+let drawn: number | null = null;
+
 export function requestScene(id: SceneId, mode: SceneMode, wanted: Partial<SceneInput> = {}): number {
   clearTimeout(unmountTimer);
   const slot = { token: nextToken++, id, mode };
@@ -95,6 +98,14 @@ export function requestScene(id: SceneId, mode: SceneMode, wanted: Partial<Scene
   // (the flow clears the opening once the move is over, not here: React's development mode mounts a slot twice)
   Object.assign(input, { zoom: 0, yaw: 0, pitch: 0, focus: null, dive: 0, arrive: 1, intro: 0 }, flowing ? opening : wanted);
   tweens.clear();
+  // the same scene, still drawn (About and the atlas both show the atlas): keep it rather than
+  // build it again, which left the page on its still for seconds with nothing covering it
+  const kept = state.mounted;
+  if (kept && kept.id === id && kept.mode === mode && drawn === kept.token) {
+    set({ asked: true, slot, slotVisible: true, readyToken: slot.token });
+    document.documentElement.dataset.scene = "ready";
+    return slot.token;
+  }
   set({ asked: true, slot, mounted: slot, slotVisible: true });
   return slot.token;
 }
@@ -269,6 +280,9 @@ export function setQuality(quality: Quality, remember = true): void {
 }
 
 export function markReady(token: number): void {
+  // a kept scene (see requestScene) reports under the token it was built for: it now draws for the slot on screen
+  if (state.mounted?.token === token) drawn = token;
+  if (state.slot && state.mounted?.token === token) token = state.slot.token;
   if (state.readyToken !== token) set({ readyToken: token });
   document.documentElement.dataset.scene = "ready";
 }

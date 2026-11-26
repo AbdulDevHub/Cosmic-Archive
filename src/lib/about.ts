@@ -14,7 +14,9 @@ const STOP_HASH = (zoom: number) =>
 export function noteAboutFrom(zoom: number): void {
   try {
     if (location.pathname === "/about") return;
-    sessionStorage.setItem(KEY, location.pathname === "/" ? `/${STOP_HASH(zoom)}` : location.pathname);
+    // from the start page (the atlas's `data-start`), Back returns to the start page itself
+    const atStart = document.querySelector("[data-start]") !== null;
+    sessionStorage.setItem(KEY, location.pathname !== "/" ? location.pathname : atStart ? "/" : `/${STOP_HASH(zoom)}`);
   } catch {
     // no storage: Back goes to the atlas
   }

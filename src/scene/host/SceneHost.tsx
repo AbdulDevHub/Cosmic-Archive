@@ -171,7 +171,8 @@ export default function SceneHost() {
       dpr,
       frameloop: isRunning ? "always" : mounted ? "demand" : "never",
     });
-    // Keyed by token: a page that asks again gets a fresh scene, which reports its own first frame.
+    // Keyed by token: a page that asks for another scene gets a fresh one, which reports its own first frame;
+    // the same scene, already drawn, is kept (D-213, `requestScene`).
     const store = root.render(
       mounted ? (
         <SceneTree
