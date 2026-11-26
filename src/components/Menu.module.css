@@ -87,7 +87,7 @@
   left: 50%;
   translate: -50% 0;
   display: grid;
-  grid-template-columns: repeat(5, max-content); /* D-174: the Starbase has its own group */
+  grid-template-columns: repeat(6, max-content); /* D-174: the Starbase has its own group; D-213: so does the Human Cell */
   max-height: calc(100vh - 120px);
   overflow-y: auto;
   gap: 6px 30px;
@@ -220,5 +220,12 @@
 @media (max-width: 1180px) {
   .item {
     padding: 0 13px;
+  }
+}
+
+/* a narrow window (the menu folds away below 720 px): the places' six groups in three columns */
+@media (max-width: 1180px) {
+  .panel:not(.flights) {
+    grid-template-columns: repeat(3, max-content);
   }
 }
