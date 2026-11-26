@@ -223,39 +223,39 @@
   }
 }
 
-/* the Places panel as tiles (D-214): three stacks of two, each tile a soft glass card with its
-   places in two columns; the last tile in a stack stretches, so the stacks end level */
+/* the Places panel as tiles (D-214, D-215): two rows of glass cards, each card's places in the
+   number of columns it names (`--columns`); the cards in a row share its width */
 .panel.bento {
-  grid-template-columns: repeat(3, max-content);
+  grid-template-columns: max-content;
   gap: 12px;
   padding: 14px;
 }
 
-.stack {
+.row {
   display: flex;
-  flex-direction: column;
   gap: 12px;
 }
 
-.stack > [data-tile] {
+.row > [data-tile] {
+  flex: 1 1 auto;
   padding: 12px 14px 14px;
   border-radius: 14px;
   background: oklch(0.24 0.06 282 / 0.5);
   border: 1px solid oklch(0.85 0.04 280 / 0.1);
 }
 
-.stack > [data-tile]:last-child {
-  flex-grow: 1;
-}
-
 .bento .group ul {
-  grid-template-columns: repeat(2, max-content);
+  grid-template-columns: repeat(var(--columns, 2), max-content);
   column-gap: 18px;
 }
 
-/* a narrow window (the menu folds away below 720 px): the stacks wrap, the tiles keep their two columns */
+/* a narrow window (the menu folds away below 720 px): the rows wrap, each card two columns */
 @media (max-width: 1180px) {
-  .panel.bento {
+  .row {
+    flex-wrap: wrap;
+  }
+
+  .bento .group ul {
     grid-template-columns: repeat(2, max-content);
   }
 }

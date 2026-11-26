@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import { noteAboutFrom } from "@/lib/about";
 import type { MenuFlight, MenuGroup, MenuPlace } from "@/lib/content/menu";
 import { startFlight } from "@/lib/flight";
@@ -59,20 +59,21 @@ export function choosePlace(place: MenuPlace, access: Access, push: (href: strin
 type Panel = "places" | "flights" | null;
 
 /**
- * The Places panel as tiles (D-214): three stacks of two, each a place and what is near it, so the
- * columns come out about even (the galaxy and its solar system; the quasar galaxy and the web it is
- * found in; the Starbase and the cell below it). A group not named here joins the last stack.
+ * The Places panel as tiles (D-214, D-215): two rows. On top the two big regions, three columns
+ * each; below, the three smaller ones. Each tile names how many columns its places take. A group
+ * not named here joins the last row. (A rail of regions with one region's places beside it is kept
+ * for when the places outgrow this: `context/prototypes/places-menu-options.html`, option C.)
  */
-const STACKS = [
-  ["A Spiral Galaxy", "A Solar System"],
-  ["A Quasar Galaxy", "The Cosmic Web"],
-  ["The Starbase", "A Human Cell"],
+const ROWS: [string, number][][] = [
+  [["A Spiral Galaxy", 3], ["The Cosmic Web", 3]],
+  [["A Solar System", 2], ["The Starbase", 3], ["A Human Cell", 2]],
 ];
 
-function stacksOf(groups: MenuGroup[]): MenuGroup[][] {
-  const stacks = STACKS.map((names) => names.map((name) => groups.find((group) => group.name === name)).filter((group): group is MenuGroup => !!group));
-  for (const group of groups) if (!STACKS.flat().includes(group.name)) stacks[stacks.length - 1].push(group);
-  return stacks.filter((stack) => stack.length > 0);
+function rowsOf(groups: MenuGroup[]): { group: MenuGroup; columns: number }[][] {
+  const named = new Set(ROWS.flat().map(([name]) => name));
+  const rows = ROWS.map((row) => row.flatMap(([name, columns]) => groups.filter((group) => group.name === name).map((group) => ({ group, columns }))));
+  for (const group of groups) if (!named.has(group.name)) rows[rows.length - 1].push({ group, columns: 2 });
+  return rows.filter((row) => row.length > 0);
 }
 
 export function Menu({ groups, flights }: { groups: MenuGroup[]; flights: MenuFlight[] }) {
@@ -148,10 +149,10 @@ export function Menu({ groups, flights }: { groups: MenuGroup[]; flights: MenuFl
 
       {open === "places" ? (
         <div id="menu-places" className={`${styles.panel} ${styles.bento}`}>
-          {stacksOf(groups).map((stack) => (
-            <div key={stack[0].name} className={styles.stack}>
-          {stack.map((group) => (
-            <div key={group.name} className={styles.group} data-tile>
+          {rowsOf(groups).map((row) => (
+            <div key={row[0].group.name} className={styles.row}>
+          {row.map(({ group, columns }) => (
+            <div key={group.name} className={styles.group} data-tile style={{ "--columns": columns } as CSSProperties}>
               <p className={styles.groupName} id={`menu-group-${group.name.replace(/\W+/g, "-")}`}>{group.name}</p>
               <ul aria-labelledby={`menu-group-${group.name.replace(/\W+/g, "-")}`}>
                 {group.places.map((place) => {

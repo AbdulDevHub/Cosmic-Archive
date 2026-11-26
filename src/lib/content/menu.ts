@@ -53,11 +53,12 @@ function groupOf(place: Place): string {
     if (at.id === "starbase") return "The Starbase";
   }
   const top = root(place);
-  if (top.id === "solar-system" || top.id === "quasar-galaxy") return top.name;
+  // the quasar galaxy and all in it are found out at the web: they are The Cosmic Web's (D-215)
+  if (top.id === "solar-system") return top.name;
   return top.stop >= 2 ? "The Cosmic Web" : "A Spiral Galaxy";
 }
 
-const ORDER = ["A Spiral Galaxy", "A Solar System", "The Cosmic Web", "A Quasar Galaxy", "The Starbase", "A Human Cell"];
+const ORDER = ["A Spiral Galaxy", "A Solar System", "The Cosmic Web", "The Starbase", "A Human Cell"];
 
 export function menuGroups(): MenuGroup[] {
   const groups = new Map<string, MenuPlace[]>();
@@ -79,6 +80,8 @@ export function menuGroups(): MenuGroup[] {
     return n;
   };
   groups.get("A Human Cell")?.sort((a, b) => depth(a.id) - depth(b.id));
+  // the web: what is found at it (the Dark Matter Web, the quasar galaxy) before what is inside the quasar galaxy
+  groups.get("The Cosmic Web")?.sort((a, b) => depth(a.id) - depth(b.id));
   return [...groups.entries()]
     .sort(([a], [b]) => ORDER.indexOf(a) - ORDER.indexOf(b))
     .map(([name, places]) => ({ name, places }));
