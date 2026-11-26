@@ -58,6 +58,23 @@ export function choosePlace(place: MenuPlace, access: Access, push: (href: strin
 
 type Panel = "places" | "flights" | null;
 
+/**
+ * The Places panel as tiles (D-214): three stacks of two, each a place and what is near it, so the
+ * columns come out about even (the galaxy and its solar system; the quasar galaxy and the web it is
+ * found in; the Starbase and the cell below it). A group not named here joins the last stack.
+ */
+const STACKS = [
+  ["A Spiral Galaxy", "A Solar System"],
+  ["A Quasar Galaxy", "The Cosmic Web"],
+  ["The Starbase", "A Human Cell"],
+];
+
+function stacksOf(groups: MenuGroup[]): MenuGroup[][] {
+  const stacks = STACKS.map((names) => names.map((name) => groups.find((group) => group.name === name)).filter((group): group is MenuGroup => !!group));
+  for (const group of groups) if (!STACKS.flat().includes(group.name)) stacks[stacks.length - 1].push(group);
+  return stacks.filter((stack) => stack.length > 0);
+}
+
 export function Menu({ groups, flights }: { groups: MenuGroup[]; flights: MenuFlight[] }) {
   const [open, setOpen] = useState<Panel>(null);
   const root = useRef<HTMLElement>(null);
@@ -130,9 +147,11 @@ export function Menu({ groups, flights }: { groups: MenuGroup[]; flights: MenuFl
       </Link>
 
       {open === "places" ? (
-        <div id="menu-places" className={styles.panel}>
-          {groups.map((group) => (
-            <div key={group.name} className={styles.group}>
+        <div id="menu-places" className={`${styles.panel} ${styles.bento}`}>
+          {stacksOf(groups).map((stack) => (
+            <div key={stack[0].name} className={styles.stack}>
+          {stack.map((group) => (
+            <div key={group.name} className={styles.group} data-tile>
               <p className={styles.groupName} id={`menu-group-${group.name.replace(/\W+/g, "-")}`}>{group.name}</p>
               <ul aria-labelledby={`menu-group-${group.name.replace(/\W+/g, "-")}`}>
                 {group.places.map((place) => {
@@ -167,6 +186,8 @@ export function Menu({ groups, flights }: { groups: MenuGroup[]; flights: MenuFl
                   );
                 })}
               </ul>
+            </div>
+          ))}
             </div>
           ))}
         </div>

@@ -87,7 +87,7 @@
   left: 50%;
   translate: -50% 0;
   display: grid;
-  grid-template-columns: repeat(6, max-content); /* D-174: the Starbase has its own group; D-213: so does the Human Cell */
+  grid-template-columns: repeat(5, max-content); /* D-174: the Starbase has its own group */
   max-height: calc(100vh - 120px);
   overflow-y: auto;
   gap: 6px 30px;
@@ -223,9 +223,39 @@
   }
 }
 
-/* a narrow window (the menu folds away below 720 px): the places' six groups in three columns */
+/* the Places panel as tiles (D-214): three stacks of two, each tile a soft glass card with its
+   places in two columns; the last tile in a stack stretches, so the stacks end level */
+.panel.bento {
+  grid-template-columns: repeat(3, max-content);
+  gap: 12px;
+  padding: 14px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stack > [data-tile] {
+  padding: 12px 14px 14px;
+  border-radius: 14px;
+  background: oklch(0.24 0.06 282 / 0.5);
+  border: 1px solid oklch(0.85 0.04 280 / 0.1);
+}
+
+.stack > [data-tile]:last-child {
+  flex-grow: 1;
+}
+
+.bento .group ul {
+  grid-template-columns: repeat(2, max-content);
+  column-gap: 18px;
+}
+
+/* a narrow window (the menu folds away below 720 px): the stacks wrap, the tiles keep their two columns */
 @media (max-width: 1180px) {
-  .panel:not(.flights) {
-    grid-template-columns: repeat(3, max-content);
+  .panel.bento {
+    grid-template-columns: repeat(2, max-content);
   }
 }
