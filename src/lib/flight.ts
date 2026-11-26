@@ -30,6 +30,8 @@ export interface FlightState {
   index: number;
   /** True from a step's first moment until the next place's page is up. */
   moving: boolean;
+  /** The tour's wait at this stop, for its countdown: how long, and an id that changes with each wait. */
+  wait: { ms: number; id: number } | null;
 }
 
 /** How long the tour stays at each place, once it has arrived; a little longer as stills. */
@@ -39,7 +41,7 @@ const TOUR_CALM_MS = 10000;
 const DRIFT_ZOOM = 0.4;
 const DRIFT_YAW = 0.3;
 
-const EMPTY: FlightState = { flight: null, index: 0, moving: false };
+const EMPTY: FlightState = { flight: null, index: 0, moving: false, wait: null };
 let state: FlightState = EMPTY;
 const listeners = new Set<() => void>();
 let push: Push | null = null;
@@ -75,6 +77,7 @@ export function setFlightPush(next: Push): void {
 function clearDwell(): void {
   clearTimeout(dwell);
   dwell = undefined;
+  if (state.wait) set({ wait: null });
 }
 
 /** Starts a flight from its first stop: flown to at once, or begun here if the visitor is already there. */
@@ -83,7 +86,7 @@ export function startFlight(flight: MenuFlight, go: Push): void {
   push = go;
   clearDwell();
   const first = flight.steps[0];
-  set({ flight, index: 0, moving: false });
+  set({ flight, index: 0, moving: false, wait: null });
   if (location.pathname === hrefOf(first.id)) {
     settle();
     return;
@@ -137,7 +140,9 @@ function settle(): void {
       nextStep();
     }, ms);
   };
-  wait(still ? TOUR_CALM_MS : TOUR_MS);
+  const ms = still ? TOUR_CALM_MS : TOUR_MS;
+  set({ wait: { ms, id: performance.now() } });
+  wait(ms);
 }
 
 /** The page changed: the flight's own move arriving, or the visitor going somewhere else. */

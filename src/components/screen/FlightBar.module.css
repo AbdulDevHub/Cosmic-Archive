@@ -72,3 +72,48 @@
     flex-wrap: wrap;
   }
 }
+
+/* the tour's countdown (D-213): the next place's name over a thin line that fills until the tour flies on */
+.countdown {
+  margin: 0;
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+  font-size: var(--step--1);
+  color: var(--ink-2);
+  text-shadow:
+    0 0 14px oklch(0.13 0.04 275 / 0.95),
+    0 0 4px oklch(0.13 0.04 275 / 0.8);
+}
+
+.timer {
+  display: block;
+  width: 160px;
+  height: 2px;
+  border-radius: 1px;
+  background: oklch(1 0 0 / 0.14);
+  overflow: hidden;
+  position: relative;
+}
+
+.timer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  transform-origin: left;
+  transform: scaleX(0);
+  animation: fill var(--wait, 9s) linear forwards;
+}
+
+@keyframes fill {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (max-width: 720px) {
+  .countdown {
+    justify-items: start;
+  }
+}

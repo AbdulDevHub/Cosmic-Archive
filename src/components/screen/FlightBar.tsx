@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { endFlight, flightPathChanged, nextStep, setFlightPush, useFlight } from "@/lib/flight";
 import { useFlow } from "@/scene/host/flow";
 import screen from "./screen.module.css";
@@ -11,7 +11,7 @@ import styles from "./FlightBar.module.css";
   A flight under way (D-151): which flight, how far along, and the way on or out. It stands above
   Zoom Out on the right, clear of the place's name and line, and over the veil, so Skip can be
   pressed at any moment, mid-move too. A guided flight has Next (named for the place it goes to)
-  and End Flight; the tour flies itself and has only Skip Tour.
+  and End Flight; the tour flies itself and has only Skip Tour, with a line that fills until it flies on.
   Mounted once in the root layout; it shows nothing when no flight is on.
 */
 
@@ -19,6 +19,7 @@ export function FlightBar() {
   const flight = useFlight((s) => s.flight);
   const index = useFlight((s) => s.index);
   const moving = useFlight((s) => s.moving);
+  const wait = useFlight((s) => s.wait);
   const busy = useFlow((s) => s.phase !== "idle");
   const pathname = usePathname();
   const router = useRouter();
@@ -44,6 +45,13 @@ export function FlightBar() {
           {index + 1} of {flight.steps.length}
         </span>
       </p>
+      {/* the tour's countdown: a line that fills until it flies on (a fresh line for each wait) */}
+      {tour && next && wait ? (
+        <p className={styles.countdown}>
+          <span>Next: {next.name}</span>
+          <i key={wait.id} className={styles.timer} style={{ "--wait": `${wait.ms}ms` } as CSSProperties} aria-hidden="true" />
+        </p>
+      ) : null}
       <div className={styles.buttons}>
         {!tour && next ? (
           <button ref={first} type="button" className={screen.control} aria-disabled={waiting ? "true" : undefined} onClick={() => nextStep()}>
