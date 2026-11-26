@@ -11,7 +11,7 @@ import styles from "./FlightBar.module.css";
   A flight under way (D-151): which flight, how far along, and the way on or out. It stands above
   Zoom Out on the right, clear of the place's name and line, and over the veil, so Skip can be
   pressed at any moment, mid-move too. A guided flight has Next (named for the place it goes to)
-  and End Flight; the tour flies itself and has only Skip Tour, with a line that fills until it flies on.
+  and End Flight; the tour flies itself has Next too, its border filling until it flies on by itself (D-214), and Skip Tour.
   Mounted once in the root layout; it shows nothing when no flight is on.
 */
 
@@ -45,16 +45,11 @@ export function FlightBar() {
           {index + 1} of {flight.steps.length}
         </span>
       </p>
-      {/* the tour's countdown: a line that fills until it flies on (a fresh line for each wait) */}
-      {tour && next && wait ? (
-        <p className={styles.countdown}>
-          <span>Next: {next.name}</span>
-          <i key={wait.id} className={styles.timer} style={{ "--wait": `${wait.ms}ms` } as CSSProperties} aria-hidden="true" />
-        </p>
-      ) : null}
       <div className={styles.buttons}>
-        {!tour && next ? (
-          <button ref={first} type="button" className={screen.control} aria-disabled={waiting ? "true" : undefined} onClick={() => nextStep()}>
+        {next ? (
+          <button ref={tour ? undefined : first} type="button" className={`${screen.control} ${styles.next}`} aria-disabled={waiting ? "true" : undefined} onClick={() => nextStep()}>
+            {/* the tour's countdown (D-214): the button's border fills until the tour flies on; a fresh ring each wait */}
+            {tour && wait ? <i key={wait.id} className={styles.ring} style={{ "--wait": `${wait.ms}ms` } as CSSProperties} aria-hidden="true" /> : null}
             <span>Next: {next.name}</span>
           </button>
         ) : null}

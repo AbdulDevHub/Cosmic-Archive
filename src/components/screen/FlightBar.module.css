@@ -73,47 +73,36 @@
   }
 }
 
-/* the tour's countdown (D-213): the next place's name over a thin line that fills until the tour flies on */
-.countdown {
-  margin: 0;
-  display: grid;
-  justify-items: end;
-  gap: 6px;
-  font-size: var(--step--1);
-  color: var(--ink-2);
-  text-shadow:
-    0 0 14px oklch(0.13 0.04 275 / 0.95),
-    0 0 4px oklch(0.13 0.04 275 / 0.8);
+/* the tour's countdown (D-214): Next's border fills, clockwise from the top, until the tour flies on */
+@property --filled {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
 }
 
-.timer {
-  display: block;
-  width: 160px;
-  height: 2px;
-  border-radius: 1px;
-  background: oklch(1 0 0 / 0.14);
-  overflow: hidden;
+.next {
   position: relative;
 }
 
-.timer::after {
-  content: "";
+.ring {
   position: absolute;
-  inset: 0;
-  background: var(--ink);
-  transform-origin: left;
-  transform: scaleX(0);
-  animation: fill var(--wait, 9s) linear forwards;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(var(--ink) var(--filled), transparent 0);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  pointer-events: none;
+  animation: ring-fill var(--wait, 9s) linear forwards;
 }
 
-@keyframes fill {
+@keyframes ring-fill {
   to {
-    transform: scaleX(1);
-  }
-}
-
-@media (max-width: 720px) {
-  .countdown {
-    justify-items: start;
+    --filled: 100%;
   }
 }
