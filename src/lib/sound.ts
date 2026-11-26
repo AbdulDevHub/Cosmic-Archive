@@ -95,6 +95,12 @@ const SAMPLES: Record<Sample, { url: string; gain: number; duck: number }> = {
   click: { url: "/audio/effects/menu-click.mp3", gain: 0.35, duck: 1 },
 };
 const decoded: Partial<Record<Sample, Promise<AudioBuffer | null>>> = {};
+/** The effects' bytes, fetched once the page has loaded (no gesture needed), so Begin as the first click still sounds. */
+const fetched: Partial<Record<Sample, Promise<ArrayBuffer | null>>> = {};
+const bytesOf = (name: Sample) =>
+  (fetched[name] ??= fetch(SAMPLES[name].url)
+    .then((response) => (response.ok ? response.arrayBuffer() : null))
+    .catch(() => null));
 
 function set(patch: Partial<SoundState>): void {
   state = { ...state, ...patch };
@@ -174,9 +180,9 @@ function graph(): AudioContext | null {
 
   // the effects: fetched and decoded now, so they are ready by the time they are asked for
   for (const name of Object.keys(SAMPLES) as Sample[]) {
-    decoded[name] = fetch(SAMPLES[name].url)
-      .then((response) => response.arrayBuffer())
-      .then((bytes) => ctx!.decodeAudioData(bytes))
+    // decodeAudioData detaches the buffer it is given: decode a copy, so the bytes stay whole
+    decoded[name] = bytesOf(name)
+      .then((bytes) => (bytes ? ctx!.decodeAudioData(bytes.slice(0)) : null))
       .catch(() => null);
   }
 
@@ -315,7 +321,9 @@ export function playSample(name: Sample): void {
   if (audio.state === "suspended") void audio.resume();
   const asked = performance.now();
   void decoded[name]?.then((buffer) => {
-    if (!buffer || !ctx || !master || !state.enabled || performance.now() - asked > 1200) return;
+    // a late click sounds wrong; Begin's warp still fits its flight (about 3 s) when it comes late
+    const late = name === "journey" ? 2500 : 1200;
+    if (!buffer || !ctx || !master || !state.enabled || performance.now() - asked > late) return;
     const { gain, duck } = SAMPLES[name];
     const source = ctx.createBufferSource();
     source.buffer = buffer;
@@ -358,6 +366,14 @@ if (typeof window !== "undefined") {
     if (held || (event.target as Element | null)?.closest?.("[data-sound-toggle]")) return;
     void start();
   };
+  // fetch the effects once the page has loaded, so the first click (often Begin) has them at hand
+  const prefetch = () => {
+    if (!state.enabled) return;
+    const idle = window.requestIdleCallback ?? ((run: () => void) => setTimeout(run, 200));
+    idle(() => (Object.keys(SAMPLES) as Sample[]).forEach((name) => void bytesOf(name)));
+  };
+  if (document.readyState === "complete") prefetch();
+  else window.addEventListener("load", prefetch, { once: true });
   // pointerdown is permission only for a mouse; a touch gives it on pointerup and click
   for (const type of ["pointerdown", "pointerup", "click", "touchend", "keydown"]) window.addEventListener(type, onGesture, { capture: true, passive: true });
   // a click in the menus beeps (D-115): the header and the start page's dock, "coming soon" items
