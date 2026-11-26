@@ -187,6 +187,7 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
   const leaving = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const begin = () => {
     if (phaseRef.current !== "start") return;
+    playSample("click"); // the press itself, then the warp (D-214)
     playMusic();
     setStartPhase("leaving");
     clearTimeout(leaving.current);
@@ -195,7 +196,8 @@ export function AtlasView({ stops, spots }: { stops: readonly StopWords[]; spots
       leaving.current = setTimeout(() => setStartPhase("atlas"), live ? 260 : 0);
       return;
     }
-    playSample("journey");
+    // the warp a beat after the click, so the click is heard
+    setTimeout(() => playSample("journey"), 140);
     animateSceneInput({ intro: 0 }, BEGIN_MS);
     leaving.current = setTimeout(() => setStartPhase("atlas"), BEGIN_MS * 0.8);
   };
